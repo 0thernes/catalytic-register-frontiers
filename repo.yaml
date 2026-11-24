@@ -45,7 +45,7 @@ items:
   A16: {status: done, evidence: "SECURITY.md"}
   A17: {status: done, evidence: "SUPPORT.md"}
   A18: {status: done, evidence: ".github/ISSUE_TEMPLATE/{config,bug,feature,question}.yml (no PR template per R4)"}
-  A19: {status: todo, note: "Set GitHub About description and topics upon first remote push"}
+  A19: {status: done, evidence: "GitHub About description, homepage (https://0thernes.github.io/catalytic-register-frontiers/), and 8 topics set on 0thernes/catalytic-register-frontiers"}
   A20: {status: done, evidence: "docs/architecture.md"}
   A21: {status: done, evidence: "docs/adr/0001-*.md and 0002-*.md"}
   A22: {status: done, evidence: "CITATION.cff"}

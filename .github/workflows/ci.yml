@@ -48,7 +48,7 @@ jobs:
           lake env leanexport Solution -- Catalytic.Solution.prove_all_catalytic_theorems Catalytic.NonVacuity.nonvac_all_hypotheses > /tmp/catalytic_solution.ndjson
           lake env con-leche --verified /tmp/catalytic_solution.ndjson
           lake env con-ron --verified /tmp/catalytic_solution.ndjson
-          lake check --paranoid || true
+          lake check --paranoid
 
       - name: Setup Python 3.13 and run exact verification suite + pytest + LRAT verifier
         uses: actions/setup-python@v5
@@ -62,6 +62,7 @@ jobs:
             CADICAL_PATH="$(dirname "$(which lean)")/../toolchains/leanprover--lean4---v4.35.0/bin/cadical"
           fi
           if [ -x "$CADICAL_PATH" ]; then
+            export CADICAL_BIN="$CADICAL_PATH"
             echo "CADICAL_BIN=$CADICAL_PATH" >> "$GITHUB_ENV"
           fi
           python scripts/verify_lrat.py
@@ -115,7 +116,7 @@ jobs:
         shell: pwsh
         run: |
           Invoke-WebRequest -Uri https://raw.githubusercontent.com/leanprover/elan/master/elan-init.ps1 -OutFile "$env:TEMP\elan-init.ps1"
-          & "$env:TEMP\elan-init.ps1" -y --default-toolchain none
+          & "$env:TEMP\elan-init.ps1" -NoPrompt $true -DefaultToolchain none
           "$env:USERPROFILE\.elan\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           "$env:USERPROFILE\.elan\toolchains\leanprover--lean4---v4.35.0\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           Set-Location lean
