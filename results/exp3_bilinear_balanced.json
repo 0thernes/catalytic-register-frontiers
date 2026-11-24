@@ -1,0 +1,99 @@
+{
+  "T2_bilinear_frobenius": [
+    {
+      "k": 1,
+      "degree": 2,
+      "registers": 2,
+      "input_accesses": 2,
+      "bilinear_ops": 2,
+      "symbolic_f2_poly_verified": true
+    },
+    {
+      "k": 2,
+      "degree": 4,
+      "registers": 3,
+      "input_accesses": 2,
+      "bilinear_ops": 6,
+      "symbolic_f2_poly_verified": true
+    },
+    {
+      "k": 3,
+      "degree": 8,
+      "registers": 4,
+      "input_accesses": 2,
+      "bilinear_ops": 10,
+      "symbolic_f2_poly_verified": true
+    },
+    {
+      "k": 4,
+      "degree": 16,
+      "registers": 5,
+      "input_accesses": 2,
+      "bilinear_ops": 14,
+      "symbolic_f2_poly_verified": true
+    },
+    {
+      "k": 5,
+      "degree": 32,
+      "registers": 6,
+      "input_accesses": 2,
+      "bilinear_ops": 18,
+      "symbolic_f2_poly_verified": true
+    },
+    {
+      "k": 6,
+      "degree": 64,
+      "registers": 7,
+      "input_accesses": 2,
+      "bilinear_ops": 22,
+      "symbolic_f2_poly_verified": true
+    }
+  ],
+  "T4_balanced_multilinear_product": [
+    {
+      "k": 1,
+      "d": 2,
+      "balanced_registers": 3,
+      "linear_chain_registers": 2,
+      "balanced_ops": 8,
+      "linear_chain_ops_str": "10",
+      "trials_verified": 25
+    },
+    {
+      "k": 2,
+      "d": 4,
+      "balanced_registers": 4,
+      "linear_chain_registers": 4,
+      "balanced_ops": 36,
+      "linear_chain_ops_str": "190",
+      "trials_verified": 25
+    },
+    {
+      "k": 3,
+      "d": 8,
+      "balanced_registers": 5,
+      "linear_chain_registers": 8,
+      "balanced_ops": 148,
+      "linear_chain_ops_str": "49150",
+      "trials_verified": 25
+    },
+    {
+      "k": 4,
+      "d": 16,
+      "balanced_registers": 6,
+      "linear_chain_registers": 16,
+      "balanced_ops": 596,
+      "linear_chain_ops_str": "3221225470",
+      "trials_verified": 25
+    },
+    {
+      "k": 5,
+      "d": 32,
+      "balanced_registers": 7,
+      "linear_chain_registers": 32,
+      "balanced_ops": 2388,
+      "linear_chain_ops_str": "13835058055282163710",
+      "trials_verified": 10
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+# catalytic-register-frontiers — Full Machine-Readable Context (`llms-full.txt`)
+
+- **Repository:** `catalytic-register-frontiers` v1.0.0 (2026-11-23)
+- **Author:** Alexander S. Donahue (Independent Researcher, Spokane, WA, USA; ORCID 0009-0006-8168-9648; `0_0@0thernes.art`)
+- **Licenses:** Apache-2.0 (code & Lean) + CC-BY-4.0 (prose, docs, figures)
+- **Toolchain:** `leanprover/lean4:v4.35.0` (zero Mathlib, all 10 `.lean` files use `module`), Python 3.13.12, CaDiCaL 2.1.2, Tectonic
+
+## Formalized Theorems (All 12 Certified Across 6 Kernels)
+
+1. **`T1` (`Catalytic.Solution.t1_digit_sum_dichotomy`)**:
+   For every prime `p`, `t >= 1`, and `f in F_p[x]`, `f in RP^{pass}_{F_p}(2, t)` iff for every `d >= 2` with `[x^d]f != 0 (mod p)`, `s_p(d) <= min(p - 1, t - 1)`.
+   - `T1a`: `x^(p^m) in RP^{pass}_{F_p}(2, 2)` for all primes `p` and `m : Nat` (`D^{pass}_{2, F_p}(2) = +infinity`).
+   - `T1b`: `x^3 not in RP^{pass}_{F_2}(2, t)` for all `t`.
+   - `T1c`: `s_p(d) >= p -> x^d not in RP^{pass}_{F_p}(2, t)` for all `t >= 1`.
+   - `T1d`: `2 <= d < p -> (x^d in RP^{pass}_{F_p}(2, t) <-> d + 1 <= t)` (recovers Vinciguerra Thm. 3.5).
+2. **`T2` (`Catalytic.Solution.t2_bilinear_frobenius_collapse`)**:
+   For all `k >= 1` and any commutative characteristic-2 ring `R`, `frobBilinProg` cleanly computes `x^(2^k)` in `k + 1` registers, `4*k - 2` strictly bilinear basic ops (`R_i += R_j * R_l`), passive output, and **exactly 2 input accesses**.
+3. **`T3a`–`T3e` (`Catalytic.Solution.t3a_*`..`t3e_*`)**:
+   Explicit passive-output 3-register programs cleanly computing:
+   - `x^7` in 5 accesses (`D_5 = 576`, bad primes `{2, 3}`, `log_7 5 = 0.827087`),
+   - `x^9` in 6 accesses (`D_6 = 382500000`, bad primes `{2, 3, 5, 17}`, `log_9 6 = 0.815465`),
+   - `x^11` in 7 accesses (`D_7 = 68724637549388656012800`, `log_11 7 = 0.811508`),
+   - `x^13` in 8 accesses (`D_8 = 2656207148788801777680`, `log_13 8 = 0.810714`, unique integer minimizer of `log_{2t-3} t`),
+   - Exact `Nat` separation chain (`T3e`, 0 axioms!): `log_13 8 < 30/37 < log_11 7 < 13/16 < log_9 6 < 9/11 < log_7 5 < 5/6 < log_5 4` and `< log_15 9`.
+   - Downstream asymptotic corollaries (Tier-3): sharpens Vinciguerra `arXiv:2609.18692` Corollary 4.3.1 (4-register powering), Corollary 5.1.1 (catalytic streaming `F_D`), and Theorem 5.2 (3-register matrix powering) from exponent `0.86135` to `0.81071`.
+4. **`T4` (`Catalytic.Solution.t4_balanced_multilinear_product`)**:
+   Balanced binary-tree zero-workspace bilinear commutator computing `x_0 * ... * x_{d-1}` (`d = 2^k`) over any commutative ring in `k + 2` registers, strictly distinct indices, and exact op count `(7*d^2 - 4)/3`.
+
+## Verification Evidence
+- **6 Lean 4.35 Kernels:** `lean v4.35.0` (13/13 jobs, 0 warnings), `leanchecker` (exit 0), `leanchecker-paranoid` (exit 0), `con-leche --verified` (2,896 decls), `con-ron --verified` (2,896 decls), `nanoda_bin 0.4.19` (3,183 decls, strict 3-axiom hard error).
+- **Exact Python & SAT Suite:** 4 exact experiments (`exp1`–`exp4`), 8/8 `pytest` passing, 3 deterministic vector PDFs, 13-page AMS-LaTeX PDF (zero warnings), clean-room verified `dist/arxiv_submission.tar.gz`.

@@ -1,0 +1,28 @@
+{
+  "solver": "CaDiCaL 2.1.2 (bundled with Lean 4.35.0)",
+  "benchmarks": [
+    {
+      "name": "F_4_multiplication",
+      "n": 4,
+      "outputs": 2,
+      "quadratic_bound": 3,
+      "sat_at_k_minus_1": "UNSAT",
+      "sat_at_k": "SAT",
+      "exact_mc": 3,
+      "beats_quadratic": false
+    },
+    {
+      "name": "orthogonal_bent_pair_n4",
+      "n": 4,
+      "outputs": 2,
+      "quadratic_bound": 3,
+      "sat_at_k_minus_1": "UNSAT",
+      "sat_at_k": "SAT",
+      "exact_mc": 3,
+      "beats_quadratic": false
+    }
+  ],
+  "genuine_deg3_cancellations_sampled": 182,
+  "hard_n4_m3_quadratic_maps_k2_unsat": 6,
+  "boyar_find_counterexamples_found": 0
+}

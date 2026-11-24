@@ -1,0 +1,11 @@
+---
+description: Build Standard v1.1.0 & Lean 4.35 invariants for catalytic-register-frontiers
+globs: ["**/*"]
+alwaysApply: true
+---
+
+Follow `AGENTS.md`:
+- Use `-LiteralPath` in PowerShell file cmdlets; run `pytest` repo-relative.
+- Zero-Mathlib Lean 4.35 (`module` header, zero `sorry`/`admit`/`native_decide`/custom `axiom`, strict 3 axioms, 6-kernel replay).
+- Exact integer/rational arithmetic for all verification scripts; deterministic PDF figures (`CreationDate: None`).
+- Author: `Alexander S. Donahue` (independent researcher, ORCID `0009-0006-8168-9648`); dual license Apache-2.0 (code) + CC-BY-4.0 (prose/figures).

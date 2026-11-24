@@ -1,0 +1,15 @@
+# catalytic-register-frontiers
+
+> Zero-Mathlib Lean 4.35.0 formalization, exact-arithmetic verification suite, and AMS-LaTeX white paper proving a complete positive-characteristic base-p digit-sum dichotomy for 2-register passive catalytic programs, strictly bilinear 2-access Frobenius collapse over F_2, a strict improvement over Vinciguerra's 3-register powering/streaming/matrix-powering exponent (0.86135 -> 0.81071), and a balanced O(d^2) zero-workspace bilinear multilinear product.
+
+## Key Files
+- [README.md](README.md): Overview, theorem summaries, and one-command verification
+- [CLAIMS.md](CLAIMS.md): Machine-auditable Tier 1-4 claims ledger
+- [LIMITATIONS.md](LIMITATIONS.md): Epistemic scope, negative findings, and classified defect log
+- [REPLICATION.md](REPLICATION.md): Clean-room replication commands for Windows/Linux/macOS
+- [lean/Challenge.lean](lean/Challenge.lean): Literal specifications of all 12 exported theorems (T1, T1a-T1d, T2, T3a-T3e, T4)
+- [lean/Solution.lean](lean/Solution.lean): Zero-Mathlib Lean 4.35.0 proofs (6 passing verification kernels)
+- [lean/VerifyAxioms.lean](lean/VerifyAxioms.lean): Strict 3-axiom allowlist audit
+- [paper/main.tex](paper/main.tex): 13-page AMS-LaTeX manuscript
+- [dist/Donahue_2026_catalytic_register_frontiers.pdf](dist/Donahue_2026_catalytic_register_frontiers.pdf): Frozen release PDF
+- [MANIFEST.sha256](MANIFEST.sha256): SHA-256 provenance manifest

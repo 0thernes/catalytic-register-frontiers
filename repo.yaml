@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: CC-BY-4.0
+schema_version: 1
+name: catalytic-register-frontiers
+version: 1.0.0
+status: released-local
+author:
+  name: Alexander S. Donahue
+  orcid: "0009-0006-8168-9648"
+  affiliation: "Independent Researcher, Spokane, WA, USA"
+  email: "0_0@0thernes.art"
+licenses:
+  code: Apache-2.0
+  prose_and_figures: CC-BY-4.0
+lean:
+  toolchain: leanprover/lean4:v4.35.0
+  mathlib: false
+  theorems_exported: 12
+  kernels_passed: 6
+  axiom_allowlist: [propext, Classical.choice, Quot.sound]
+python:
+  version: "3.13.12"
+  experiments: 4
+  pytest_passed: 8
+paper:
+  source: paper/main.tex
+  frozen_pdf: dist/Donahue_2026_catalytic_register_frontiers.pdf
+  arxiv_tarball: dist/arxiv_submission.tar.gz
+  figures: 3

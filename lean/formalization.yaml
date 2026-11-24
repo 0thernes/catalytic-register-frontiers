@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: CC-BY-4.0
+schema_version: 1
+project: catalytic-register-frontiers
+lean_toolchain: leanprover/lean4:v4.35.0
+mathlib: false
+dependencies: []
+axiom_allowlist:
+  - propext
+  - Classical.choice
+  - Quot.sound
+kernels_verified:
+  - lean (v4.35.0)
+  - leanchecker
+  - leanchecker-paranoid
+  - con-leche --verified
+  - con-ron --verified
+  - nanoda_bin
+theorems:
+  - id: T1
+    name: Catalytic.Solution.t1_digit_sum_dichotomy
+    module: Catalytic.DigitSumDichotomy
+    summary: "Exact base-p digit-sum IFF characterization of RP^{pass}_{F_p}(2, t) for all primes p and t >= 1."
+  - id: T1a
+    name: Catalytic.Solution.t1a_two_access_frobenius_collapse
+    module: Catalytic.DigitSumDichotomy
+    summary: "Unbounded-degree 2-access Frobenius collapse x^(p^m) in RP^{pass}_{F_p}(2, 2) for all primes p."
+  - id: T1b
+    name: Catalytic.Solution.t1b_f2_saturation
+    module: Catalytic.DigitSumDichotomy
+    summary: "Exact F_2 two-register saturation: x^3 not in RP^{pass}_{F_2}(2, t) for any t."
+  - id: T1c
+    name: Catalytic.Solution.t1c_impossibility_threshold
+    module: Catalytic.DigitSumDichotomy
+    summary: "Impossibility threshold: s_p(d) >= p implies x^d not in RP^{pass}_{F_p}(2, t) for any t."
+  - id: T1d
+    name: Catalytic.Solution.t1d_vinciguerra_recovery
+    module: Catalytic.DigitSumDichotomy
+    summary: "Large-characteristic recovery of Vinciguerra Theorem 3.5 (2 <= d < p -> x^d in RP(2,t) iff d+1 <= t)."
+  - id: T2
+    name: Catalytic.Solution.t2_bilinear_frobenius_collapse
+    module: Catalytic.BilinearFrobenius
+    summary: "Strictly bilinear passive-output 2-access computation of x^(2^k) over any char-2 commutative ring."
+  - id: T3a
+    name: Catalytic.Solution.t3a_three_reg_5call_x7
+    module: Catalytic.ThreeRegisterBreakthrough
+    summary: "Explicit 3-register passive program for x^7 in 5 input accesses (valid for char != 2, 3)."
+  - id: T3b
+    name: Catalytic.Solution.t3b_three_reg_6call_x9
+    module: Catalytic.ThreeRegisterBreakthrough
+    summary: "Explicit 3-register passive program for x^9 in 6 input accesses (valid for char not in {2,3,5,17})."
+  - id: T3c
+    name: Catalytic.Solution.t3c_three_reg_7call_x11
+    module: Catalytic.ThreeRegisterBreakthrough
+    summary: "Explicit 3-register passive program for x^11 in 7 input accesses over Q and good prime fields."
+  - id: T3d
+    name: Catalytic.Solution.t3d_three_reg_8call_x13
+    module: Catalytic.ThreeRegisterBreakthrough
+    summary: "Explicit 3-register passive program for x^13 in 8 input accesses achieving optimal log_13(8) = 0.810714."
+  - id: T3e
+    name: Catalytic.Solution.t3e_exponent_chain
+    module: Catalytic.ThreeRegisterBreakthrough
+    summary: "Exact Nat power inequalities certifying log_13(8) < log_11(7) < log_9(6) < log_7(5) < log_5(4) and < log_15(9)."
+  - id: T4
+    name: Catalytic.Solution.t4_balanced_multilinear_product
+    module: Catalytic.BalancedProduct
+    summary: "Balanced zero-workspace bilinear catalytic d-fold product (d=2^k) in k+2 registers and (7d^2-4)/3 ops."

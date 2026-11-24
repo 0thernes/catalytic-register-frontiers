@@ -1,0 +1,26 @@
+# Python / virtualenvs
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Lean 4 build caches
+lean/.lake/
+
+# LaTeX build intermediates (frozen PDF & tarball live in dist/)
+paper/build/
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp

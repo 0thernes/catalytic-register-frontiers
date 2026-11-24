@@ -1,0 +1,12 @@
+name = "Catalytic"
+version = "1.0.0"
+defaultTargets = ["Catalytic", "Challenge", "Solution"]
+
+[[lean_lib]]
+name = "Catalytic"
+
+[[lean_lib]]
+name = "Challenge"
+
+[[lean_lib]]
+name = "Solution"

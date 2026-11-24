@@ -1,0 +1,42 @@
+================================================================================
+MULTI-KERNEL LEAN 4.35.0 FORMAL VERIFICATION AUDIT LOG
+Repository: catalytic-register-frontiers (v1.0.0)
+Toolchain:  leanprover/lean4:v4.35.0 (Zero Mathlib, all 10 .lean files use `module`)
+Export:     catalytic_solution_lf.ndjson (temporary in scratch, LF-normalized)
+            Size:   16,140,148 bytes
+            Target: Catalytic.Solution.prove_all_catalytic_theorems (conjoins all 12 theorems)
+            Forbidden-token scan across lean/**/*.lean: 0 matches (CLEAN)
+            Pattern: \b(sorry|admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern
+================================================================================
+
+[KERNEL 1] lean.exe (C++ Reference Kernel + VerifyAxioms.lean, clean-from-scratch .lake rebuild)
+Command:  lake build && lake env lean VerifyAxioms.lean
+ExitCode: 0 (13/13 build jobs, 0 warnings, 0 errors)
+Axioms:   All 12 theorems + master bundle strictly within [propext, Classical.choice, Quot.sound]
+          (Verbatim output recorded in results/lean_axioms.txt)
+
+[KERNEL 2] leanchecker.exe (C++ External .olean Replay Kernel)
+Command:  lake env leanchecker Solution
+ExitCode: 0
+
+[KERNEL 3] leanchecker-paranoid.exe (C++ Paranoid External .olean Replay Kernel)
+Command:  lake env leanchecker-paranoid Solution
+ExitCode: 0
+
+[KERNEL 4] con-leche.exe --verified (Formally Verified Lean-in-Lean Set-Model Kernel)
+Command:  con-leche --verified catalytic_solution.ndjson
+Output:   con-leche: accepted 2896 declarations (--verified)
+ExitCode: 0
+
+[KERNEL 5] con-ron.exe --verified (Formally Verified Aeneas-Extracted Rust Arena Kernel)
+Command:  con-ron --verified catalytic_solution.ndjson
+Output:   con-ron: accepted 2896 declarations (--verified)
+ExitCode: 0
+
+[KERNEL 6] nanoda_bin.exe 0.4.19 (Independent Rust External Typechecker)
+Command:  nanoda_bin nanoda_config.json
+Config:   permitted_axioms=["propext","Classical.choice","Quot.sound"],
+          unpermitted_axiom_hard_error=true, nat_extension=true, string_extension=true
+Output:   Checked 3183 declarations with no typechecker errors
+ExitCode: 0
+================================================================================

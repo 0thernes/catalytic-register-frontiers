@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: Apache-2.0
+name: Verify Lean 4.35, Exact Arithmetic, and AMS-LaTeX
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install elan and pinned Lean 4.35.0
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          cd lean && "$HOME/.elan/bin/lean" --version
+
+      - name: Forbidden-token scan across lean/**/*.lean
+        run: |
+          if grep -rnE '\b(sorry|admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern' lean/; then
+            echo "FORBIDDEN TOKEN FOUND!" >&2
+            exit 1
+          fi
+          echo "Forbidden-token scan clean (0 matches)."
+
+      - name: Build Lean 4.35 proofs and audit axioms + external kernels
+        run: |
+          cd lean
+          lake build
+          lake env lean VerifyAxioms.lean | tee /tmp/axioms.txt
+          if grep -qE 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' /tmp/axioms.txt; then
+            echo "UNPERMITTED AXIOM DETECTED!" >&2
+            exit 1
+          fi
+          lake env leanchecker Solution
+          lake env leanchecker-paranoid Solution
+
+      - name: Setup Python 3.13 and run exact verification suite + pytest
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock.txt
+          CADICAL_PATH="$(dirname "$(which lean)")/../toolchains/leanprover--lean4---v4.35.0/bin/cadical"
+          if [ -x "$CADICAL_PATH" ]; then
+            echo "CADICAL_BIN=$CADICAL_PATH" >> "$GITHUB_ENV"
+          fi
+          pytest -v tests/test_all.py
+
+      - name: Generate vector figures and compile AMS-LaTeX manuscript with Tectonic
+        run: |
+          python scripts/make_figures.py
+          curl --proto '=https' --tlsv1.2 -fsSL https://drop-sh.fullyjustified.net | sh
+          mkdir -p paper/build
+          (cd paper && ../tectonic -X compile main.tex --outdir build --keep-intermediates)
+
+      - name: Verify SHA-256 provenance manifest
+        run: |
+          sha256sum -c MANIFEST.sha256
