@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # catalytic-register-frontiers
 
-> Zero-Mathlib Lean 4.35.0 formalization (12 module files, 14 theorems + non-vacuity across 6 passing kernels), exact-arithmetic + Hypothesis + mutant + brute-force SAT + 8/8 LRAT UNSAT verification suite, REUSE 3.3 verifier, and 14-page AMS-LaTeX preprint settling the exact base-p digit-sum dichotomy for RP^{pass}_{F_p}(2, t), sharpness over F_4 (T1e), and globally optimal 3-register catalytic powering exponent (0.86135 -> 0.81071, T3a-T3f).
+> Zero-Mathlib Lean 4.35.0 formalization (12 module files, 16 theorems + non-vacuity = 18 audited declarations across 6 passing kernels), exact-arithmetic + Hypothesis + mutant + brute-force & second-encoder differential SAT + 8/8 LRAT UNSAT verification suite, REUSE 3.3 verifier, continuous RFC 3161 TSA verification, and 14-page AMS-LaTeX preprint settling the exact base-p digit-sum dichotomy for RP^{pass}_{F_p}(2, t), exact sharp F_4 separation (T1e), distinct-operand bilinear Frobenius collapse (T2b), and globally optimal 3-register catalytic powering exponent (0.86135 -> 0.81071, T3a-T3g).
 
 ## Key Files
 - [README.md](README.md): Overview, 5-second verbatim `#print axioms` proof, Statement-Fidelity summary, Quickstart, and Usage examples

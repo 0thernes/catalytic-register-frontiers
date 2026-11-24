@@ -111,7 +111,7 @@
   </p>
   <div class="pills">
     <span class="pill">Lean 4.35.0 &middot; Zero Mathlib</span>
-    <span class="pill">12 Modules &middot; 14 Theorems + Non-Vacuity</span>
+    <span class="pill">12 Modules &middot; 16 Theorems + Non-Vacuity</span>
     <span class="pill">6 / 6 Independent Kernels</span>
     <span class="pill">8 / 8 LRAT UNSAT Proofs Verified</span>
     <span class="pill info">DigiCert RFC 3161 Verified</span>
@@ -120,14 +120,14 @@
 
   <div class="grid">
     <div class="stat"><div class="k">0.810714</div><div class="l">Optimal 3-reg exponent log<sub>13</sub> 8 (down from log<sub>5</sub> 4 &approx; 0.86135)</div></div>
-    <div class="stat"><div class="k">16 / 16</div><div class="l">Lean decls strictly in [propext, Classical.choice, Quot.sound]</div></div>
+    <div class="stat"><div class="k">18 / 18</div><div class="l">Lean decls strictly in [propext, Classical.choice, Quot.sound]</div></div>
     <div class="stat"><div class="k">18,932</div><div class="l">Verified CaDiCaL 2.1.2 LRAT UNSAT steps across 8/8 certificates</div></div>
     <div class="stat"><div class="k">100% REUSE</div><div class="l">All tracked files covered by inline SPDX + REUSE.toml</div></div>
   </div>
 
   <div class="card">
     <h2>Interactive Formal Dependency Blueprint (Lean 4.35.0 Module DAG)</h2>
-    <p>Every Tier-1 theorem in <code>paper/main.tex</code> maps to a self-contained zero-Mathlib Lean 4.35.0 <code>module</code> audited across <code>lean</code>, <code>leanchecker</code>, <code>leanchecker-paranoid</code>, <code>con-leche --verified</code> (3,093 decls), <code>con-ron --verified</code> (3,093 decls), and <code>nanoda_bin 0.4.19</code> (3,394 decls).</p>
+    <p>Every Tier-1 theorem in <code>paper/main.tex</code> maps to a self-contained zero-Mathlib Lean 4.35.0 <code>module</code> audited across <code>lean</code>, <code>leanchecker</code>, <code>leanchecker-paranoid</code>, <code>con-leche --verified</code> (3,190 decls), <code>con-ron --verified</code> (3,190 decls), and <code>nanoda_bin 0.4.19</code> (3,495 decls).</p>
     <div class="svg-wrap">
       <svg viewBox="0 0 980 340" width="980" height="340" role="img" aria-label="Formal Lean 4.35 Module Dependency Graph">
         <defs>
@@ -167,7 +167,7 @@
           <!-- Layer 2: Theorem Modules -->
           <rect x="255" y="28" width="225" height="50" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
           <text x="367" y="50" text-anchor="middle" fill="#f8fafc" font-weight="700">BilinearFrobenius.lean</text>
-          <text x="367" y="67" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T2: 2-access x^(2^k), 4k-2 ops</text>
+          <text x="367" y="67" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T2, T2b: 2-access x^(2^k) (distinct)</text>
 
           <rect x="255" y="93" width="225" height="50" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
           <text x="367" y="115" text-anchor="middle" fill="#f8fafc" font-weight="700">BalancedProduct.lean</text>
@@ -175,11 +175,11 @@
 
           <rect x="255" y="158" width="225" height="50" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
           <text x="367" y="180" text-anchor="middle" fill="#f8fafc" font-weight="700">ThreeRegisterBreakthrough.lean</text>
-          <text x="367" y="197" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T3a-f: x^7..x^13 + global t=8 opt</text>
+          <text x="367" y="197" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T3a-g: x^7..x^15 + global t=8 opt</text>
 
           <rect x="255" y="223" width="225" height="50" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
           <text x="367" y="245" text-anchor="middle" fill="#f8fafc" font-weight="700">ExtensionFieldSeparation.lean</text>
-          <text x="367" y="262" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T1e: GF4 x^5(3), x^3(4), x^7 imp</text>
+          <text x="367" y="262" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T1e: sharp GF4 t_min(5)=3, t_min(3)=4</text>
 
           <rect x="255" y="286" width="225" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
           <text x="367" y="307" text-anchor="middle" fill="#f8fafc" font-weight="700">DigitSumDichotomy.lean</text>
@@ -197,7 +197,7 @@
           <!-- Layer 4: Palomar Contract & Verification -->
           <rect x="764" y="75" width="200" height="56" rx="8" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/>
           <text x="864" y="99" text-anchor="middle" fill="#fef08a" font-weight="700">Challenge.lean</text>
-          <text x="864" y="117" text-anchor="middle" fill="#cbd5e1" font-size="10.5">14 Public Prop Specifications</text>
+          <text x="864" y="117" text-anchor="middle" fill="#cbd5e1" font-size="10.5">16 Public Prop Specifications</text>
 
           <rect x="764" y="160" width="200" height="56" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
           <text x="864" y="184" text-anchor="middle" fill="#f8fafc" font-weight="700">Solution.lean</text>
@@ -219,7 +219,7 @@
   <div class="card">
     <h2>Tier-1 Machine-Checked Theorems &amp; Witnesses</h2>
     <div class="filter-bar" role="group" aria-label="Filter theorems by family">
-      <button class="filter-btn active" onclick="filterRows('all', this)">All (15)</button>
+      <button class="filter-btn active" onclick="filterRows('all', this)">All (17)</button>
       <button class="filter-btn" onclick="filterRows('T1', this)">T1 Prime/Ext Dichotomy</button>
       <button class="filter-btn" onclick="filterRows('T2', this)">T2 Bilinear Frobenius</button>
       <button class="filter-btn" onclick="filterRows('T3', this)">T3 3-Reg Breakthrough</button>
@@ -234,16 +234,18 @@
         <tr data-fam="T1"><td><code>T1b</code></td><td><code>t1b_f2_saturation</code></td><td>Exact F<sub>2</sub> saturation: x<sup>3</sup> &notin; RP<sup>pass</sup><sub>F<sub>2</sub></sub>(2, t) for all t</td><td>3 standard</td></tr>
         <tr data-fam="T1"><td><code>T1c</code></td><td><code>t1c_impossibility_threshold</code></td><td>Impossibility threshold: s<sub>p</sub>(d) &ge; p implies x<sup>d</sup> impossible for all t</td><td>3 standard</td></tr>
         <tr data-fam="T1"><td><code>T1d</code></td><td><code>t1d_vinciguerra_recovery</code></td><td>Large-char recovery of Vinciguerra Thm. 3.5: 2 &le; d &lt; p &rArr; (x<sup>d</sup> &in; RP(2,t) &hArr; d+1 &le; t)</td><td>3 standard</td></tr>
-        <tr data-fam="T1"><td><code>T1e</code></td><td><code>t1e_extension_field_separation</code></td><td>Sharpness over F<sub>4</sub>: x<sup>5</sup> &in; RP(2,3), x<sup>3</sup> &in; RP(2,4), and &forall;t, x<sup>7</sup> &notin; RP(2,t)</td><td>3 standard</td></tr>
+        <tr data-fam="T1"><td><code>T1e</code></td><td><code>t1e_extension_field_separation</code></td><td>Exact sharp F<sub>4</sub> separation: x<sup>5</sup> &in; RP(2,3)\RP(2,2), x<sup>3</sup> &in; RP(2,4)\RP(2,3), &forall;t x<sup>7</sup> &notin; RP(2,t)</td><td>3 standard</td></tr>
         <tr data-fam="T2"><td><code>T2</code></td><td><code>t2_bilinear_frobenius_collapse</code></td><td>Strictly bilinear passive 2-access x<sup>2<sup>k</sup></sup> in k+1 regs, 4k&minus;2 ops over every char-2 ring</td><td>3 standard</td></tr>
+        <tr data-fam="T2"><td><code>T2b</code></td><td><code>t2b_distinct_operand_frobenius</code></td><td>Strictly distinct-operand 2-access x<sup>2<sup>k</sup></sup> in k+2 regs (zero self-squares R<sub>a</sub>R<sub>a</sub>)</td><td>3 standard</td></tr>
         <tr data-fam="T3"><td><code>T3a</code></td><td><code>t3a_three_reg_5call_x7</code></td><td>x<sup>7</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 5) whenever 576 is invertible (char &ne; 2, 3); log<sub>7</sub> 5 &approx; 0.82709</td><td>3 standard</td></tr>
         <tr data-fam="T3"><td><code>T3b</code></td><td><code>t3b_three_reg_6call_x9</code></td><td>x<sup>9</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 6) avoiding {2,3,5,17}; log<sub>9</sub> 6 &approx; 0.81547</td><td>3 standard</td></tr>
         <tr data-fam="T3"><td><code>T3c</code></td><td><code>t3c_three_reg_7call_x11</code></td><td>x<sup>11</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 7) over Q and good primes; log<sub>11</sub> 7 &approx; 0.81151</td><td>3 standard</td></tr>
         <tr data-fam="T3"><td><code>T3d</code></td><td><code>t3d_three_reg_8call_x13</code></td><td>x<sup>13</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 8) achieving optimal log<sub>13</sub> 8 &approx; 0.81071</td><td>3 standard</td></tr>
         <tr data-fam="T3"><td><code>T3e</code></td><td><code>t3e_exponent_chain</code></td><td>Exact Nat power chain separating log<sub>13</sub> 8 &lt; log<sub>11</sub> 7 &lt; log<sub>9</sub> 6 &lt; log<sub>7</sub> 5 &lt; log<sub>5</sub> 4 and &lt; log<sub>15</sub> 9</td><td><strong>0 axioms</strong></td></tr>
         <tr data-fam="T3"><td><code>T3f</code></td><td><code>t3f_global_integer_optimality</code></td><td>Universal global optimality for ALL t &ge; 4, t &ne; 8: 8<sup>37</sup> &lt; 13<sup>30</sup> &and; (2t&minus;3)<sup>30</sup> &lt; t<sup>37</sup></td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
+        <tr data-fam="T3"><td><code>T3g</code></td><td><code>t3g_three_reg_9call_x15</code></td><td>x<sup>15</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 9) post-minimum ascent point (log<sub>15</sub> 9 &approx; 0.81137)</td><td>3 standard</td></tr>
         <tr data-fam="T4"><td><code>T4</code></td><td><code>t4_balanced_multilinear_product</code></td><td>Zero-workspace balanced product x<sub>0</sub>&cdots;x<sub>d&minus;1</sub> in log<sub>2</sub> d + 2 regs, (7d<sup>2</sup>&minus;4)/3 ops</td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
-        <tr data-fam="NV"><td><code>NONVAC</code></td><td><code>nonvac_all_hypotheses</code></td><td>Concrete <code>0 &ne; 1</code> witnesses (<code>ModP 2, 5, 7, 11</code>, <code>GF4</code>, <code>Int</code>) ruling out vacuity</td><td>3 standard</td></tr>
+        <tr data-fam="NV"><td><code>NONVAC</code></td><td><code>nonvac_all_hypotheses</code></td><td>Concrete <code>0 &ne; 1</code> witnesses (<code>ModP 2, 5, 7, 11</code>, <code>GF4</code>, <code>Int</code>; all D<sub>5</sub>..D<sub>9</sub>)</td><td>3 standard</td></tr>
       </tbody>
     </table>
   </div>
@@ -251,7 +253,7 @@
   <div class="card">
     <h2>5-Second Axiom &amp; Provenance Verification</h2>
     <details open>
-      <summary>Verbatim <code>lake env lean VerifyAxioms.lean</code> Output (16/16 Declarations)</summary>
+      <summary>Verbatim <code>lake env lean VerifyAxioms.lean</code> Output (18/18 Declarations)</summary>
       <pre><code>'Catalytic.Solution.t1_digit_sum_dichotomy' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t1a_two_access_frobenius_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t1b_f2_saturation' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -259,12 +261,14 @@
 'Catalytic.Solution.t1d_vinciguerra_recovery' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t1e_extension_field_separation' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t2_bilinear_frobenius_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t2b_distinct_operand_frobenius' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3a_three_reg_5call_x7' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3b_three_reg_6call_x9' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3c_three_reg_7call_x11' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3d_three_reg_8call_x13' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3e_exponent_chain' does not depend on any axioms
 'Catalytic.Solution.t3f_global_integer_optimality' depends on axioms: [propext, Quot.sound]
+'Catalytic.Solution.t3g_three_reg_9call_x15' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t4_balanced_multilinear_product' depends on axioms: [propext, Quot.sound]
 'Catalytic.Solution.prove_all_catalytic_theorems' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.NonVacuity.nonvac_all_hypotheses' depends on axioms: [propext, Classical.choice, Quot.sound]</code></pre>

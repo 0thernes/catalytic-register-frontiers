@@ -184,8 +184,8 @@ theorem nonvac_T2_witness :
   · rw [h1]; decide
   · rw [h2]; decide
 
-/-- **Non-Vacuity Witness for T3a–T3d:** every denominator `D_5, D_6, D_7, D_8` is invertible
-in an explicit non-trivial finite field (`0 ≠ 1`), namely `𝔽_5`, `𝔽_7`, `𝔽_11`, `𝔽_11`. -/
+/-- **Non-Vacuity Witness for T3a–T3d & T3g:** every denominator `D_5, D_6, D_7, D_8, D_9` is invertible
+in an explicit non-trivial finite field (`0 ≠ 1`), namely `𝔽_5`, `𝔽_7`, `𝔽_11`, `𝔽_11`, `𝔽_11`. -/
 theorem nonvac_T3_witnesses :
     (∃ (inv5 : ModP 5 (by decide)),
       (0 : ModP 5 (by decide)) ≠ 1 ∧ inv5 * CRing.intCast 576 = 1) ∧
@@ -194,8 +194,11 @@ theorem nonvac_T3_witnesses :
     (∃ (inv7 : ModP 11 (by decide)),
       (0 : ModP 11 (by decide)) ≠ 1 ∧ inv7 * CRing.intCast 68724637549388656012800 = 1) ∧
     (∃ (inv8 : ModP 11 (by decide)),
-      (0 : ModP 11 (by decide)) ≠ 1 ∧ inv8 * CRing.intCast 2656207148788801777680 = 1) := by
-  refine ⟨?_, ?_, ?_, ?_⟩
+      (0 : ModP 11 (by decide)) ≠ 1 ∧ inv8 * CRing.intCast 2656207148788801777680 = 1) ∧
+    (∃ (inv9 : ModP 11 (by decide)),
+      (0 : ModP 11 (by decide)) ≠ 1 ∧
+        inv9 * CRing.intCast 876702103804656272895371895753963647960420947968000 = 1) := by
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
   · exact ⟨⟨1, by decide⟩, ModP.zero_ne_one 5 (by decide),
       ModP.mul_intCast_lit_eq_one ⟨1, by decide⟩ 576 576 rfl (by decide)⟩
   · exact ⟨⟨1, by decide⟩, ModP.zero_ne_one 7 (by decide),
@@ -204,6 +207,10 @@ theorem nonvac_T3_witnesses :
       ModP.mul_intCast_lit_eq_one ⟨8, by decide⟩ 68724637549388656012800 68724637549388656012800 rfl (by decide)⟩
   · exact ⟨⟨9, by decide⟩, ModP.zero_ne_one 11 (by decide),
       ModP.mul_intCast_lit_eq_one ⟨9, by decide⟩ 2656207148788801777680 2656207148788801777680 rfl (by decide)⟩
+  · exact ⟨⟨9, by decide⟩, ModP.zero_ne_one 11 (by decide),
+      ModP.mul_intCast_lit_eq_one ⟨9, by decide⟩
+        876702103804656272895371895753963647960420947968000
+        876702103804656272895371895753963647960420947968000 rfl (by decide)⟩
 
 /-- **Non-Vacuity Witness for T4:** over `Int` (`0 ≠ 1`), `balancedProdProg` for `d = 2^2 = 4`
 satisfies all preconditions of `T4`, has exact length `36`, cleanly evaluates
@@ -237,7 +244,7 @@ theorem nonvac_T4_witness :
   · have h3 := congrFun hclean 3
     simpa using h3
 
-/-- Master non-vacuity witness bundling all theorem families (`T1`–`T4`, including `GF4` for `T1e`). -/
+/-- Master non-vacuity witness bundling all theorem families (`T1`–`T4`, including `GF4` for `T1e` and `D9` for `T3g`). -/
 theorem nonvac_all_hypotheses :
     (IsPrime 2 ∧ IsPrime 3 ∧ IsPrime 5 ∧ IsPrime 7 ∧
       InRPPass2 2 2 (monomial 4) ∧ ¬ InRPPass2 2 10 (monomial 3) ∧
@@ -248,10 +255,12 @@ theorem nonvac_all_hypotheses :
     (∃ inv6 : ModP 7 (by decide), inv6 * CRing.intCast 382500000 = 1) ∧
     (∃ inv7 : ModP 11 (by decide), inv7 * CRing.intCast 68724637549388656012800 = 1) ∧
     (∃ inv8 : ModP 11 (by decide), inv8 * CRing.intCast 2656207148788801777680 = 1) ∧
+    (∃ inv9 : ModP 11 (by decide),
+      inv9 * CRing.intCast 876702103804656272895371895753963647960420947968000 = 1) ∧
     ((0 : Int) ≠ (1 : Int)) := by
-  rcases nonvac_T3_witnesses with ⟨⟨i5, _, h5⟩, ⟨i6, _, h6⟩, ⟨i7, _, h7⟩, ⟨i8, _, h8⟩⟩
+  rcases nonvac_T3_witnesses with ⟨⟨i5, _, h5⟩, ⟨i6, _, h6⟩, ⟨i7, _, h7⟩, ⟨i8, _, h8⟩, ⟨i9, _, h9⟩⟩
   exact ⟨nonvac_T1_witnesses, GF4.one_ne_zero, nonvac_T2_witness.1,
-    ⟨i5, h5⟩, ⟨i6, h6⟩, ⟨i7, h7⟩, ⟨i8, h8⟩, nonvac_T4_witness.1⟩
+    ⟨i5, h5⟩, ⟨i6, h6⟩, ⟨i7, h7⟩, ⟨i8, h8⟩, ⟨i9, h9⟩, nonvac_T4_witness.1⟩
 
 end
 

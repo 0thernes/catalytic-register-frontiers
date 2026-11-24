@@ -13,13 +13,13 @@ A zero-Mathlib Lean 4.35.0 formalization, exact-arithmetic verification suite, a
 **Author:** Alexander S. Donahue (Independent Researcher, Spokane, WA, USA · ORCID [`0009-0006-8168-9648`](https://orcid.org/0009-0006-8168-9648) · `0_0@0thernes.art`)  
 **Maintenance status:** active independent research artifact (`v1.0.0`, 2026-11-23) · **Frozen White Paper:** [`dist/Donahue_2026_catalytic_register_frontiers.pdf`](dist/Donahue_2026_catalytic_register_frontiers.pdf)
 
-> **Epistemic Status:** All 14 headline theorems (`T1`, `T1a`–`T1e`, `T2`, `T3a`–`T3f`, `T4`) and concrete `0 ≠ 1` non-vacuity witnesses (`NonVacuity`) are machine-checked from first principles in **zero-Mathlib Lean 4.35.0** across **6 kernel runs / 5 independent implementations** (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin 0.4.19`) with 0 forbidden tokens and 0 linter warnings. All 8/8 companion SAT UNSAT proofs are archived as ASCII LRAT certificates (`results/sat_certs/`) and independently verified (`scripts/verify_lrat.py`). This preprint has **not** undergone external peer review; see [`CLAIMS.md`](CLAIMS.md) (including explicit falsification criteria) and [`LIMITATIONS.md`](LIMITATIONS.md).
+> **Epistemic Status:** All 16 headline theorems (`T1`, `T1a`–`T1e`, `T2`, `T2b`, `T3a`–`T3g`, `T4`) and concrete `0 ≠ 1` non-vacuity witnesses (`NonVacuity`) are machine-checked from first principles in **zero-Mathlib Lean 4.35.0** across **6 kernel runs / 5 independent implementations** (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin 0.4.19`) with 0 forbidden tokens and 0 linter warnings. All 8/8 companion SAT UNSAT proofs are archived as ASCII LRAT certificates (`results/sat_certs/`), independently verified (`scripts/verify_lrat.py`), and cross-checked against both brute-force enumeration and a second independent CNF encoder (`tests/test_all.py`). This preprint has **not** undergone external peer review; see [`CLAIMS.md`](CLAIMS.md) (including explicit falsification criteria) and [`LIMITATIONS.md`](LIMITATIONS.md).
 
 ---
 
 ## 5-Second Formal Verification Proof (Verbatim `#print axioms`)
 
-Exact output of `cd lean && lake env lean VerifyAxioms.lean` (archived in [`results/lean_axioms.txt`](results/lean_axioms.txt), cross-checked in CI; `results/six_kernel_audit.txt` records all 6 passing kernel runs including `con-leche --verified` and `con-ron --verified` accepting 3,093 declarations and `nanoda_bin 0.4.19` checking 3,394 declarations with `unpermitted_axiom_hard_error=true`):
+Exact output of `cd lean && lake env lean VerifyAxioms.lean` (archived in [`results/lean_axioms.txt`](results/lean_axioms.txt), cross-checked in CI; `results/six_kernel_audit.txt` records all 6 passing kernel runs including `con-leche --verified` and `con-ron --verified` accepting 3,190 declarations and `nanoda_bin 0.4.19` checking 3,495 declarations with `unpermitted_axiom_hard_error=true`):
 
 ```text
 'Catalytic.Solution.t1_digit_sum_dichotomy' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -29,12 +29,14 @@ Exact output of `cd lean && lake env lean VerifyAxioms.lean` (archived in [`resu
 'Catalytic.Solution.t1d_vinciguerra_recovery' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t1e_extension_field_separation' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t2_bilinear_frobenius_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t2b_distinct_operand_frobenius' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3a_three_reg_5call_x7' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3b_three_reg_6call_x9' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3c_three_reg_7call_x11' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3d_three_reg_8call_x13' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3e_exponent_chain' does not depend on any axioms
 'Catalytic.Solution.t3f_global_integer_optimality' depends on axioms: [propext, Quot.sound]
+'Catalytic.Solution.t3g_three_reg_9call_x15' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t4_balanced_multilinear_product' depends on axioms: [propext, Quot.sound]
 'Catalytic.Solution.prove_all_catalytic_theorems' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.NonVacuity.nonvac_all_hypotheses' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -90,7 +92,7 @@ pwsh -NoProfile -File scripts/run_all.ps1 -Task all
 bash scripts/run_all.sh all
 ```
 
-Expected result: 15/15 Lean jobs built with 0 warnings, `leanchecker` & `leanchecker-paranoid` exit 0, all 15 `pytest` / Hypothesis / mutant / SAT-equivalence / LRAT / REUSE tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, and 100% `MANIFEST.sha256` verification.
+Expected result: 15/15 Lean jobs built with 0 warnings, `leanchecker` & `leanchecker-paranoid` exit 0, all 17 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / schema tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, 100% `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK`.
 
 ## Usage and Examples
 

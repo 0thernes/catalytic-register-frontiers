@@ -278,9 +278,9 @@ def test_lean_formalization_and_governance_hygiene() -> None:
     assert (lean_dir / "Catalytic" / "NonVacuity.lean").exists()
     assert (lean_dir / "Catalytic" / "ExtensionFieldSeparation.lean").exists()
 
-    # Verify results/lean_axioms.txt covers all 16 declarations with zero unpermitted axioms
+    # Verify results/lean_axioms.txt covers all 18 declarations with zero unpermitted axioms
     ax_lines = (REPO / "results" / "lean_axioms.txt").read_text(encoding="utf-8").strip().splitlines()
-    assert len(ax_lines) == 16
+    assert len(ax_lines) == 18
     for line in ax_lines:
         assert "sorryAx" not in line and "ofReduceBool" not in line and "trustCompiler" not in line
 
@@ -390,4 +390,160 @@ def test_manifest_and_reuse_hygiene() -> None:
         for bad in forbidden_prefixes:
             assert not rel.startswith(bad), f"Cache artifact leaked into MANIFEST.sha256: {rel}"
     assert ".env.example" in listed, ".env.example must be tracked and hashed in MANIFEST.sha256"
+
+
+def _independent_direct_parity_cnf_mc(
+    outputs: list[list[int]], n: int, k: int, cadical_bin: str
+) -> str:
+    """
+    Completely independent second CNF encoder for XAG multiplicative complexity
+    (Playbook Checklist #14 differential check against exp4's chained-XOR encoder):
+      - Allocates gate-evaluation wires FIRST and selector bits LAST (opposite order).
+      - Encodes every linear XOR sum directly via full parity truth-table clauses
+        (zero auxiliary XOR chain variables!) whenever fanin <= 6.
+    """
+    import itertools
+    import subprocess
+    import tempfile
+
+    m = len(outputs)
+    N = 1 << n
+    var_cnt = 0
+
+    def nv() -> int:
+        nonlocal var_cnt
+        var_cnt += 1
+        return var_cnt
+
+    clauses: list[list[int]] = []
+
+    def add_direct_xor(lhs_terms: list[int], target_bit: int) -> None:
+        """Enforce XOR(lhs_terms) == target_bit using direct parity cubes (split only if len > 6)."""
+        terms = list(lhs_terms)
+        while len(terms) > 6:
+            chunk = terms[:5]
+            rest = terms[5:]
+            aux = nv()
+            # XOR(chunk + [aux]) == 0
+            add_direct_xor(chunk + [aux], 0)
+            terms = [aux] + rest
+        if not terms:
+            if target_bit == 1:
+                clauses.append([])
+            return
+        for assign in itertools.product((0, 1), repeat=len(terms)):
+            if (sum(assign) & 1) != target_bit:
+                # Forbid this assignment: literal is -v if assign==1 else +v
+                clauses.append([-v if b == 1 else v for v, b in zip(terms, assign)])
+
+    # Allocate evaluation variables FIRST (reversed layout from exp4)
+    g_val = [[nv() for _ in range(k)] for _ in range(N)]
+    l_val = [[nv() for _ in range(k)] for _ in range(N)]
+    r_val = [[nv() for _ in range(k)] for _ in range(N)]
+
+    # Selector variables SECOND
+    sL = [[nv() for _ in range(n + j)] for j in range(k)]
+    sR = [[nv() for _ in range(n + j)] for j in range(k)]
+    cL = [nv() for _ in range(k)]
+    cR = [nv() for _ in range(k)]
+    oS = [[nv() for _ in range(n + k)] for _ in range(m)]
+    oC = [nv() for _ in range(m)]
+
+    for x in range(N):
+        xb = [(x >> i) & 1 for i in range(n)]
+        for j in range(k):
+            lt = [cL[j]] + [sL[j][i] for i in range(n) if xb[i]]
+            rt = [cR[j]] + [sR[j][i] for i in range(n) if xb[i]]
+            for t in range(j):
+                pl = nv()
+                clauses.extend([[-pl, sL[j][n + t]], [-pl, g_val[x][t]], [pl, -sL[j][n + t], -g_val[x][t]]])
+                lt.append(pl)
+                pr = nv()
+                clauses.extend([[-pr, sR[j][n + t]], [-pr, g_val[x][t]], [pr, -sR[j][n + t], -g_val[x][t]]])
+                rt.append(pr)
+            # Enforce XOR(lt + [l_val[x][j]]) == 0 and XOR(rt + [r_val[x][j]]) == 0
+            add_direct_xor(lt + [l_val[x][j]], 0)
+            add_direct_xor(rt + [r_val[x][j]], 0)
+            # AND gate: g_val[x][j] <-> l_val[x][j] & r_val[x][j]
+            clauses.append([-g_val[x][j], l_val[x][j]])
+            clauses.append([-g_val[x][j], r_val[x][j]])
+            clauses.append([g_val[x][j], -l_val[x][j], -r_val[x][j]])
+
+        for o in range(m):
+            ot = [oC[o]] + [oS[o][i] for i in range(n) if xb[i]]
+            for t in range(k):
+                po = nv()
+                clauses.extend([[-po, oS[o][n + t]], [-po, g_val[x][t]], [po, -oS[o][n + t], -g_val[x][t]]])
+                ot.append(po)
+            add_direct_xor(ot, outputs[o][x])
+
+    with tempfile.NamedTemporaryFile("w", suffix=".cnf", delete=False, encoding="ascii") as tf:
+        cnf_p = pathlib.Path(tf.name)
+        tf.write(f"p cnf {var_cnt} {len(clauses)}\n")
+        for cl in clauses:
+            tf.write(" ".join(str(lit) for lit in cl) + " 0\n")
+    try:
+        proc = subprocess.run([cadical_bin, "-q", str(cnf_p)], capture_output=True, text=True, timeout=15.0, check=False)
+        return "SAT" if proc.returncode == 10 else ("UNSAT" if proc.returncode == 20 else f"ERR({proc.returncode})")
+    finally:
+        cnf_p.unlink(missing_ok=True)
+
+
+def test_sat_encoder_second_independent_differential() -> None:
+    """Differential check against an independent direct-parity-cube CNF encoder (Playbook #14)."""
+    cadical = find_cadical()
+    # 1. All 16 Boolean functions on n=2 for k=0 and k=1
+    for tt_mask in range(16):
+        tt = [(tt_mask >> x) & 1 for x in range(4)]
+        for k in (0, 1):
+            r1 = synthesize_multi_output_mc([tt], 2, k, cadical)
+            r2 = _independent_direct_parity_cnf_mc([tt], 2, k, cadical)
+            assert r1 == r2, f"Differential mismatch at n=2 mask={tt_mask}, k={k}: {r1} vs {r2}"
+
+    # 2. Canonical n=3 benchmarks (x0&x1, x0&x1^x2, x0&x1&x2)
+    f_and2 = eval_anf([(1 << 0) | (1 << 1)], 3)
+    f_and3 = eval_anf([(1 << 0) | (1 << 1) | (1 << 2)], 3)
+    for fn in (f_and2, f_and3):
+        for k in (1, 2):
+            assert synthesize_multi_output_mc([fn], 3, k, cadical) == _independent_direct_parity_cnf_mc([fn], 3, k, cadical)
+
+    # 3. F_4 multiplication (n=4, m=2) at k=2 (UNSAT) and k=3 (SAT)
+    f4_c0 = eval_anf([(1 << 0) | (1 << 2), (1 << 1) | (1 << 3)], 4)
+    f4_c1 = eval_anf([(1 << 0) | (1 << 3), (1 << 1) | (1 << 2), (1 << 1) | (1 << 3)], 4)
+    assert _independent_direct_parity_cnf_mc([f4_c0, f4_c1], 4, 2, cadical) == "UNSAT"
+    assert _independent_direct_parity_cnf_mc([f4_c0, f4_c1], 4, 3, cadical) == "SAT"
+
+
+def test_all_metadata_schemas_valid() -> None:
+    """Verify structural integrity and single-version consistency across all metadata/SBOM/schema files."""
+    version = (REPO / "VERSION").read_text(encoding="utf-8").strip()
+    assert re.fullmatch(r"\d+\.\d+\.\d+", version)
+    assert f'version = "{version}"' in (REPO / "pyproject.toml").read_text(encoding="utf-8")
+    assert f"version: {version}" in (REPO / "CITATION.cff").read_text(encoding="utf-8")
+    assert f'version: "{version}"' in (REPO / "lean" / "formalization.yaml").read_text(encoding="utf-8")
+
+    # Validate JSON artifacts parse cleanly with required keys
+    sbom = json.loads((REPO / "sbom.cdx.json").read_text(encoding="utf-8"))
+    assert sbom.get("bomFormat") == "CycloneDX" and sbom.get("specVersion") == "1.5"
+    assert isinstance(sbom.get("components"), list) and len(sbom["components"]) >= 5
+
+    zen = json.loads((REPO / ".zenodo.json").read_text(encoding="utf-8"))
+    assert "title" in zen and "creators" in zen and zen["creators"][0].get("orcid") == "0009-0006-8168-9648"
+
+    comp = json.loads((REPO / "lean" / "comparator.json").read_text(encoding="utf-8"))
+    assert comp.get("challenge_module") == "Challenge" and comp.get("solution_module") == "Solution"
+
+    for schema_name in ("repo-standard.schema.json", "project.schema.json"):
+        sch = json.loads((REPO / schema_name).read_text(encoding="utf-8"))
+        assert sch.get("type") == "object" and "required" in sch
+
+    # Validate project.yaml covers all 95 Build Pipeline Models v1.0.0 steps with documented n/a reasons
+    proj_text = (REPO / "project.yaml").read_text(encoding="utf-8")
+    steps = re.findall(r'^  (P\d+\.\d+): \{status: ([\w/]+)(?:, note: "([^"]*)")?\}', proj_text, re.M)
+    assert len(steps) == 95
+    for step_id, status, note in steps:
+        assert status in {"todo", "doing", "done", "n/a"}, f"Invalid status {status} on {step_id}"
+        if status == "n/a":
+            assert len(note.strip()) >= 8, f"n/a step {step_id} missing justification note"
+
 

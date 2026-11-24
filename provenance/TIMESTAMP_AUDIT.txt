@@ -1,12 +1,12 @@
 # Cryptographic Timestamp Provenance Audit (Playbook #26)
-MANIFEST.sha256 SHA-256: a7f49fab185455c47f6d645e645dd459b213b8d03249a47975cb35b8abdccea5
+MANIFEST.sha256 SHA-256: ae746756db3b1a96892f84fef062b58755fbe98cddea7375a3a058582960ce3f
 MANIFEST.sha256 entries: 141 git-tracked files (0 caches)
 MANIFEST.sha256 size: 12971 bytes
 
 ## RFC 3161 Trusted Timestamp (DigiCert RFC 3161 TSA)
 Endpoint: http://timestamp.digicert.com
 Query file: provenance/MANIFEST.sha256.tsq (69 bytes)
-Response file: provenance/MANIFEST.sha256.tsr (6006 bytes)
+Response file: provenance/MANIFEST.sha256.tsr (6007 bytes)
 OpenSSL cryptographic verification (`openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CAfile /usr/ssl/certs/ca-bundle.crt`, exit 0): Verification: OK
 
 ### OpenSSL `ts -reply -text` Output:
@@ -20,13 +20,13 @@ Version: 1
 Policy OID: 2.16.840.1.114412.7.1
 Hash Algorithm: sha256
 Message data:
-    0000 - a7 f4 9f ab 18 54 55 c4-7f 6d 64 5e 64 5d d4 59   .....TU..md^d].Y
-    0010 - b2 13 b8 d0 32 49 a4 79-75 cb 35 b8 ab dc ce a5   ....2I.yu.5.....
-Serial number: 0x0EE030B1E98CF35449C5CCC75E881686
-Time stamp: Nov 24 09:05:43 2026 GMT
+    0000 - ae 74 67 56 db 3b 1a 96-89 2f 84 fe f0 62 b5 87   .tgV.;.../...b..
+    0010 - 55 fb e9 8c dd ea 73 75-a3 a0 58 58 29 60 ce 3f   U.....su..XX)`.?
+Serial number: 0xB3EC1E055C7B14B818B473C31DEB36F9
+Time stamp: Nov 24 10:41:00 2026 GMT
 Accuracy: unspecified
 Ordering: no
-Nonce: 0x1FC9D1F978B0C45F
+Nonce: 0x2612BE2F8A9C02D9
 TSA: unspecified
 Extensions:
 

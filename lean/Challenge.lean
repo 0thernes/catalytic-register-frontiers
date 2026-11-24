@@ -46,14 +46,16 @@ def T1d_VinciguerraRecovery : Prop :=
   ∀ (p d t : Nat), IsPrime p → 2 ≤ d → d < p → 1 ≤ t →
     (InRPPass2 p t (monomial d) ↔ d + 1 ≤ t)
 
-/-- **T1e (Sharpness of Prime-Field Hypothesis — Exact `𝔽_4` Extension-Field Separation):**
+/-- **T1e (Exact Sharp `𝔽_4` Extension-Field Separation):**
 Over the non-prime extension field `𝔽_4 = 𝔽_2[ω]/(ω^2 + ω + 1)`:
-  1. `x^5 ∈ RP^{pass}_{𝔽_4}(2, 3)` (beating `𝔽_2` impossibility for all `t`),
-  2. `x^3 ∈ RP^{pass}_{𝔽_4}(2, 4)` (beating `𝔽_2` impossibility for all `t`),
+  1. `x^5 ∈ RP^{pass}_{𝔽_4}(2, 3)` AND `x^5 ∉ RP^{pass}_{𝔽_4}(2, 2)` (exact `t_min(5) = 3`),
+  2. `x^3 ∈ RP^{pass}_{𝔽_4}(2, 4)` AND `x^3 ∉ RP^{pass}_{𝔽_4}(2, 3)` (exact `t_min(3) = 4`),
   3. `∀ t, x^7 ∉ RP^{pass}_{𝔽_4}(2, t)` (unconditional impossibility barrier in `𝔽_4`). -/
 def T1e_ExtensionFieldSeparation : Prop :=
   InRPPass2GF4 3 (monomialGF4 5) ∧
+  ¬ InRPPass2GF4 2 (monomialGF4 5) ∧
   InRPPass2GF4 4 (monomialGF4 3) ∧
+  ¬ InRPPass2GF4 3 (monomialGF4 3) ∧
   (∀ t : Nat, ¬ InRPPass2GF4 t (monomialGF4 7))
 
 /-- **T2 (Strictly Bilinear 2-Access Frobenius Collapse over Characteristic 2):**
@@ -69,6 +71,19 @@ def T2_BilinearFrobeniusCollapse : Prop :=
       let final := BilinProg.exec x (frobBilinProg k hk) init
       final ⟨0, by omega⟩ = init ⟨0, by omega⟩ + CRing.pow x (2 ^ k) ∧
       ∀ i : Fin (k + 1), i.val ≠ 0 → final i = init i
+
+/-- **T2b (Strictly Distinct-Operand 2-Access Frobenius Collapse over Characteristic 2):**
+Adding one swap catalyst (`k + 2` registers total) eliminates ALL self-squares `R_a * R_a`
+(strictly pairwise-distinct bilinear operands `dst ≠ a ∧ dst ≠ b ∧ a ≠ b` plus passive linear copies)
+while keeping exact cleanliness and **ONLY 2 input accesses** for `x^(2^k)` over every `Char2CRing`. -/
+def T2b_DistinctOperandFrobenius : Prop :=
+  ∀ (k : Nat) (hk : 1 ≤ k),
+    DistinctBilinProg.accesses (frobDistinctProg k hk) = 2 ∧
+    (∀ instr ∈ frobDistinctProg k hk, instr.isStrictValidPassive) ∧
+    ∀ (R : Type) [Char2CRing R] (x : R) (init : Fin (k + 2) → R),
+      let final := DistinctBilinProg.exec x (frobDistinctProg k hk) init
+      final ⟨0, by omega⟩ = init ⟨0, by omega⟩ + CRing.pow x (2 ^ k) ∧
+      ∀ i : Fin (k + 2), i.val ≠ 0 → final i = init i
 
 /-- **T3a (`x^7 ∈ RP^{pass}_R(3, 5)` whenever `576` is invertible, i.e. `char ≠ 2, 3`):** -/
 def T3a_ThreeReg5CallX7 : Prop :=
@@ -114,6 +129,14 @@ Via the single rational separator `30 / 37`, certifies
 def T3f_GlobalIntegerOptimality : Prop :=
   (8 ^ 37 < 13 ^ 30) ∧
   (∀ t : Nat, 4 ≤ t → t ≠ 8 → (2 * t - 3) ^ 30 < t ^ 37)
+
+/-- **T3g (`x^15 ∈ RP^{pass}_R(3, 9)` — post-minimum ascent point `log_15 9 ≈ 0.811368`):** -/
+def T3g_ThreeReg9CallX15 : Prop :=
+  ∀ (R : Type) [CRing R] (invD : R),
+    invD * CRing.intCast 876702103804656272895371895753963647960420947968000 = 1 →
+    Pass3Prog.accesses (Pass3Prog.scaleOut invD prog9_x15) = 9 ∧
+    ∀ x o u v : R,
+      Pass3Prog.exec x (Pass3Prog.scaleOut invD prog9_x15) (o, u, v) = (o + CRing.pow x 15, u, v)
 
 /-- **T4 (Balanced Zero-Workspace Bilinear Multilinear Product):**
 For every `k : Nat`, arbitrary commutative ring `R`, inputs `xs`, arbitrary catalytic state `st`,

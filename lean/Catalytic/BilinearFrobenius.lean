@@ -469,4 +469,284 @@ public theorem frobBilinProg_clean {R : Type u} [Char2CRing R]
     rw [hfinal]
     simp only [st2, hi, ↓reduceIte]
 
+/-! ## Theorem T2b: Strictly Distinct-Operand 2-Access Frobenius Collapse (`k + 2` registers) -/
+
+/--
+Passive-output register instruction disallowing self-squares `R_a * R_a`:
+  * `addReg dst src`:    `R_dst ← R_dst + R_src`       (linear copy, `dst ≠ src`, `src ≠ 0`)
+  * `mulAdd dst a b`:    `R_dst ← R_dst + R_a * R_b`   (strictly distinct `dst, a, b`, `a ≠ 0, b ≠ 0`)
+  * `addInput dst`:      `R_dst ← R_dst + x`           (1 input access)
+-/
+public inductive DistinctBilinInstr (n : Nat) where
+  | addReg (dst src : Fin n) : DistinctBilinInstr n
+  | mulAdd (dst a b : Fin n) : DistinctBilinInstr n
+  | addInput (dst : Fin n) : DistinctBilinInstr n
+  deriving DecidableEq, Repr
+
+public def DistinctBilinInstr.isStrictValidPassive {n : Nat} : DistinctBilinInstr n → Prop
+  | .addReg dst src => dst ≠ src ∧ src.val ≠ 0
+  | .mulAdd dst a b => dst ≠ a ∧ dst ≠ b ∧ a ≠ b ∧ a.val ≠ 0 ∧ b.val ≠ 0
+  | .addInput _ => True
+
+public def DistinctBilinProg.accesses {n : Nat} : List (DistinctBilinInstr n) → Nat
+  | [] => 0
+  | .addInput _ :: rest => 1 + DistinctBilinProg.accesses rest
+  | _ :: rest => DistinctBilinProg.accesses rest
+
+public def DistinctBilinProg.basicOps {n : Nat} : List (DistinctBilinInstr n) → Nat
+  | [] => 0
+  | .addInput _ :: rest => DistinctBilinProg.basicOps rest
+  | _ :: rest => 1 + DistinctBilinProg.basicOps rest
+
+public def DistinctBilinInstr.exec {n : Nat} {R : Type u} [CRing R]
+    (x : R) (st : Fin n → R) : DistinctBilinInstr n → (Fin n → R)
+  | .addReg dst src => fun i => if i = dst then st dst + st src else st i
+  | .mulAdd dst a b => fun i => if i = dst then st dst + st a * st b else st i
+  | .addInput dst => fun i => if i = dst then st dst + x else st i
+
+public def DistinctBilinProg.exec {n : Nat} {R : Type u} [CRing R]
+    (x : R) : List (DistinctBilinInstr n) → (Fin n → R) → (Fin n → R)
+  | [], st => st
+  | i :: rest, st => DistinctBilinProg.exec x rest (i.exec x st)
+
+private theorem DistinctBilinProg.exec_append {n : Nat} {R : Type u} [CRing R]
+    (x : R) (p q : List (DistinctBilinInstr n)) (st : Fin n → R) :
+    DistinctBilinProg.exec x (p ++ q) st = DistinctBilinProg.exec x q (DistinctBilinProg.exec x p st) := by
+  induction p generalizing st with
+  | nil => rfl
+  | cons i rest ih => exact ih (i.exec x st)
+
+private theorem DistinctBilinProg.accesses_append {n : Nat} (p q : List (DistinctBilinInstr n)) :
+    DistinctBilinProg.accesses (p ++ q) = DistinctBilinProg.accesses p + DistinctBilinProg.accesses q := by
+  induction p with
+  | nil => simp [DistinctBilinProg.accesses]
+  | cons i rest ih => cases i <;> simp [DistinctBilinProg.accesses, ih, Nat.add_assoc]
+
+private theorem DistinctBilinProg.basicOps_append {n : Nat} (p q : List (DistinctBilinInstr n)) :
+    DistinctBilinProg.basicOps (p ++ q) = DistinctBilinProg.basicOps p + DistinctBilinProg.basicOps q := by
+  induction p with
+  | nil => simp [DistinctBilinProg.basicOps]
+  | cons i rest ih => cases i <;> simp [DistinctBilinProg.basicOps, ih, Nat.add_assoc]
+
+private def liftFin {n : Nat} (i : Fin n) : Fin (n + 1) := ⟨i.val, Nat.lt_succ_of_lt i.isLt⟩
+private def swapReg (n : Nat) : Fin (n + 1) := ⟨n, Nat.lt_succ_self n⟩
+
+private theorem liftFin_inj {n : Nat} {a b : Fin n} (h : liftFin a = liftFin b) : a = b :=
+  Fin.ext (congrArg (fun k : Fin (n + 1) => k.val) h)
+
+private theorem liftFin_ne_swap {n : Nat} (a : Fin n) : liftFin a ≠ swapReg n := by
+  intro h
+  have hv : a.val = n := congrArg Fin.val h
+  have hlt := a.isLt
+  omega
+
+private theorem swap_ne_liftFin {n : Nat} (a : Fin n) : swapReg n ≠ liftFin a :=
+  (liftFin_ne_swap a).symm
+
+private theorem swapReg_val_ne_zero {n : Nat} (a : Fin n) : (swapReg n).val ≠ 0 := by
+  have hlt := a.isLt
+  simp only [swapReg]
+  omega
+
+/-- Replace every `mulAdd dst a b` using an extra swap catalyst `swapReg n` when `a = b`. -/
+public def translateBilinInstr {n : Nat} : BilinInstr n → List (DistinctBilinInstr (n + 1))
+  | .addInput dst => [.addInput (liftFin dst)]
+  | .mulAdd dst a b =>
+    if a = b then
+      [ .addReg (swapReg n) (liftFin a),
+        .mulAdd (liftFin dst) (liftFin a) (swapReg n),
+        .addReg (swapReg n) (liftFin a),
+        .mulAdd (liftFin dst) (liftFin a) (swapReg n) ]
+    else
+      [.mulAdd (liftFin dst) (liftFin a) (liftFin b)]
+
+public def translateBilinProg {n : Nat} : List (BilinInstr n) → List (DistinctBilinInstr (n + 1))
+  | [] => []
+  | i :: rest => translateBilinInstr i ++ translateBilinProg rest
+
+/-- Strictly distinct-operand 2-access Frobenius program for `x^(2^k)` on `k + 2` registers. -/
+public def frobDistinctProg (k : Nat) (hk : 1 ≤ k) : List (DistinctBilinInstr (k + 2)) :=
+  translateBilinProg (frobBilinProg k hk)
+
+private theorem translateBilinProg_accesses {n : Nat} (p : List (BilinInstr n)) :
+    DistinctBilinProg.accesses (translateBilinProg p) = BilinProg.accesses p := by
+  induction p with
+  | nil => rfl
+  | cons i rest ih =>
+    cases i with
+    | addInput dst =>
+      simp [translateBilinProg, translateBilinInstr, DistinctBilinProg.accesses, BilinProg.accesses, ih]
+    | mulAdd dst a b =>
+      simp only [translateBilinProg, translateBilinInstr, DistinctBilinProg.accesses_append,
+        BilinProg.accesses, ih]
+      split <;> simp [DistinctBilinProg.accesses]
+
+private theorem translateBilinProg_valid {n : Nat} (p : List (BilinInstr n))
+    (hp : ∀ i ∈ p, i.isValidPassive) :
+    ∀ j ∈ translateBilinProg p, j.isStrictValidPassive := by
+  induction p with
+  | nil => intro _ h; cases h
+  | cons i rest ih =>
+    intro j hj
+    simp only [translateBilinProg, List.mem_append] at hj
+    rcases hj with h1 | h2
+    · have hi := hp i (List.mem_cons_self ..)
+      cases i with
+      | addInput dst =>
+        simp only [translateBilinInstr, List.mem_singleton] at h1
+        subst h1; trivial
+      | mulAdd dst a b =>
+        rcases hi with ⟨hda, hdb, ha0, hb0⟩
+        simp only [translateBilinInstr] at h1
+        split at h1
+        · simp only [List.mem_cons, List.not_mem_nil, or_false] at h1
+          rcases h1 with rfl | rfl | rfl | rfl
+          · exact ⟨swap_ne_liftFin a, ha0⟩
+          · exact ⟨fun h => hda (liftFin_inj h), liftFin_ne_swap dst, liftFin_ne_swap a,
+                   ha0, swapReg_val_ne_zero a⟩
+          · exact ⟨swap_ne_liftFin a, ha0⟩
+          · exact ⟨fun h => hda (liftFin_inj h), liftFin_ne_swap dst, liftFin_ne_swap a,
+                   ha0, swapReg_val_ne_zero a⟩
+        · rename_i hne
+          simp only [List.mem_singleton] at h1
+          subst h1
+          exact ⟨fun h => hda (liftFin_inj h),
+                 fun h => hdb (liftFin_inj h),
+                 fun h => hne (liftFin_inj h),
+                 ha0, hb0⟩
+    · exact ih (fun x hx => hp x (List.mem_cons_of_mem _ hx)) j h2
+
+private theorem translateBilinInstr_exec {n : Nat} {R : Type u} [Char2CRing R]
+    (x : R) (instr : BilinInstr n) (hi : instr.isValidPassive) (st : Fin (n + 1) → R) :
+    DistinctBilinProg.exec x (translateBilinInstr instr) st =
+      fun i : Fin (n + 1) =>
+        if h : i.val < n then
+          instr.exec x (fun j : Fin n => st (liftFin j)) ⟨i.val, h⟩
+        else
+          st i := by
+  cases instr with
+  | addInput dst =>
+    funext i
+    simp only [translateBilinInstr, DistinctBilinProg.exec, DistinctBilinInstr.exec, BilinInstr.exec]
+    by_cases hlt : i.val < n
+    · simp only [hlt, ↓reduceDIte]
+      by_cases hd : i = liftFin dst
+      · subst hd
+        simp [liftFin]
+      · have hfin : (⟨i.val, hlt⟩ : Fin n) ≠ dst := fun h =>
+          hd (Fin.ext (congrArg (fun k : Fin n => k.val) h))
+        have hli : liftFin ⟨i.val, hlt⟩ = i := Fin.ext rfl
+        simp [hd, hfin, hli]
+    · have hne : i ≠ liftFin dst := fun h => hlt (by rw [h]; exact dst.isLt)
+      simp [hlt, hne]
+  | mulAdd dst a b =>
+    rcases hi with ⟨hda, hdb, _, _⟩
+    simp only [translateBilinInstr]
+    split
+    · rename_i hab; subst hab
+      have ha_sw : liftFin a ≠ swapReg n := liftFin_ne_swap a
+      have hsw_d : swapReg n ≠ liftFin dst := swap_ne_liftFin dst
+      have hd_sw : liftFin dst ≠ swapReg n := liftFin_ne_swap dst
+      have hd_a : liftFin dst ≠ liftFin a := fun h => hda (liftFin_inj h)
+      have ha_d : liftFin a ≠ liftFin dst := hd_a.symm
+      funext i
+      simp only [DistinctBilinProg.exec, DistinctBilinInstr.exec, BilinInstr.exec]
+      by_cases hsw : i = swapReg n
+      · subst hsw
+        have hnotlt : ¬ (swapReg n).val < n := by simp [swapReg]
+        simp only [hnotlt, ↓reduceDIte, hsw_d, ha_sw, ha_d, ↓reduceIte]
+        rw [CRing.add_assoc, Char2CRing.add_self, CRing.add_zero]
+      · have hlt : i.val < n := by
+          have hi_lt := i.isLt
+          have hne : i.val ≠ n := fun h => hsw (Fin.ext h)
+          omega
+        simp only [hlt, ↓reduceDIte]
+        by_cases hd : i = liftFin dst
+        · subst hd
+          have hd_fin : (⟨(liftFin dst).val, hlt⟩ : Fin n) = dst := Fin.ext rfl
+          simp only [↓reduceIte, hsw_d, ha_sw, hd_sw, ha_d, hd_fin]
+          have hrest : (st (swapReg n) + st (liftFin a)) + st (liftFin a) = st (swapReg n) := by
+            rw [CRing.add_assoc, Char2CRing.add_self, CRing.add_zero]
+          rw [hrest, CRing.left_distrib, CRing.add_assoc]
+          congr 1
+          calc
+            (st (liftFin a) * st (swapReg n) + st (liftFin a) * st (liftFin a)) +
+                st (liftFin a) * st (swapReg n)
+                = (st (liftFin a) * st (swapReg n) + st (liftFin a) * st (swapReg n)) +
+                    st (liftFin a) * st (liftFin a) := by
+                  rw [CRing.add_assoc, CRing.add_comm (st (liftFin a) * st (liftFin a)), ← CRing.add_assoc]
+            _ = 0 + st (liftFin a) * st (liftFin a) := by rw [Char2CRing.add_self]
+            _ = st (liftFin a) * st (liftFin a) := CRing.zero_add _
+        · have hd_fin : (⟨i.val, hlt⟩ : Fin n) ≠ dst := fun h =>
+            hd (Fin.ext (congrArg (fun k : Fin n => k.val) h))
+          have hli : liftFin ⟨i.val, hlt⟩ = i := Fin.ext rfl
+          simp only [hd, hsw, hd_fin, hli, ↓reduceIte]
+    · funext i
+      simp only [DistinctBilinProg.exec, DistinctBilinInstr.exec, BilinInstr.exec]
+      by_cases hlt : i.val < n
+      · simp only [hlt, ↓reduceDIte]
+        by_cases hd : i = liftFin dst
+        · subst hd
+          simp [liftFin]
+        · have hfin : (⟨i.val, hlt⟩ : Fin n) ≠ dst := fun h =>
+            hd (Fin.ext (congrArg (fun k : Fin n => k.val) h))
+          have hli : liftFin ⟨i.val, hlt⟩ = i := Fin.ext rfl
+          simp [hd, hfin, hli]
+      · have hne : i ≠ liftFin dst := fun h => hlt (by rw [h]; exact dst.isLt)
+        simp [hlt, hne]
+
+private theorem translateBilinProg_exec {n : Nat} {R : Type u} [Char2CRing R]
+    (x : R) (p : List (BilinInstr n)) (hp : ∀ i ∈ p, i.isValidPassive) (st : Fin (n + 1) → R) :
+    DistinctBilinProg.exec x (translateBilinProg p) st =
+      fun i : Fin (n + 1) =>
+        if h : i.val < n then
+          BilinProg.exec x p (fun j : Fin n => st (liftFin j)) ⟨i.val, h⟩
+        else
+          st i := by
+  induction p generalizing st with
+  | nil =>
+    funext i
+    simp only [translateBilinProg, DistinctBilinProg.exec, BilinProg.exec, liftFin]
+    split <;> rfl
+  | cons instr rest ih =>
+    rw [translateBilinProg, DistinctBilinProg.exec_append,
+        translateBilinInstr_exec x instr (hp instr (List.mem_cons_self ..)) st,
+        ih (fun y hy => hp y (List.mem_cons_of_mem _ hy))]
+    funext i
+    simp only [BilinProg.exec]
+    split
+    · congr 1
+      funext j
+      simp [liftFin, j.isLt]
+    · rfl
+
+public theorem frobDistinctProg_accesses (k : Nat) (hk : 1 ≤ k) :
+    DistinctBilinProg.accesses (frobDistinctProg k hk) = 2 := by
+  rw [frobDistinctProg, translateBilinProg_accesses, frobBilinProg_accesses]
+
+public theorem frobDistinctProg_valid (k : Nat) (hk : 1 ≤ k) :
+    ∀ instr ∈ frobDistinctProg k hk, instr.isStrictValidPassive :=
+  translateBilinProg_valid (frobBilinProg k hk) (frobBilinProg_valid k hk)
+
+/-- **Theorem T2b (Strictly Distinct-Operand 2-Access Frobenius Collapse over Char 2):**
+Adding one swap catalyst (`k + 2` registers total) eliminates all self-squares `R_a * R_a`
+while keeping exact cleanliness and **EXACTLY 2 input accesses** for `x^(2^k)` over every `Char2CRing`. -/
+public theorem frobDistinctProg_clean {R : Type u} [Char2CRing R] (k : Nat) (hk : 1 ≤ k)
+    (x : R) (init : Fin (k + 2) → R) :
+    let final := DistinctBilinProg.exec x (frobDistinctProg k hk) init
+    final ⟨0, by omega⟩ = init ⟨0, by omega⟩ + CRing.pow x (2 ^ k) ∧
+    ∀ i : Fin (k + 2), i.val ≠ 0 → final i = init i := by
+  dsimp only
+  rw [frobDistinctProg, translateBilinProg_exec x (frobBilinProg k hk) (frobBilinProg_valid k hk) init]
+  have hclean := frobBilinProg_clean (R := R) k hk x (fun j : Fin (k + 1) => init (liftFin j))
+  constructor
+  · have hlt : (0 : Nat) < k + 1 := by omega
+    simp only [hlt, ↓reduceDIte]
+    exact hclean.1
+  · intro i hi0
+    by_cases hlt : i.val < k + 1
+    · simp only [hlt, ↓reduceDIte]
+      exact hclean.2 ⟨i.val, hlt⟩ hi0
+    · simp only [hlt, ↓reduceDIte]
+
 end Catalytic

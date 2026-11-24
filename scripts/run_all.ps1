@@ -147,6 +147,21 @@ print(f'MANIFEST_SHA256_VERIFIED: {ok}/{ok} files match exact checksums.')
             Pop-Location
         }
     }
+    Run-Step "Verify DigiCert RFC 3161 trusted timestamp (provenance/MANIFEST.sha256.tsr)" {
+        Push-Location -LiteralPath $Repo
+        try {
+            $gitOpenSSL = "C:\Program Files\Git\usr\bin\openssl.exe"
+            if (Test-Path -LiteralPath $gitOpenSSL) {
+                & $gitOpenSSL ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CAfile /usr/ssl/certs/ca-bundle.crt
+            } elseif (Get-Command openssl -ErrorAction SilentlyContinue) {
+                & openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr
+            } else {
+                Write-Host "NOTE: openssl not found on PATH; skipping RFC 3161 cryptographic verification."
+            }
+        } finally {
+            Pop-Location
+        }
+    }
 }
 
 switch ($Task) {

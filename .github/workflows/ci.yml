@@ -84,9 +84,10 @@ jobs:
           mkdir -p paper/build
           (cd paper && ../tectonic -X compile main.tex --outdir build --keep-intermediates)
 
-      - name: Verify SHA-256 provenance manifest
+      - name: Verify SHA-256 provenance manifest and DigiCert RFC 3161 timestamp
         run: |
           sha256sum -c MANIFEST.sha256
+          openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CApath /etc/ssl/certs
 
       - name: Attest axiom report and frozen white paper (Sigstore SLSA)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

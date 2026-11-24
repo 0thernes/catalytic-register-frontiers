@@ -384,6 +384,358 @@ theorem gf4_x7_impossible_all_t (t : Nat) : ¬ InRPPass2GF4 t (monomialGF4 7) :=
       _       = GF4.z := h61
   exact GF4.one_ne_zero hcontra
 
+/-! ## 5. Sharp Lower Bounds over `𝔽_4`: `x^5 ∉ RP^{pass}_{𝔽_4}(2, 2)` and `x^3 ∉ RP^{pass}_{𝔽_4}(2, 3)` -/
+
+/-- Count input accesses targeting the work register `R`. -/
+def Pass2GF4Prog.workAccesses : List Pass2GF4Instr → Nat
+  | [] => 0
+  | .addInputWork _ :: rest => 1 + Pass2GF4Prog.workAccesses rest
+  | _ :: rest => Pass2GF4Prog.workAccesses rest
+
+private theorem Pass2GF4Prog.workAccesses_le_accesses (prog : List Pass2GF4Instr) :
+    Pass2GF4Prog.workAccesses prog ≤ Pass2GF4Prog.accesses prog := by
+  induction prog with
+  | nil => exact Nat.le_refl 0
+  | cons i rest ih =>
+    cases i <;> simp only [Pass2GF4Prog.workAccesses, Pass2GF4Prog.accesses] <;> omega
+
+/-- Final `a`-shift depends only on the initial `a` and `addInputWork` instructions. -/
+private def finalShiftGF4 : List Pass2GF4Instr → GF4 → GF4
+  | [], a => a
+  | .addInputWork lam :: rest, a => finalShiftGF4 rest (GF4.add a lam)
+  | _ :: rest, a => finalShiftGF4 rest a
+
+private theorem execFrom_a_eq_finalShift (prog : List Pass2GF4Instr) (st : State2GF4) :
+    (Pass2GF4Prog.execFrom prog st).a = finalShiftGF4 prog st.a := by
+  induction prog generalizing st with
+  | nil => rfl
+  | cons i rest ih =>
+    cases i <;> exact ih _
+
+/-- Predicate asserting that every state visited during `prog` from shift `a` stays inside `S`. -/
+private def ShiftsInGF4 (S : GF4 → Prop) : List Pass2GF4Instr → GF4 → Prop
+  | [], a => S a
+  | .addInputWork lam :: rest, a => S a ∧ ShiftsInGF4 S rest (GF4.add a lam)
+  | _ :: rest, a => S a ∧ ShiftsInGF4 S rest a
+
+private theorem workAccesses_zero_shifts (prog : List Pass2GF4Instr) (a : GF4)
+    (hw : Pass2GF4Prog.workAccesses prog = 0) :
+    ShiftsInGF4 (fun x => x = a) prog a := by
+  induction prog with
+  | nil => rfl
+  | cons i rest ih =>
+    cases i with
+    | addInputWork _ => simp [Pass2GF4Prog.workAccesses] at hw
+    | addOut _ => exact ⟨rfl, ih hw⟩
+    | addWorkConst _ => exact ⟨rfl, ih hw⟩
+    | addInputOut _ => exact ⟨rfl, ih hw⟩
+
+private theorem shiftsIn_mono {S T : GF4 → Prop} (hST : ∀ x, S x → T x)
+    (prog : List Pass2GF4Instr) (a : GF4) (h : ShiftsInGF4 S prog a) :
+    ShiftsInGF4 T prog a := by
+  induction prog generalizing a with
+  | nil => exact hST a h
+  | cons i rest ih =>
+    cases i <;> exact ⟨hST a h.1, ih _ h.2⟩
+
+private theorem workAccesses_eq_zero_final (prog : List Pass2GF4Instr) (a : GF4)
+    (hw : Pass2GF4Prog.workAccesses prog = 0) :
+    finalShiftGF4 prog a = a := by
+  induction prog with
+  | nil => rfl
+  | cons i rest ih =>
+    cases i with
+    | addInputWork _ => simp [Pass2GF4Prog.workAccesses] at hw
+    | addOut _ => exact ih hw
+    | addWorkConst _ => exact ih hw
+    | addInputOut _ => exact ih hw
+
+/-- Any loop starting and ending at shift `0` with `≤ 2` work accesses stays inside `{0, α}` for some `α`. -/
+private theorem closed_loop_le2_shifts (prog : List Pass2GF4Instr)
+    (hw : Pass2GF4Prog.workAccesses prog ≤ 2) (hret : finalShiftGF4 prog .z = .z) :
+    ∃ α : GF4, ShiftsInGF4 (fun x => x = .z ∨ x = α) prog .z := by
+  induction prog with
+  | nil => exact ⟨.z, Or.inl rfl⟩
+  | cons i rest ih =>
+    cases i with
+    | addInputWork lam =>
+      simp only [Pass2GF4Prog.workAccesses] at hw
+      simp only [finalShiftGF4, GF4.add] at hret
+      -- From `lam` with `workAccesses rest ≤ 1` and `finalShiftGF4 rest lam = .z`,
+      -- `rest` visits only `{lam, .z}`!
+      have hsub : ShiftsInGF4 (fun x => x = .z ∨ x = lam) rest lam := by
+        have hrec : ∀ (p : List Pass2GF4Instr) (a : GF4),
+            Pass2GF4Prog.workAccesses p ≤ 1 → finalShiftGF4 p a = .z →
+            ShiftsInGF4 (fun x => x = .z ∨ x = a) p a := by
+          intro p
+          induction p with
+          | nil => intro a _ hf; exact Or.inl hf
+          | cons j tl ihtl =>
+            intro a hwp hf
+            cases j with
+            | addInputWork lam2 =>
+              simp only [Pass2GF4Prog.workAccesses] at hwp
+              have h0 : Pass2GF4Prog.workAccesses tl = 0 := by omega
+              simp only [finalShiftGF4] at hf
+              have hfin := workAccesses_eq_zero_final tl (GF4.add a lam2) h0
+              have hz : GF4.add a lam2 = .z := by rw [← hfin]; exact hf
+              refine ⟨Or.inr rfl, ?_⟩
+              rw [hz]
+              exact shiftsIn_mono (fun x hx => Or.inl hx) tl .z (workAccesses_zero_shifts tl .z h0)
+            | addOut _ => exact ⟨Or.inr rfl, ihtl a hwp hf⟩
+            | addWorkConst _ => exact ⟨Or.inr rfl, ihtl a hwp hf⟩
+            | addInputOut _ => exact ⟨Or.inr rfl, ihtl a hwp hf⟩
+        exact hrec rest lam (by omega) hret
+      exact ⟨lam, Or.inl rfl, hsub⟩
+    | addOut _ =>
+      rcases ih hw hret with ⟨α, hα⟩
+      exact ⟨α, Or.inl rfl, hα⟩
+    | addWorkConst _ =>
+      rcases ih hw hret with ⟨α, hα⟩
+      exact ⟨α, Or.inl rfl, hα⟩
+    | addInputOut _ =>
+      rcases ih hw hret with ⟨α, hα⟩
+      exact ⟨α, Or.inl rfl, hα⟩
+
+/-- Any loop starting and ending at shift `0` with `≤ 3` work accesses stays inside `{0, α, β}`. -/
+private theorem closed_loop_le3_shifts (prog : List Pass2GF4Instr)
+    (hw : Pass2GF4Prog.workAccesses prog ≤ 3) (hret : finalShiftGF4 prog .z = .z) :
+    ∃ α β : GF4, ShiftsInGF4 (fun x => x = .z ∨ x = α ∨ x = β) prog .z := by
+  induction prog with
+  | nil => exact ⟨.z, .z, Or.inl rfl⟩
+  | cons i rest ih =>
+    cases i with
+    | addInputWork lam =>
+      simp only [Pass2GF4Prog.workAccesses] at hw
+      simp only [finalShiftGF4, GF4.add] at hret
+      -- From `lam` with `≤ 2` remaining work accesses returning to `.z`, we visit at most `{lam, β, .z}`!
+      have hsub : ∀ (p : List Pass2GF4Instr) (a : GF4),
+          Pass2GF4Prog.workAccesses p ≤ 2 → finalShiftGF4 p a = .z →
+          ∃ β : GF4, ShiftsInGF4 (fun x => x = .z ∨ x = a ∨ x = β) p a := by
+        intro p
+        induction p with
+        | nil => intro a _ hf; exact ⟨a, Or.inl hf⟩
+        | cons j tl ihtl =>
+          intro a hwp hf
+          cases j with
+          | addInputWork lam2 =>
+            simp only [Pass2GF4Prog.workAccesses] at hwp
+            simp only [finalShiftGF4] at hf
+            have h1 : ∀ (q : List Pass2GF4Instr) (b : GF4),
+                Pass2GF4Prog.workAccesses q ≤ 1 → finalShiftGF4 q b = .z →
+                ShiftsInGF4 (fun x => x = .z ∨ x = a ∨ x = b) q b := by
+              intro q
+              induction q with
+              | nil => intro b _ hfq; exact Or.inl hfq
+              | cons k qtl ihq =>
+                intro b hwq hfq
+                cases k with
+                | addInputWork lam3 =>
+                  simp only [Pass2GF4Prog.workAccesses] at hwq
+                  have h0 : Pass2GF4Prog.workAccesses qtl = 0 := by omega
+                  simp only [finalShiftGF4] at hfq
+                  have hfin := workAccesses_eq_zero_final qtl (GF4.add b lam3) h0
+                  have hz : GF4.add b lam3 = .z := by rw [← hfin]; exact hfq
+                  refine ⟨Or.inr (Or.inr rfl), ?_⟩
+                  rw [hz]
+                  exact shiftsIn_mono (fun x hx => Or.inl hx) qtl .z (workAccesses_zero_shifts qtl .z h0)
+                | addOut _ => exact ⟨Or.inr (Or.inr rfl), ihq b hwq hfq⟩
+                | addWorkConst _ => exact ⟨Or.inr (Or.inr rfl), ihq b hwq hfq⟩
+                | addInputOut _ => exact ⟨Or.inr (Or.inr rfl), ihq b hwq hfq⟩
+            exact ⟨GF4.add a lam2, Or.inr (Or.inl rfl), h1 tl (GF4.add a lam2) (by omega) hf⟩
+          | addOut _ =>
+            rcases ihtl a hwp hf with ⟨β, hβ⟩
+            exact ⟨β, Or.inr (Or.inl rfl), hβ⟩
+          | addWorkConst _ =>
+            rcases ihtl a hwp hf with ⟨β, hβ⟩
+            exact ⟨β, Or.inr (Or.inl rfl), hβ⟩
+          | addInputOut _ =>
+            rcases ihtl a hwp hf with ⟨β, hβ⟩
+            exact ⟨β, Or.inr (Or.inl rfl), hβ⟩
+      rcases hsub rest lam (by omega) hret with ⟨β, hβ⟩
+      exact ⟨lam, β, Or.inl rfl, hβ⟩
+    | addOut _ =>
+      rcases ih hw hret with ⟨α, β, hαβ⟩
+      exact ⟨α, β, Or.inl rfl, hαβ⟩
+    | addWorkConst _ =>
+      rcases ih hw hret with ⟨α, β, hαβ⟩
+      exact ⟨α, β, Or.inl rfl, hαβ⟩
+    | addInputOut _ =>
+      rcases ih hw hret with ⟨α, β, hαβ⟩
+      exact ⟨α, β, Or.inl rfl, hαβ⟩
+
+private theorem polyAtShiftCoeffGF4_05_eq_alpha_14 (poly : List GF4) (b a α : GF4)
+    (ha : a = .z ∨ a = α) :
+    polyAtShiftCoeffGF4 poly b a 0 5 = GF4.mul α (polyAtShiftCoeffGF4 poly b a 1 4) := by
+  simp only [polyAtShiftCoeffGF4]
+  have hb5 : binomGF4 5 5 = .one := by decide
+  have hb4 : binomGF4 5 4 = .one := by decide
+  have hpow : GF4.pow a 5 = GF4.mul α (GF4.pow a 4) := by
+    rcases ha with rfl | rfl
+    · cases α <;> rfl
+    · cases a <;> rfl
+  change GF4.mul _ (GF4.mul (binomGF4 5 5) (GF4.pow a 5)) =
+         GF4.mul α (GF4.mul _ (GF4.mul (binomGF4 5 4) (GF4.pow a 4)))
+  rw [hb5, hb4, hpow]
+  generalize sumGF4 poly.length (fun k =>
+    GF4.mul (poly.getD k .z) (GF4.mul (binomGF4 k 5) (GF4.pow b (k - 5)))) = out
+  cases out <;> cases α <;> cases a <;> rfl
+
+private theorem execFrom_preserves_05_inv (α : GF4) (prog : List Pass2GF4Instr) (st : State2GF4)
+    (hsh : ShiftsInGF4 (fun x => x = .z ∨ x = α) prog st.a)
+    (hinv : st.coeff 0 5 = GF4.mul α (st.coeff 1 4)) :
+    (Pass2GF4Prog.execFrom prog st).coeff 0 5 = GF4.mul α ((Pass2GF4Prog.execFrom prog st).coeff 1 4) := by
+  induction prog generalizing st with
+  | nil => exact hinv
+  | cons instr rest ih =>
+    cases instr with
+    | addOut poly =>
+      dsimp only [Pass2GF4Prog.execFrom]
+      apply ih (Pass2GF4Instr.exec st (.addOut poly)) hsh.2
+      change GF4.add (st.coeff 0 5) (polyAtShiftCoeffGF4 poly st.b st.a 0 5) =
+             GF4.mul α (GF4.add (st.coeff 1 4) (polyAtShiftCoeffGF4 poly st.b st.a 1 4))
+      rw [hinv, polyAtShiftCoeffGF4_05_eq_alpha_14 poly st.b st.a α hsh.1]
+      generalize st.coeff 1 4 = u
+      generalize polyAtShiftCoeffGF4 poly st.b st.a 1 4 = v
+      cases α <;> cases u <;> cases v <;> rfl
+    | addWorkConst c =>
+      exact ih _ hsh.2 hinv
+    | addInputOut lam =>
+      dsimp only [Pass2GF4Prog.execFrom]
+      apply ih (Pass2GF4Instr.exec st (.addInputOut lam)) hsh.2
+      change GF4.add (st.coeff 0 5) (if (0 : Nat) = 0 ∧ (5 : Nat) = 1 then lam else .z) =
+             GF4.mul α (GF4.add (st.coeff 1 4) (if (1 : Nat) = 0 ∧ (4 : Nat) = 1 then lam else .z))
+      have h1 : (if (0 : Nat) = 0 ∧ (5 : Nat) = 1 then lam else GF4.z) = GF4.z := by simp
+      have h2 : (if (1 : Nat) = 0 ∧ (4 : Nat) = 1 then lam else GF4.z) = GF4.z := by simp
+      rw [hinv, h1, h2]
+      generalize st.coeff 1 4 = u
+      cases α <;> cases u <;> rfl
+    | addInputWork lam =>
+      exact ih _ hsh.2 hinv
+
+/-- **Sharp lower bound: `x^5 ∉ RP^{pass}_{𝔽_4}(2, 2)`** (proving `t_min(5) = 3` is exact over `𝔽_4`). -/
+theorem gf4_x5_not_in_2_accesses : ¬ InRPPass2GF4 2 (monomialGF4 5) := by
+  rintro ⟨prog, hacc, _, ha0, hclean⟩
+  have hw : Pass2GF4Prog.workAccesses prog ≤ 2 :=
+    Nat.le_trans (Pass2GF4Prog.workAccesses_le_accesses prog) hacc
+  have hret : finalShiftGF4 prog .z = .z := by
+    rw [← execFrom_a_eq_finalShift prog ⟨.z, .z, fun _ _ => .z⟩]
+    exact ha0
+  rcases closed_loop_le2_shifts prog hw hret with ⟨α, hsh⟩
+  have hinv := execFrom_preserves_05_inv α prog ⟨.z, .z, fun _ _ => .z⟩ hsh (by cases α <;> rfl)
+  change (Pass2GF4Prog.exec prog).coeff 0 5 = GF4.mul α ((Pass2GF4Prog.exec prog).coeff 1 4) at hinv
+  have h05 := hclean 0 5
+  have h14 := hclean 1 4
+  rw [monomialGF4_getD] at h05
+  simp only [↓reduceIte] at h05
+  have h10 : (1 : Nat) ≠ 0 := by decide
+  simp only [h10, ↓reduceIte] at h14
+  rw [h05, h14] at hinv
+  have hz : GF4.mul α GF4.z = GF4.z := by cases α <;> rfl
+  rw [hz] at hinv
+  exact GF4.one_ne_zero hinv
+
+private theorem polyAtShiftCoeffGF4_03_linrel (poly : List GF4) (b a α β : GF4)
+    (ha : a = .z ∨ a = α ∨ a = β) :
+    polyAtShiftCoeffGF4 poly b a 0 3 =
+      GF4.add
+        (GF4.mul (GF4.add α β) (polyAtShiftCoeffGF4 poly b a 1 2))
+        (GF4.mul (GF4.mul α β) (polyAtShiftCoeffGF4 poly b a 2 1)) := by
+  simp only [polyAtShiftCoeffGF4]
+  have hb3 : binomGF4 3 3 = .one := by decide
+  have hb2 : binomGF4 3 2 = .one := by decide
+  have hb1 : binomGF4 3 1 = .one := by decide
+  change GF4.mul _ (GF4.mul (binomGF4 3 3) (GF4.pow a 3)) =
+         GF4.add
+           (GF4.mul (GF4.add α β) (GF4.mul _ (GF4.mul (binomGF4 3 2) (GF4.pow a 2))))
+           (GF4.mul (GF4.mul α β) (GF4.mul _ (GF4.mul (binomGF4 3 1) (GF4.pow a 1))))
+  rw [hb3, hb2, hb1]
+  generalize sumGF4 poly.length (fun k =>
+    GF4.mul (poly.getD k .z) (GF4.mul (binomGF4 k 3) (GF4.pow b (k - 3)))) = out
+  rcases ha with rfl | rfl | rfl
+  · cases out <;> cases α <;> cases β <;> rfl
+  · cases out <;> cases a <;> cases β <;> rfl
+  · cases out <;> cases a <;> cases α <;> rfl
+
+private theorem execFrom_preserves_03_inv (α β : GF4) (prog : List Pass2GF4Instr) (st : State2GF4)
+    (hsh : ShiftsInGF4 (fun x => x = .z ∨ x = α ∨ x = β) prog st.a)
+    (hinv : st.coeff 0 3 =
+      GF4.add (GF4.mul (GF4.add α β) (st.coeff 1 2)) (GF4.mul (GF4.mul α β) (st.coeff 2 1))) :
+    (Pass2GF4Prog.execFrom prog st).coeff 0 3 =
+      GF4.add
+        (GF4.mul (GF4.add α β) ((Pass2GF4Prog.execFrom prog st).coeff 1 2))
+        (GF4.mul (GF4.mul α β) ((Pass2GF4Prog.execFrom prog st).coeff 2 1)) := by
+  induction prog generalizing st with
+  | nil => exact hinv
+  | cons instr rest ih =>
+    cases instr with
+    | addOut poly =>
+      dsimp only [Pass2GF4Prog.execFrom]
+      apply ih (Pass2GF4Instr.exec st (.addOut poly)) hsh.2
+      change GF4.add (st.coeff 0 3) (polyAtShiftCoeffGF4 poly st.b st.a 0 3) =
+             GF4.add
+               (GF4.mul (GF4.add α β) (GF4.add (st.coeff 1 2) (polyAtShiftCoeffGF4 poly st.b st.a 1 2)))
+               (GF4.mul (GF4.mul α β) (GF4.add (st.coeff 2 1) (polyAtShiftCoeffGF4 poly st.b st.a 2 1)))
+      rw [hinv, polyAtShiftCoeffGF4_03_linrel poly st.b st.a α β hsh.1]
+      generalize GF4.add α β = s
+      generalize GF4.mul α β = p
+      generalize st.coeff 1 2 = u1
+      generalize st.coeff 2 1 = u2
+      generalize polyAtShiftCoeffGF4 poly st.b st.a 1 2 = v1
+      generalize polyAtShiftCoeffGF4 poly st.b st.a 2 1 = v2
+      cases s <;> cases p <;> cases u1 <;> cases u2 <;> cases v1 <;> cases v2 <;> rfl
+    | addWorkConst c =>
+      exact ih _ hsh.2 hinv
+    | addInputOut lam =>
+      dsimp only [Pass2GF4Prog.execFrom]
+      apply ih (Pass2GF4Instr.exec st (.addInputOut lam)) hsh.2
+      change GF4.add (st.coeff 0 3) (if (0 : Nat) = 0 ∧ (3 : Nat) = 1 then lam else .z) =
+             GF4.add
+               (GF4.mul (GF4.add α β) (GF4.add (st.coeff 1 2) (if (1 : Nat) = 0 ∧ (2 : Nat) = 1 then lam else .z)))
+               (GF4.mul (GF4.mul α β) (GF4.add (st.coeff 2 1) (if (2 : Nat) = 0 ∧ (1 : Nat) = 1 then lam else .z)))
+      have h1 : (if (0 : Nat) = 0 ∧ (3 : Nat) = 1 then lam else GF4.z) = GF4.z := by simp
+      have h2 : (if (1 : Nat) = 0 ∧ (2 : Nat) = 1 then lam else GF4.z) = GF4.z := by simp
+      have h3 : (if (2 : Nat) = 0 ∧ (1 : Nat) = 1 then lam else GF4.z) = GF4.z := by simp
+      rw [hinv, h1, h2, h3]
+      generalize GF4.add α β = s
+      generalize GF4.mul α β = p
+      generalize st.coeff 1 2 = u1
+      generalize st.coeff 2 1 = u2
+      cases s <;> cases p <;> cases u1 <;> cases u2 <;> rfl
+    | addInputWork lam =>
+      exact ih _ hsh.2 hinv
+
+/-- **Sharp lower bound: `x^3 ∉ RP^{pass}_{𝔽_4}(2, 3)`** (proving `t_min(3) = 4` is exact over `𝔽_4`). -/
+theorem gf4_x3_not_in_3_accesses : ¬ InRPPass2GF4 3 (monomialGF4 3) := by
+  rintro ⟨prog, hacc, _, ha0, hclean⟩
+  have hw : Pass2GF4Prog.workAccesses prog ≤ 3 :=
+    Nat.le_trans (Pass2GF4Prog.workAccesses_le_accesses prog) hacc
+  have hret : finalShiftGF4 prog .z = .z := by
+    rw [← execFrom_a_eq_finalShift prog ⟨.z, .z, fun _ _ => .z⟩]
+    exact ha0
+  rcases closed_loop_le3_shifts prog hw hret with ⟨α, β, hsh⟩
+  have hinit : GF4.z = GF4.add (GF4.mul (GF4.add α β) GF4.z) (GF4.mul (GF4.mul α β) GF4.z) := by
+    cases α <;> cases β <;> rfl
+  have hinv := execFrom_preserves_03_inv α β prog ⟨.z, .z, fun _ _ => .z⟩ hsh hinit
+  change (Pass2GF4Prog.exec prog).coeff 0 3 =
+    GF4.add
+      (GF4.mul (GF4.add α β) ((Pass2GF4Prog.exec prog).coeff 1 2))
+      (GF4.mul (GF4.mul α β) ((Pass2GF4Prog.exec prog).coeff 2 1)) at hinv
+  have h03 := hclean 0 3
+  have h12 := hclean 1 2
+  have h21 := hclean 2 1
+  rw [monomialGF4_getD] at h03
+  simp only [↓reduceIte] at h03
+  have h10 : (1 : Nat) ≠ 0 := by decide
+  have h20 : (2 : Nat) ≠ 0 := by decide
+  simp only [h10, ↓reduceIte] at h12
+  simp only [h20, ↓reduceIte] at h21
+  rw [h03, h12, h21] at hinv
+  have hz : GF4.add (GF4.mul (GF4.add α β) GF4.z) (GF4.mul (GF4.mul α β) GF4.z) = GF4.z := by
+    cases α <;> cases β <;> rfl
+  rw [hz] at hinv
+  exact GF4.one_ne_zero hinv
+
 end
 
 end Catalytic

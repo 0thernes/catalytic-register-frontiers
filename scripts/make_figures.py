@@ -2,6 +2,12 @@
 """
 Deterministic publication-grade vector PDF figure generator for catalytic-register-frontiers.
 Produces 3 vector PDFs in paper/figures/ with CreationDate=None for byte-level reproducibility.
+
+Epistemic note (Playbook #14 — numerical_approximation):
+  All floating-point NumPy/matplotlib calculations in this file are strictly
+  ``numerical_approximation`` used solely for visual plotting of coordinates and curves.
+  No theorem, inequality, or verification claim depends on floating-point arithmetic;
+  every mathematical claim is proved using exact integer/rational/Lean kernel arithmetic.
 """
 
 from __future__ import annotations

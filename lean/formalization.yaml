@@ -83,11 +83,15 @@ theorems:
   - id: T1e
     name: Catalytic.Solution.t1e_extension_field_separation
     module: Catalytic.ExtensionFieldSeparation
-    summary: "Sharpness of prime-field hypothesis over F_4: x^5 in RP(2,3), x^3 in RP(2,4), and x^7 not in RP(2,t) for all t."
+    summary: "Exact sharp F_4 separation: x^5 in RP(2,3) and not RP(2,2), x^3 in RP(2,4) and not RP(2,3), and x^7 not in RP(2,t) for all t."
   - id: T2
     name: Catalytic.Solution.t2_bilinear_frobenius_collapse
     module: Catalytic.BilinearFrobenius
     summary: "Strictly bilinear passive-output 2-access computation of x^(2^k) over any char-2 commutative ring."
+  - id: T2b
+    name: Catalytic.Solution.t2b_distinct_operand_frobenius
+    module: Catalytic.BilinearFrobenius
+    summary: "Strictly distinct-operand 2-access Frobenius collapse for x^(2^k) on k+2 registers (zero self-squares R_a * R_a)."
   - id: T3a
     name: Catalytic.Solution.t3a_three_reg_5call_x7
     module: Catalytic.ThreeRegisterBreakthrough
@@ -112,6 +116,10 @@ theorems:
     name: Catalytic.Solution.t3f_global_integer_optimality
     module: Catalytic.ThreeRegisterBreakthrough
     summary: "Unconditional global integer optimality of t = 8 for ALL t >= 4 (t != 8) via single rational separator 30/37."
+  - id: T3g
+    name: Catalytic.Solution.t3g_three_reg_9call_x15
+    module: Catalytic.ThreeRegisterBreakthrough
+    summary: "Explicit 3-register passive program for x^15 in 9 input accesses (post-minimum ascent point log_15(9) = 0.811368)."
   - id: T4
     name: Catalytic.Solution.t4_balanced_multilinear_product
     module: Catalytic.BalancedProduct

@@ -71,13 +71,20 @@ run_paper() {
 }
 
 run_audit() {
-  step "Verify LRAT UNSAT proofs, REUSE/SPDX, citations, and MANIFEST.sha256"
+  step "Verify LRAT UNSAT proofs, REUSE/SPDX, citations, MANIFEST.sha256, and RFC 3161 TSA"
   (
     cd "$REPO"
     "$PYTHON" scripts/verify_lrat.py
     "$PYTHON" scripts/check_reuse.py
     "$PYTHON" scripts/check_citations.py --offline
     sha256sum -c MANIFEST.sha256 --quiet && echo "MANIFEST_SHA256_VERIFIED: all checksums match."
+    if command -v openssl >/dev/null 2>&1 && [ -f provenance/MANIFEST.sha256.tsr ]; then
+      if [ -d /etc/ssl/certs ]; then
+        openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CApath /etc/ssl/certs
+      else
+        openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr
+      fi
+    fi
   )
 }
 
