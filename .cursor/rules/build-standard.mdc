@@ -3,6 +3,7 @@ description: Build Standard v1.1.0 & Lean 4.35 invariants for catalytic-register
 globs: ["**/*"]
 alwaysApply: true
 ---
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
 
 Follow `AGENTS.md`:
 - Use `-LiteralPath` in PowerShell file cmdlets; run `pytest` repo-relative.

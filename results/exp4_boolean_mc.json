@@ -9,7 +9,8 @@
       "sat_at_k_minus_1": "UNSAT",
       "sat_at_k": "SAT",
       "exact_mc": 3,
-      "beats_quadratic": false
+      "beats_quadratic": false,
+      "lrat_cert": "results/sat_certs/f4_mul_k2.lrat"
     },
     {
       "name": "orthogonal_bent_pair_n4",
@@ -19,7 +20,8 @@
       "sat_at_k_minus_1": "UNSAT",
       "sat_at_k": "SAT",
       "exact_mc": 3,
-      "beats_quadratic": false
+      "beats_quadratic": false,
+      "lrat_cert": "results/sat_certs/orthogonal_bent_pair_k2.lrat"
     }
   ],
   "genuine_deg3_cancellations_sampled": 182,

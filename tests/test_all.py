@@ -40,6 +40,7 @@ from experiments.exp4_boolean_mc_companion import (
     synthesize_multi_output_mc,
 )
 from scripts.check_citations import BIB_PATH, check_offline
+from scripts.verify_lrat import verify_lrat
 
 
 def test_t1_prime_field_dichotomy_exact() -> None:
@@ -301,3 +302,70 @@ def test_results_json_artifacts_valid() -> None:
         assert p.exists(), f"Missing artifact: {p}"
         parsed = json.loads(p.read_text(encoding="utf-8"))
         assert isinstance(parsed, dict)
+
+
+def test_lrat_certificates_and_mutant_rejection(tmp_path: pathlib.Path) -> None:
+    """Verify archived CaDiCaL 2.1.2 LRAT UNSAT certificates and confirm mutant rejection."""
+    cert_dir = REPO / "results" / "sat_certs"
+    for stem in ("f4_mul_k2", "orthogonal_bent_pair_k2"):
+        cnf_p = cert_dir / f"{stem}.cnf"
+        lrat_p = cert_dir / f"{stem}.lrat"
+        assert cnf_p.exists() and lrat_p.exists(), f"Missing SAT certificate pair for {stem}"
+        steps, deletions = verify_lrat(cnf_p, lrat_p)
+        assert steps > 1000 and deletions > 100
+
+    # Mutant 1: truncate the final empty-clause derivation line -> must raise ValueError
+    orig_cnf = cert_dir / "f4_mul_k2.cnf"
+    orig_lines = (cert_dir / "f4_mul_k2.lrat").read_text(encoding="ascii").splitlines()
+    trunc_lrat = tmp_path / "truncated.lrat"
+    trunc_lrat.write_text("\n".join(orig_lines[:-1]) + "\n", encoding="ascii")
+    raised = False
+    try:
+        verify_lrat(orig_cnf, trunc_lrat)
+    except ValueError:
+        raised = True
+    assert raised, "LRAT verifier failed to reject proof missing empty clause!"
+
+    # Mutant 2: corrupt the first derived clause hint ID -> must raise ValueError
+    corrupted = list(orig_lines)
+    for idx, line in enumerate(corrupted):
+        parts = line.split()
+        if len(parts) >= 4 and parts[1] != "d":
+            zero_idx = parts.index("0", 1)
+            if zero_idx + 1 < len(parts) - 1:
+                parts[zero_idx + 1] = "99999999"
+                corrupted[idx] = " ".join(parts)
+                break
+    bad_hint_lrat = tmp_path / "bad_hint.lrat"
+    bad_hint_lrat.write_text("\n".join(corrupted) + "\n", encoding="ascii")
+    raised = False
+    try:
+        verify_lrat(orig_cnf, bad_hint_lrat)
+    except ValueError:
+        raised = True
+    assert raised, "LRAT verifier failed to reject corrupted RUP hint!"
+
+
+def test_manifest_and_reuse_hygiene() -> None:
+    """Guard against cache files leaking into MANIFEST.sha256 and confirm REUSE.toml + SPDX."""
+    assert (REPO / "REUSE.toml").exists()
+    manifest_text = (REPO / "MANIFEST.sha256").read_text(encoding="utf-8")
+    forbidden_prefixes = (
+        ".hypothesis/",
+        ".pytest_cache/",
+        ".mypy_cache/",
+        ".ruff_cache/",
+        "lean/.lake/",
+        ".venv/",
+    )
+    listed: set[str] = set()
+    for raw in manifest_text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        _, rel = line.split("  ", 1)
+        listed.add(rel)
+        for bad in forbidden_prefixes:
+            assert not rel.startswith(bad), f"Cache artifact leaked into MANIFEST.sha256: {rel}"
+    assert ".env.example" in listed, ".env.example must be tracked and hashed in MANIFEST.sha256"
+

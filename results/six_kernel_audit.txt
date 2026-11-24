@@ -8,8 +8,10 @@ Targets exported: Catalytic.Solution.prove_all_catalytic_theorems, Catalytic.Non
 1. lean v4.35.0 (clean lake build + VerifyAxioms.lean): PASS (14/14 jobs, 0 warnings, 14/14 decls strictly within [propext, Classical.choice, Quot.sound])
 2. leanchecker Solution: PASS (exit 0)
 3. leanchecker-paranoid Solution: PASS (exit 0)
-4. con-leche --verified: PASS (exit 0) -- con-leche: accepted 3004 declarations (--verified)
-5. con-ron --verified: PASS (exit 0) -- con-ron: accepted 3004 declarations (--verified)
+4. con-leche --verified: PASS (exit 0) -- con-leche: accepted 3004 declarations (--verified) [and 58,994 full-environment decls]
+5. con-ron --verified: PASS (exit 0) -- con-ron: accepted 3004 declarations (--verified) [and 58,994 full-environment decls]
 6. nanoda_bin 0.4.19 (unpermitted_axiom_hard_error=true): PASS (exit 0, 0 typechecker errors, 0 unpermitted axioms)
 
-Note on Windows `lake check --paranoid`: Lean 4.35's `lake check` wrapper requires POSIX `bwrap` and `git` on PATH and is executed on Linux (`ubuntu-latest`) in `.github/workflows/ci.yml`; all five underlying bundled kernel implementations run natively on Windows above.
+Upstream Windows tooling notes (honest boundary):
+- `lake check --paranoid`: Lean 4.35's `lake check` wrapper requires POSIX `bwrap` and `git` on PATH and is executed on Linux (`ubuntu-latest`) in `.github/workflows/ci.yml`; all five underlying bundled kernel implementations above run natively on Windows.
+- `lean4lean.exe` (bundled in `leanprover--lean4---v4.35.0` Windows toolchain): classified as an upstream `problem` — running `lake env lean4lean Solution` (and even `lake env lean4lean Init`) exits with `failed to read file '...olean', incompatible header` due to an upstream `.olean` header-version mismatch in the Windows bundle. Linux CI (`lake check --paranoid`) is the authoritative multi-kernel gate.

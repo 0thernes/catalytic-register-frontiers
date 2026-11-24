@@ -20,4 +20,6 @@
 - [lean/Catalytic/NonVacuity.lean](lean/Catalytic/NonVacuity.lean): Concrete 0 != 1 non-vacuity witnesses
 - [lean/comparator.json](lean/comparator.json) & [lean/formalization.yaml](lean/formalization.yaml): Palomar Registry verification metadata
 - [paper/main.tex](paper/main.tex) & [dist/Donahue_2026_catalytic_register_frontiers.pdf](dist/Donahue_2026_catalytic_register_frontiers.pdf): 14-page AMS-LaTeX manuscript and frozen PDF
-- [MANIFEST.sha256](MANIFEST.sha256) & [sbom.cdx.json](sbom.cdx.json): Cryptographic provenance manifest and CycloneDX 1.5 SBOM
+- [MANIFEST.sha256](MANIFEST.sha256), [provenance/](provenance/), [REUSE.toml](REUSE.toml), & [sbom.cdx.json](sbom.cdx.json): Cryptographic SHA-256 manifest, RFC 3161 trusted timestamp, REUSE 3.3 SPDX annotations, and CycloneDX 1.5 SBOM
+- [results/sat_certs/](results/sat_certs/) & [scripts/verify_lrat.py](scripts/verify_lrat.py): Archived CaDiCaL 2.1.2 DIMACS `.cnf` + ASCII `.lrat` UNSAT proofs and independent exact verifier
+- [project.yaml](project.yaml) & [docs/launch/release-checklist.md](docs/launch/release-checklist.md): Build Pipeline Models v1.0.0 manifest and 41-item Playbook v1.1 release checklist

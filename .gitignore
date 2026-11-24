@@ -1,9 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
 # Python / virtualenvs
 .venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
+.hypothesis/
+
+# Keep documented configuration template tracked even if global gitignore matches .env.*
+!.env.example
 
 # Lean 4 build caches
 lean/.lake/

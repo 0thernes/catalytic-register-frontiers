@@ -45,12 +45,12 @@ jobs:
           fi
           lake env leanchecker Solution
           lake env leanchecker-paranoid Solution
-          lake env leanexport Solution -- Catalytic.Solution.prove_all_catalytic_theorems > /tmp/catalytic_solution.ndjson
+          lake env leanexport Solution -- Catalytic.Solution.prove_all_catalytic_theorems Catalytic.NonVacuity.nonvac_all_hypotheses > /tmp/catalytic_solution.ndjson
           con-leche --verified /tmp/catalytic_solution.ndjson
           con-ron --verified /tmp/catalytic_solution.ndjson
           lake check --paranoid || true
 
-      - name: Setup Python 3.13 and run exact verification suite + pytest
+      - name: Setup Python 3.13 and run exact verification suite + pytest + LRAT verifier
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -61,6 +61,7 @@ jobs:
           if [ -x "$CADICAL_PATH" ]; then
             echo "CADICAL_BIN=$CADICAL_PATH" >> "$GITHUB_ENV"
           fi
+          python scripts/verify_lrat.py
           pytest -v tests/test_all.py
 
       - name: Report-only static analysis (ruff) and strict type check (mypy)
@@ -101,12 +102,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Install elan and pinned Lean 4.35.0 (provides cadical.exe)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://raw.githubusercontent.com/leanprover/elan/master/elan-init.ps1 -OutFile elan-init.ps1
+          .\elan-init.ps1 -y --default-toolchain none
+          "$env:USERPROFILE\.elan\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          "$env:USERPROFILE\.elan\toolchains\leanprover--lean4---v4.35.0\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          Set-Location lean
+          & "$env:USERPROFILE\.elan\bin\lean.exe" --version
       - name: Setup Python 3.13
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - name: Run pytest and Build Standard audit on Windows
+      - name: Run LRAT check, pytest, and Build Standard / Pipeline audits on Windows
+        shell: pwsh
         run: |
+          $env:CADICAL_BIN = "$env:USERPROFILE\.elan\toolchains\leanprover--lean4---v4.35.0\bin\cadical.exe"
           python -m pip install -r requirements.lock.txt
+          python scripts/verify_lrat.py
           pytest -v tests/test_all.py
           pwsh -NoProfile -File scripts/Audit-Repo.ps1 -Path .
+          python scripts/pipeline-audit.py

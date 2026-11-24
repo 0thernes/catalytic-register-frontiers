@@ -1,8 +1,8 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Agent & Contributor Instructions — `catalytic-register-frontiers`
 
-**Current Build Pipeline Phase:** `P7–P9` (Verified locally, release-ready for GitHub/Palomar/archival; see `docs/plan/decision-log.md`).  
-**Governing Standards:** Build Standard for LLMs v1.1.0 (`repo.yaml`, `scripts/Audit-Repo.ps1`) and Defensible Independent AI Research Playbook v1.1 (`docs/reviews/01-10-pass-review.md`).
+**Current Build Pipeline Phase:** `P9` (Verified locally, release-ready for GitHub/Palomar/archival; tracked in `project.yaml` and `docs/plan/decision-log.md`).  
+**Governing Standards:** Build Standard for LLMs v1.1.0 (`repo.yaml`, `scripts/Audit-Repo.ps1`), Build Pipeline Models v1.0.0 (`project.yaml`, `scripts/pipeline-audit.py`), and Defensible Independent AI Research Playbook v1.1 (`docs/reviews/01-10-pass-review.md`, `docs/launch/release-checklist.md`).
 
 Follow these repository invariants on every edit:
 
@@ -11,3 +11,6 @@ Follow these repository invariants on every edit:
 3. **Exact Arithmetic, Testing & Linters:** All computational checks in `experiments/` and `tests/` use exact integer/rational/finite-field arithmetic (`int`, `fractions.Fraction`) with no floating-point proof steps. Maintain passing Hypothesis property/metamorphic tests, mutant-killing checks, brute-force SAT encoder equivalence tests, `scripts/check_citations.py`, `ruff`, and `mypy`. Vector PDF figures must set `metadata={"CreationDate": None}`.
 4. **Epistemic Integrity & Identity:** Clearly separate Tier-1..4 claims (`CLAIMS.md`, `docs/statement-fidelity.md`, `LIMITATIONS.md`). Cite primary literature (`arXiv:2609.18692`, `arXiv:2608.30238`, `doi:10.4230/LIPIcs.MFCS.2025.6`, `doi:10.1016/j.tcs.2018.02.023`) accurately without redistributing third-party PDFs. Author is `Alexander S. Donahue` (Independent Researcher, Spokane, WA, USA; ORCID `0009-0006-8168-9648`; no unformed LLC claim); dual license is `Apache-2.0` (code) + `CC-BY-4.0` (prose/docs/figures).
 5. **Lean Git & CI Rules (R1–R8):** Commit directly to `main`; never add git hooks, branch protection, PR templates, Dependabot, or `.github/copilot-instructions.md`. Keep CI informational-only. Classify every finding as exactly one of `{bug, error, issue, problem, dilemma, conflict}`. Regenerate LF-clean `MANIFEST.sha256` after any artifact change.
+6. **Recorded N/A Tooling Decisions:**
+   - *Pipeline `P5.07` (Container/Nix):* No Dockerfile or devcontainer is required because `lean/` has zero external Lake/Mathlib dependencies (pinned solely by `lean/lean-toolchain` `v4.35.0`) and Python dependencies are strictly pinned in `requirements.lock.txt`.
+   - *Playbook #11 (`leanblueprint`):* Because the formalization comprises 11 self-contained zero-Mathlib modules, a static zero-dependency dependency graph and theorem-to-declaration map is published directly at `docs/index.html` (deployed via `.github/workflows/pages.yml`) instead of installing the plasTeX/Graphviz `leanblueprint` toolchain.

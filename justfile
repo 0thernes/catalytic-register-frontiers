@@ -25,10 +25,16 @@ build:
 test:
     pytest -v tests/test_all.py
 
-# Run static analysis and strict type checks (report-only)
+# Run static analysis, LRAT certificate check, and strict type checks (report-only)
 lint:
     ruff check experiments scripts tests || true
     mypy experiments scripts tests || true
+    python scripts/verify_lrat.py
+
+# Score this repository against Build Standard v1.1.0 & Build Pipeline Models v1.0.0 (report-only)
+audit *ARGS:
+    pwsh -NoProfile -File scripts/Audit-Repo.ps1 -Path . {{ARGS}}
+    python scripts/pipeline-audit.py
 
 # Run all 4 exact-arithmetic and SAT companion experiments
 experiments:
@@ -49,10 +55,6 @@ paper:
 reproduce: build experiments test figures paper
     sha256sum -c MANIFEST.sha256
 
-# Score this repository against Build Standard v1.1.0 (report-only)
-audit *ARGS:
-    pwsh -NoProfile -File scripts/Audit-Repo.ps1 -Path . {{ARGS}}
-
 # Build release artifacts in dist/
 dist: paper
     cp paper/build/main.pdf dist/Donahue_2026_catalytic_register_frontiers.pdf
@@ -63,4 +65,4 @@ mirror:
 
 # Remove local build intermediates
 clean:
-    rm -rf lean/.lake paper/build .pytest_cache .mypy_cache .ruff_cache
+    rm -rf lean/.lake paper/build .pytest_cache .mypy_cache .ruff_cache .hypothesis

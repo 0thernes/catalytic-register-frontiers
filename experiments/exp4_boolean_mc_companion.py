@@ -48,12 +48,21 @@ def eval_anf(terms: list[int], n: int) -> list[int]:
 
 
 def synthesize_multi_output_mc(
-    outputs: list[list[int]], n: int, k: int, cadical_bin: str, timeout: float = 15.0
+    outputs: list[list[int]],
+    n: int,
+    k: int,
+    cadical_bin: str,
+    timeout: float = 15.0,
+    cert_prefix: pathlib.Path | None = None,
 ) -> str:
     """
     Exact SAT encoding: does there exist an XAG circuit with `k` AND gates computing ALL
     Boolean truth tables in `outputs` on `n` inputs (allowing arbitrary nonlinear feedback)?
     Returns 'SAT', 'UNSAT', or 'TIMEOUT'.
+
+    If ``cert_prefix`` is provided and the instance is UNSAT, archives the exact DIMACS
+    ``.cnf`` file and CaDiCaL 2.1.2 ASCII ``.lrat`` proof at ``<cert_prefix>.cnf`` and
+    ``<cert_prefix>.lrat``.
     """
     m = len(outputs)
     N = 1 << n
@@ -141,6 +150,30 @@ def synthesize_multi_output_mc(
             add_xor_chain(ov, o_terms)
             clauses.append([ov] if outputs[o][x] == 1 else [-ov])
 
+    if cert_prefix is not None:
+        cert_prefix.parent.mkdir(parents=True, exist_ok=True)
+        cnf_file = cert_prefix.with_suffix(".cnf")
+        lrat_file = cert_prefix.with_suffix(".lrat")
+        with cnf_file.open("w", encoding="ascii", newline="\n") as cf:
+            cf.write(f"p cnf {var_cnt} {len(clauses)}\n")
+            for cl in clauses:
+                cf.write(" ".join(str(lit) for lit in cl) + " 0\n")
+        cmd = [cadical_bin, "-q", "--lrat=true", "--no-binary", str(cnf_file), str(lrat_file)]
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, check=False)
+            if proc.returncode == 10:
+                cnf_file.unlink(missing_ok=True)
+                lrat_file.unlink(missing_ok=True)
+                return "SAT"
+            if proc.returncode == 20:
+                # Normalize line endings to LF for cross-platform SHA-256 determinism
+                raw_lrat = lrat_file.read_bytes().replace(b"\r\n", b"\n")
+                lrat_file.write_bytes(raw_lrat)
+                return "UNSAT"
+            return f"UNKNOWN({proc.returncode})"
+        except subprocess.TimeoutExpired:
+            return "TIMEOUT"
+
     with tempfile.NamedTemporaryFile("w", suffix=".cnf", delete=False, encoding="ascii") as tf:
         cnf_path = tf.name
         tf.write(f"p cnf {var_cnt} {len(clauses)}\n")
@@ -174,7 +207,7 @@ def quadratic_mc_bound_n4(outputs: list[list[int]]) -> int:
     return -1
 
 
-def run_companion_audit() -> dict:
+def run_companion_audit(cert_dir: pathlib.Path | None = None) -> dict:
     cadical = find_cadical()
     benchmarks = []
 
@@ -182,7 +215,8 @@ def run_companion_audit() -> dict:
     #    c0 = a0*b0 ^ a1*b1, c1 = a0*b1 ^ a1*b0 ^ a1*b1. Known MC_<=2 = 3 (Karatsuba).
     f4_c0 = eval_anf([(1 << 0) | (1 << 2), (1 << 1) | (1 << 3)], 4)
     f4_c1 = eval_anf([(1 << 0) | (1 << 3), (1 << 1) | (1 << 2), (1 << 1) | (1 << 3)], 4)
-    r_f4_2 = synthesize_multi_output_mc([f4_c0, f4_c1], 4, 2, cadical)
+    f4_prefix = (cert_dir / "f4_mul_k2") if cert_dir is not None else None
+    r_f4_2 = synthesize_multi_output_mc([f4_c0, f4_c1], 4, 2, cadical, cert_prefix=f4_prefix)
     r_f4_3 = synthesize_multi_output_mc([f4_c0, f4_c1], 4, 3, cadical)
     assert r_f4_2 == "UNSAT" and r_f4_3 == "SAT"
     benchmarks.append({
@@ -194,13 +228,15 @@ def run_companion_audit() -> dict:
         "sat_at_k": r_f4_3,
         "exact_mc": 3,
         "beats_quadratic": False,
+        "lrat_cert": "results/sat_certs/f4_mul_k2.lrat" if cert_dir is not None else None,
     })
     print(f"[VERIFIED SAT] F_4 multiplication (n=4, m=2): k=2 {r_f4_2}, k=3 {r_f4_3} -> exact MC = 3.")
 
     # 2. Pair of independent quadratic forms on n=4: f0 = x0*x1 ^ x2*x3 (bent, MC=2), f1 = x0*x2 ^ x1*x3
     q_a = eval_anf([(1 << 0) | (1 << 1), (1 << 2) | (1 << 3)], 4)
     q_b = eval_anf([(1 << 0) | (1 << 2), (1 << 1) | (1 << 3)], 4)
-    r_q_2 = synthesize_multi_output_mc([q_a, q_b], 4, 2, cadical)
+    bent_prefix = (cert_dir / "orthogonal_bent_pair_k2") if cert_dir is not None else None
+    r_q_2 = synthesize_multi_output_mc([q_a, q_b], 4, 2, cadical, cert_prefix=bent_prefix)
     r_q_3 = synthesize_multi_output_mc([q_a, q_b], 4, 3, cadical)
     assert r_q_2 == "UNSAT" and r_q_3 == "SAT"
     benchmarks.append({
@@ -212,6 +248,7 @@ def run_companion_audit() -> dict:
         "sat_at_k": r_q_3,
         "exact_mc": 3,
         "beats_quadratic": False,
+        "lrat_cert": "results/sat_certs/orthogonal_bent_pair_k2.lrat" if cert_dir is not None else None,
     })
     print(f"[VERIFIED SAT] Orthogonal bent pair (n=4, m=2): k=2 {r_q_2}, k=3 {r_q_3} -> exact MC = 3.")
 
@@ -308,8 +345,9 @@ def run_companion_audit() -> dict:
 def main() -> None:
     repo = pathlib.Path(__file__).resolve().parent.parent
     out_path = repo / "results" / "exp4_boolean_mc.json"
+    cert_dir = repo / "results" / "sat_certs"
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    data = run_companion_audit()
+    data = run_companion_audit(cert_dir=cert_dir)
     out_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {out_path}")
 

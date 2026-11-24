@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: CC0-1.0
+version = 1
+SPDX-PackageName = "catalytic-register-frontiers"
+SPDX-PackageSupplier = "Alexander S. Donahue <0_0@0thernes.art>"
+SPDX-PackageDownloadLocation = "https://github.com/0thernes/catalytic-register-frontiers"
+
+[[annotations]]
+path = [
+    "lean/**",
+    "experiments/**",
+    "tests/**",
+    "scripts/**",
+    "pyproject.toml",
+    "requirements.lock.txt",
+    "justfile",
+    "repo.yaml",
+    "repo-standard.schema.json",
+    "project.yaml",
+    "project.schema.json",
+    ".zenodo.json",
+    "sbom.cdx.json",
+    ".env.example",
+    ".editorconfig",
+    ".gitattributes",
+    ".gitignore",
+    ".github/**",
+    "VERSION",
+    "LICENSE",
+    "MANIFEST.sha256",
+    "provenance/**",
+    "results/**",
+    "reports/**",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Alexander S. Donahue"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = [
+    "paper/**",
+    "dist/**",
+    "docs/**",
+    "*.md",
+    "CITATION.cff",
+    "llms.txt",
+    "llms-full.txt",
+    ".cursor/**",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Alexander S. Donahue"
+SPDX-License-Identifier = "CC-BY-4.0"

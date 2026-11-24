@@ -1,5 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
 * text=auto eol=lf
-*.ps1 text eol=crlf
 *.pdf binary
 *.png binary
 *.tar.gz binary
+*.tsq binary
+*.tsr binary
+*.ots binary

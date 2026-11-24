@@ -1,0 +1,106 @@
+# SPDX-License-Identifier: Apache-2.0
+# yaml-language-server: $schema=./project.schema.json
+# Build Pipeline Models v1.0.0 project manifest. status: todo | doing | done | n/a (n/a needs a note).
+standard: "1.0.0"
+name: "catalytic-register-frontiers"
+owner: "Alexander S. Donahue"
+current_phase: P9
+profile: T05
+deploy_targets: [D01]
+process_models: [M02, M04, M14, M21]
+steps:
+  P0.01: {status: done, note: "docs/plan/00-idea.md"}
+  P0.02: {status: done, note: "docs/plan/00-idea.md"}
+  P0.03: {status: done, note: "docs/plan/00-idea.md"}
+  P0.04: {status: done, note: "docs/plan/00-idea.md"}
+  P0.05: {status: done, note: "docs/plan/00-idea.md"}
+  P0.06: {status: done, note: "docs/plan/00-redteam.md"}
+  P0.07: {status: done, note: "docs/plan/kill-criteria.md"}
+  P0.08: {status: done, note: "docs/plan/00-idea.md"}
+  P1.01: {status: done, note: "docs/plan/02-requirements.md (mathematicians, TCS researchers, Lean verifiers)"}
+  P1.02: {status: n/a, note: "Theoretical mathematics research; literature review replaces customer interviews (docs/literature-search-log.md)"}
+  P1.03: {status: done, note: "docs/literature-search-log.md (Vinciguerra 2026, AFM 2025, Boyar-Find 2018, Morse 2026)"}
+  P1.04: {status: n/a, note: "Not a commercial product; research novelty validated against primary literature instead"}
+  P1.05: {status: done, note: "docs/plan/01-spikes.md (probe1..probe12 + r=4 negative spike)"}
+  P1.06: {status: done, note: "docs/legal-and-ethics.md + docs/adr/0002-epistemic-scope-and-identity.md"}
+  P1.07: {status: done, note: "docs/plan/decision-log.md"}
+  P2.01: {status: done, note: "docs/plan/02-requirements.md"}
+  P2.02: {status: done, note: "docs/plan/02-requirements.md"}
+  P2.03: {status: done, note: "docs/plan/02-requirements.md"}
+  P2.04: {status: done, note: "docs/plan/02-requirements.md"}
+  P2.05: {status: done, note: "docs/plan/02-metrics.md"}
+  P2.06: {status: done, note: "docs/plan/02-requirements.md"}
+  P2.07: {status: done, note: "CLAIMS.md"}
+  P3.01: {status: done, note: "docs/architecture.md"}
+  P3.02: {status: n/a, note: "Stateless mathematical proof & experiment repo; no database or user data store"}
+  P3.03: {status: n/a, note: "No HTTP/RPC API; public contract is lean/Challenge.lean + CLI scripts"}
+  P3.04: {status: done, note: "docs/threat-model.md"}
+  P3.05: {status: n/a, note: "Zero runtime infrastructure cost (local/GitHub Free + GitHub Pages)"}
+  P3.06: {status: n/a, note: "Static mathematical artifact; no multi-tenant traffic scaling"}
+  P3.07: {status: done, note: "docs/failure-modes.md"}
+  P3.08: {status: done, note: "docs/adr/0001-zero-mathlib-lean-kernel.md and 0002-epistemic-scope-and-identity.md"}
+  P3.09: {status: done, note: "results/six_kernel_audit.txt, results/lean_axioms.txt, docs/run-log.md"}
+  P4.01: {status: done, note: "docs/stack-matrix.md"}
+  P4.02: {status: done, note: "docs/stack-matrix.md"}
+  P4.03: {status: done, note: "docs/stack-matrix.md (zero-Mathlib Lean, stdlib Python, Tectonic)"}
+  P4.04: {status: done, note: "docs/stack-matrix.md"}
+  P4.05: {status: done, note: "docs/legal-and-ethics.md (AI assistance disclosure; zero runtime LLM calls)"}
+  P4.06: {status: done, note: "D01 GitHub Pages + GitHub Releases (.github/workflows/pages.yml, release.yml)"}
+  P4.07: {status: done, note: "sbom.cdx.json, THIRD_PARTY_NOTICES.md, REUSE.toml"}
+  P5.01: {status: done, note: "Local git repo on main; remote push tracked in P9.06"}
+  P5.02: {status: done, note: "scripts/Audit-Repo.ps1 (61/62 = 98.4% overall; 27/28 = 96.4% core; only A19 remote)"}
+  P5.03: {status: done, note: "lean/lean-toolchain (v4.35.0), requirements.lock.txt, pyproject.toml"}
+  P5.04: {status: done, note: "scripts/run_all.ps1 and justfile"}
+  P5.05: {status: done, note: ".env.example and docs/configuration.md"}
+  P5.06: {status: done, note: "AGENTS.md, CLAUDE.md, GEMINI.md, .cursor/rules/build-standard.mdc, llms.txt, project.yaml"}
+  P5.07: {status: n/a, note: "Zero-Mathlib Lean 4.35 + pinned requirements.lock.txt runs reproducibly without a container; documented in AGENTS.md"}
+  P6.01: {status: done, note: "docs/plan/slices.md"}
+  P6.02: {status: done, note: "lean/Catalytic/CommRing.lean -> Solution.lean"}
+  P6.03: {status: done, note: "tests/test_all.py (exact, Hypothesis, mutant-killing, brute-force SAT, LRAT)"}
+  P6.04: {status: done, note: "docs/reviews/01-10-pass-review.md"}
+  P6.05: {status: n/a, note: "No runtime AI/LLM prompts or model inference in the shipped software"}
+  P6.06: {status: n/a, note: "No runtime feature flags; static formal proof repository"}
+  P6.07: {status: done, note: "Trunk-based commits directly on main (R2)"}
+  P6.08: {status: done, note: "README.md, CHANGELOG.md, ERRATA.md, docs/*"}
+  P7.01: {status: done, note: "docs/verification.md (6 Lean kernels + exact/property/mutant/LRAT tests)"}
+  P7.02: {status: done, note: "CLAIMS.md + docs/statement-fidelity.md"}
+  P7.03: {status: done, note: "tests/test_all.py + scripts/run_all.ps1 -Task all"}
+  P7.04: {status: done, note: "Lean kernel build < 30s; all 6 external kernels verified in seconds"}
+  P7.05: {status: done, note: "reports/security/audit-2026-11-23.txt + sbom.cdx.json"}
+  P7.06: {status: done, note: "Windows bracket-path safety verified + Linux ubuntu-latest CI defined"}
+  P7.07: {status: n/a, note: "No ML model evaluation; mathematical proof & exact SAT companion"}
+  P7.08: {status: done, note: "docs/reviews/01-10-pass-review.md (self-audit complete; external peer review pending in P9)"}
+  P7.09: {status: done, note: "LIMITATIONS.md"}
+  P8.01: {status: done, note: ".github/workflows/ci.yml (informational on every push)"}
+  P8.02: {status: done, note: "dist/Donahue_2026_catalytic_register_frontiers.pdf + dist/arxiv_submission.tar.gz"}
+  P8.03: {status: n/a, note: "Static research site & release artifact; no multi-environment server"}
+  P8.04: {status: n/a, note: "Static site previewed locally; no server preview deploys"}
+  P8.05: {status: n/a, note: "Workflow YAML in .github/workflows/ is complete IaC for D01"}
+  P8.06: {status: done, note: "Zero runtime secrets; GitHub OIDC token only for attestations/Pages"}
+  P8.07: {status: n/a, note: "No database"}
+  P8.08: {status: n/a, note: "No runtime feature flags"}
+  P8.09: {status: n/a, note: "Static GitHub Pages + immutable versioned release tags"}
+  P8.10: {status: done, note: "docs/operations.md (git revert on main + re-run Pages workflow)"}
+  P8.11: {status: done, note: ".github/workflows/release.yml (tag-triggered release + SLSA attestation)"}
+  P9.01: {status: done, note: "docs/launch/release-checklist.md (full 41-item Playbook v1.1 audit)"}
+  P9.02: {status: done, note: "README.md, REPLICATION.md, docs/index.html"}
+  P9.03: {status: todo, note: "Awaiting owner push to GitHub, Zenodo/OSF DOI minting, and Palomar submission"}
+  P9.04: {status: done, note: "docs/launch/announcement.md + docs/media/social-preview.svg"}
+  P9.05: {status: done, note: "docs/launch/channels.md (ordered 6-step Playbook release sequence)"}
+  P9.06: {status: todo, note: "Pending owner GitHub push, signed release tag v1.0.0, and remote About/Topics (A19)"}
+  P9.07: {status: todo, note: "Pending post-push CI green run and external reproduction"}
+  P10.01: {status: n/a, note: "Static research repository; no live backend service telemetry"}
+  P10.02: {status: n/a, note: "No live service SLOs"}
+  P10.03: {status: done, note: "docs/operations.md + ERRATA.md retraction/correction procedure"}
+  P10.04: {status: n/a, note: "No production incidents; errata tracked in ERRATA.md"}
+  P10.05: {status: done, note: "Git history + planned Software Heritage SWHID + Zenodo archive"}
+  P10.06: {status: n/a, note: "Zero cloud spend"}
+  P10.07: {status: done, note: "SECURITY.md + pinned toolchain/lockfiles"}
+  P10.08: {status: done, note: "README.md + repo.yaml (status: active, tier: 1)"}
+  P11.01: {status: n/a, note: "Research impact measured by external replications, Palomar/citation uptake"}
+  P11.02: {status: todo, note: "Will collect Lean Zulip / peer feedback after publication"}
+  P11.03: {status: todo, note: "Quarterly review post-publication"}
+  P11.04: {status: done, note: "docs/plan/experiments.md (exp1..exp4 + archived LRAT proofs)"}
+  P11.05: {status: done, note: "docs/plan/decision-log.md"}
+  P11.06: {status: n/a, note: "Tracked in sibling 0thernes-research-archive repository"}
+  P11.07: {status: done, note: "ROADMAP.md"}

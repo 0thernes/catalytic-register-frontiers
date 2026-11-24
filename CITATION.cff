@@ -1,9 +1,11 @@
+# SPDX-License-Identifier: CC-BY-4.0
 cff-version: 1.2.0
 message: "If you use this formalization, computational suite, or white paper, please cite it as below."
 type: software
 title: "Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs"
 version: 1.0.0
 date-released: 2026-11-23
+repository-code: "https://github.com/0thernes/catalytic-register-frontiers"
 authors:
   - family-names: Donahue
     given-names: Alexander S.

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 name: Question or independent replication report
 description: Ask about a Lean definition, statement fidelity, or submit an independent replication log.
 labels: ["question"]

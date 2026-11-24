@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # yaml-language-server: $schema=./repo-standard.schema.json
 # Project manifest for the Build Standard for LLMs v1.1.0. Read by scripts/Audit-Repo.ps1 and scripts/audit-repo.sh.
 # Keep each item on one line. status: done | todo | partial | n/a (n/a needs a note).

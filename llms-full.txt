@@ -8,8 +8,8 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Agent & Contributor Instructions — `catalytic-register-frontiers`
 
-**Current Build Pipeline Phase:** `P7–P9` (Verified locally, release-ready for GitHub/Palomar/archival; see `docs/plan/decision-log.md`).  
-**Governing Standards:** Build Standard for LLMs v1.1.0 (`repo.yaml`, `scripts/Audit-Repo.ps1`) and Defensible Independent AI Research Playbook v1.1 (`docs/reviews/01-10-pass-review.md`).
+**Current Build Pipeline Phase:** `P9` (Verified locally, release-ready for GitHub/Palomar/archival; tracked in `project.yaml` and `docs/plan/decision-log.md`).  
+**Governing Standards:** Build Standard for LLMs v1.1.0 (`repo.yaml`, `scripts/Audit-Repo.ps1`), Build Pipeline Models v1.0.0 (`project.yaml`, `scripts/pipeline-audit.py`), and Defensible Independent AI Research Playbook v1.1 (`docs/reviews/01-10-pass-review.md`, `docs/launch/release-checklist.md`).
 
 Follow these repository invariants on every edit:
 
@@ -18,6 +18,9 @@ Follow these repository invariants on every edit:
 3. **Exact Arithmetic, Testing & Linters:** All computational checks in `experiments/` and `tests/` use exact integer/rational/finite-field arithmetic (`int`, `fractions.Fraction`) with no floating-point proof steps. Maintain passing Hypothesis property/metamorphic tests, mutant-killing checks, brute-force SAT encoder equivalence tests, `scripts/check_citations.py`, `ruff`, and `mypy`. Vector PDF figures must set `metadata={"CreationDate": None}`.
 4. **Epistemic Integrity & Identity:** Clearly separate Tier-1..4 claims (`CLAIMS.md`, `docs/statement-fidelity.md`, `LIMITATIONS.md`). Cite primary literature (`arXiv:2609.18692`, `arXiv:2608.30238`, `doi:10.4230/LIPIcs.MFCS.2025.6`, `doi:10.1016/j.tcs.2018.02.023`) accurately without redistributing third-party PDFs. Author is `Alexander S. Donahue` (Independent Researcher, Spokane, WA, USA; ORCID `0009-0006-8168-9648`; no unformed LLC claim); dual license is `Apache-2.0` (code) + `CC-BY-4.0` (prose/docs/figures).
 5. **Lean Git & CI Rules (R1–R8):** Commit directly to `main`; never add git hooks, branch protection, PR templates, Dependabot, or `.github/copilot-instructions.md`. Keep CI informational-only. Classify every finding as exactly one of `{bug, error, issue, problem, dilemma, conflict}`. Regenerate LF-clean `MANIFEST.sha256` after any artifact change.
+6. **Recorded N/A Tooling Decisions:**
+   - *Pipeline `P5.07` (Container/Nix):* No Dockerfile or devcontainer is required because `lean/` has zero external Lake/Mathlib dependencies (pinned solely by `lean/lean-toolchain` `v4.35.0`) and Python dependencies are strictly pinned in `requirements.lock.txt`.
+   - *Playbook #11 (`leanblueprint`):* Because the formalization comprises 11 self-contained zero-Mathlib modules, a static zero-dependency dependency graph and theorem-to-declaration map is published directly at `docs/index.html` (deployed via `.github/workflows/pages.yml`) instead of installing the plasTeX/Graphviz `leanblueprint` toolchain.
 
 ---
 # FILE: README.md
@@ -242,9 +245,9 @@ This document explicitly states what `catalytic-register-frontiers` **does not**
 5. **No $r = 4$ exponent improvement:**
    Our exploratory exact modular search over $r = 4$ triangular closed loops (`deg_v = 2, 3, 4`, `wt(w) = 3..9`, unrestricted monomials) reached $N = 7$ ($t=4$), $N = 9$ ($t=5$, $\epsilon = 0.73249$), and $N = 11$ ($t=6$, $\epsilon = 0.74722$). Because degree grew as $2t - 1$ rather than faster, this family did **not** beat Vinciguerra's $r = 4$ exponent $\log_7 4 \approx 0.71241$.
 6. **Boyar–Find conjecture & SAT certificate boundary:**
-   `exp4_boolean_mc_companion.py` provides supporting SAT-certified evidence (0 counterexamples across sampled degree-3 cancellations and hard $n = 4$ maps) and does **not** prove or refute Boyar–Find (TCS 720, 2018) or Morse's $n = 5$ conjecture (`arXiv:2608.30238`). While our CNF encoder is verified against an independent exhaustive brute-force enumerator on all 16 $n=2$ functions ($k=0, 1$) and canonical $n=3$ benchmarks in `tests/test_all.py`, the CaDiCaL 2.1.2 UNSAT certificates have **not** yet been replayed through CakeML's `cake_lpr` (external tool not installed locally — classified as `problem`; no Tier-1 Lean theorem depends on SAT).
-7. **Peer-review & external provenance status:**
-   This manuscript has **not** undergone external peer review or external second-machine human reproduction (`REPLICATION.md`). Post-push external steps (live GitHub Actions CI/SLSA attestations, Zenodo/OSF DOI minting, Software Heritage SWHID, Palomar 40-char SHA registration, OpenTimestamps `.ots` proof) remain pending publication (`ROADMAP.md`). Correctness of all Tier-1 theorems is certified independently by six Lean 4.35 verification kernels.
+   `exp4_boolean_mc_companion.py` provides supporting SAT-certified evidence (0 counterexamples across sampled degree-3 cancellations and hard $n = 4$ maps) and does **not** prove or refute Boyar–Find (TCS 720, 2018) or Morse's $n = 5$ conjecture (`arXiv:2608.30238`). Our CNF encoder is verified against an independent exhaustive brute-force enumerator on all 16 $n=2$ functions ($k=0, 1$) and canonical $n=3$ benchmarks in `tests/test_all.py`, AND the CaDiCaL 2.1.2 DIMACS `.cnf` + ASCII `.lrat` UNSAT certificates (`results/sat_certs/f4_mul_k2.{cnf,lrat}` and `results/sat_certs/orthogonal_bent_pair_k2.{cnf,lrat}`) are archived and verified step-by-step by our independent exact LRAT/RUP verifier `scripts/verify_lrat.py` (including mutant-rejection tests in `tests/test_all.py`). They have **not** yet been replayed through CakeML's formally verified `cake_lpr` binary (external binary not installed locally — classified as `problem`; no Tier-1 Lean theorem depends on SAT).
+7. **Peer-review, Windows tooling, & external provenance status:**
+   This manuscript has **not** undergone external peer review or external second-machine human reproduction (`REPLICATION.md`). On Windows, `lean4lean.exe` bundled in Lean 4.35.0 exhibits an upstream `.olean` header-version mismatch (`incompatible header`, classified as `problem`; Linux CI `lake check --paranoid` is the authoritative gate while 5 independent kernel implementations pass natively on Windows). Post-push external steps (live GitHub Actions CI/SLSA attestations, Zenodo/OSF DOI minting, Software Heritage SWHID, Palomar 40-char SHA registration) remain pending publication (`ROADMAP.md`). Correctness of all Tier-1 theorems is certified independently by six Lean 4.35 verification kernels.
 
 ## 2. Classified Engineering & Discovery Log
 
@@ -362,73 +365,17 @@ Independent external human replications (pass or fail) are welcome via `.github/
 | 2026-11-23 | Alexander S. Donahue (author — clean-room self-replication) | Clean `.lake` + 6 kernels + `exp1`–`exp4` + `pytest`/Hypothesis/mutant/SAT + Tectonic + standalone `arxiv_submission.tar.gz` + `MANIFEST.sha256` | Windows 11 x64, Lean 4.35.0, Python 3.13.12, CaDiCaL 2.1.2, Tectonic | **PASS (self)** | Zero warnings, 6/6 kernels PASS, 100% SHA-256 match. External second-person replication still open. |
 
 ---
-# FILE: docs/statement-fidelity.md
+# FILE: ERRATA.md
 ---
 
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Statement-Fidelity Audit Table (`docs/statement-fidelity.md`)
+# Errata (`ERRATA.md`)
 
-Line-by-line mapping between every formal Lean 4.35 definition and theorem in `lean/Challenge.lean` / `lean/Catalytic/*.lean`, the informal mathematical claims in `paper/main.tex`, the primary literature anchors, and the machine-checked non-vacuity witnesses in `lean/Catalytic/NonVacuity.lean` (Playbook Checklist #10).
+Append-only log of mathematical, formalization, bibliographic, or computational errors discovered after initial freezing.
 
-## 1. Core Definitions
-
-| Lean Declaration | File | Literature Anchor | Non-Vacuity Witness | Fidelity Notes & Edge Cases | Status |
+| Date | Target | Class | Description | Resolution | Commit |
 |---|---|---|---|---|---|
-| `CRing R`, `Char2CRing R` | `Catalytic/CommRing.lean` | Standard commutative unital ring; characteristic-2 ring ($a + a = 0$) | `ModP p hp` ($0 \neq 1$), `F2` ($0 \neq 1$), `Int` ($0 \neq 1$) | Minimal zero-Mathlib axiomatization; `CRing.intCast` and `CRing.pow` proven homomorphic/standard. | **Match** |
-| `IsPrime p`, `digitSum p d` | `Catalytic/PrimeFieldTools.lean` | Standard prime integer ($p \ge 2$, only trivial divisors); base-$p$ digit sum $s_p(d)$ | `nonvac_T1_witnesses` (`IsPrime 2, 3, 5, 7`) | Lucas's Theorem proved from scratch (`choose_mod_prime_mul`) for all primes $p$. | **Match** |
-| `Pass2Instr`, `InRPPass2 p t f` | `Catalytic/DigitSumDichotomy.lean` | Vinciguerra (`arXiv:2609.18692`), Def. 2.2, §3.3 ($r = 2$, passive output $O$, work register $U$, over $\mathbb{F}_p$) | `nonvac_T1_witnesses` (`x^4 ∈ RP_{F_2}(2,2)`, `x^3 ∉ RP_{F_2}(2,10)`, `x^2 ∈ RP_{F_5}(2,3)`, `x^2 ∉ RP_{F_5}(2,2)`) | Every basic op on $U$ adds a constant; every basic op on $O$ adds $P(U)$; every input access adds $\lambda x$ to $U$ or $O$. Polynomial equality is formal coefficient equality in $\mathbb{F}_p[x, \tau]$ (matching Vinciguerra's polynomial-ring semantics, not merely function evaluation on $\mathbb{F}_p$). | **Match** |
-| `BilinInstr n`, `BilinInstr.isValidPassive` | `Catalytic/BilinearFrobenius.lean` | Strictly bilinear restriction of Vinciguerra Def. 2.2 ($R_i \leftarrow R_i + R_j R_\ell$ with $j, \ell \neq i$, passive $R_0$) | `nonvac_T2_witness` (`F2`, $0 \neq 1$, $k = 2$, $x = 1$) | Strictly stronger restriction than general polynomials $p(R_{\neq i})$, so upper bound transfers immediately to Definition 2.2. | **Match** |
-| `Pass3InstrR R`, `Pass3Prog.exec` | `Catalytic/ThreeRegisterBreakthrough.lean` | Vinciguerra (`arXiv:2609.18692`), Def. 2.2 ($r = 3$: passive $O$, work registers $u, v$) | `nonvac_T3_witnesses` (`ModP 5`, `ModP 7`, `ModP 11` with $0 \neq 1$) | Constructors: `addX_u c` ($u \leftarrow u + c x$), `addPoly_v q` ($v \leftarrow v + q(u)$), `addPoly_o p` ($O \leftarrow O + p(u, v)$). Every constructor is literally an instance of Def. 2.2 with passive $O$. | **Match** |
-| `CatOp`, `CatOp.isStrictValid` | `Catalytic/BalancedProduct.lean` | Zero-workspace strictly bilinear register programs ($R_i \leftarrow R_i \pm x_\ell$, $R_i \leftarrow R_i \pm R_a R_b$, $i, a, b$ pairwise distinct) | `nonvac_T4_witness` (`Int`, $d = 4$, `2*3*5*7 = 210`, 36 ops) | Pairwise distinct indices (`dst ≠ a ∧ dst ≠ b ∧ a ≠ b`) enforced by `isStrictValid` and proved for every generated op. | **Match** |
-
-## 2. Headline Theorems
-
-| ID | Lean Declaration (`Solution.lean`) | Informal Claim (`paper/main.tex`) | Axioms | Explicitly NOT Claimed | Sign-Off |
-|---|---|---|---|---|---|
-| `T1` | `t1_digit_sum_dichotomy` | $f \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t) \iff \forall d \ge 2,\, \alpha_d \neq 0 \to s_p(d) \le \min(p-1, t-1)$ | `propext`, `Classical.choice`, `Quot.sound` | Non-prime extension fields $\mathbb{F}_{p^e}$ ($e \ge 2$), $r \ge 3$, or non-passive outputs | **Verified (Alexander S. Donahue)** |
-| `T1a`–`T1d` | `t1a`–`t1d` | Frobenius collapse $x^{p^m} \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2,2)$; $x^3 \notin \mathrm{RP}_{\mathbb{F}_2}^{\mathrm{pass}}(2,t)$; $s_p(d) \ge p$ impossible; recovery of Vinciguerra Thm. 3.5 for $d < p$ | `propext`, `Classical.choice`, `Quot.sound` | Function-table equivalence modulo $x^p - x$ (formal polynomial ring semantics used throughout) | **Verified (Alexander S. Donahue)** |
-| `T2` | `t2_bilinear_frobenius_collapse` | $x^{2^k}$ cleanly computed over any `Char2CRing` in $k+1$ regs, $4k-2$ bilinear ops, 2 input accesses | `propext`, `Classical.choice`, `Quot.sound` | Odd characteristics or distinct-operand variant without self-squares $R_j^2$ | **Verified (Alexander S. Donahue)** |
-| `T3a`–`T3d` | `t3a`–`t3d` | $x^7 \in \mathrm{RP}(3,5)$, $x^9 \in \mathrm{RP}(3,6)$, $x^{11} \in \mathrm{RP}(3,7)$, $x^{13} \in \mathrm{RP}(3,8)$ whenever $D_t$ invertible | `propext`, `Classical.choice`, `Quot.sound` | Characteristics dividing $D_t$; general $t \ge 10$; upper bounds on $D_{3,\mathbb{Q}}^{\mathrm{pass}}(t)$ | **Verified (Alexander S. Donahue)** |
-| `T3e` | `t3e_exponent_chain` | Exact `Nat` inequalities certifying $\log_{13} 8 < \log_{11} 7 < \log_9 6 < \log_7 5 < \log_5 4$ and $< \log_{15} 9$ | *(zero axioms)* | Optimality across $r \ge 4$ | **Verified (Alexander S. Donahue)** |
-| `T4` | `t4_balanced_multilinear_product` | Zero-workspace $x_0 \cdots x_{d-1}$ ($d = 2^k$) in $k+2$ regs, $(7d^2-4)/3$ strictly distinct bilinear ops | `propext`, `Quot.sound` | Non-power-of-two $d$ without padding; optimality of constant $7/3$ | **Verified (Alexander S. Donahue)** |
-
----
-# FILE: docs/legal-and-ethics.md
----
-
-<!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Legal, Ethics, AI Disclosure & Export-Control Self-Screen (`docs/legal-and-ethics.md`)
-
-Records compliance with Sections 4, 5, 8 (#31–#37), and 10 of the *Defensible Independent AI Research Playbook* (v1.1).
-
-## 1. Author Identity & Conflict of Interest (COI)
-
-- **Author:** Alexander S. Donahue (`ORCID 0009-0006-8168-9648`)
-- **Affiliation:** Independent Researcher, Spokane, WA, USA (`0_0@0thernes.art`)
-- **Entity / Commercial Disclosure:** No LLC or corporate entity is claimed as author, affiliation, or copyright holder (see [`docs/adr/0002-epistemic-scope-and-identity.md`](adr/0002-epistemic-scope-and-identity.md)).
-- **Funding & COI:** Self-funded independent research. No external grants, no institutional employer, no commercial conflicts of interest.
-
-## 2. AI-Contribution & CRediT Statement
-
-- **Human contributions (CRediT):** Conceptualization; Methodology; Formal analysis (definition design, statement-fidelity audit, primary-literature cross-check); Validation; Writing – review & editing; Supervision.
-- **AI tools used:** Antigravity / Gemini (2026-11-23) assisted in exploratory exact-arithmetic probing, Lean 4.35 proof engineering, Python verification/figure scripting, and AMS-LaTeX manuscript drafting.
-- **Not delegated to AI:** Choice of research questions, acceptance of theorem statements, statement-fidelity sign-off (`docs/statement-fidelity.md`), and epistemic scope boundaries (`CLAIMS.md`, `LIMITATIONS.md`).
-- **Authorship & Accountability:** No AI system is listed as an author. Alexander S. Donahue takes full responsibility for all claims, proofs, code, and references. Mathematical soundness of all Tier-1 theorems is certified mechanically by six independent Lean 4.35 kernel runs (`results/six_kernel_audit.txt`).
-- **Zenodo Generative-AI Policy Notice (April 27, 2026):** Before minting a Zenodo DOI via `.zenodo.json`, the author must verify depositor eligibility under Zenodo's generative-AI policy (human-conducted research with AI used as a tool, no AI listed in creators/contributors). Palomar Registry explicitly accepts AI-assisted Lean formalizations when disclosed in `lean/formalization.yaml`.
-
-## 3. Licensing & SPDX Attribution
-
-- **Code, Lean 4.35 formalization, scripts, workflows:** `Apache-2.0` (compatible with Mathlib upstreaming and OSI/JOSS requirements).
-- **White paper (`paper/`), documentation (`docs/`, `*.md`), figures (`paper/figures/*.pdf`):** `CC-BY-4.0`.
-- **SPDX Headers:** Declared across source, script, workflow, and documentation files (`LICENSE`, `THIRD_PARTY_NOTICES.md`).
-- **Copyright note on AI-assisted output:** Legal copyrightability of AI-generated portions varies by jurisdiction (see US Copyright Office AI reports); open permissive licensing (`Apache-2.0` / `CC-BY-4.0`) avoids restrictive "All rights reserved" claims.
-
-## 4. Export-Control Self-Screen (Playbook Checklist #37)
-
-- **Subject matter:** Pure algebraic complexity theory and finite-field combinatorics (polynomial degree bounds for passive catalytic register programs, Lucas's theorem, bilinear circuits, and small-instance Boolean multiplicative complexity).
-- **Screening outcome:** Publicly available fundamental mathematical research (cf. 15 CFR 734.8). Contains zero cryptographic primitives, zero offensive-cyber code, zero dual-use biological/chemical/nuclear/defense material, and zero ITAR-controlled technical data (22 CFR 120). No export-control restriction identified. (Not formal legal advice; consult counsel if future extensions enter dual-use domains.)
-
-## 5. Recorded Standard Conflict & Precedence Resolution (Build Standard R8)
-
-- **Conflict (`I:\All GH Repos` R1 vs. `I:\White Papers` Checklist #27):** Build Standard Rule R1 prohibits mandatory commit/tag signing gates or local git hooks; White Paper Playbook Checklist #27 recommends SSH/GPG-signed commits and release tags.
-- **Resolution under R8:** Local commits on `main` have zero hooks or forced signing gates (satisfying R1). When cutting a public archival tag for Zenodo/Palomar (`v1.0.0`), the author may optionally sign the release tag manually (`git tag -s v1.0.0`) to satisfy Playbook #27 without gating development.
+| 2026-11-23 | `paper/references.bib` (`BoyarFind2018`, `AFM2025`) | `error` | Pre-release Playbook Pass 5 live Crossref/PDF audit caught an incorrect DOI/title on `BoyarFind2018` (`10.1016/j.tcs.2018.04.017` resolved to an unrelated scheduling paper) and inaccurate author/title metadata on `AFM2025`. | Replaced with primary-source verified entries: Boyar & Find, *Multiplicative complexity of vector valued Boolean functions*, TCS 720 (2018), pp. 36–46, DOI `10.1016/j.tcs.2018.02.023`; Alekseev, Filmus, Mertz, Smal & Vinciguerra, *Catalytic Computing and Register Programs Beyond Log-Depth*, MFCS 2025, LIPIcs 345, pp. 6:1–6:18, DOI `10.4230/LIPIcs.MFCS.2025.6` (`arXiv:2504.17412`). Added automated `scripts/check_citations.py`. | Pre-release hardening |
+| 2026-11-23 | `paper/main.tex` (`cor:streaming`, `cor:matpow`) | `error` | Pre-release primary-PDF verification against Vinciguerra (`arXiv:2609.18692`, Cor. 5.1.1 & Thm. 5.2) caught an understated regular workspace bound in `cor:streaming` and imprecise matrix-register phrasing in `cor:matpow`. | Updated `cor:streaming` workspace to $O(D \log(m+1) + \log n + \log D)$ bits matching Vinciguerra Cor. 5.1.1, and stated exact scalar register count $2m^2 + \binom{m^2+2}{2} - 1$ for general non-commutative matrices via Vinciguerra §4.4's $\ell_A(z)$ lift in `cor:matpow`. | Pre-release hardening |
+| 2026-11-23 | `.gitignore`, `MANIFEST.sha256`, `.env.example` | `bug` | Second forensic pass against Build Standard v1.1.0 (`A10`, `A24`) caught 6 `.hypothesis/` cache entries hashed into `MANIFEST.sha256` while untracked by Git, AND `.env.example` silently ignored by a host global `.gitignore` (`.env.*`), which would have broken `MANIFEST.sha256` verification on any clean clone. | Added `.hypothesis/`, `.mypy_cache/`, and `!.env.example` to `.gitignore`, force-tracked `.env.example`, regenerated `MANIFEST.sha256` strictly from `git ls-files`, and added permanent regression test `test_manifest_and_reuse_hygiene()` in `tests/test_all.py`. | Second verification pass |
+| 2026-11-23 | `.github/workflows/ci.yml` (`cross-platform-windows`) | `bug` | Second forensic pass caught that `cross-platform-windows` ran `pytest tests/test_all.py` without installing `cadical.exe` (via Lean 4.35.0), which would raise `FileNotFoundError` in `test_exp4`. | Added `elan` + Lean 4.35.0 installation and `CADICAL_BIN` export plus `scripts/verify_lrat.py` to `cross-platform-windows`. | Second verification pass |

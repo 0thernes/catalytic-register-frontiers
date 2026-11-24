@@ -1,0 +1,36 @@
+# Cryptographic Timestamp Provenance Audit (Playbook #26)
+MANIFEST.sha256 SHA-256: 148e0e134634fc5dccb80a02f1c9d9da46eb9fb3d93aa6b6b9a146be596ded84
+MANIFEST.sha256 entries: 126 git-tracked files (0 caches)
+MANIFEST.sha256 size: 11372 bytes
+
+## RFC 3161 Trusted Timestamp (DigiCert RFC 3161 TSA)
+Endpoint: http://timestamp.digicert.com
+Query file: provenance/MANIFEST.sha256.tsq (69 bytes)
+Response file: provenance/MANIFEST.sha256.tsr (6007 bytes)
+OpenSSL cryptographic verification (`openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CAfile /usr/ssl/certs/ca-bundle.crt`, exit 0): Verification: OK
+
+### OpenSSL `ts -reply -text` Output:
+Status info:
+Status: Granted.
+Status description: unspecified
+Failure info: unspecified
+
+TST info:
+Version: 1
+Policy OID: 2.16.840.1.114412.7.1
+Hash Algorithm: sha256
+Message data:
+    0000 - 14 8e 0e 13 46 34 fc 5d-cc b8 0a 02 f1 c9 d9 da   ....F4.]........
+    0010 - 46 eb 9f b3 d9 3a a6 b6-b9 a1 46 be 59 6d ed 84   F....:....F.Ym..
+Serial number: 0xEBB7ECF61571B353D73C509B8DE25567
+Time stamp: Nov 24 07:56:48 2026 GMT
+Accuracy: unspecified
+Ordering: no
+Nonce: 0x77C82CF074437846
+TSA: unspecified
+Extensions:
+
+## OpenTimestamps Calendar Proof (Pending Bitcoin Block Confirmation)
+Calendar: https://a.pool.opentimestamps.org/digest
+File: provenance/MANIFEST.sha256.ots (307 bytes)
+Status: Submitted to OpenTimestamps calendar; upgrade with `ots upgrade provenance/MANIFEST.sha256.ots` once confirmed in a Bitcoin block (~1-2 hours).

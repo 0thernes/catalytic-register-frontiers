@@ -1,4 +1,5 @@
 module
+-- SPDX-License-Identifier: Apache-2.0
 
 public import Catalytic.CommRing
 public import Catalytic.BilinearFrobenius

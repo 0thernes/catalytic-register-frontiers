@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 name: Feature or research extension
 description: Propose a new Lean lemma, extension-field analysis, or verification check.
 labels: ["triage"]

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 name: Bug or finding
 description: Report a bug, mathematical error, statement-fidelity mismatch, or standard gap.
 labels: ["triage"]
