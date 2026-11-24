@@ -256,24 +256,40 @@ def test_sat_encoder_bruteforce_equivalence() -> None:
 
 
 def test_lean_formalization_and_governance_hygiene() -> None:
-    """Negative & regression guard (B06, B07): zero forbidden tokens, all 14 Lean files use
+    """Negative & regression guard (B06, B07): zero forbidden tokens in all 15 proof/solution
+    modules, standalone PalomarChallenge.lean unimported & <= 1000 lines, all Lean files use
     `module`, axioms strictly within the 3 standard Lean axioms, and citations verified."""
     lean_dir = REPO / "lean"
     pat = re.compile(r"\b(sorry|admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern", re.M)
+    pat_no_sorry = re.compile(r"\b(admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern", re.M)
     lean_files: list[pathlib.Path] = []
     for root, dirs, fnames in os.walk(lean_dir):
         dirs[:] = [d for d in dirs if d != ".lake"]
         for fn in sorted(fnames):
             if fn.endswith(".lean"):
                 lean_files.append(pathlib.Path(root) / fn)
-    assert len(lean_files) == 14
+    assert len(lean_files) == 16
     for f in lean_files:
         text = f.read_text(encoding="utf-8")
         assert text.lstrip().startswith("module"), f"Missing Lean 4.35 `module` header in {f}"
-        assert not pat.search(text), f"Forbidden token found in {f}"
+        if f.name == "PalomarChallenge.lean":
+            assert not pat_no_sorry.search(text), f"Forbidden token found in {f}"
+            assert not re.search(r"^\s*(?:public\s+)?import\b", text, re.M), "PalomarChallenge.lean must have zero imports"
+            assert len(text.splitlines()) <= 1000, "PalomarChallenge.lean exceeds Palomar 1000-line cap"
+        else:
+            assert not pat.search(text), f"Forbidden token found in {f}"
+            assert "PalomarChallenge" not in text, f"Proof module {f} must never reference PalomarChallenge"
+
+    # Verify PalomarChallenge.lean and PalomarSolution.lean definition sections match verbatim
+    pc_txt = (lean_dir / "PalomarChallenge.lean").read_text(encoding="utf-8")
+    ps_txt = (lean_dir / "PalomarSolution.lean").read_text(encoding="utf-8")
+    pc_defs = pc_txt.split("namespace Catalytic.Palomar\n", 1)[1].split("/-! ## 7.", 1)[0].strip()
+    ps_defs = ps_txt.split("namespace Catalytic.Palomar\n", 1)[1].split("\nend\n\n/-! ## Private Equivalence Bridges", 1)[0].strip()
+    assert pc_defs == ps_defs, "PalomarChallenge.lean and PalomarSolution.lean definition sections drifted!"
 
     # Verify Palomar, comparator, soundness bridge, extension-field, and 4-register powering artifacts exist
     assert (lean_dir / "comparator.json").exists()
+    assert (lean_dir / "palomar_comparator.json").exists()
     assert (lean_dir / "formalization.yaml").exists()
     assert (lean_dir / "Catalytic" / "NonVacuity.lean").exists()
     assert (lean_dir / "Catalytic" / "ExtensionFieldSeparation.lean").exists()
@@ -616,7 +632,8 @@ def test_all_metadata_schemas_valid() -> None:
     assert re.fullmatch(r"\d+\.\d+\.\d+", version)
     assert f'version = "{version}"' in (REPO / "pyproject.toml").read_text(encoding="utf-8")
     assert f"version: {version}" in (REPO / "CITATION.cff").read_text(encoding="utf-8")
-    assert f'version: "{version}"' in (REPO / "lean" / "formalization.yaml").read_text(encoding="utf-8")
+    assert f'release_version: "{version}"' in (REPO / "lean" / "formalization.yaml").read_text(encoding="utf-8")
+    assert 'version: "v0.4"' in (REPO / "lean" / "formalization.yaml").read_text(encoding="utf-8")
 
     # Validate JSON artifacts parse cleanly with required keys
     sbom = json.loads((REPO / "sbom.cdx.json").read_text(encoding="utf-8"))

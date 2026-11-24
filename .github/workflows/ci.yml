@@ -27,11 +27,19 @@ jobs:
 
       - name: Forbidden-token scan across lean/**/*.lean
         run: |
-          if grep -rnE '\b(sorry|admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern' lean/; then
-            echo "FORBIDDEN TOKEN FOUND!" >&2
+          if grep -rnE --exclude=PalomarChallenge.lean '\b(sorry|admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern' lean/; then
+            echo "FORBIDDEN TOKEN FOUND IN PROOF MODULES!" >&2
             exit 1
           fi
-          echo "Forbidden-token scan clean (0 matches)."
+          if grep -rnE '\b(admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern|\bimport\b' lean/PalomarChallenge.lean; then
+            echo "FORBIDDEN TOKEN OR IMPORT IN PALOMAR CHALLENGE STUB!" >&2
+            exit 1
+          fi
+          if grep -rnE '\bPalomarChallenge\b' lean/Catalytic/ lean/Challenge.lean lean/Solution.lean lean/PalomarSolution.lean lean/VerifyAxioms.lean; then
+            echo "PROOF MODULE MUST NEVER IMPORT PalomarChallenge!" >&2
+            exit 1
+          fi
+          echo "Forbidden-token scan clean (0 matches in all proof/solution modules)."
 
       - name: Build Lean 4.35 proofs, regenerate axioms, and replay external kernels
         run: |

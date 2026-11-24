@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 name = "Catalytic"
 version = "1.0.0"
-defaultTargets = ["Catalytic", "Challenge", "Solution"]
+defaultTargets = ["Catalytic", "Challenge", "Solution", "PalomarSolution"]
 
 [leanOptions]
 autoImplicit = false
@@ -17,3 +17,9 @@ name = "Challenge"
 
 [[lean_lib]]
 name = "Solution"
+
+[[lean_lib]]
+name = "PalomarChallenge"
+
+[[lean_lib]]
+name = "PalomarSolution"

@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: Apache-2.0
+# Advisory mechanical preflight calling Palomar's official reusable verifier workflow.
+# Manual workflow_dispatch only; never blocks commits or pushes (Build Standard R1, R3).
+name: Palomar Mechanical Preflight
+
+on:
+  workflow_dispatch:
+    inputs:
+      request_id:
+        description: "Exactly 12 lowercase alphanumeric characters"
+        required: false
+        default: "preflight001"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  palomar-preflight:
+    uses: PalomarRegistry/PalomarSubmission/.github/workflows/submission.yml@14aa8d6b3c2f14a8540605e37144560b9a00e7e7
+    with:
+      repository: ${{ github.repository }}
+      commit: ${{ github.sha }}
+      pipeline_commit: 14aa8d6b3c2f14a8540605e37144560b9a00e7e7
+      request_id: ${{ inputs.request_id || 'preflight001' }}
+      mode: full
+      execution_profile: palomar-standard-v1
+      options: '{"project_path":"lean","comparator_config_path":"lean/palomar_comparator.json","formalization_metadata_path":"lean/formalization.yaml","authorization_relationship":"I am a responsible author or maintainer"}'

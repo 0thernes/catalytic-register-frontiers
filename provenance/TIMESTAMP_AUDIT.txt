@@ -1,9 +1,9 @@
 # Cryptographic Trusted Timestamp Audit (provenance/TIMESTAMP_AUDIT.txt)
-Date (UTC): 2026-11-24T22:42:25Z
+Date (UTC): 2026-11-24T23:26:47Z
 Target: MANIFEST.sha256
-MANIFEST.sha256 SHA-256: 7b81636716218062943d6870c7394a3242952c0d3405675662af4f94e4c8ee31
-MANIFEST.sha256.tsr SHA-256: 580170344546af60eafaa0ced1f96269986216a314b3409b797f64f41d7ad4bb
-MANIFEST.sha256.ots SHA-256: 5a55c099b49c9a3374da47886d4f8f38ddaaf00dbee45789bfa99d14c05fa6e5
+MANIFEST.sha256 SHA-256: cd35150448ef475e08a2beb87a14ca9e07387e4d43c83bc0ae35878e7aadce82
+MANIFEST.sha256.tsr SHA-256: b56df0bfecb55713262a7f526ba16f54a657a509127456c2df9b65b633a8e15d
+MANIFEST.sha256.ots SHA-256: 084def1920170308cf96d723fb34b580d9e82765a499845650ac9a8c8df1dc5b
 
 ## 1. DigiCert RFC 3161 Trusted Timestamp (TSA: http://timestamp.digicert.com)
 Verification Command (POSIX / Git Bash):
@@ -20,10 +20,10 @@ Version: 1
 Policy OID: 2.16.840.1.114412.7.1
 Hash Algorithm: sha256
 Message data:
-    0000 - 7b 81 63 67 16 21 80 62-94 3d 68 70 c7 39 4a 32   {.cg.!.b.=hp.9J2
-    0010 - 42 95 2c 0d 34 05 67 56-62 af 4f 94 e4 c8 ee 31   B.,.4.gVb.O....1
-Serial number: 0x4CADA037BDA49B3B67E4C3357764386A
-Time stamp: Nov 24 22:50:20 2026 GMT
+    0000 - cd 35 15 04 48 ef 47 5e-08 a2 be b8 7a 14 ca 9e   .5..H.G^....z...
+    0010 - 07 38 7e 4d 43 c8 3b c0-ae 35 87 8e 7a ad ce 82   .8~MC.;..5..z...
+Serial number: 0x5107BF90AA5A1051D9D20AD13BB95E04
+Time stamp: Nov 24 23:34:42 2026 GMT
 Accuracy: unspecified
 Ordering: no
 Nonce: unspecified

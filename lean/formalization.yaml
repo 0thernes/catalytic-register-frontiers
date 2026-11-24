@@ -1,146 +1,180 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
 # SPDX-License-Identifier: Apache-2.0
-schema_version: 1
-title: "Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs"
-project: catalytic-register-frontiers
-version: "1.0.1"
-license: "Apache-2.0"
-authors:
-  - name: "Alexander S. Donahue"
-    orcid: "0009-0006-8168-9648"
-    affiliation: "Independent Researcher, Spokane, WA, USA"
-    email: "0_0@0thernes.art"
-challenge_file: "Challenge.lean"
-solution_file: "Solution.lean"
-nonvacuity_file: "Catalytic/NonVacuity.lean"
-comparator_config: "comparator.json"
-lean_toolchain: "leanprover/lean4:v4.35.0"
-mathlib: false
-dependencies: []
-module_headers_all_files: true
-max_file_lines_under_10000: true
+version: "v0.4"
+release_version: "1.0.1"
+
+project:
+  name: "Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs"
+  description: >-
+    Zero-Mathlib Lean 4.35.0 formalization resolving two structural questions left
+    open by Vinciguerra's operator analysis of passive-output catalytic register
+    programs (arXiv:2609.18692). The 17 compared theorems prove: (1) an exact base-p
+    digit-sum dichotomy f in RP^{pass}_{F_p}(2, t) iff s_p(d) <= min(p - 1, t - 1)
+    for all d >= 2 with alpha_d != 0, yielding unbounded-degree 2-access Frobenius
+    collapse (x^{p^m}), exact F_2 saturation (x^3 impossible for all t), the
+    impossibility threshold s_p(d) >= p, characteristic-0 recovery for d < p, and a
+    literal commutative-ring soundness bridge; (2) strictly bilinear 2-access
+    Frobenius collapse x^{2^k} in k + 1 registers and 4k - 2 bilinear ops over any
+    characteristic-2 commutative ring; (3) explicit 3-register Pascal-row shear loops
+    computing x^7, x^9, x^11, x^13, and x^15 in 5..9 accesses, unconditional global
+    integer optimality of log_13 8 < 30/37 < log_{2t-3} t for all t >= 4 (t != 8),
+    complete 4-register passive powering for every N >= 1 in < (104/3) * 8^ell
+    accesses, and pointwise product-ring streaming frequency moments F_D over R^n;
+    and (4) a balanced zero-workspace bilinear multilinear product x_0...x_{2^k - 1}
+    in k + 2 registers and (7 * (2^k)^2 - 4) / 3 ops.
+  authors:
+    - name: "Alexander S. Donahue"
+      orcid: "0009-0006-8168-9648"
+      email: "0_0@0thernes.art"
+      affiliation: "Independent Researcher, Spokane, WA, USA"
+  responsible_maintainers:
+    - name: "Alexander S. Donahue"
+      github: "0thernes"
+      orcid: "0009-0006-8168-9648"
+      email: "0_0@0thernes.art"
+  license: "Apache-2.0"
+
 classification:
+  arxiv:
+    - "cs.CC"
+    - "math.CO"
+    - "cs.LO"
   msc2020:
     - "68Q15"
     - "68Q06"
     - "11T06"
     - "12E20"
-  arxiv_categories:
-    - "cs.CC"
-    - "math.CO"
-    - "cs.LO"
-origin: "Original formalization of newly proved theorems T1–T4 answering open questions from Antoine Vinciguerra (arXiv:2609.18692, Sep 2026) and contrasting with Gregory Morse (arXiv:2608.30238, Aug 2026)."
+
 sources:
-  - citation: "A. Vinciguerra, An Operator Approach to Register Programs for Catalytic Computing, arXiv:2609.18692 [cs.CC], Sep 2026."
-    url: "https://arxiv.org/abs/2609.18692"
-  - citation: "G. Morse, Unrestricted Boolean Multiplicative Complexity of Four-Term Binary Polynomial Multiplication: Rational Places, Hasse Jets, and the Failure of Nonlinear Feedback, arXiv:2608.30238 [cs.CC], Aug 2026."
-    url: "https://arxiv.org/abs/2608.30238"
-  - citation: "Y. Alekseev, Y. Filmus, I. Mertz, A. Smal, and A. Vinciguerra, Catalytic Computing and Register Programs Beyond Log-Depth, MFCS 2025, LIPIcs 345, pp. 6:1–6:18."
-    url: "https://doi.org/10.4230/LIPIcs.MFCS.2025.6"
+  - title: "Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs"
+    authors:
+      - "Alexander S. Donahue"
+    id: "https://doi.org/10.5281/zenodo.24517198"
+    type: "original-proof"
+    relationship: "other"
+    note: "Original formalization and companion 15-page AMS-LaTeX preprint first presented in this repository (Zenodo Concept DOI 10.5281/zenodo.24517198; Software Heritage SWHID swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085)."
+  - title: "An Operator Approach to Register Programs for Catalytic Computing"
+    authors:
+      - "Antoine Vinciguerra"
+    id: "https://arxiv.org/abs/2609.18692"
+    type: "paper"
+    location: "Definition 2.2, Theorems 2.3, 3.2, 3.3, 3.5, Corollaries 4.3.1 & 5.1.1, Theorem 5.2"
+    relationship: "background"
+    note: "Defines the passive-output register program model RP^{pass}_K(r, t) and proves the characteristic-0 baseline bounds addressed by Theorems T1-T3."
+  - title: "Catalytic Computing and Register Programs Beyond Log-Depth"
+    authors:
+      - "Yaroslav Alekseev"
+      - "Yuval Filmus"
+      - "Ian Mertz"
+      - "Alexander Smal"
+      - "Antoine Vinciguerra"
+    id: "https://doi.org/10.4230/LIPIcs.MFCS.2025.6"
+    type: "paper"
+    location: "Lemma 8"
+    relationship: "background"
+    note: "Algebraic register-program framework and clean non-passive register composition background."
+  - title: "Unrestricted Boolean Multiplicative Complexity of Four-Term Binary Polynomial Multiplication: Rational Places, Hasse Jets, and the Failure of Nonlinear Feedback"
+    authors:
+      - "Gregory Morse"
+    id: "https://arxiv.org/abs/2608.30238"
+    type: "paper"
+    relationship: "background"
+    note: "Context for the accompanying empirical SAT/LRAT contrast in Boolean XAG circuits (outside the Lean proofs)."
+  - title: "Multiplicative complexity of vector valued Boolean functions"
+    authors:
+      - "Joan Boyar"
+      - "Magnus Gausdal Find"
+    id: "https://doi.org/10.1016/j.tcs.2018.02.023"
+    type: "paper"
+    relationship: "background"
+    note: "Context for Boolean multiplicative complexity rigidity contrasted in Section 7 of the companion preprint."
+  - title: "Théorie des fonctions numériques simplement périodiques"
+    authors:
+      - "Édouard Lucas"
+    id: "American Journal of Mathematics 1 (1878), 184-240, 289-321"
+    type: "paper"
+    relationship: "background"
+    note: "Lucas's theorem on binomial coefficients modulo a prime, reproved from first principles without Mathlib in Catalytic/PrimeFieldTools.lean."
+
+related_formalizations: []
+
+status:
+  scope: >-
+    Complete zero-Mathlib Lean 4.35.0 formalization of Theorems 1.1-1.4,
+    Corollaries 5.2 (T3h) and algebraic 5.3 (T3i), and literal commutative-ring
+    soundness bridges. The supporting modules also formalize sharp F_4
+    extension-field separation (T1e, T1es), distinct-operand char-2 collapse
+    (T2b), and concrete 0 != 1 non-vacuity witnesses (Catalytic/NonVacuity.lean).
+    Not formalized in Lean: bit-space streaming accounting in Corollary 5.3,
+    general non-commutative matrix lifting in Corollary 5.4 (tested in exact
+    modular Python arithmetic), uniform D^{pass}_{3,Q}(t) = 2t - 3 for t >= 10,
+    and empirical SAT/LRAT Boolean XAG companion checks.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Catalytic.Palomar.t1_digit_sum_dichotomy"
+      file: "lean/PalomarSolution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "lean/palomar_comparator.json"
+    - declaration: "Catalytic.Palomar.t2_bilinear_frobenius_collapse"
+      file: "lean/PalomarSolution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "lean/palomar_comparator.json"
+    - declaration: "Catalytic.Palomar.t3d_three_reg_8call_x13"
+      file: "lean/PalomarSolution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "lean/palomar_comparator.json"
+    - declaration: "Catalytic.Palomar.t3f_global_integer_optimality"
+      file: "lean/PalomarSolution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Quot.sound"]
+      comparator_config: "lean/palomar_comparator.json"
+    - declaration: "Catalytic.Palomar.t3h_four_reg_powering"
+      file: "lean/PalomarSolution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "lean/palomar_comparator.json"
+    - declaration: "Catalytic.Palomar.t3i_streaming_frequency_moment"
+      file: "lean/PalomarSolution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "lean/palomar_comparator.json"
+    - declaration: "Catalytic.Palomar.t4_balanced_multilinear_product"
+      file: "lean/PalomarSolution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Quot.sound"]
+      comparator_config: "lean/palomar_comparator.json"
+
 automation:
-  ai_tools_used:
-    - "Antigravity / Gemini (exploratory exact arithmetic, Lean 4.35 proof engineering, figure scripting, manuscript drafting)"
-  human_credit_roles:
-    - "Conceptualization"
-    - "Methodology"
-    - "Formal analysis (definition and statement-fidelity audit)"
-    - "Validation"
-    - "Writing – review & editing"
-  verification_stack: "Lean 4.35.0 reference kernel + leanchecker + leanchecker-paranoid + con-leche --verified + con-ron --verified + nanoda_bin 0.4.19"
-review_status: "Preprint; not externally peer-reviewed"
-limitations: "Uniform proof of D_{3,Q}^{pass}(t) = 2t-3 for all t >= 4, general non-prime extension fields F_{p^e} (e >= 2), r=4 beyond log_7(4), and Boyar-Find / Mul_5 remain open (Tier-4). T3a-T3d and T3g-T3i exclude explicitly factored bad prime / factorial denominators."
-axiom_allowlist:
-  - propext
-  - Classical.choice
-  - Quot.sound
-kernels_verified:
-  - lean (v4.35.0)
-  - leanchecker
-  - leanchecker-paranoid
-  - con-leche --verified
-  - con-ron --verified
-  - nanoda_bin (0.4.19)
-theorems:
-  - id: T1
-    name: Catalytic.Solution.t1_digit_sum_dichotomy
-    module: Catalytic.DigitSumDichotomy
-    summary: "Exact base-p digit-sum IFF characterization of RP^{pass}_{F_p}(2, t) for all primes p and t >= 1."
-  - id: T1a
-    name: Catalytic.Solution.t1a_two_access_frobenius_collapse
-    module: Catalytic.DigitSumDichotomy
-    summary: "Unbounded-degree 2-access Frobenius collapse x^(p^m) in RP^{pass}_{F_p}(2, 2) for all primes p."
-  - id: T1b
-    name: Catalytic.Solution.t1b_f2_saturation
-    module: Catalytic.DigitSumDichotomy
-    summary: "Exact F_2 two-register saturation: x^3 not in RP^{pass}_{F_2}(2, t) for any t."
-  - id: T1c
-    name: Catalytic.Solution.t1c_impossibility_threshold
-    module: Catalytic.DigitSumDichotomy
-    summary: "Impossibility threshold: s_p(d) >= p implies x^d not in RP^{pass}_{F_p}(2, t) for any t."
-  - id: T1d
-    name: Catalytic.Solution.t1d_vinciguerra_recovery
-    module: Catalytic.DigitSumDichotomy
-    summary: "Large-characteristic recovery of Vinciguerra Theorem 3.5 (2 <= d < p -> x^d in RP(2,t) iff d+1 <= t)."
-  - id: T1e
-    name: Catalytic.Solution.t1e_extension_field_separation
-    module: Catalytic.ExtensionFieldSeparation
-    summary: "Exact sharp F_4 separation: x^5 in RP(2,3) and not RP(2,2), x^3 in RP(2,4) and not RP(2,3), and x^7 not in RP(2,t) for all t."
-  - id: T1s
-    name: Catalytic.Solution.t1s_pass2_ring_soundness
-    module: Catalytic.Pass2Soundness
-    summary: "Literal CRing soundness bridge: direct ring execution of every Pass2Prog agrees identically with symbolic Pass2Prog.exec over every char-p commutative ring R."
-  - id: T1es
-    name: Catalytic.Solution.t1es_pass2_gf4_soundness
-    module: Catalytic.Pass2Soundness
-    summary: "Literal GF4-algebra soundness bridge: direct algebra execution of every Pass2GF4Prog agrees identically with symbolic Pass2GF4Prog.exec over every commutative GF4-algebra (R, phi)."
-  - id: T2
-    name: Catalytic.Solution.t2_bilinear_frobenius_collapse
-    module: Catalytic.BilinearFrobenius
-    summary: "Strictly bilinear passive-output 2-access computation of x^(2^k) over any char-2 commutative ring."
-  - id: T2b
-    name: Catalytic.Solution.t2b_distinct_operand_frobenius
-    module: Catalytic.BilinearFrobenius
-    summary: "Strictly distinct-operand 2-access Frobenius collapse for x^(2^k) on k+2 registers (zero self-squares R_a * R_a)."
-  - id: T3a
-    name: Catalytic.Solution.t3a_three_reg_5call_x7
-    module: Catalytic.ThreeRegisterBreakthrough
-    summary: "Explicit 3-register passive program for x^7 in 5 input accesses (valid for char != 2, 3)."
-  - id: T3b
-    name: Catalytic.Solution.t3b_three_reg_6call_x9
-    module: Catalytic.ThreeRegisterBreakthrough
-    summary: "Explicit 3-register passive program for x^9 in 6 input accesses (valid for char not in {2,3,5,17})."
-  - id: T3c
-    name: Catalytic.Solution.t3c_three_reg_7call_x11
-    module: Catalytic.ThreeRegisterBreakthrough
-    summary: "Explicit 3-register passive program for x^11 in 7 input accesses over Q and good prime fields."
-  - id: T3d
-    name: Catalytic.Solution.t3d_three_reg_8call_x13
-    module: Catalytic.ThreeRegisterBreakthrough
-    summary: "Explicit 3-register passive program for x^13 in 8 input accesses achieving optimal log_13(8) = 0.810714."
-  - id: T3e
-    name: Catalytic.Solution.t3e_exponent_chain
-    module: Catalytic.ThreeRegisterBreakthrough
-    summary: "Exact Nat power inequalities certifying log_13(8) < log_11(7) < log_9(6) < log_7(5) < log_5(4) and < log_15(9)."
-  - id: T3f
-    name: Catalytic.Solution.t3f_global_integer_optimality
-    module: Catalytic.ThreeRegisterBreakthrough
-    summary: "Unconditional global integer optimality of t = 8 for ALL t >= 4 (t != 8) via single rational separator 30/37."
-  - id: T3g
-    name: Catalytic.Solution.t3g_three_reg_9call_x15
-    module: Catalytic.ThreeRegisterBreakthrough
-    summary: "Explicit 3-register passive program for x^15 in 9 input accesses (post-minimum ascent point log_15(9) = 0.811368)."
-  - id: T3h
-    name: Catalytic.Solution.t3h_four_reg_powering
-    module: Catalytic.FourRegisterPowering
-    summary: "Complete 4-register passive powering for ALL N >= 1 via non-passive 3-register composition + Cook-Mertz finite differences: < (104/3)*N^{log_13 8} (prog8_x13) and < (70/3)*N^{log_7 5} (prog5_x7)."
-  - id: T3i
-    name: Catalytic.Solution.t3i_streaming_frequency_moment
-    module: Catalytic.FourRegisterPowering
-    summary: "Pointwise product-ring (Fin n -> R) instantiation of T3h certifying algebraic catalytic streaming frequency moments F_D(f) = sum_{i<n} f_i^D in < (104/3)*D^{log_13 8} passes."
-  - id: T4
-    name: Catalytic.Solution.t4_balanced_multilinear_product
-    module: Catalytic.BalancedProduct
-    summary: "Balanced zero-workspace bilinear catalytic d-fold product (d=2^k) in k+2 registers and (7d^2-4)/3 ops."
-  - id: NONVAC
-    name: Catalytic.NonVacuity.nonvac_all_hypotheses
-    module: Catalytic.NonVacuity
-    summary: "Concrete non-trivial ring/prime/evaluation witnesses proving zero vacuous hypotheses across T1–T4."
+  methods:
+    - method: "manual"
+      notes: "Alexander S. Donahue conceived the research questions, directed the formalization architecture, audited every formal definition and statement fidelity against Vinciguerra (arXiv:2609.18692), verified non-vacuity witnesses, and reviewed the manuscript."
+    - method: "agent"
+      models:
+        - "Gemini (Antigravity)"
+      framework: "Antigravity"
+      notes: "Assisted with exploratory exact-arithmetic synthesis, zero-Mathlib Lean 4.35 proof engineering, verification scripting, and manuscript drafting under human direction. All formal proofs are independently verified by Lean 4.35, leanchecker-paranoid, lean4lean, NanoDa, con-leche, and con-ron."
+
+fidelity:
+  divergences: >-
+    Formal polynomial-ring cleanliness over F_p[O, R, x] (matching Vinciguerra Def. 2.2)
+    is formalized rather than pointwise function equality on F_p. In PalomarChallenge.lean,
+    digitSum and baseDigits use fuel-bounded structural recursion (proved equivalent to
+    well-founded division recursion in PalomarSolution.lean) to avoid module-private
+    termination proof terms in standalone Comparator exports.
+
+review:
+  status: "self-assessed"
+  notes: >-
+    Not externally peer-reviewed. Machine-checked across 7 Lean 4.35 verification
+    kernels (lean, leanchecker, leanchecker-paranoid, lean4lean, nanoda_bin,
+    con-leche, con-ron) with 0 warnings, 0 proof sorries, and concrete 0 != 1
+    non-vacuity witnesses in lean/Catalytic/NonVacuity.lean, accompanied by
+    22/22 exact Python/Hypothesis/mutant/SAT tests.

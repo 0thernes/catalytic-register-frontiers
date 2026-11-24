@@ -1,0 +1,29 @@
+{
+  "challenge_module": "PalomarChallenge",
+  "solution_module": "PalomarSolution",
+  "theorem_names": [
+    "Catalytic.Palomar.t1_digit_sum_dichotomy",
+    "Catalytic.Palomar.t1a_two_access_frobenius_collapse",
+    "Catalytic.Palomar.t1b_f2_saturation",
+    "Catalytic.Palomar.t1c_impossibility_threshold",
+    "Catalytic.Palomar.t1d_vinciguerra_recovery",
+    "Catalytic.Palomar.t1s_pass2_ring_soundness",
+    "Catalytic.Palomar.t2_bilinear_frobenius_collapse",
+    "Catalytic.Palomar.t3a_three_reg_5call_x7",
+    "Catalytic.Palomar.t3b_three_reg_6call_x9",
+    "Catalytic.Palomar.t3c_three_reg_7call_x11",
+    "Catalytic.Palomar.t3d_three_reg_8call_x13",
+    "Catalytic.Palomar.t3e_exponent_chain",
+    "Catalytic.Palomar.t3f_global_integer_optimality",
+    "Catalytic.Palomar.t3g_three_reg_9call_x15",
+    "Catalytic.Palomar.t3h_four_reg_powering",
+    "Catalytic.Palomar.t3i_streaming_frequency_moment",
+    "Catalytic.Palomar.t4_balanced_multilinear_product"
+  ],
+  "definition_names": [],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ]
+}
