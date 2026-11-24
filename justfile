@@ -25,11 +25,12 @@ build:
 test:
     pytest -v tests/test_all.py
 
-# Run static analysis, LRAT certificate check, and strict type checks (report-only)
+# Run static analysis, LRAT certificate check, REUSE/SPDX audit, and strict type checks (report-only)
 lint:
     ruff check experiments scripts tests || true
     mypy experiments scripts tests || true
     python scripts/verify_lrat.py
+    python scripts/check_reuse.py
 
 # Score this repository against Build Standard v1.1.0 & Build Pipeline Models v1.0.0 (report-only)
 audit *ARGS:

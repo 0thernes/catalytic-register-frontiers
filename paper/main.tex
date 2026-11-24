@@ -299,11 +299,15 @@ By \eqref{eq:fermat-digit}, the inner sum reduces to $\sum_{a=0}^{s_p(d)} w_{s_p
   \label{fig:T1}
 \end{figure}
 
-\begin{remark}[Extension fields $\F_{p^e}$ ($e \ge 2$)]
+\begin{remark}[Sharpness over extension fields $\F_{p^e}$ ($e \ge 2$); Lean \texttt{T1e}]
 \label{rem:ext}
 Theorem~\ref{thm:T1} relies specifically on $a^p = a$ for prime fields $\F_p$.
 Over a non-prime finite field $\F_q$ ($q = p^e$, $e \ge 2$), the multiplicative group has order $q - 1$ rather than $p - 1$, so $a^j$ reduces modulo $q - 1$ on $\F_q^*$ (while keeping $0^0 = 1$ distinct from $0^j = 0$ for $j \ge 1$).
-Exact finite-field linear algebra over $\F_4 = \F_2[\omega]/(\omega^2 + \omega + 1)$ for $d \in [1, 16]$ (\texttt{exp1}, Tier-2) confirms that $x^d$ requires $2$ accesses for $d \in \{1, 2, 4, 8, 16\}$, $3$ accesses for $d \in \{5, 10\}$ (where binary sub-exponents $\{0, 1, 4, 5\}$ collapse mod~$3$ to $\{0, 1, 1, 2\}$), $4$ accesses for $d \in \{3, 6, 9, 12\}$ (where $a = 0$ separates $a^3$ from $a^0$), and is uncomputable for \emph{all} $t$ at $d \in \{7, 11, 13, 14, 15\}$ (where $7 \equiv 1 \pmod 3$ forces $a^7 = a^1$ for every $a \in \F_4$, including $a = 0$).
+Over $\F_4 = \F_2[\omega]/(\omega^2 + \omega + 1)$, our Tier-1 Lean~4.35 theorem \texttt{T1e} (\texttt{ExtensionFieldSeparation.lean}) formally proves the exact three-part separation:
+(i)~$x^5 \in \RP_{\F_4}^{\pass}(2, 3)$ via the explicit $3$-access identity $\omega^2 u^5 + \omega(u + x)^5 + (u + \omega x)^5 = x^5$;
+(ii)~$x^3 \in \RP_{\F_4}^{\pass}(2, 4)$ via the explicit $4$-access identity $u^3 + (u + x)^3 + (u + \omega x)^3 + (u + \omega^2 x)^3 = x^3$ (both strictly breaking $\F_2$ saturation); and
+(iii)~$x^7 \notin \RP_{\F_4}^{\pass}(2, t)$ for \emph{all} $t \ge 0$, because $a^7 = a$ for every $a \in \F_4$ forces $[x^7]\Delta O = [R^6 x]\Delta O = 0$.
+Exact finite-field linear algebra for $d \in [1, 16]$ (\texttt{exp1}, Tier-2) further confirms $t_{\min} = 2$ for $d \in \{1, 2, 4, 8, 16\}$, $t_{\min} = 3$ for $d \in \{5, 10\}$, $t_{\min} = 4$ for $d \in \{3, 6, 9, 12\}$, and impossibility for all $t$ at $d \in \{7, 11, 13, 14, 15\}$.
 \end{remark}
 
 \section{Theorem~\ref{thm:T2}: Strictly Bilinear Two-Access Collapse over Characteristic~2}
@@ -394,6 +398,7 @@ Over any commutative ring $K$ in which $D_t$ is invertible, scaling every $F_k$ 
 Table~\ref{tab:t3-frontier} summarizes our synthesized and verified $3$-register programs across $t = 4, \dots, 9$.
 Crucially, at $t = 5$, choosing quadratic shear degree $d = 2$ (rather than $d = t - 2 = 3$, which saturates at $N = 5$) unlocks $x^7 \in \RP_K^{\pass}(3, 5)$ with scaling integer $D_5 = 576 = 2^6 \cdot 3^2$, so its bad primes are \emph{only} $\{2, 3\}$ --- strictly improving Vinciguerra's $t = 4$ exponent $0.861353 \to 0.827087$ under the \emph{exact same} characteristic restriction ($\operatorname{char}(K) \neq 2, 3$, valid over $\F_5$ and $\F_7$!).
 For $t = 6, 7, 8$, taking $d = t - 2$ gives sparse $3$-term output polynomials per step ($18, 21, 24$ nonzero terms total), reaching $x^9$, $x^{11}$, and $x^{13}$, with $t = 5, 6, 7, 8$ all formally certified by pure kernel reduction in Lean~4.35.0 (\texttt{ThreeRegisterBreakthrough.lean}).
+Moreover, Theorem \texttt{T3f} (\texttt{t3f\_global\_integer\_optimality}) constructively proves in Lean~4.35 via the single rational separator $30/37$ that $8^{37} < 13^{30}$ and $(2t - 3)^{30} < t^{37}$ for \emph{every} integer $t \ge 4$ with $t \neq 8$ (checking $t < 20$ explicitly and bounding $(2t - 3)^{30} \le 2^{30} t^{30} < 20^7 t^{30} \le t^{37}$ for all $t \ge 20$), certifying unconditionally that $t = 8$ is the unique global integer minimizer of $\log_{2t - 3} t$.
 Explicit integer coefficients for our two smallest-denominator programs ($t = 5 \to x^7$ and $t = 6 \to x^9$) are listed in Tables~\ref{tab:prog5} and~\ref{tab:prog6}; the full 21-term ($t=7$) and 24-term ($t=8$) integer certificates are compiled directly inside \texttt{lean/Catalytic/ThreeRegisterBreakthrough.lean}.
 
 \begin{table}[ht]
@@ -539,7 +544,7 @@ The exact operation count satisfies $T(k+1) = 4 T(k) + 4$ with $T(0) = 1$, solvi
 Our catalytic improvements (Theorems~\ref{thm:T1}--\ref{thm:T3}) are driven by \emph{high-degree nonlinear cancellation}: intermediate work-register monomials of degree exceeding the target degree cancel completely upon summing across shifts or Frobenius phases.
 It is therefore instructive to compare this phenomenon against the long-standing Boyar--Find conjecture~\cite{BoyarFind2018} and Morse's recent proof~\cite{Morse2026} that four-term binary polynomial multiplication has unrestricted Boolean multiplicative complexity $\MC(\mathrm{Mul}_4) = 9$ (matching its quadratic-only bound, with no gain from higher-degree intermediate cancellation).
 
-In \texttt{experiments/exp4\_boolean\_mc\_companion.py} (Tier-2), we run an exact CaDiCaL~2.1.2 SAT audit on unrestricted multi-output XAG circuits (allowing arbitrary nonlinear feedback between AND gates), and cross-check the CNF encoder exhaustively against an independent brute-force truth-table enumerator on all $16$ Boolean functions for $n = 2$ ($k = 0, 1$) plus canonical $n = 3$ benchmarks in \texttt{tests/test\_all.py}:
+In \texttt{experiments/exp4\_boolean\_mc\_companion.py} (Tier-2), we run an exact CaDiCaL~2.1.2 SAT audit on unrestricted multi-output XAG circuits (allowing arbitrary nonlinear feedback between AND gates), archive all $8/8$ UNSAT DIMACS \texttt{.cnf} and ASCII \texttt{.lrat} certificates under \texttt{results/sat\_certs/} ($18{,}932$ total verified LRAT steps replayed by \texttt{scripts/verify\_lrat.py} with mutant-rejection tests), and cross-check the CNF encoder exhaustively against an independent brute-force truth-table enumerator on all $16$ Boolean functions for $n = 2$ ($k = 0, 1$) plus canonical $n = 3$ benchmarks in \texttt{tests/test\_all.py}:
 \begin{itemize}
   \item $\F_4$ multiplication ($n = 4, m = 2$) is certified $k = 2$ UNSAT and $k = 3$ SAT ($\MC = 3$, matching its quadratic Karatsuba bound);
   \item an orthogonal pair of bent quadratic forms on $n = 4$ is certified $k = 2$ UNSAT and $k = 3$ SAT ($\MC = 3$);
@@ -550,14 +555,14 @@ This sharp empirical contrast highlights a structural asymmetry: whereas Boolean
 \section{Lean~4.35.0 Formalization, Statement Fidelity, and Open Problems}
 \label{sec:lean}
 
-Every theorem in Tier~1 (\texttt{T1}, \texttt{T1a}--\texttt{T1d}, \texttt{T2}, \texttt{T3a}--\texttt{T3e}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/Catalytic/*.lean}, \texttt{Challenge.lean}, \texttt{Solution.lean}), using the Lean~4.35 \texttt{module} system and strict zero-dependency core linters (\texttt{autoImplicit=false}, \texttt{linter.unusedVariables=true}, \texttt{linter.deprecated=true}) across all $11$ source files (longest file $1{,}299$ lines).
-To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.lean} exhibits concrete non-trivial ($0 \neq 1$) witnesses (\texttt{ModP 2}, \texttt{ModP 5}, \texttt{ModP 7}, \texttt{ModP 11}, and \texttt{Int}) satisfying every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}.
+Every theorem in Tier~1 (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T2}, \texttt{T3a}--\texttt{T3f}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/Catalytic/*.lean}, \texttt{Challenge.lean}, \texttt{Solution.lean}), using the Lean~4.35 \texttt{module} system and strict zero-dependency core linters (\texttt{autoImplicit=false}, \texttt{linter.unusedVariables=true}, \texttt{linter.deprecated=true}) across all $12$ source files (longest file $1{,}026$ lines).
+To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.lean} exhibits concrete non-trivial ($0 \neq 1$) witnesses (\texttt{ModP 2}, \texttt{ModP 5}, \texttt{ModP 7}, \texttt{ModP 11}, \texttt{GF4}, and \texttt{Int}) satisfying every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}.
 A repository-wide scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_decide}, \texttt{implemented\_by}, \texttt{unsafe}, custom \texttt{axiom}, or \texttt{@[extern]}.
 Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay and statement-fidelity audit.
 
 \begin{table}[ht]
 \centering
-\caption{Clean-room multi-kernel verification audit of the master theorem bundle and non-vacuity witnesses ($14$ audited declarations, Lean~4.35.0, zero Mathlib).}
+\caption{Clean-room multi-kernel verification audit of the master theorem bundle and non-vacuity witnesses ($16$ audited declarations, Lean~4.35.0, zero Mathlib).}
 \label{tab:kernels}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
@@ -565,12 +570,12 @@ Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay 
 \toprule
 \textbf{\#} & \textbf{Kernel / Tool} & \textbf{Implementation} & \textbf{Verified Result} \\
 \midrule
-1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ reference kernel & 14/14 jobs, 0 warnings; axioms $\subseteq \{\text{propext}, \text{choice}, \text{Quot.sound}\}$ \\
+1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ reference kernel & 15/15 jobs, 0 warnings; axioms $\subseteq \{\text{propext}, \text{choice}, \text{Quot.sound}\}$ \\
 2 & \texttt{leanchecker} & C++ external \texttt{.olean} replayer & Exit 0 (PASS) \\
 3 & \texttt{leanchecker-paranoid} & C++ paranoid \texttt{.olean} replayer & Exit 0 (PASS) \\
-4 & \texttt{con-leche --verified} & Verified Lean-in-Lean kernel & Accepted 3,004 declarations (Exit 0) \\
-5 & \texttt{con-ron --verified} & Verified Aeneas Rust kernel & Accepted 3,004 declarations (Exit 0) \\
-6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & Strict 3-axiom hard-error=true (Exit 0) \\
+4 & \texttt{con-leche --verified} & Verified Lean-in-Lean kernel & Accepted 3,093 declarations (Exit 0) \\
+5 & \texttt{con-ron --verified} & Verified Aeneas Rust kernel & Accepted 3,093 declarations (Exit 0) \\
+6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & 3,394 decls, 0 errors, strict 3-axiom check (Exit 0) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -585,9 +590,9 @@ Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay 
 \toprule
 \textbf{ID} & \textbf{Lean Declaration} & \textbf{Literature Anchor} & \textbf{Non-Vacuity ($0 \neq 1$)} \\
 \midrule
-\texttt{T1} & \texttt{InRPPass2 p t f} (\texttt{T1}, \texttt{T1a}--\texttt{T1d}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Thm.~3.5 & \texttt{IsPrime 2,3,5,7}; $x^4 \in \RP_{\F_2}(2,2)$, $x^3 \notin \RP_{\F_2}(2,10)$ \\
+\texttt{T1} & \texttt{InRPPass2} (\texttt{T1}, \texttt{T1a}--\texttt{T1e}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Thm.~3.5 & \texttt{IsPrime 2,3,5,7}; \texttt{GF4} ($0 \neq 1$); $x^4 \in \RP_{\F_2}(2,2)$ \\
 \texttt{T2} & \texttt{BilinInstr}, \texttt{frobBilinProg} (\texttt{T2}) & Strictly bilinear restriction of Def.~2.2 & \texttt{F2 = ModP 2}, $k=2$, $x=1$ cleanly evaluated \\
-\texttt{T3} & \texttt{Pass3InstrR} (\texttt{T3a}--\texttt{T3e}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, \S4--5 & \texttt{ModP 5, 7, 11} with explicit inverses of $D_5, \dots, D_8$ \\
+\texttt{T3} & \texttt{Pass3InstrR} (\texttt{T3a}--\texttt{T3f}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, \S4--5 & \texttt{ModP 5, 7, 11} ($D_5^{-1}\!\dots D_8^{-1}$); global $t \ge 4$ opt \\
 \texttt{T4} & \texttt{CatOp}, \texttt{balancedProdProg} (\texttt{T4}) & Zero-workspace distinct-index bilinear ops & \texttt{Int} ($d=4$, $36$ ops, clean restoration) \\
 \bottomrule
 \end{tabular}
@@ -600,7 +605,7 @@ We highlight four concrete threats to validity and four unresolved Tier-4 fronti
 \begin{itemize}
   \item \emph{Statement fidelity vs.\ model conventions:} Definition~\ref{def:rp} uses formal polynomial-ring cleanliness in $R[O, R_1, \dots, R_{r-1}, x]$ (matching~\cite{Vinciguerra2026}); pointwise function equality over finite fields $\F_p$ collapses via $x^p = x$ and is outside scope.
   \item \emph{Bad-prime denominators (\texttt{T3b}--\texttt{T3d}):} The $5$-call program \texttt{prog5\_x7} avoids only $\{2, 3\}$, whereas the $6$-, $7$-, and $8$-call programs exclude additional prime divisors of $D_t$ (Table~\ref{tab:t3-frontier}); all hold unconditionally in characteristic~$0$.
-  \item \emph{SAT companion certificate boundary:} Our Tier-2 CaDiCaL~2.1.2 UNSAT runs are cross-checked by exhaustive brute-force encoder equivalence on $n = 2, 3$ in \texttt{tests/test\_all.py}, but are not yet independently replayed through CakeML's \texttt{cake\_lpr}; no Tier-1 theorem depends on SAT.
+  \item \emph{SAT companion certificate boundary:} All $8/8$ Tier-2 CaDiCaL~2.1.2 UNSAT certificates (\texttt{results/sat\_certs/}) are archived and independently verified by our exact Python LRAT checker (\texttt{scripts/verify\_lrat.py}) alongside brute-force $n = 2, 3$ encoder equivalence tests, though they have not yet been replayed through CakeML's \texttt{cake\_lpr}; no Tier-1 theorem depends on SAT.
   \item \emph{Zero-dependency core linters vs.\ Mathlib/Batteries:} Retaining zero external Lake dependencies preserves a minimal six-kernel trust base while precluding Batteries' \texttt{\#lint}; strict built-in Lean~4.35 core linters pass with zero warnings.
 \end{itemize}
 

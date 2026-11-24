@@ -105,6 +105,18 @@ function Invoke-Paper {
 }
 
 function Invoke-Audit {
+    Run-Step "Verify LRAT UNSAT proofs, REUSE/SPDX coverage, and offline citations" {
+        Push-Location -LiteralPath $Repo
+        try {
+            & $Py scripts/verify_lrat.py
+            if ($LASTEXITCODE -ne 0) { return }
+            & $Py scripts/check_reuse.py
+            if ($LASTEXITCODE -ne 0) { return }
+            & $Py scripts/check_citations.py --offline
+        } finally {
+            Pop-Location
+        }
+    }
     Run-Step "Verify SHA-256 provenance manifest (MANIFEST.sha256)" {
         Push-Location -LiteralPath $Repo
         try {

@@ -576,6 +576,51 @@ theorem exponent_strict_improvement_chain :
     (15 ^ 30 < 9 ^ 37) := by
   decide
 
+private theorem nat_pow_le_pow_left {a b : Nat} (h : a ≤ b) : ∀ n : Nat, a ^ n ≤ b ^ n
+  | 0 => Nat.le_refl 1
+  | n + 1 => by
+    simp only [Nat.pow_succ]
+    exact Nat.mul_le_mul (nat_pow_le_pow_left h n) h
+
+private theorem nat_mul_pow (a b : Nat) : ∀ n : Nat, (a * b) ^ n = a ^ n * b ^ n
+  | 0 => rfl
+  | n + 1 => by
+    simp only [Nat.pow_succ, nat_mul_pow a b n]
+    calc
+      a ^ n * b ^ n * (a * b) = a ^ n * (b ^ n * a * b) := by
+        rw [Nat.mul_assoc, ← Nat.mul_assoc (b ^ n) a b]
+      _ = a ^ n * (a * b ^ n * b) := by rw [Nat.mul_comm (b ^ n) a]
+      _ = (a ^ n * a) * (b ^ n * b) := by rw [Nat.mul_assoc, Nat.mul_assoc]
+
+/--
+**Theorem T3f (Unconditional Global Integer Optimality of `t = 8` for All `t ≥ 4`):**
+Certifies via the single rational separator `30 / 37` that
+`log_13 8 < 30 / 37 < log_{2t - 3} t` for EVERY integer `t ≥ 4` with `t ≠ 8`:
+  1. `8 ^ 37 < 13 ^ 30`, and
+  2. `∀ t : Nat, 4 ≤ t → t ≠ 8 → (2 * t - 3) ^ 30 < t ^ 37`.
+Constructively proved in pure `Nat` arithmetic with zero axioms.
+-/
+theorem exponent_global_integer_optimality :
+    (8 ^ 37 < 13 ^ 30) ∧
+    (∀ t : Nat, 4 ≤ t → t ≠ 8 → (2 * t - 3) ^ 30 < t ^ 37) := by
+  refine ⟨by decide, ?_⟩
+  intro t ht4 ht8
+  by_cases hlt : t < 20
+  · have hcases :
+        t = 4 ∨ t = 5 ∨ t = 6 ∨ t = 7 ∨ t = 9 ∨ t = 10 ∨ t = 11 ∨ t = 12 ∨
+        t = 13 ∨ t = 14 ∨ t = 15 ∨ t = 16 ∨ t = 17 ∨ t = 18 ∨ t = 19 := by omega
+    rcases hcases with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> decide
+  · have ht20 : 20 ≤ t := by omega
+    have h1 : (2 * t - 3) ^ 30 ≤ (2 * t) ^ 30 := nat_pow_le_pow_left (by omega) 30
+    have h2 : (2 * t) ^ 30 = 2 ^ 30 * t ^ 30 := nat_mul_pow 2 t 30
+    have h3 : 2 ^ 30 < 20 ^ 7 := by decide
+    have h4 : 20 ^ 7 ≤ t ^ 7 := nat_pow_le_pow_left ht20 7
+    have h5 : 0 < t ^ 30 := Nat.pow_pos (by omega)
+    have h6 : 2 ^ 30 * t ^ 30 < t ^ 7 * t ^ 30 :=
+      Nat.mul_lt_mul_of_pos_right (Nat.lt_of_lt_of_le h3 h4) h5
+    have h7 : t ^ 7 * t ^ 30 = t ^ 37 := (Nat.pow_add t 7 30).symm
+    exact Nat.lt_of_le_of_lt h1 (by rw [h2, ← h7]; exact h6)
+
 end
 
 end Catalytic

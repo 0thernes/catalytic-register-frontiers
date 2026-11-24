@@ -80,6 +80,10 @@ theorems:
     name: Catalytic.Solution.t1d_vinciguerra_recovery
     module: Catalytic.DigitSumDichotomy
     summary: "Large-characteristic recovery of Vinciguerra Theorem 3.5 (2 <= d < p -> x^d in RP(2,t) iff d+1 <= t)."
+  - id: T1e
+    name: Catalytic.Solution.t1e_extension_field_separation
+    module: Catalytic.ExtensionFieldSeparation
+    summary: "Sharpness of prime-field hypothesis over F_4: x^5 in RP(2,3), x^3 in RP(2,4), and x^7 not in RP(2,t) for all t."
   - id: T2
     name: Catalytic.Solution.t2_bilinear_frobenius_collapse
     module: Catalytic.BilinearFrobenius
@@ -104,6 +108,10 @@ theorems:
     name: Catalytic.Solution.t3e_exponent_chain
     module: Catalytic.ThreeRegisterBreakthrough
     summary: "Exact Nat power inequalities certifying log_13(8) < log_11(7) < log_9(6) < log_7(5) < log_5(4) and < log_15(9)."
+  - id: T3f
+    name: Catalytic.Solution.t3f_global_integer_optimality
+    module: Catalytic.ThreeRegisterBreakthrough
+    summary: "Unconditional global integer optimality of t = 8 for ALL t >= 4 (t != 8) via single rational separator 30/37."
   - id: T4
     name: Catalytic.Solution.t4_balanced_multilinear_product
     module: Catalytic.BalancedProduct

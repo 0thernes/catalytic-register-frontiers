@@ -10,19 +10,22 @@ Every Lean 4.35 formal proof, non-vacuity witness, exact-arithmetic experiment, 
 - **CaDiCaL 2.1.2** (bundled with Lean 4.35.0 at `<toolchain>/bin/cadical[.exe]`, or set `CADICAL_BIN`).
 - **Tectonic** (`tectonic -X compile`) for compiling `paper/main.tex`.
 
-## 1. One-Command Verification (Windows PowerShell or `just`)
+## 1. One-Command Verification (Windows PowerShell, Linux/macOS Bash, or `just`)
 
 > **Bracket-Path Safety Note:** On Windows paths containing `[...]`, always pass `-LiteralPath` to PowerShell file cmdlets and run `pytest` repo-relative (`tests/test_all.py`).
 
-```powershell
+```bash
 # Windows PowerShell
 pwsh -NoProfile -File scripts/run_all.ps1 -Task all
+
+# Linux / macOS POSIX shell
+bash scripts/run_all.sh all
 
 # Cross-platform via justfile
 just reproduce
 ```
 
-Individual PowerShell stages: `-Task lean`, `-Task experiments`, `-Task tests`, `-Task figures`, `-Task paper`, `-Task audit`.
+Individual stages: `lean`, `experiments`, `tests`, `figures`, `paper`, `audit` (verifies 8/8 LRAT proofs, 100% REUSE/SPDX, offline citations, and `MANIFEST.sha256`).
 
 ## 2. Step-by-Step Verification (Linux / macOS / CI)
 

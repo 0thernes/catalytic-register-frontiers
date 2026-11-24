@@ -4,6 +4,7 @@ module
 public import Catalytic.CommRing
 public import Catalytic.PrimeFieldTools
 public import Catalytic.DigitSumDichotomy
+public import Catalytic.ExtensionFieldSeparation
 public import Catalytic.BilinearFrobenius
 public import Catalytic.ThreeRegisterBreakthrough
 public import Catalytic.BalancedProduct
@@ -236,11 +237,12 @@ theorem nonvac_T4_witness :
   · have h3 := congrFun hclean 3
     simpa using h3
 
-/-- Master non-vacuity witness bundling all four theorem families (`T1`–`T4`). -/
+/-- Master non-vacuity witness bundling all theorem families (`T1`–`T4`, including `GF4` for `T1e`). -/
 theorem nonvac_all_hypotheses :
     (IsPrime 2 ∧ IsPrime 3 ∧ IsPrime 5 ∧ IsPrime 7 ∧
       InRPPass2 2 2 (monomial 4) ∧ ¬ InRPPass2 2 10 (monomial 3) ∧
       InRPPass2 5 3 (monomial 2) ∧ ¬ InRPPass2 5 2 (monomial 2)) ∧
+    ((GF4.one : GF4) ≠ GF4.z) ∧
     ((0 : F2) ≠ (1 : F2)) ∧
     (∃ inv5 : ModP 5 (by decide), inv5 * CRing.intCast 576 = 1) ∧
     (∃ inv6 : ModP 7 (by decide), inv6 * CRing.intCast 382500000 = 1) ∧
@@ -248,7 +250,7 @@ theorem nonvac_all_hypotheses :
     (∃ inv8 : ModP 11 (by decide), inv8 * CRing.intCast 2656207148788801777680 = 1) ∧
     ((0 : Int) ≠ (1 : Int)) := by
   rcases nonvac_T3_witnesses with ⟨⟨i5, _, h5⟩, ⟨i6, _, h6⟩, ⟨i7, _, h7⟩, ⟨i8, _, h8⟩⟩
-  exact ⟨nonvac_T1_witnesses, nonvac_T2_witness.1,
+  exact ⟨nonvac_T1_witnesses, GF4.one_ne_zero, nonvac_T2_witness.1,
     ⟨i5, h5⟩, ⟨i6, h6⟩, ⟨i7, h7⟩, ⟨i8, h8⟩, nonvac_T4_witness.1⟩
 
 end

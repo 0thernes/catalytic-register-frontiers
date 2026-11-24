@@ -1,12 +1,12 @@
 # Cryptographic Timestamp Provenance Audit (Playbook #26)
-MANIFEST.sha256 SHA-256: 148e0e134634fc5dccb80a02f1c9d9da46eb9fb3d93aa6b6b9a146be596ded84
-MANIFEST.sha256 entries: 126 git-tracked files (0 caches)
-MANIFEST.sha256 size: 11372 bytes
+MANIFEST.sha256 SHA-256: a7f49fab185455c47f6d645e645dd459b213b8d03249a47975cb35b8abdccea5
+MANIFEST.sha256 entries: 141 git-tracked files (0 caches)
+MANIFEST.sha256 size: 12971 bytes
 
 ## RFC 3161 Trusted Timestamp (DigiCert RFC 3161 TSA)
 Endpoint: http://timestamp.digicert.com
 Query file: provenance/MANIFEST.sha256.tsq (69 bytes)
-Response file: provenance/MANIFEST.sha256.tsr (6007 bytes)
+Response file: provenance/MANIFEST.sha256.tsr (6006 bytes)
 OpenSSL cryptographic verification (`openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CAfile /usr/ssl/certs/ca-bundle.crt`, exit 0): Verification: OK
 
 ### OpenSSL `ts -reply -text` Output:
@@ -20,17 +20,17 @@ Version: 1
 Policy OID: 2.16.840.1.114412.7.1
 Hash Algorithm: sha256
 Message data:
-    0000 - 14 8e 0e 13 46 34 fc 5d-cc b8 0a 02 f1 c9 d9 da   ....F4.]........
-    0010 - 46 eb 9f b3 d9 3a a6 b6-b9 a1 46 be 59 6d ed 84   F....:....F.Ym..
-Serial number: 0xEBB7ECF61571B353D73C509B8DE25567
-Time stamp: Nov 24 07:56:48 2026 GMT
+    0000 - a7 f4 9f ab 18 54 55 c4-7f 6d 64 5e 64 5d d4 59   .....TU..md^d].Y
+    0010 - b2 13 b8 d0 32 49 a4 79-75 cb 35 b8 ab dc ce a5   ....2I.yu.5.....
+Serial number: 0x0EE030B1E98CF35449C5CCC75E881686
+Time stamp: Nov 24 09:05:43 2026 GMT
 Accuracy: unspecified
 Ordering: no
-Nonce: 0x77C82CF074437846
+Nonce: 0x1FC9D1F978B0C45F
 TSA: unspecified
 Extensions:
 
 ## OpenTimestamps Calendar Proof (Pending Bitcoin Block Confirmation)
 Calendar: https://a.pool.opentimestamps.org/digest
-File: provenance/MANIFEST.sha256.ots (307 bytes)
+File: provenance/MANIFEST.sha256.ots (237 bytes)
 Status: Submitted to OpenTimestamps calendar; upgrade with `ots upgrade provenance/MANIFEST.sha256.ots` once confirmed in a Bitcoin block (~1-2 hours).

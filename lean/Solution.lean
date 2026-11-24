@@ -5,7 +5,7 @@ public import Challenge
 public import Catalytic
 
 /-!
-# Verified Solutions to All 12 Formalized Theorems (`T1`–`T4` and Corollaries)
+# Verified Solutions to All 14 Formalized Theorems (`T1`–`T4` and Corollaries)
 
 All proofs are kernel-checked in pure Lean 4.35.0 with zero external dependencies and only the three standard Lean axioms.
 -/
@@ -29,6 +29,9 @@ public theorem t1c_impossibility_threshold : T1c_ImpossibilityThreshold :=
 public theorem t1d_vinciguerra_recovery : T1d_VinciguerraRecovery :=
   fun p d t hp hd2 hdp ht => char_p_large_recovers_vinciguerra_thm35 p d t hp hd2 hdp ht
 
+public theorem t1e_extension_field_separation : T1e_ExtensionFieldSeparation :=
+  ⟨gf4_x5_in_3_accesses, gf4_x3_in_4_accesses, gf4_x7_impossible_all_t⟩
+
 public theorem t2_bilinear_frobenius_collapse : T2_BilinearFrobeniusCollapse :=
   fun k hk =>
     ⟨frobBilinProg_accesses k hk,
@@ -51,37 +54,44 @@ public theorem t3d_three_reg_8call_x13 : T3d_ThreeReg8CallX13 :=
 public theorem t3e_exponent_chain : T3e_ExponentChain :=
   exponent_strict_improvement_chain
 
+public theorem t3f_global_integer_optimality : T3f_GlobalIntegerOptimality :=
+  exponent_global_integer_optimality
+
 public theorem t4_balanced_multilinear_product : T4_BalancedMultilinearProduct :=
   fun k target sign pool offset hsign hpool hnd =>
     ⟨by rw [balancedProdProg_length k target sign pool offset hpool]; exact balancedOpCount_formula k,
      balancedProdProg_strictValid k target sign pool offset hsign hpool hnd,
      fun R _ xs st => balancedProdProg_clean (R := R) k target sign pool offset hpool hnd xs st⟩
 
-/-- Single master conjunction bundling all 12 verified theorems for one-shot external kernel export. -/
+/-- Single master conjunction bundling all 14 verified theorems for one-shot external kernel export. -/
 public theorem prove_all_catalytic_theorems :
     T1_DigitSumDichotomy ∧
     T1a_TwoAccessFrobeniusCollapse ∧
     T1b_F2Saturation ∧
     T1c_ImpossibilityThreshold ∧
     T1d_VinciguerraRecovery ∧
+    T1e_ExtensionFieldSeparation ∧
     T2_BilinearFrobeniusCollapse ∧
     T3a_ThreeReg5CallX7 ∧
     T3b_ThreeReg6CallX9 ∧
     T3c_ThreeReg7CallX11 ∧
     T3d_ThreeReg8CallX13 ∧
     T3e_ExponentChain ∧
+    T3f_GlobalIntegerOptimality ∧
     T4_BalancedMultilinearProduct :=
   ⟨t1_digit_sum_dichotomy,
    t1a_two_access_frobenius_collapse,
    t1b_f2_saturation,
    t1c_impossibility_threshold,
    t1d_vinciguerra_recovery,
+   t1e_extension_field_separation,
    t2_bilinear_frobenius_collapse,
    t3a_three_reg_5call_x7,
    t3b_three_reg_6call_x9,
    t3c_three_reg_7call_x11,
    t3d_three_reg_8call_x13,
    t3e_exponent_chain,
+   t3f_global_integer_optimality,
    t4_balanced_multilinear_product⟩
 
 end Catalytic.Solution

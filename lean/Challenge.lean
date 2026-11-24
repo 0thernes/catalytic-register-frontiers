@@ -46,6 +46,16 @@ def T1d_VinciguerraRecovery : Prop :=
   ∀ (p d t : Nat), IsPrime p → 2 ≤ d → d < p → 1 ≤ t →
     (InRPPass2 p t (monomial d) ↔ d + 1 ≤ t)
 
+/-- **T1e (Sharpness of Prime-Field Hypothesis — Exact `𝔽_4` Extension-Field Separation):**
+Over the non-prime extension field `𝔽_4 = 𝔽_2[ω]/(ω^2 + ω + 1)`:
+  1. `x^5 ∈ RP^{pass}_{𝔽_4}(2, 3)` (beating `𝔽_2` impossibility for all `t`),
+  2. `x^3 ∈ RP^{pass}_{𝔽_4}(2, 4)` (beating `𝔽_2` impossibility for all `t`),
+  3. `∀ t, x^7 ∉ RP^{pass}_{𝔽_4}(2, t)` (unconditional impossibility barrier in `𝔽_4`). -/
+def T1e_ExtensionFieldSeparation : Prop :=
+  InRPPass2GF4 3 (monomialGF4 5) ∧
+  InRPPass2GF4 4 (monomialGF4 3) ∧
+  (∀ t : Nat, ¬ InRPPass2GF4 t (monomialGF4 7))
+
 /-- **T2 (Strictly Bilinear 2-Access Frobenius Collapse over Characteristic 2):**
 For every `k ≥ 1`, there is a passive-output strictly bilinear register program on `k + 1`
 registers using ONLY 2 input accesses and `4*k - 2` bilinear ops that cleanly computes
@@ -97,6 +107,13 @@ def T3e_ExponentChain : Prop :=
   (6 ^ 11 < 9 ^ 9)   ∧ (7 ^ 9 < 5 ^ 11) ∧
   (5 ^ 6 < 7 ^ 5)    ∧ (5 ^ 5 < 4 ^ 6) ∧
   (15 ^ 30 < 9 ^ 37)
+
+/-- **T3f (Unconditional Global Integer Optimality of `t = 8` for All `t ≥ 4`):**
+Via the single rational separator `30 / 37`, certifies
+`log_13 8 < 30 / 37 < log_{2t - 3} t` for EVERY integer `t ≥ 4` with `t ≠ 8`. -/
+def T3f_GlobalIntegerOptimality : Prop :=
+  (8 ^ 37 < 13 ^ 30) ∧
+  (∀ t : Nat, 4 ≤ t → t ≠ 8 → (2 * t - 3) ^ 30 < t ^ 37)
 
 /-- **T4 (Balanced Zero-Workspace Bilinear Multilinear Product):**
 For every `k : Nat`, arbitrary commutative ring `R`, inputs `xs`, arbitrary catalytic state `st`,

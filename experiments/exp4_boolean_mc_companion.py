@@ -311,8 +311,9 @@ def run_companion_audit(cert_dir: pathlib.Path | None = None) -> dict:
             tested_cancellations += 1
 
     # 4. Inverse SAT check on 6 hard random quadratic maps (n=4, m=3) where quadratic-only MC = 3:
-    #    verify CaDiCaL certifies k=2 UNSAT (zero Boyar-Find counterexamples!)
+    #    verify CaDiCaL certifies k=2 UNSAT (zero Boyar-Find counterexamples!) and archive LRAT proofs
     hard_n4_m3_unsat = 0
+    hard_lrat_certs: list[str] = []
     for trial in range(6):
         # 3 linearly independent quadratic forms on n=4: x0*x1^x2*x3, x0*x2^x1*x3, x0*x3^x1*x2 + random quad
         f0 = eval_anf([(1 << 0) | (1 << 1), (1 << 2) | (1 << 3)], 4)
@@ -322,9 +323,12 @@ def run_companion_audit(cert_dir: pathlib.Path | None = None) -> dict:
         if not chosen:
             chosen = [(1 << 0) | (1 << 3)]
         f2 = eval_anf(chosen, 4)
-        res2 = synthesize_multi_output_mc([f0, f1, f2], 4, 2, cadical)
+        trial_prefix = (cert_dir / f"hard_n4_m3_trial{trial}_k2") if cert_dir is not None else None
+        res2 = synthesize_multi_output_mc([f0, f1, f2], 4, 2, cadical, cert_prefix=trial_prefix)
         if res2 == "UNSAT":
             hard_n4_m3_unsat += 1
+            if cert_dir is not None:
+                hard_lrat_certs.append(f"results/sat_certs/hard_n4_m3_trial{trial}_k2.lrat")
         elif res2 == "SAT":
             counterexamples += 1
 
@@ -338,6 +342,8 @@ def run_companion_audit(cert_dir: pathlib.Path | None = None) -> dict:
         "benchmarks": benchmarks,
         "genuine_deg3_cancellations_sampled": genuine_cancellations,
         "hard_n4_m3_quadratic_maps_k2_unsat": hard_n4_m3_unsat,
+        "hard_n4_m3_lrat_certs": hard_lrat_certs,
+        "total_archived_lrat_unsat_proofs": (2 + len(hard_lrat_certs)) if cert_dir is not None else 0,
         "boyar_find_counterexamples_found": counterexamples,
     }
 

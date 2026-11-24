@@ -26,5 +26,14 @@
   ],
   "genuine_deg3_cancellations_sampled": 182,
   "hard_n4_m3_quadratic_maps_k2_unsat": 6,
+  "hard_n4_m3_lrat_certs": [
+    "results/sat_certs/hard_n4_m3_trial0_k2.lrat",
+    "results/sat_certs/hard_n4_m3_trial1_k2.lrat",
+    "results/sat_certs/hard_n4_m3_trial2_k2.lrat",
+    "results/sat_certs/hard_n4_m3_trial3_k2.lrat",
+    "results/sat_certs/hard_n4_m3_trial4_k2.lrat",
+    "results/sat_certs/hard_n4_m3_trial5_k2.lrat"
+  ],
+  "total_archived_lrat_unsat_proofs": 8,
   "boyar_find_counterexamples_found": 0
 }

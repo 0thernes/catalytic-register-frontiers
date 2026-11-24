@@ -62,6 +62,7 @@ jobs:
             echo "CADICAL_BIN=$CADICAL_PATH" >> "$GITHUB_ENV"
           fi
           python scripts/verify_lrat.py
+          python scripts/check_reuse.py
           pytest -v tests/test_all.py
 
       - name: Report-only static analysis (ruff) and strict type check (mypy)
@@ -121,6 +122,7 @@ jobs:
           $env:CADICAL_BIN = "$env:USERPROFILE\.elan\toolchains\leanprover--lean4---v4.35.0\bin\cadical.exe"
           python -m pip install -r requirements.lock.txt
           python scripts/verify_lrat.py
+          python scripts/check_reuse.py
           pytest -v tests/test_all.py
           pwsh -NoProfile -File scripts/Audit-Repo.ps1 -Path .
           python scripts/pipeline-audit.py

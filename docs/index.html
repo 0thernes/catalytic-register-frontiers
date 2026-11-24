@@ -4,43 +4,212 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>catalytic-register-frontiers — Verification Portal &amp; Formal Blueprint</title>
+  <title>catalytic-register-frontiers — Formal Verification Blueprint &amp; Provenance Portal</title>
   <style>
-    :root { --bg:#0b1220; --card:#111a2e; --ink:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --ok:#34d399; --border:#1e293b; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--ink); margin:0; padding:2rem 1rem; line-height:1.6; }
-    main { max-width:960px; margin:0 auto; }
-    h1, h2 { color:#f8fafc; }
-    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.25rem 1.5rem; margin:1.25rem 0; }
-    .pill { display:inline-block; padding:0.2rem 0.6rem; border-radius:999px; font-size:0.85rem; background:#064e3b; color:var(--ok); margin-right:0.4rem; }
-    a { color:var(--accent); }
-    table { width:100%; border-collapse:collapse; margin-top:0.75rem; font-size:0.95rem; }
-    th, td { border-bottom:1px solid var(--border); text-align:left; padding:0.55rem 0.6rem; vertical-align:top; }
-    code { background:#0f172a; padding:0.15rem 0.35rem; border-radius:4px; }
+    :root {
+      --bg: #0b1120;
+      --surface: #11192c;
+      --surface-alt: #16213a;
+      --ink: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --border: #23314d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      margin: 0;
+      padding: 2rem 1rem 4rem;
+      line-height: 1.6;
+    }
+    main { max-width: 1060px; margin: 0 auto; }
+    h1 { font-size: 1.85rem; line-height: 1.25; margin: 0 0 0.5rem; color: #f8fafc; }
+    h2 { font-size: 1.25rem; margin: 0 0 0.75rem; color: #f8fafc; }
+    p.meta { color: var(--muted); margin: 0.25rem 0 1rem; }
+    .pills { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.75rem 0 1.25rem; }
+    .pill {
+      display: inline-block;
+      padding: 0.22rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: #064e3b;
+      color: var(--ok);
+      border: 1px solid #065f46;
+    }
+    .pill.warn { background: #451a03; color: var(--warn); border-color: #78350f; }
+    .pill.info { background: #0c4a6e; color: var(--accent); border-color: #0369a1; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.35rem 1.5rem;
+      margin: 1.25rem 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.9rem;
+      margin-top: 0.75rem;
+    }
+    .stat {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+    }
+    .stat .k { font-size: 1.35rem; font-weight: 700; color: #f8fafc; }
+    .stat .l { font-size: 0.82rem; color: var(--muted); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table { width: 100%; border-collapse: collapse; margin-top: 0.65rem; font-size: 0.92rem; }
+    th, td { border-bottom: 1px solid var(--border); text-align: left; padding: 0.55rem 0.6rem; vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #0f172a;
+      padding: 0.12rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.86em;
+    }
+    pre {
+      background: #0a101d;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.48;
+    }
+    .svg-wrap { width: 100%; overflow-x: auto; margin-top: 0.75rem; }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0 0.75rem; }
+    .filter-btn {
+      background: var(--surface-alt);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.7rem;
+      cursor: pointer;
+      font-size: 0.83rem;
+    }
+    .filter-btn.active { background: #0c4a6e; border-color: var(--accent); color: #f8fafc; }
+    details summary { cursor: pointer; color: var(--accent); font-weight: 600; }
   </style>
 </head>
 <body>
 <main>
   <h1>Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs</h1>
-  <p><strong>Author:</strong> Alexander S. Donahue (Independent Researcher, Spokane, WA, USA &middot; ORCID <a href="https://orcid.org/0009-0006-8168-9648">0009-0006-8168-9648</a>)</p>
-  <p>
-    <span class="pill">Lean 4.35.0 &middot; Zero Mathlib</span>
-    <span class="pill">6 / 6 Independent Kernels</span>
-    <span class="pill">0 sorry &middot; 3 Standard Axioms</span>
-    <span class="pill">Preprint &middot; Not Peer-Reviewed</span>
+  <p class="meta">
+    <strong>Author:</strong> Alexander S. Donahue (Independent Researcher, Spokane, WA, USA) &middot;
+    <strong>ORCID:</strong> <a href="https://orcid.org/0009-0006-8168-9648">0009-0006-8168-9648</a> &middot;
+    <strong>Version:</strong> 1.0.0 &middot;
+    <strong>License:</strong> Apache-2.0 (code) / CC-BY-4.0 (text &amp; figures)
   </p>
+  <div class="pills">
+    <span class="pill">Lean 4.35.0 &middot; Zero Mathlib</span>
+    <span class="pill">12 Modules &middot; 14 Theorems + Non-Vacuity</span>
+    <span class="pill">6 / 6 Independent Kernels</span>
+    <span class="pill">8 / 8 LRAT UNSAT Proofs Verified</span>
+    <span class="pill info">DigiCert RFC 3161 Verified</span>
+    <span class="pill warn">Preprint &middot; Not Peer-Reviewed</span>
+  </div>
+
+  <div class="grid">
+    <div class="stat"><div class="k">0.810714</div><div class="l">Optimal 3-reg exponent log<sub>13</sub> 8 (down from log<sub>5</sub> 4 &approx; 0.86135)</div></div>
+    <div class="stat"><div class="k">16 / 16</div><div class="l">Lean decls strictly in [propext, Classical.choice, Quot.sound]</div></div>
+    <div class="stat"><div class="k">18,932</div><div class="l">Verified CaDiCaL 2.1.2 LRAT UNSAT steps across 8/8 certificates</div></div>
+    <div class="stat"><div class="k">100% REUSE</div><div class="l">All tracked files covered by inline SPDX + REUSE.toml</div></div>
+  </div>
 
   <div class="card">
-    <h2>Formal Dependency Blueprint (Module Graph)</h2>
-    <p>Every theorem in <code>paper/main.tex</code> maps to a zero-Mathlib Lean 4.35.0 module audited across <code>lean</code>, <code>leanchecker</code>, <code>leanchecker-paranoid</code>, <code>con-leche --verified</code>, <code>con-ron --verified</code>, and <code>nanoda_bin</code>.</p>
-    <pre><code>Catalytic.CommRing
- ├── Catalytic.BilinearFrobenius        ──▶ T2  (2-access bilinear x^(2^k), char 2)
- ├── Catalytic.BalancedProduct          ──▶ T4  ((7d^2-4)/3 zero-workspace product)
- └── Catalytic.ThreeRegisterBreakthrough ──▶ T3a–T3e (x^7, x^9, x^11, x^13; log_13 8 = 0.81071)
-Catalytic.PrimeFieldTools
- └── Catalytic.DigitSumDichotomy        ──▶ T1, T1a–T1d (s_p(d) ≤ min(p-1, t-1) IFF)
-Catalytic.NonVacuity                    ──▶ Concrete 0 ≠ 1 witnesses for T1–T4
- └── Challenge.lean ──▶ Solution.lean ──▶ VerifyAxioms.lean</code></pre>
-    <p>Raw verification artifacts:
+    <h2>Interactive Formal Dependency Blueprint (Lean 4.35.0 Module DAG)</h2>
+    <p>Every Tier-1 theorem in <code>paper/main.tex</code> maps to a self-contained zero-Mathlib Lean 4.35.0 <code>module</code> audited across <code>lean</code>, <code>leanchecker</code>, <code>leanchecker-paranoid</code>, <code>con-leche --verified</code> (3,093 decls), <code>con-ron --verified</code> (3,093 decls), and <code>nanoda_bin 0.4.19</code> (3,394 decls).</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 980 340" width="980" height="340" role="img" aria-label="Formal Lean 4.35 Module Dependency Graph">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
+          </marker>
+        </defs>
+        <!-- Edges -->
+        <g stroke="#64748b" stroke-width="1.6" fill="none" marker-end="url(#arr)">
+          <path d="M 190 95 L 250 55"/>
+          <path d="M 190 105 L 250 120"/>
+          <path d="M 190 115 L 250 185"/>
+          <path d="M 190 125 L 250 250"/>
+          <path d="M 190 255 L 250 255"/>
+          <path d="M 190 265 L 250 310"/>
+          <path d="M 480 55 L 545 135"/>
+          <path d="M 480 120 L 545 145"/>
+          <path d="M 480 185 L 545 155"/>
+          <path d="M 480 250 L 545 165"/>
+          <path d="M 480 310 L 545 175"/>
+          <path d="M 545 185 L 545 245"/>
+          <path d="M 705 160 L 760 110"/>
+          <path d="M 705 160 L 760 190"/>
+          <path d="M 705 270 L 760 205"/>
+          <path d="M 940 190 L 940 250"/>
+        </g>
+        <!-- Layer 1: Foundations -->
+        <g font-family="ui-monospace, monospace" font-size="12">
+          <rect x="15" y="75" width="175" height="62" rx="8" fill="#16213a" stroke="#38bdf8" stroke-width="1.5"/>
+          <text x="102" y="102" text-anchor="middle" fill="#f8fafc" font-weight="700">CommRing.lean</text>
+          <text x="102" y="121" text-anchor="middle" fill="#94a3b8" font-size="10.5">CRing, Char2CRing, CatProg</text>
+
+          <rect x="15" y="230" width="175" height="62" rx="8" fill="#16213a" stroke="#38bdf8" stroke-width="1.5"/>
+          <text x="102" y="257" text-anchor="middle" fill="#f8fafc" font-weight="700">PrimeFieldTools.lean</text>
+          <text x="102" y="276" text-anchor="middle" fill="#94a3b8" font-size="10.5">IsPrime, Lucas, digitSum</text>
+
+          <!-- Layer 2: Theorem Modules -->
+          <rect x="255" y="28" width="225" height="50" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+          <text x="367" y="50" text-anchor="middle" fill="#f8fafc" font-weight="700">BilinearFrobenius.lean</text>
+          <text x="367" y="67" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T2: 2-access x^(2^k), 4k-2 ops</text>
+
+          <rect x="255" y="93" width="225" height="50" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+          <text x="367" y="115" text-anchor="middle" fill="#f8fafc" font-weight="700">BalancedProduct.lean</text>
+          <text x="367" y="132" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T4: (7d^2-4)/3 zero-workspace</text>
+
+          <rect x="255" y="158" width="225" height="50" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+          <text x="367" y="180" text-anchor="middle" fill="#f8fafc" font-weight="700">ThreeRegisterBreakthrough.lean</text>
+          <text x="367" y="197" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T3a-f: x^7..x^13 + global t=8 opt</text>
+
+          <rect x="255" y="223" width="225" height="50" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+          <text x="367" y="245" text-anchor="middle" fill="#f8fafc" font-weight="700">ExtensionFieldSeparation.lean</text>
+          <text x="367" y="262" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T1e: GF4 x^5(3), x^3(4), x^7 imp</text>
+
+          <rect x="255" y="286" width="225" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+          <text x="367" y="307" text-anchor="middle" fill="#f8fafc" font-weight="700">DigitSumDichotomy.lean</text>
+          <text x="367" y="324" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T1, T1a-d: s_p(d) &lt;= min(p-1,t-1)</text>
+
+          <!-- Layer 3: Aggregation & NonVacuity -->
+          <rect x="548" y="130" width="156" height="56" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="626" y="154" text-anchor="middle" fill="#f8fafc" font-weight="700">Catalytic.lean</text>
+          <text x="626" y="172" text-anchor="middle" fill="#cbd5e1" font-size="10.5">Public Barrel Module</text>
+
+          <rect x="548" y="248" width="156" height="56" rx="8" fill="#1e3a5f" stroke="#38bdf8" stroke-width="1.5"/>
+          <text x="626" y="272" text-anchor="middle" fill="#f8fafc" font-weight="700">NonVacuity.lean</text>
+          <text x="626" y="290" text-anchor="middle" fill="#bae6fd" font-size="10.5">0 != 1 Witnesses (ModP, GF4, Int)</text>
+
+          <!-- Layer 4: Palomar Contract & Verification -->
+          <rect x="764" y="75" width="200" height="56" rx="8" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/>
+          <text x="864" y="99" text-anchor="middle" fill="#fef08a" font-weight="700">Challenge.lean</text>
+          <text x="864" y="117" text-anchor="middle" fill="#cbd5e1" font-size="10.5">14 Public Prop Specifications</text>
+
+          <rect x="764" y="160" width="200" height="56" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+          <text x="864" y="184" text-anchor="middle" fill="#f8fafc" font-weight="700">Solution.lean</text>
+          <text x="864" y="202" text-anchor="middle" fill="#a7f3d0" font-size="10.5">prove_all_catalytic_theorems</text>
+
+          <rect x="764" y="253" width="200" height="56" rx="8" fill="#312e81" stroke="#a5b4fc" stroke-width="1.5"/>
+          <text x="864" y="277" text-anchor="middle" fill="#e0e7ff" font-weight="700">VerifyAxioms + 6 Kernels</text>
+          <text x="864" y="295" text-anchor="middle" fill="#c7d2fe" font-size="10.5">lean, paranoid, con-*, nanoda</text>
+        </g>
+      </svg>
+    </div>
+    <p style="margin-top:0.85rem;">Raw verification artifacts:
       <a href="blueprint/lean_axioms.txt">lean_axioms.txt</a> &middot;
       <a href="blueprint/six_kernel_audit.txt">six_kernel_audit.txt</a> &middot;
       <a href="blueprint/statement-fidelity.md">statement-fidelity.md</a>
@@ -48,18 +217,69 @@ Catalytic.NonVacuity                    ──▶ Concrete 0 ≠ 1 witnesses for
   </div>
 
   <div class="card">
-    <h2>Tier-1 Machine-Checked Theorems</h2>
-    <table>
-      <thead><tr><th>ID</th><th>Lean Declaration</th><th>Key Result</th><th>Axioms</th></tr></thead>
+    <h2>Tier-1 Machine-Checked Theorems &amp; Witnesses</h2>
+    <div class="filter-bar" role="group" aria-label="Filter theorems by family">
+      <button class="filter-btn active" onclick="filterRows('all', this)">All (15)</button>
+      <button class="filter-btn" onclick="filterRows('T1', this)">T1 Prime/Ext Dichotomy</button>
+      <button class="filter-btn" onclick="filterRows('T2', this)">T2 Bilinear Frobenius</button>
+      <button class="filter-btn" onclick="filterRows('T3', this)">T3 3-Reg Breakthrough</button>
+      <button class="filter-btn" onclick="filterRows('T4', this)">T4 Balanced Product</button>
+      <button class="filter-btn" onclick="filterRows('NV', this)">Non-Vacuity</button>
+    </div>
+    <table id="thm-table">
+      <thead><tr><th>ID</th><th>Lean Declaration</th><th>Result Summary</th><th>Axioms</th></tr></thead>
       <tbody>
-        <tr><td><code>T1</code></td><td><code>t1_digit_sum_dichotomy</code></td><td>Unconditional IFF for RP<sup>pass</sup><sub>F<sub>p</sub></sub>(2, t) via base-p digit sum s<sub>p</sub>(d) &le; min(p&minus;1, t&minus;1)</td><td>3 standard</td></tr>
-        <tr><td><code>T2</code></td><td><code>t2_bilinear_frobenius_collapse</code></td><td>Strictly bilinear passive 2-access x<sup>2<sup>k</sup></sup> in k+1 regs, 4k&minus;2 ops over any char-2 ring</td><td>3 standard</td></tr>
-        <tr><td><code>T3a–e</code></td><td><code>t3a</code>–<code>t3e</code></td><td>Explicit 3-register programs for x<sup>7</sup>, x<sup>9</sup>, x<sup>11</sup>, x<sup>13</sup>; optimal log<sub>13</sub> 8 &approx; 0.81071 &lt; log<sub>5</sub> 4</td><td>3 standard (0 for T3e)</td></tr>
-        <tr><td><code>T4</code></td><td><code>t4_balanced_multilinear_product</code></td><td>Zero-workspace balanced product x<sub>0</sub>&cdots;x<sub>d&minus;1</sub> in log<sub>2</sub> d + 2 regs, (7d<sup>2</sup>&minus;4)/3 ops</td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
-        <tr><td><code>NONVAC</code></td><td><code>nonvac_all_hypotheses</code></td><td>Concrete <code>0 &ne; 1</code> witnesses (<code>ModP 2, 5, 7, 11</code>, <code>Int</code>) ruling out vacuous hypotheses</td><td>3 standard</td></tr>
+        <tr data-fam="T1"><td><code>T1</code></td><td><code>t1_digit_sum_dichotomy</code></td><td>Unconditional IFF for RP<sup>pass</sup><sub>F<sub>p</sub></sub>(2, t) via base-p digit sum s<sub>p</sub>(d) &le; min(p&minus;1, t&minus;1)</td><td>3 standard</td></tr>
+        <tr data-fam="T1"><td><code>T1a</code></td><td><code>t1a_two_access_frobenius_collapse</code></td><td>Unbounded-degree 2-access Frobenius collapse x<sup>p<sup>m</sup></sup> &in; RP<sup>pass</sup><sub>F<sub>p</sub></sub>(2, 2)</td><td>3 standard</td></tr>
+        <tr data-fam="T1"><td><code>T1b</code></td><td><code>t1b_f2_saturation</code></td><td>Exact F<sub>2</sub> saturation: x<sup>3</sup> &notin; RP<sup>pass</sup><sub>F<sub>2</sub></sub>(2, t) for all t</td><td>3 standard</td></tr>
+        <tr data-fam="T1"><td><code>T1c</code></td><td><code>t1c_impossibility_threshold</code></td><td>Impossibility threshold: s<sub>p</sub>(d) &ge; p implies x<sup>d</sup> impossible for all t</td><td>3 standard</td></tr>
+        <tr data-fam="T1"><td><code>T1d</code></td><td><code>t1d_vinciguerra_recovery</code></td><td>Large-char recovery of Vinciguerra Thm. 3.5: 2 &le; d &lt; p &rArr; (x<sup>d</sup> &in; RP(2,t) &hArr; d+1 &le; t)</td><td>3 standard</td></tr>
+        <tr data-fam="T1"><td><code>T1e</code></td><td><code>t1e_extension_field_separation</code></td><td>Sharpness over F<sub>4</sub>: x<sup>5</sup> &in; RP(2,3), x<sup>3</sup> &in; RP(2,4), and &forall;t, x<sup>7</sup> &notin; RP(2,t)</td><td>3 standard</td></tr>
+        <tr data-fam="T2"><td><code>T2</code></td><td><code>t2_bilinear_frobenius_collapse</code></td><td>Strictly bilinear passive 2-access x<sup>2<sup>k</sup></sup> in k+1 regs, 4k&minus;2 ops over every char-2 ring</td><td>3 standard</td></tr>
+        <tr data-fam="T3"><td><code>T3a</code></td><td><code>t3a_three_reg_5call_x7</code></td><td>x<sup>7</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 5) whenever 576 is invertible (char &ne; 2, 3); log<sub>7</sub> 5 &approx; 0.82709</td><td>3 standard</td></tr>
+        <tr data-fam="T3"><td><code>T3b</code></td><td><code>t3b_three_reg_6call_x9</code></td><td>x<sup>9</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 6) avoiding {2,3,5,17}; log<sub>9</sub> 6 &approx; 0.81547</td><td>3 standard</td></tr>
+        <tr data-fam="T3"><td><code>T3c</code></td><td><code>t3c_three_reg_7call_x11</code></td><td>x<sup>11</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 7) over Q and good primes; log<sub>11</sub> 7 &approx; 0.81151</td><td>3 standard</td></tr>
+        <tr data-fam="T3"><td><code>T3d</code></td><td><code>t3d_three_reg_8call_x13</code></td><td>x<sup>13</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 8) achieving optimal log<sub>13</sub> 8 &approx; 0.81071</td><td>3 standard</td></tr>
+        <tr data-fam="T3"><td><code>T3e</code></td><td><code>t3e_exponent_chain</code></td><td>Exact Nat power chain separating log<sub>13</sub> 8 &lt; log<sub>11</sub> 7 &lt; log<sub>9</sub> 6 &lt; log<sub>7</sub> 5 &lt; log<sub>5</sub> 4 and &lt; log<sub>15</sub> 9</td><td><strong>0 axioms</strong></td></tr>
+        <tr data-fam="T3"><td><code>T3f</code></td><td><code>t3f_global_integer_optimality</code></td><td>Universal global optimality for ALL t &ge; 4, t &ne; 8: 8<sup>37</sup> &lt; 13<sup>30</sup> &and; (2t&minus;3)<sup>30</sup> &lt; t<sup>37</sup></td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
+        <tr data-fam="T4"><td><code>T4</code></td><td><code>t4_balanced_multilinear_product</code></td><td>Zero-workspace balanced product x<sub>0</sub>&cdots;x<sub>d&minus;1</sub> in log<sub>2</sub> d + 2 regs, (7d<sup>2</sup>&minus;4)/3 ops</td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
+        <tr data-fam="NV"><td><code>NONVAC</code></td><td><code>nonvac_all_hypotheses</code></td><td>Concrete <code>0 &ne; 1</code> witnesses (<code>ModP 2, 5, 7, 11</code>, <code>GF4</code>, <code>Int</code>) ruling out vacuity</td><td>3 standard</td></tr>
       </tbody>
     </table>
   </div>
+
+  <div class="card">
+    <h2>5-Second Axiom &amp; Provenance Verification</h2>
+    <details open>
+      <summary>Verbatim <code>lake env lean VerifyAxioms.lean</code> Output (16/16 Declarations)</summary>
+      <pre><code>'Catalytic.Solution.t1_digit_sum_dichotomy' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1a_two_access_frobenius_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1b_f2_saturation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1c_impossibility_threshold' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1d_vinciguerra_recovery' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1e_extension_field_separation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t2_bilinear_frobenius_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3a_three_reg_5call_x7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3b_three_reg_6call_x9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3c_three_reg_7call_x11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3d_three_reg_8call_x13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3e_exponent_chain' does not depend on any axioms
+'Catalytic.Solution.t3f_global_integer_optimality' depends on axioms: [propext, Quot.sound]
+'Catalytic.Solution.t4_balanced_multilinear_product' depends on axioms: [propext, Quot.sound]
+'Catalytic.Solution.prove_all_catalytic_theorems' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.NonVacuity.nonvac_all_hypotheses' depends on axioms: [propext, Classical.choice, Quot.sound]</code></pre>
+    </details>
+    <p>Independent SAT Companion: <strong>8 / 8</strong> CaDiCaL 2.1.2 DIMACS <code>.cnf</code> + ASCII <code>.lrat</code> UNSAT certificates archived in <code>results/sat_certs/</code> and re-checked by <code>scripts/verify_lrat.py</code>. Provenance manifest <code>MANIFEST.sha256</code> carries a cryptographically verified DigiCert RFC 3161 timestamp (<code>provenance/MANIFEST.sha256.tsr</code>) and OpenTimestamps Bitcoin calendar submission (<code>provenance/MANIFEST.sha256.ots</code>).</p>
+  </div>
 </main>
+<script>
+function filterRows(fam, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#thm-table tbody tr').forEach(tr => {
+    tr.style.display = (fam === 'all' || tr.dataset.fam === fam) ? '' : 'none';
+  });
+}
+</script>
 </body>
 </html>

@@ -40,6 +40,7 @@ from experiments.exp4_boolean_mc_companion import (
     synthesize_multi_output_mc,
 )
 from scripts.check_citations import BIB_PATH, check_offline
+from scripts.check_reuse import verify_reuse
 from scripts.verify_lrat import verify_lrat
 
 
@@ -265,20 +266,21 @@ def test_lean_formalization_and_governance_hygiene() -> None:
         for fn in sorted(fnames):
             if fn.endswith(".lean"):
                 lean_files.append(pathlib.Path(root) / fn)
-    assert len(lean_files) == 11
+    assert len(lean_files) == 12
     for f in lean_files:
         text = f.read_text(encoding="utf-8")
         assert text.lstrip().startswith("module"), f"Missing Lean 4.35 `module` header in {f}"
         assert not pat.search(text), f"Forbidden token found in {f}"
 
-    # Verify Palomar & comparator artifacts exist
+    # Verify Palomar, comparator, and extension-field separation artifacts exist
     assert (lean_dir / "comparator.json").exists()
     assert (lean_dir / "formalization.yaml").exists()
     assert (lean_dir / "Catalytic" / "NonVacuity.lean").exists()
+    assert (lean_dir / "Catalytic" / "ExtensionFieldSeparation.lean").exists()
 
-    # Verify results/lean_axioms.txt covers all 14 declarations with zero unpermitted axioms
+    # Verify results/lean_axioms.txt covers all 16 declarations with zero unpermitted axioms
     ax_lines = (REPO / "results" / "lean_axioms.txt").read_text(encoding="utf-8").strip().splitlines()
-    assert len(ax_lines) == 14
+    assert len(ax_lines) == 16
     for line in ax_lines:
         assert "sorryAx" not in line and "ofReduceBool" not in line and "trustCompiler" not in line
 
@@ -305,14 +307,22 @@ def test_results_json_artifacts_valid() -> None:
 
 
 def test_lrat_certificates_and_mutant_rejection(tmp_path: pathlib.Path) -> None:
-    """Verify archived CaDiCaL 2.1.2 LRAT UNSAT certificates and confirm mutant rejection."""
+    """Verify all 8/8 archived CaDiCaL 2.1.2 LRAT UNSAT certificates and confirm mutant rejection."""
     cert_dir = REPO / "results" / "sat_certs"
-    for stem in ("f4_mul_k2", "orthogonal_bent_pair_k2"):
+    expected_stems = [
+        "f4_mul_k2",
+        "orthogonal_bent_pair_k2",
+        *(f"hard_n4_m3_trial{i}_k2" for i in range(6)),
+    ]
+    total_steps = 0
+    for stem in expected_stems:
         cnf_p = cert_dir / f"{stem}.cnf"
         lrat_p = cert_dir / f"{stem}.lrat"
         assert cnf_p.exists() and lrat_p.exists(), f"Missing SAT certificate pair for {stem}"
         steps, deletions = verify_lrat(cnf_p, lrat_p)
         assert steps > 1000 and deletions > 100
+        total_steps += steps
+    assert total_steps > 15000
 
     # Mutant 1: truncate the final empty-clause derivation line -> must raise ValueError
     orig_cnf = cert_dir / "f4_mul_k2.cnf"
@@ -346,9 +356,21 @@ def test_lrat_certificates_and_mutant_rejection(tmp_path: pathlib.Path) -> None:
     assert raised, "LRAT verifier failed to reject corrupted RUP hint!"
 
 
+def test_t3f_global_integer_optimality_exact() -> None:
+    """Independent exact integer verification of T3f rational separator 30/37 for t=4..500."""
+    assert 8**37 < 13**30
+    for t in range(4, 501):
+        if t == 8:
+            assert (2 * t - 3) ** 30 > t**37
+        else:
+            assert (2 * t - 3) ** 30 < t**37
+
+
 def test_manifest_and_reuse_hygiene() -> None:
-    """Guard against cache files leaking into MANIFEST.sha256 and confirm REUSE.toml + SPDX."""
+    """Guard against cache files leaking into MANIFEST.sha256 and confirm 100% REUSE/SPDX."""
     assert (REPO / "REUSE.toml").exists()
+    total, inline_n, reuse_errors = verify_reuse(REPO)
+    assert total >= 120 and inline_n >= 70 and reuse_errors == [], f"REUSE errors: {reuse_errors}"
     manifest_text = (REPO / "MANIFEST.sha256").read_text(encoding="utf-8")
     forbidden_prefixes = (
         ".hypothesis/",
