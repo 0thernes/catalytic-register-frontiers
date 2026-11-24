@@ -164,10 +164,8 @@ def make_fig2() -> None:
     ax1.plot([4, 9], [5, 15], "-", color=C_BLUE, lw=1.4, alpha=0.45)
     ax1.scatter(t_r3_vinc, d_r3_vinc, color=C_ORANGE, marker="D", s=40, zorder=5,
                 label=r"$r=3$ prior (Vinciguerra Thm. 2.3: $t=4 \to x^5$)")
-    ax1.scatter(t_r3_new[:4], d_r3_new[:4], color=C_BLUE, s=48, zorder=6,
-                label=r"$r=3$ Lean-verified (Thm. T3: $x^7, x^9, x^{11}, x^{13}$)")
-    ax1.scatter([9], [15], color=C_GREEN, marker="^", s=48, zorder=6,
-                label=r"$r=3$ exact $\mathbb{Q}$-verified ($t=9 \to x^{15}$)")
+    ax1.scatter(t_r3_new, d_r3_new, color=C_BLUE, s=48, zorder=6,
+                label=r"$r=3$ Lean-verified (Thm. T3: $x^7, x^9, x^{11}, x^{13}, x^{15}$)")
 
     for tv, dv in [(4, 5), (5, 7), (6, 9), (7, 11), (8, 13), (9, 15)]:
         ax1.annotate(rf"$x^{{{dv}}}$", xy=(tv, dv), xytext=(tv + 0.14, dv - 1.15),
@@ -191,12 +189,12 @@ def make_fig2() -> None:
     ei = np.log(ti) / np.log(2.0 * ti - 3.0)
     ax2.scatter([4], [ei[0]], color=C_ORANGE, marker="D", s=52, zorder=5,
                 label=rf"Vinciguerra ($t=4$): $\log_5 4 = {ei[0]:.5f}$")
-    ax2.scatter([5, 6, 7], ei[1:4], color=C_BLUE, s=42, zorder=5,
-                label=r"Lean-verified improvements ($t=5,6,7$)")
+    ax2.scatter([5, 6, 7, 9], [ei[1], ei[2], ei[3], ei[5]], color=C_BLUE, s=42, zorder=5,
+                label=r"Lean-verified programs ($t=5,6,7,9$)")
     ax2.scatter([8], [ei[4]], color=C_GREEN, marker="*", s=130, zorder=6,
-                label=rf"Optimal ($t=8$): $\log_{{13}} 8 = {ei[4]:.5f}$")
-    ax2.scatter(ti[5:], ei[5:], color=C_GREY, s=22, alpha=0.65, zorder=4,
-                label=r"$t \geq 9$ (curve rises past $t^* \approx 7.92$)")
+                label=rf"Global optimum ($t=8$): $\log_{{13}} 8 = {ei[4]:.5f}$")
+    ax2.scatter(ti[6:], ei[6:], color=C_GREY, s=22, alpha=0.65, zorder=4,
+                label=r"$t \geq 10$ (curve rises; Lean T3f $\forall t \neq 8$)")
 
     ax2.axhline(9.0 / 11.0, color=C_PURPLE, linestyle=":", lw=1.1,
                 label=r"Lean exact separator $9/11 \approx 0.81818$")

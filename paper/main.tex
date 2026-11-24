@@ -63,14 +63,14 @@ We resolve two structural questions left open by Vinciguerra's operator analysis
   Over any commutative ring of characteristic~$2$, we construct an explicit passive-output program using strictly bilinear basic instructions ($R_i \leftarrow R_i + R_j R_\ell$ with $j,\ell \neq i$) that cleanly computes $x^{2^k}$ in $k+1$ registers, $4k-2$ bilinear operations, and \emph{only two} input accesses for every $k \ge 1$.
 
   \item \emph{Strict improvement over Vinciguerra's three-register powering exponent (Theorem~\ref{thm:T3}).}
-  Using explicit elementary shear loops with integer Pascal-row coefficients, we prove $x^7 \in \RP_K^{\pass}(3, 5)$ (for all $\operatorname{char}(K) \neq 2, 3$), $x^9 \in \RP_K^{\pass}(3, 6)$ ($\operatorname{char}(K) \notin \{2,3,5,17\}$), $x^{11} \in \RP_K^{\pass}(3, 7)$, and $x^{13} \in \RP_K^{\pass}(3, 8)$ over $\Q$ and all good prime fields.
-  This improves the three-register composition exponent from Vinciguerra's $\log_5 4 \approx 0.86135$ down to the unique integer minimizer $\log_{13} 8 \approx 0.81071$ of $\log_{2t-3} t$, immediately tightening the asymptotic exponents for $4$-register powering (Corollary~4.3.1), catalytic streaming frequency moments (Corollary~5.1.1), and $3$-register matrix powering (Theorem~5.2) of~\cite{Vinciguerra2026}.
+  Using explicit elementary shear loops with integer Pascal-row coefficients, we prove $x^7 \in \RP_K^{\pass}(3, 5)$ (for all $\operatorname{char}(K) \neq 2, 3$), $x^9 \in \RP_K^{\pass}(3, 6)$ ($\operatorname{char}(K) \notin \{2,3,5,17\}$), $x^{11} \in \RP_K^{\pass}(3, 7)$, $x^{13} \in \RP_K^{\pass}(3, 8)$, and $x^{15} \in \RP_K^{\pass}(3, 9)$ over $\Q$ and all good prime fields.
+  This improves the three-register composition exponent from Vinciguerra's $\log_5 4 \approx 0.86135$ down to the unique global integer minimizer $\log_{13} 8 \approx 0.81071$ of $\log_{2t-3} t$ (certified unconditionally for all $t \ge 4$), immediately tightening the asymptotic exponents for $4$-register powering (Corollary~4.3.1), catalytic streaming frequency moments (Corollary~5.1.1), and $3$-register matrix powering (Theorem~5.2) of~\cite{Vinciguerra2026}.
 
   \item \emph{Balanced zero-workspace bilinear multilinear product (Theorem~\ref{thm:T4}).}
   Over any commutative ring, we formalize a recursive zero-workspace commutator computing $x_0 \cdots x_{d-1}$ ($d = 2^k$) using $\log_2 d + 2$ registers and exactly $(7d^2 - 4)/3$ primitive operations.
 \end{enumerate}
-All twelve main theorem and corollary statements together with explicit non-trivial ($0 \neq 1$) non-vacuity witnesses are formalized with zero Mathlib dependencies across eleven Lean~4.35.0 \texttt{module} files, depend strictly on the standard axiom set $\{\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}\}$, and pass six independent verification kernel runs across five implementations (\texttt{lean}, \texttt{leanchecker}, \texttt{leanchecker-paranoid}, \texttt{con-leche}, \texttt{con-ron}, and \texttt{nanoda\_bin}).
-An accompanying CaDiCaL~2.1.2 SAT audit (cross-checked against an independent brute-force enumerator on $n = 2, 3$) contrasts these catalytic gains against the rigidity of nonlinear cancellation in Boolean XAG circuits~\cite{BoyarFind2018,Morse2026}.
+All sixteen theorems and corollaries (including sharp $\F_4$ separation and distinct-operand bilinear collapse) together with explicit non-trivial ($0 \neq 1$) non-vacuity witnesses are formalized with zero Mathlib dependencies across twelve Lean~4.35.0 \texttt{module} files, depend strictly on $\{\texttt{propext},\allowbreak\,\texttt{Classical.choice},\allowbreak\,\texttt{Quot.sound}\}$, and pass six independent verification kernel runs across five implementations (\texttt{lean}, \texttt{leanchecker}, \texttt{leanchecker-paranoid}, \texttt{con-leche}, \texttt{con-ron}, and \texttt{nanoda\_bin}).
+An accompanying CaDiCaL~2.1.2 SAT audit ($8/8$ archived and independently verified LRAT UNSAT proofs, cross-checked against both brute-force enumeration and a second independent CNF encoder) contrasts these catalytic gains against the rigidity of nonlinear cancellation in Boolean XAG circuits~\cite{BoyarFind2018,Morse2026}.
 \end{abstract}
 
 \maketitle
@@ -130,7 +130,7 @@ For every $k \ge 1$, there is an explicit passive-output register program on $k 
 
 Turning to characteristic~$0$ (and good prime characteristics) with $r = 3$ registers, we break Vinciguerra's $4$-call powering barrier $x^5 \in \RP_K^{\pass}(3, 4)$ using explicit elementary shear loops whose work-register updates are pure integer Pascal-row shears $v \leftarrow v \pm q u^d$.
 
-\begin{theorem}[Three-Register Powering Improvement; Lean \texttt{T3a}--\texttt{T3e}]
+\begin{theorem}[Three-Register Powering Improvement; Lean \texttt{T3a}--\texttt{T3g}]
 \label{thm:T3}
 Let $K$ be any commutative ring (in particular any field) in which the scaling integer $D_t$ is invertible.
 Explicit literal passive-output $3$-register programs (Definition~\ref{def:rp}) establish:
@@ -138,13 +138,14 @@ Explicit literal passive-output $3$-register programs (Definition~\ref{def:rp}) 
   \item $x^7 \in \RP_K^{\pass}(3, 5)$ whenever $D_5 = 576 = 2^6 \cdot 3^2$ is invertible (i.e., $\operatorname{char}(K) \neq 2, 3$), with $\log_7 5 \approx 0.827087$;
   \item $x^9 \in \RP_K^{\pass}(3, 6)$ whenever $D_6 = 382{,}500{,}000 = 2^6 \cdot 3^2 \cdot 5^6 \cdot 17$ is invertible ($\operatorname{char}(K) \notin \{2, 3, 5, 17\}$), with $\log_9 6 \approx 0.815465$;
   \item $x^{11} \in \RP_K^{\pass}(3, 7)$ whenever $D_7 = 68{,}724{,}637{,}549{,}388{,}656{,}012{,}800$ is invertible in $K$, achieving $\log_{11} 7 \approx 0.811508$;
-  \item $x^{13} \in \RP_K^{\pass}(3, 8)$ whenever $D_8 = 2{,}656{,}207{,}148{,}788{,}801{,}777{,}680$ is invertible in $K$, achieving $\log_{13} 8 \approx \mathbf{0.810714}$.
+  \item $x^{13} \in \RP_K^{\pass}(3, 8)$ whenever $D_8 = 2{,}656{,}207{,}148{,}788{,}801{,}777{,}680$ is invertible in $K$, achieving $\log_{13} 8 \approx \mathbf{0.810714}$;
+  \item $x^{15} \in \RP_K^{\pass}(3, 9)$ whenever $D_9$ (Table~\ref{tab:t3-frontier}) is invertible in $K$, achieving $\log_{15} 9 \approx 0.811368 > \log_{13} 8$.
 \end{enumerate}
 Moreover, exact integer exponentiation certifies the strict chain of rational separations
 \[
   \log_{13} 8 < \frac{30}{37} < \log_{11} 7 < \frac{13}{16} < \log_9 6 < \frac{9}{11} < \log_7 5 < \frac{5}{6} < \log_5 4,
 \]
-and $\log_{13} 8 < \frac{30}{37} < \log_{15} 9$, proving that $t = 8$ is the unique integer global minimizer of $\varepsilon(t) = \log_{2t-3} t$.
+and unconditionally $\log_{13} 8 < \frac{30}{37} < \log_{2t-3} t$ for \emph{every} integer $t \ge 4$ with $t \neq 8$ (Lean~\texttt{T3f}), proving that $t = 8$ is the unique global integer minimizer of $\varepsilon(t) = \log_{2t-3} t$.
 \end{theorem}
 
 Composing Theorem~\ref{thm:T3}(4) via Vinciguerra's passive composition lemma (\cite[Lemma~2.2]{Vinciguerra2026}) immediately tightens all three downstream applications of~\cite{Vinciguerra2026} at the minimal non-trivial register count ($r = 3$ base, $4$ composed registers): powering $x^N$ in $O(N^{0.81072})$ accesses (improving Corollary~4.3.1), catalytic streaming frequency moments $F_D(\sigma)$ in $O(D^{0.81072})$ passes (improving Corollary~5.1.1), and $3$-register matrix powering $A^N$ in $O(N^{0.81072})$ recursive calls (improving Theorem~5.2) --- see Section~\ref{sec:T3}.
@@ -169,8 +170,8 @@ To enforce transparent verification boundaries, every claim in this manuscript b
 \toprule
 \textbf{Tier} & \textbf{Scope} & \textbf{Certification Mechanism} \\
 \midrule
-Tier-1 & Theorems~\ref{thm:T1}--\ref{thm:T4} \& Cor.\ \texttt{T1a}--\texttt{T1d}, \texttt{T3e} & Zero-Mathlib Lean~4.35.0; 6 kernels (Table~\ref{tab:kernels}) \\
-Tier-2 & $\F_4$ spectrum, $t=9 \to x^{15}$, $r=4$ loops, Boyar--Find & Exact $\F_p/\Q/\Z$ arithmetic \& CaDiCaL~2.1.2 \\
+Tier-1 & Theorems~\ref{thm:T1}--\ref{thm:T4} \& \texttt{T1a}--\texttt{T1e}, \texttt{T2b}, \texttt{T3a}--\texttt{T3g} & Zero-Mathlib Lean~4.35.0; 6 kernels (Table~\ref{tab:kernels}) \\
+Tier-2 & Full $\F_4$ ($d \le 16$) spectrum, $r=4$ loops, Boyar--Find SAT ($8/8$ LRAT) & Exact $\F_p/\Q/\Z$ arithmetic \& CaDiCaL~2.1.2 \\
 Tier-3 & Corollaries~\ref{cor:powering}--\ref{cor:matpow} (asymptotic exponents) & Paper proof via \cite[Lem.~2.2, Cor.~5.1.1, Thm.~5.2]{Vinciguerra2026} \\
 Tier-4 & General $D_{3,\Q}^{\pass}(t)=2t-3$, $r \ge 4$, Boyar--Find & Explicitly open (Section~\ref{sec:open}) \\
 \bottomrule
@@ -605,7 +606,7 @@ Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay 
 We highlight four concrete threats to validity and four unresolved Tier-4 frontiers:
 \begin{itemize}
   \item \emph{Statement fidelity vs.\ model conventions:} Definition~\ref{def:rp} uses formal polynomial-ring cleanliness in $R[O, R_1, \dots, R_{r-1}, x]$ (matching~\cite{Vinciguerra2026}); pointwise function equality over finite fields $\F_p$ collapses via $x^p = x$ and is outside scope.
-  \item \emph{Bad-prime denominators (\texttt{T3b}--\texttt{T3d}):} The $5$-call program \texttt{prog5\_x7} avoids only $\{2, 3\}$, whereas the $6$-, $7$-, and $8$-call programs exclude additional prime divisors of $D_t$ (Table~\ref{tab:t3-frontier}); all hold unconditionally in characteristic~$0$.
+  \item \emph{Bad-prime denominators (\texttt{T3b}--\texttt{T3d}, \texttt{T3g}):} The $5$-call program \texttt{prog5\_x7} avoids only $\{2, 3\}$, whereas the $6$-, $7$-, $8$-, and $9$-call programs exclude additional prime divisors of $D_t$ (Table~\ref{tab:t3-frontier}); all hold unconditionally in characteristic~$0$.
   \item \emph{SAT companion certificate boundary:} All $8/8$ Tier-2 CaDiCaL~2.1.2 UNSAT certificates (\texttt{results/sat\_certs/}) are archived and independently verified by our exact Python LRAT checker (\texttt{scripts/verify\_lrat.py}) alongside brute-force $n = 2, 3$ encoder equivalence tests, though they have not yet been replayed through CakeML's \texttt{cake\_lpr}; no Tier-1 theorem depends on SAT.
   \item \emph{Zero-dependency core linters vs.\ Mathlib/Batteries:} Retaining zero external Lake dependencies preserves a minimal six-kernel trust base while precluding Batteries' \texttt{\#lint}; strict built-in Lean~4.35 core linters pass with zero warnings.
 \end{itemize}
