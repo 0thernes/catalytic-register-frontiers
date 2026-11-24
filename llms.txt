@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # catalytic-register-frontiers
 
-> Zero-Mathlib Lean 4.35.0 formalization (14 module files, 19 theorems + non-vacuity = 21 audited declarations across 6 passing kernels), exact-arithmetic + Hypothesis + mutant + brute-force & second-encoder differential SAT + 8/8 LRAT UNSAT verification suite, REUSE 3.3 verifier, continuous RFC 3161 TSA verification, and AMS-LaTeX preprint settling the exact base-p digit-sum dichotomy for RP^{pass}_{F_p}(2, t), exact sharp F_4 separation (T1e), literal CRing/GF4 soundness bridges (T1s, T1es), distinct-operand bilinear Frobenius collapse (T2b), globally optimal 3-register catalytic powering exponent (0.86135 -> 0.81071, T3a-T3g), and complete 4-register passive powering for all N >= 1 (T3h).
+> Zero-Mathlib Lean 4.35.0 formalization (14 module files, 20 theorems + non-vacuity = 22 audited declarations across 6 passing kernels), exact-arithmetic + Hypothesis + mutant + brute-force & second-encoder differential SAT + 8/8 LRAT UNSAT verification suite, REUSE 3.3 verifier, continuous RFC 3161 TSA verification, and AMS-LaTeX preprint settling the exact base-p digit-sum dichotomy for RP^{pass}_{F_p}(2, t), exact sharp F_4 separation (T1e), literal CRing/GF4 soundness bridges (T1s, T1es), distinct-operand bilinear Frobenius collapse (T2b), globally optimal 3-register catalytic powering exponent (0.86135 -> 0.81071, T3a-T3g), complete 4-register passive powering for all N >= 1 (T3h), and algebraic vector streaming frequency moments F_D (T3i).
 
 ## Key Files
 - [README.md](README.md): Overview, 5-second verbatim `#print axioms` proof, Statement-Fidelity summary, Quickstart, and Usage examples
@@ -15,9 +15,9 @@
 - [docs/literature-search-log.md](docs/literature-search-log.md): Dated prior-art and Crossref/DataCite/arXiv citation audit log
 - [docs/legal-and-ethics.md](docs/legal-and-ethics.md): AI/CRediT disclosure, COI, licensing, and export-control self-screen
 - [docs/reviews/01-10-pass-review.md](docs/reviews/01-10-pass-review.md): Playbook v1.1 10-pass adversarial audit
-- [lean/Challenge.lean](lean/Challenge.lean): Zero-sorry specifications of all 19 exported theorems (T1, T1a–T1e, T1s, T1es, T2, T2b, T3a–T3h, T4)
-- [lean/Solution.lean](lean/Solution.lean): Zero-Mathlib Lean 4.35.0 proofs (6 passing verification kernels; 21 audited declarations)
-- [lean/Catalytic/FourRegisterPowering.lean](lean/Catalytic/FourRegisterPowering.lean): Complete 4-register passive powering for all N >= 1 (`T3h`, promoting Corollary 5.2 to Tier-1)
+- [lean/Challenge.lean](lean/Challenge.lean): Zero-sorry specifications of all 20 exported theorems (T1, T1a–T1e, T1s, T1es, T2, T2b, T3a–T3i, T4)
+- [lean/Solution.lean](lean/Solution.lean): Zero-Mathlib Lean 4.35.0 proofs (6 passing verification kernels; 22 audited declarations)
+- [lean/Catalytic/FourRegisterPowering.lean](lean/Catalytic/FourRegisterPowering.lean): Complete 4-register passive powering for all N >= 1 (`T3h`) & pointwise product-ring streaming frequency moments F_D (`T3i`)
 - [lean/Catalytic/Pass2Soundness.lean](lean/Catalytic/Pass2Soundness.lean): Zero-Mathlib binomial theorem & literal CRing / GF4-algebra soundness bridges (`T1s`, `T1es`)
 - [lean/Catalytic/NonVacuity.lean](lean/Catalytic/NonVacuity.lean): Concrete 0 != 1 non-vacuity witnesses
 - [lean/comparator.json](lean/comparator.json) & [lean/formalization.yaml](lean/formalization.yaml): Palomar Registry verification metadata

@@ -132,6 +132,10 @@ theorems:
     name: Catalytic.Solution.t3h_four_reg_powering
     module: Catalytic.FourRegisterPowering
     summary: "Complete 4-register passive powering for ALL N >= 1 via non-passive 3-register composition + Cook-Mertz finite differences: < (104/3)*N^{log_13 8} (prog8_x13) and < (70/3)*N^{log_7 5} (prog5_x7)."
+  - id: T3i
+    name: Catalytic.Solution.t3i_streaming_frequency_moment
+    module: Catalytic.FourRegisterPowering
+    summary: "Pointwise product-ring (Fin n -> R) instantiation of T3h certifying algebraic catalytic streaming frequency moments F_D(f) = sum_{i<n} f_i^D in < (104/3)*D^{log_13 8} passes."
   - id: T4
     name: Catalytic.Solution.t4_balanced_multilinear_product
     module: Catalytic.BalancedProduct

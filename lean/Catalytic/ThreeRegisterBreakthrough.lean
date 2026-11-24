@@ -456,7 +456,7 @@ theorem exec3Poly_certifies_monic {R : Type u} [CRing R]
   rw [hprod] at h3
   exact Prod.ext h3 h2
 
-/-! ## 3. The Four Explicit Breakthrough Programs (`t = 5, 6, 7, 8`) -/
+/-! ## 3. The Five Explicit Improvement Programs (`t = 5, 6, 7, 8, 9`) -/
 
 /-- Helper building one loop iteration `(addOut F) -> (v -= q*u^d) -> (u += α*x) -> (v += q*u^d)`. -/
 def loopStep (d : Nat) (F : List (Nat × Nat × Int)) (q_next alpha : Int) : List Pass3Instr :=

@@ -27,7 +27,7 @@ function Test-Git { try { $null = git rev-parse --is-inside-work-tree 2>$null; r
 $IsGit = Test-Git
 if ($IsGit) { $Files = @(git ls-files -co --exclude-standard) }
 else {
-  $Files = @(Get-ChildItem -Recurse -File -Force | Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' } |
+  $Files = @(Get-ChildItem -LiteralPath $Root -Recurse -File -Force | Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' } |
     ForEach-Object { $_.FullName.Substring($Root.Length + 1) -replace '\\', '/' })
 }
 $Files = @($Files | Where-Object { $_ })

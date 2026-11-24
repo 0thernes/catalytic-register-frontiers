@@ -111,7 +111,7 @@
   </p>
   <div class="pills">
     <span class="pill">Lean 4.35.0 &middot; Zero Mathlib</span>
-    <span class="pill">14 Modules &middot; 19 Theorems + Non-Vacuity</span>
+    <span class="pill">14 Modules &middot; 20 Theorems + Non-Vacuity</span>
     <span class="pill">6 / 6 Independent Kernels</span>
     <span class="pill">8 / 8 LRAT UNSAT Proofs Verified</span>
     <span class="pill info">DigiCert RFC 3161 Verified</span>
@@ -120,16 +120,16 @@
 
   <div class="grid">
     <div class="stat"><div class="k">0.810714</div><div class="l">Optimal 3-reg exponent log<sub>13</sub> 8 (down from log<sub>5</sub> 4 &approx; 0.86135)</div></div>
-    <div class="stat"><div class="k">21 / 21</div><div class="l">Lean decls strictly in [propext, Classical.choice, Quot.sound]</div></div>
+    <div class="stat"><div class="k">22 / 22</div><div class="l">Lean decls strictly in [propext, Classical.choice, Quot.sound]</div></div>
     <div class="stat"><div class="k">18,932</div><div class="l">Verified CaDiCaL 2.1.2 LRAT UNSAT steps across 8/8 certificates</div></div>
     <div class="stat"><div class="k">100% REUSE</div><div class="l">All tracked files covered by inline SPDX + REUSE.toml</div></div>
   </div>
 
   <div class="card">
     <h2>Interactive Formal Dependency Blueprint (Lean 4.35.0 Module DAG)</h2>
-    <p>Every Tier-1 theorem in <code>paper/main.tex</code> maps to a self-contained zero-Mathlib Lean 4.35.0 <code>module</code> audited across <code>lean</code>, <code>leanchecker</code>, <code>leanchecker-paranoid</code>, <code>con-leche --verified</code> (3,506 decls), <code>con-ron --verified</code> (3,506 decls), and <code>nanoda_bin 0.4.19</code> (3,819 decls).</p>
+    <p>Every Tier-1 theorem in <code>paper/main.tex</code> maps to a self-contained zero-Mathlib Lean 4.35.0 <code>module</code> audited across <code>lean</code>, <code>leanchecker</code>, <code>leanchecker-paranoid</code>, <code>con-leche --verified</code> (3,523 decls), <code>con-ron --verified</code> (3,523 decls), and <code>nanoda_bin 0.4.19</code> (3,836 decls).</p>
     <div class="svg-wrap">
-      <svg viewBox="0 0 980 450" width="980" height="450" role="img" aria-label="Formal Lean 4.35 Module Dependency Graph">
+      <svg viewBox="0 0 1080 450" width="1080" height="450" role="img" aria-label="Formal Lean 4.35 Module Dependency Graph">
         <defs>
           <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
             <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
@@ -137,86 +137,86 @@
         </defs>
         <!-- Edges -->
         <g stroke="#64748b" stroke-width="1.6" fill="none" marker-end="url(#arr)">
-          <path d="M 190 95 L 250 48"/>
-          <path d="M 190 105 L 250 106"/>
-          <path d="M 190 115 L 250 164"/>
-          <path d="M 190 125 L 250 222"/>
-          <path d="M 190 275 L 250 226"/>
-          <path d="M 190 285 L 250 280"/>
-          <path d="M 190 295 L 250 338"/>
-          <path d="M 480 48 L 545 170"/>
-          <path d="M 480 106 L 545 176"/>
-          <path d="M 480 164 L 545 182"/>
-          <path d="M 480 222 L 545 188"/>
-          <path d="M 480 280 L 545 194"/>
-          <path d="M 480 338 L 545 200"/>
-          <path d="M 480 398 L 545 206"/>
-          <path d="M 545 215 L 545 288"/>
-          <path d="M 705 185 L 760 125"/>
-          <path d="M 705 185 L 760 215"/>
-          <path d="M 705 312 L 760 230"/>
-          <path d="M 940 215 L 940 285"/>
+          <path d="M 190 95 L 242 46"/>
+          <path d="M 190 105 L 242 104"/>
+          <path d="M 190 115 L 242 162"/>
+          <path d="M 190 125 L 242 220"/>
+          <path d="M 190 275 L 242 224"/>
+          <path d="M 190 285 L 242 278"/>
+          <path d="M 190 295 L 242 336"/>
+          <path d="M 510 46 L 560 170"/>
+          <path d="M 510 104 L 560 176"/>
+          <path d="M 510 162 L 560 182"/>
+          <path d="M 510 220 L 560 188"/>
+          <path d="M 510 278 L 560 194"/>
+          <path d="M 510 336 L 560 200"/>
+          <path d="M 510 398 L 560 206"/>
+          <path d="M 672 214 L 672 288"/>
+          <path d="M 780 185 L 832 125"/>
+          <path d="M 780 185 L 832 215"/>
+          <path d="M 780 316 L 832 230"/>
+          <path d="M 947 244 L 947 285"/>
         </g>
         <!-- Layer 1: Foundations -->
         <g font-family="ui-monospace, monospace" font-size="12">
-          <rect x="15" y="75" width="175" height="62" rx="8" fill="#16213a" stroke="#38bdf8" stroke-width="1.5"/>
-          <text x="102" y="102" text-anchor="middle" fill="#f8fafc" font-weight="700">CommRing.lean</text>
-          <text x="102" y="121" text-anchor="middle" fill="#94a3b8" font-size="10.5">CRing, Char2CRing, CatProg</text>
+          <rect x="12" y="75" width="178" height="62" rx="8" fill="#16213a" stroke="#38bdf8" stroke-width="1.5"/>
+          <text x="101" y="102" text-anchor="middle" fill="#f8fafc" font-weight="700">CommRing.lean</text>
+          <text x="101" y="121" text-anchor="middle" fill="#94a3b8" font-size="10">CRing, Char2CRing, CatProg</text>
 
-          <rect x="15" y="250" width="175" height="62" rx="8" fill="#16213a" stroke="#38bdf8" stroke-width="1.5"/>
-          <text x="102" y="277" text-anchor="middle" fill="#f8fafc" font-weight="700">PrimeFieldTools.lean</text>
-          <text x="102" y="296" text-anchor="middle" fill="#94a3b8" font-size="10.5">IsPrime, Lucas, digitSum</text>
+          <rect x="12" y="250" width="178" height="62" rx="8" fill="#16213a" stroke="#38bdf8" stroke-width="1.5"/>
+          <text x="101" y="277" text-anchor="middle" fill="#f8fafc" font-weight="700">PrimeFieldTools.lean</text>
+          <text x="101" y="296" text-anchor="middle" fill="#94a3b8" font-size="10">IsPrime, Lucas, digitSum</text>
 
           <!-- Layer 2: Theorem Modules -->
-          <rect x="255" y="22" width="225" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
-          <text x="367" y="43" text-anchor="middle" fill="#f8fafc" font-weight="700">BilinearFrobenius.lean</text>
-          <text x="367" y="60" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T2, T2b: 2-access x^(2^k) (distinct)</text>
+          <rect x="246" y="22" width="264" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+          <text x="378" y="43" text-anchor="middle" fill="#f8fafc" font-weight="700">BilinearFrobenius.lean</text>
+          <text x="378" y="60" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T2, T2b: 2-access x^(2^k) (distinct)</text>
 
-          <rect x="255" y="80" width="225" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
-          <text x="367" y="101" text-anchor="middle" fill="#f8fafc" font-weight="700">BalancedProduct.lean</text>
-          <text x="367" y="118" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T4: (7d^2-4)/3 zero-workspace</text>
+          <rect x="246" y="80" width="264" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+          <text x="378" y="101" text-anchor="middle" fill="#f8fafc" font-weight="700">BalancedProduct.lean</text>
+          <text x="378" y="118" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T4: (7d^2-4)/3 zero-workspace</text>
 
-          <rect x="255" y="138" width="225" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
-          <text x="367" y="159" text-anchor="middle" fill="#f8fafc" font-weight="700">ThreeRegisterBreakthrough.lean</text>
-          <text x="367" y="176" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T3a-g: x^7..x^15 + global t=8 opt</text>
+          <rect x="246" y="138" width="264" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+          <text x="378" y="159" text-anchor="middle" fill="#f8fafc" font-weight="700">ThreeRegisterBreakthrough.lean</text>
+          <text x="378" y="176" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T3a-g: x^7..x^15 + global t=8 opt</text>
 
-          <rect x="255" y="196" width="225" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
-          <text x="367" y="217" text-anchor="middle" fill="#f8fafc" font-weight="700">ExtensionFieldSeparation.lean</text>
-          <text x="367" y="234" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T1e: sharp GF4 t_min(5)=3, t_min(3)=4</text>
+          <rect x="246" y="196" width="264" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+          <text x="378" y="217" text-anchor="middle" fill="#f8fafc" font-weight="700">ExtensionFieldSeparation.lean</text>
+          <text x="378" y="234" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T1e: sharp GF4 t_min(5)=3, t_min(3)=4</text>
 
-          <rect x="255" y="254" width="225" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
-          <text x="367" y="275" text-anchor="middle" fill="#f8fafc" font-weight="700">DigitSumDichotomy.lean</text>
-          <text x="367" y="292" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T1, T1a-d: s_p(d) &lt;= min(p-1,t-1)</text>
+          <rect x="246" y="254" width="264" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+          <text x="378" y="275" text-anchor="middle" fill="#f8fafc" font-weight="700">DigitSumDichotomy.lean</text>
+          <text x="378" y="292" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T1, T1a-d: s_p(d) &lt;= min(p-1,t-1)</text>
 
-          <rect x="255" y="314" width="225" height="48" rx="8" fill="#064e3b" stroke="#38bdf8" stroke-width="1.5"/>
-          <text x="367" y="335" text-anchor="middle" fill="#f8fafc" font-weight="700">Pass2Soundness.lean</text>
-          <text x="367" y="352" text-anchor="middle" fill="#bae6fd" font-size="10.5">T1s, T1es: CRing &amp; GF4 literal bridge</text>
+          <rect x="246" y="314" width="264" height="48" rx="8" fill="#064e3b" stroke="#38bdf8" stroke-width="1.5"/>
+          <text x="378" y="335" text-anchor="middle" fill="#f8fafc" font-weight="700">Pass2Soundness.lean</text>
+          <text x="378" y="352" text-anchor="middle" fill="#bae6fd" font-size="10.5">T1s, T1es: CRing &amp; GF4 literal bridge</text>
 
-          <rect x="255" y="374" width="225" height="50" rx="8" fill="#064e3b" stroke="#fbbf24" stroke-width="1.5"/>
-          <text x="367" y="395" text-anchor="middle" fill="#f8fafc" font-weight="700">FourRegisterPowering.lean</text>
-          <text x="367" y="412" text-anchor="middle" fill="#fef08a" font-size="10.5">T3h: 4-reg powering all N &gt;= 1</text>
+          <rect x="246" y="374" width="264" height="50" rx="8" fill="#064e3b" stroke="#fbbf24" stroke-width="1.5"/>
+          <text x="378" y="395" text-anchor="middle" fill="#f8fafc" font-weight="700">FourRegisterPowering.lean</text>
+          <text x="378" y="412" text-anchor="middle" fill="#fef08a" font-size="10.5">T3h, T3i: 4-reg powering &amp; streaming</text>
 
           <!-- Layer 3: Aggregation & NonVacuity -->
-          <rect x="548" y="158" width="156" height="56" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5"/>
-          <text x="626" y="182" text-anchor="middle" fill="#f8fafc" font-weight="700">Catalytic.lean</text>
-          <text x="626" y="200" text-anchor="middle" fill="#cbd5e1" font-size="10.5">Public Barrel Module</text>
+          <rect x="564" y="158" width="216" height="56" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="672" y="182" text-anchor="middle" fill="#f8fafc" font-weight="700">Catalytic.lean</text>
+          <text x="672" y="200" text-anchor="middle" fill="#cbd5e1" font-size="10.5">Public Barrel Module</text>
 
-          <rect x="548" y="290" width="156" height="56" rx="8" fill="#1e3a5f" stroke="#38bdf8" stroke-width="1.5"/>
-          <text x="626" y="314" text-anchor="middle" fill="#f8fafc" font-weight="700">NonVacuity.lean</text>
-          <text x="626" y="332" text-anchor="middle" fill="#bae6fd" font-size="10.5">0 != 1 Witnesses (ModP, GF4, Int)</text>
+          <rect x="564" y="290" width="216" height="56" rx="8" fill="#1e3a5f" stroke="#38bdf8" stroke-width="1.5"/>
+          <text x="672" y="314" text-anchor="middle" fill="#f8fafc" font-weight="700">NonVacuity.lean</text>
+          <text x="672" y="332" text-anchor="middle" fill="#bae6fd" font-size="10">0!=1: ModP 2..13, GF4, Int</text>
 
           <!-- Layer 4: Palomar Contract & Verification -->
-          <rect x="764" y="98" width="200" height="56" rx="8" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/>
-          <text x="864" y="122" text-anchor="middle" fill="#fef08a" font-weight="700">Challenge.lean</text>
-          <text x="864" y="140" text-anchor="middle" fill="#cbd5e1" font-size="10.5">19 Public Prop Specifications</text>
+          <rect x="836" y="98" width="224" height="56" rx="8" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/>
+          <text x="948" y="122" text-anchor="middle" fill="#fef08a" font-weight="700">Challenge.lean</text>
+          <text x="948" y="140" text-anchor="middle" fill="#cbd5e1" font-size="10.5">20 Public Prop Specifications</text>
 
-          <rect x="764" y="188" width="200" height="56" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
-          <text x="864" y="212" text-anchor="middle" fill="#f8fafc" font-weight="700">Solution.lean</text>
-          <text x="864" y="230" text-anchor="middle" fill="#a7f3d0" font-size="10.5">prove_all_catalytic_theorems</text>
+          <rect x="836" y="188" width="224" height="56" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+          <text x="948" y="212" text-anchor="middle" fill="#f8fafc" font-weight="700">Solution.lean</text>
+          <text x="948" y="230" text-anchor="middle" fill="#a7f3d0" font-size="10.5">prove_all_catalytic_theorems</text>
 
-          <rect x="764" y="288" width="200" height="56" rx="8" fill="#312e81" stroke="#a5b4fc" stroke-width="1.5"/>
-          <text x="864" y="312" text-anchor="middle" fill="#e0e7ff" font-weight="700">VerifyAxioms + 6 Kernels</text>
-          <text x="864" y="330" text-anchor="middle" fill="#c7d2fe" font-size="10.5">lean, paranoid, con-*, nanoda</text>
+          <rect x="836" y="288" width="224" height="56" rx="8" fill="#312e81" stroke="#a5b4fc" stroke-width="1.5"/>
+          <text x="948" y="312" text-anchor="middle" fill="#e0e7ff" font-weight="700">VerifyAxioms + 6 Kernels</text>
+          <text x="948" y="330" text-anchor="middle" fill="#c7d2fe" font-size="10.5">lean, paranoid, con-*, nanoda</text>
         </g>
       </svg>
     </div>
@@ -230,7 +230,7 @@
   <div class="card">
     <h2>Tier-1 Machine-Checked Theorems &amp; Witnesses</h2>
     <div class="filter-bar" role="group" aria-label="Filter theorems by family">
-      <button class="filter-btn active" onclick="filterRows('all', this)">All (20)</button>
+      <button class="filter-btn active" onclick="filterRows('all', this)">All (21)</button>
       <button class="filter-btn" onclick="filterRows('T1', this)">T1 Prime/Ext Dichotomy</button>
       <button class="filter-btn" onclick="filterRows('T2', this)">T2 Bilinear Frobenius</button>
       <button class="filter-btn" onclick="filterRows('T3', this)">T3 3-Reg Breakthrough</button>
@@ -251,13 +251,14 @@
         <tr data-fam="T2"><td><code>T2</code></td><td><code>t2_bilinear_frobenius_collapse</code></td><td>Strictly bilinear passive 2-access x<sup>2<sup>k</sup></sup> in k+1 regs, 4k&minus;2 ops over every char-2 ring</td><td>3 standard</td></tr>
         <tr data-fam="T2"><td><code>T2b</code></td><td><code>t2b_distinct_operand_frobenius</code></td><td>Strictly distinct-operand 2-access x<sup>2<sup>k</sup></sup> in k+2 regs (zero self-squares R<sub>a</sub>R<sub>a</sub>)</td><td>3 standard</td></tr>
         <tr data-fam="T3"><td><code>T3a</code></td><td><code>t3a_three_reg_5call_x7</code></td><td>x<sup>7</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 5) whenever 576 is invertible (char &ne; 2, 3); log<sub>7</sub> 5 &approx; 0.82709</td><td>3 standard</td></tr>
-        <tr data-fam="T3"><td><code>T3b</code></td><td><code>t3b_three_reg_6call_x9</code></td><td>x<sup>9</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 6) avoiding {2,3,5,17}; log<sub>9</sub> 6 &approx; 0.81547</td><td>3 standard</td></tr>
+        <tr data-fam="T3"><td><code>T3b</code></td><td><code>t3b_three_reg_6call_x9</code></td><td>x<sup>9</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 6) avoiding {2,3,5,17}; log<sub>9</sub> 6 &approx; 0.81546</td><td>3 standard</td></tr>
         <tr data-fam="T3"><td><code>T3c</code></td><td><code>t3c_three_reg_7call_x11</code></td><td>x<sup>11</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 7) over Q and good primes; log<sub>11</sub> 7 &approx; 0.81151</td><td>3 standard</td></tr>
         <tr data-fam="T3"><td><code>T3d</code></td><td><code>t3d_three_reg_8call_x13</code></td><td>x<sup>13</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 8) achieving optimal log<sub>13</sub> 8 &approx; 0.81071</td><td>3 standard</td></tr>
         <tr data-fam="T3"><td><code>T3e</code></td><td><code>t3e_exponent_chain</code></td><td>Exact Nat power chain separating log<sub>13</sub> 8 &lt; log<sub>11</sub> 7 &lt; log<sub>9</sub> 6 &lt; log<sub>7</sub> 5 &lt; log<sub>5</sub> 4 and &lt; log<sub>15</sub> 9</td><td><strong>0 axioms</strong></td></tr>
         <tr data-fam="T3"><td><code>T3f</code></td><td><code>t3f_global_integer_optimality</code></td><td>Universal global optimality for ALL t &ge; 4, t &ne; 8: 8<sup>37</sup> &lt; 13<sup>30</sup> &and; (2t&minus;3)<sup>30</sup> &lt; t<sup>37</sup></td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
         <tr data-fam="T3"><td><code>T3g</code></td><td><code>t3g_three_reg_9call_x15</code></td><td>x<sup>15</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 9) post-minimum ascent point (log<sub>15</sub> 9 &approx; 0.81137)</td><td>3 standard</td></tr>
         <tr data-fam="T3"><td><code>T3h</code></td><td><code>t3h_four_reg_powering</code></td><td>Complete 4-register passive powering for ALL N &ge; 1: &lt; (104/3)N<sup>log<sub>13</sub> 8</sup> (prog8_x13) and &lt; (70/3)N<sup>log<sub>7</sub> 5</sup> (prog5_x7)</td><td>3 standard</td></tr>
+        <tr data-fam="T3"><td><code>T3i</code></td><td><code>t3i_streaming_frequency_moment</code></td><td>Pointwise product-ring (Fin n &rarr; R) catalytic streaming frequency moment F<sub>D</sub>(f) = &sum; f<sub>i</sub><sup>D</sup> in &lt; (104/3)D<sup>log<sub>13</sub> 8</sup> passes</td><td>3 standard</td></tr>
         <tr data-fam="T4"><td><code>T4</code></td><td><code>t4_balanced_multilinear_product</code></td><td>Zero-workspace balanced product x<sub>0</sub>&cdots;x<sub>d&minus;1</sub> in log<sub>2</sub> d + 2 regs, (7d<sup>2</sup>&minus;4)/3 ops</td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
         <tr data-fam="NV"><td><code>NONVAC</code></td><td><code>nonvac_all_hypotheses</code></td><td>Concrete <code>0 &ne; 1</code> witnesses (<code>ModP 2, 5, 7, 11, 13</code>, <code>GF4</code>, <code>Int</code>; all D<sub>5</sub>..D<sub>9</sub> &amp; factorials)</td><td>3 standard</td></tr>
       </tbody>
@@ -267,7 +268,7 @@
   <div class="card">
     <h2>5-Second Axiom &amp; Provenance Verification</h2>
     <details open>
-      <summary>Verbatim <code>lake env lean VerifyAxioms.lean</code> Output (21/21 Declarations)</summary>
+      <summary>Verbatim <code>lake env lean VerifyAxioms.lean</code> Output (22/22 Declarations)</summary>
       <pre><code>'Catalytic.Solution.t1_digit_sum_dichotomy' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t1a_two_access_frobenius_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t1b_f2_saturation' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -286,6 +287,7 @@
 'Catalytic.Solution.t3f_global_integer_optimality' depends on axioms: [propext, Quot.sound]
 'Catalytic.Solution.t3g_three_reg_9call_x15' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3h_four_reg_powering' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3i_streaming_frequency_moment' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t4_balanced_multilinear_product' depends on axioms: [propext, Quot.sound]
 'Catalytic.Solution.prove_all_catalytic_theorems' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.NonVacuity.nonvac_all_hypotheses' depends on axioms: [propext, Classical.choice, Quot.sound]</code></pre>

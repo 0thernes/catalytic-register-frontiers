@@ -199,6 +199,28 @@ def T3h_FourRegPowering : Prop :=
       ∀ x o u r1 r2 : R,
         Pass4Prog.exec x prog (o, u, r1, r2) = (o + CRing.pow x N, u, r1, r2))
 
+/-- **T3i (Algebraic Catalytic Streaming Frequency-Moment Pass Bound over `R^n`):**
+Instantiates `T3h` over the pointwise product ring `Fin n → R` (e.g. `𝔽_p^n`): for EVERY
+universe size `n`, EVERY commutative ring `R`, and EVERY moment order `D ≥ 1` where `D_8`,
+`12!`, and `(⌊log_13 D⌋ + 1)!` are invertible, an explicit 4-vector-register passive program
+performs strictly fewer than `(104/3) * 8^ℓ ≤ (8/3) * 13 * D^{log_13 8}` passes over the
+frequency vector `f : Fin n → R`, cleanly updates `O_i ← O_i + f_i^D` for all `i : Fin n`,
+restores `(U, R1, R2)` identically, and accumulates `F_D(f) = ∑_{i < n} f_i^D` in `sumFin O`. -/
+def T3i_StreamingFrequencyMoment : Prop :=
+  ∀ (R : Type) [CRing R] (n D : Nat) (_ : 1 ≤ D) (invD8 invFact12 invFactLen : R),
+    invD8 * CRing.intCast 2656207148788801777680 = 1 →
+    invFact12 * CRing.natCast (fact 12) = 1 →
+    invFactLen * CRing.natCast (fact (baseDigits 13 (by decide) D).length) = 1 →
+    ∃ prog : List (Pass4Instr (Fin n → R)),
+      let ℓ := (baseDigits 13 (by decide) D).length - 1
+      13 ^ ℓ ≤ D ∧
+      3 * Pass4Prog.accesses prog < 104 * 8 ^ ℓ ∧
+      ∀ f o u r1 r2 : Fin n → R,
+        let res := Pass4Prog.exec f prog (o, u, r1, r2)
+        (∀ i : Fin n, res.1 i = o i + CRing.pow (f i) D) ∧
+        res.2 = (u, r1, r2) ∧
+        sumFin res.1 = sumFin o + sumFin (fun i => CRing.pow (f i) D)
+
 /-- **T4 (Balanced Zero-Workspace Bilinear Multilinear Product):**
 For every `k : Nat`, arbitrary commutative ring `R`, inputs `xs`, arbitrary catalytic state `st`,
 and distinct register list `target :: pool` (`pool.length ≥ k + 1` for `k ≥ 1`),

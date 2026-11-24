@@ -280,9 +280,9 @@ def test_lean_formalization_and_governance_hygiene() -> None:
     assert (lean_dir / "Catalytic" / "Pass2Soundness.lean").exists()
     assert (lean_dir / "Catalytic" / "FourRegisterPowering.lean").exists()
 
-    # Verify results/lean_axioms.txt covers all 21 declarations with zero unpermitted axioms
+    # Verify results/lean_axioms.txt covers all 22 declarations with zero unpermitted axioms
     ax_lines = (REPO / "results" / "lean_axioms.txt").read_text(encoding="utf-8").strip().splitlines()
-    assert len(ax_lines) == 21
+    assert len(ax_lines) == 22
     for line in ax_lines:
         assert "sorryAx" not in line and "ofReduceBool" not in line and "trustCompiler" not in line
 
@@ -424,6 +424,25 @@ def test_t3h_four_reg_powering_exact() -> None:
     assert (10 * D8) % 13 == 1 and (12 * math.factorial(12)) % 13 == 1 and (7 * 2) % 13 == 1
     assert (6 * math.factorial(6)) % 7 == 1 and (4 * 2) % 7 == 1
     assert 720 * 720 == 576 * 900
+
+    # Verify T3i pointwise product-ring streaming frequency moment F_D(f) = sum_i f_i^D
+    for vec, moment in (([2, 0, 5, 3], 13), ([1, 4, 2, 1, 3], 20)):
+        ds_m = base_digits(13, moment)
+        m_len = len(ds_m)
+        u_vec = [Fraction(i + 2, 7) for i in range(len(vec))]
+        o_vec = [Fraction(3 * i - 1, 5) for i in range(len(vec))]
+        coord_out: list[Fraction] = []
+        for idx, f_i in enumerate(vec):
+            ys_i = [Fraction(f_i) ** (b * (13**j)) for j, b in enumerate(ds_m)]
+
+            def mdiff_vec(vals: list[Fraction], u_val: Fraction, deg: int) -> Fraction:
+                if not vals:
+                    return u_val**deg
+                return mdiff_vec(vals[1:], u_val + vals[0], deg) - mdiff_vec(vals[1:], u_val, deg)
+
+            coord_out.append(o_vec[idx] + mdiff_vec(ys_i, u_vec[idx], m_len) / math.factorial(m_len))
+        assert sum(coord_out) == sum(o_vec) + sum(Fraction(f_i) ** moment for f_i in vec)
+        assert 3 * exact_accesses(13, 8, moment) < 104 * (8 ** (m_len - 1))
 
 
 def test_manifest_and_reuse_hygiene() -> None:
@@ -592,10 +611,12 @@ def test_all_metadata_schemas_valid() -> None:
 
     comp = json.loads((REPO / "lean" / "comparator.json").read_text(encoding="utf-8"))
     assert comp.get("challenge_module") == "Challenge" and comp.get("solution_module") == "Solution"
-    assert len(comp.get("definition_names", [])) == 19
-    assert len(comp.get("theorem_names", [])) == 20
+    assert len(comp.get("definition_names", [])) == 20
+    assert len(comp.get("theorem_names", [])) == 21
     assert "Catalytic.Solution.t3h_four_reg_powering" in comp["theorem_names"]
     assert "Catalytic.Challenge.T3h_FourRegPowering" in comp["definition_names"]
+    assert "Catalytic.Solution.t3i_streaming_frequency_moment" in comp["theorem_names"]
+    assert "Catalytic.Challenge.T3i_StreamingFrequencyMoment" in comp["definition_names"]
 
     for schema_name in ("repo-standard.schema.json", "project.schema.json"):
         sch = json.loads((REPO / schema_name).read_text(encoding="utf-8"))
@@ -657,7 +678,16 @@ def test_doc_citation_and_workflow_consistency() -> None:
         "6{,}564 lines",
         "3,307 declarations",
         "3,614 decls",
+        "19 headline theorems",
+        "19 exported theorems",
+        "21 audited declarations",
+        "21/21",
+        "7,892 lines",
+        "7{,}892 lines",
+        "3,506 declarations",
+        "3,819 decls",
         "0.811229",
+        "0.81547",
         "0001-zero-mathlib-lean-kernel.md",
         "test_negative_and_regression_guards",
     )
@@ -727,6 +757,148 @@ def test_doc_citation_and_workflow_consistency() -> None:
                         continue
                     resolved = (p.parent / target).resolve()
                     assert resolved.exists(), f"Broken relative Markdown link in {rel}: {link}"
+
+
+def test_pass7_svg_factorization_and_table_integrity() -> None:
+    """Pass 7 permanent regression guard covering:
+    1. Strict XML 1.0 validity & text-in-rect non-overflow on social-preview.svg and docs/index.html SVG.
+    2. Exact prime factorizations of D_4..D_9 matching exp2_three_register.json and paper/main.tex (D_6 = 2^5*3^2*5^7*17).
+    3. Verbatim integer equality of Tables 3 & 4 in paper/main.tex vs. prog5_x7 & prog6_x9 in Lean.
+    4. .editorconfig LF consistency, Audit-Repo.ps1 -LiteralPath safety, and canonical full Apache-2.0 LICENSE.
+    """
+    import xml.etree.ElementTree as ET
+
+    # 1. Strict XML validity and text-in-rect bounding-box audit for both SVGs
+    svg_txt = (REPO / "docs" / "media" / "social-preview.svg").read_text(encoding="utf-8")
+    svg_root = ET.fromstring(svg_txt)
+    svg_ns = "{http://www.w3.org/2000/svg}"
+    card_rects = [
+        (float(r.attrib["x"]), float(r.attrib["y"]), float(r.attrib["width"]), float(r.attrib["height"]))
+        for r in svg_root.iter(f"{svg_ns}rect")
+        if r.attrib.get("rx") == "12"
+    ]
+    assert len(card_rects) == 4
+    for t_el in svg_root.iter(f"{svg_ns}text"):
+        txt = (t_el.text or "").strip()
+        if not txt or "x" not in t_el.attrib or "y" not in t_el.attrib:
+            continue
+        tx, ty = float(t_el.attrib["x"]), float(t_el.attrib["y"])
+        fs = float(t_el.attrib.get("font-size", "16"))
+        for rx, ry, rw, rh in card_rects:
+            if rx <= tx <= rx + rw and ry <= ty <= ry + rh:
+                est_w = len(txt) * fs * 0.54
+                assert (tx - rx) + est_w <= rw - 6.0, f"social-preview.svg text overflow: {txt!r}"
+
+    html_txt = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    svg_m = re.search(r"<svg\b[^>]*>.*?</svg>", html_txt, re.S)
+    assert svg_m is not None, "Missing inline SVG dependency graph in docs/index.html"
+    bp_root = ET.fromstring(svg_m.group(0))
+    bp_rects = [
+        (float(r.attrib["x"]), float(r.attrib["y"]), float(r.attrib["width"]), float(r.attrib["height"]))
+        for r in bp_root.iter("rect")
+    ]
+    assert len(bp_rects) >= 12
+    for t_el in bp_root.iter("text"):
+        txt = (t_el.text or "").strip()
+        if not txt or "x" not in t_el.attrib or "y" not in t_el.attrib:
+            continue
+        tx, ty = float(t_el.attrib["x"]), float(t_el.attrib["y"])
+        fs = float(t_el.attrib.get("font-size", "12.5"))
+        for rx, ry, rw, rh in bp_rects:
+            if rx <= tx <= rx + rw and ry <= ty <= ry + rh:
+                est_w = len(txt) * fs * 0.56
+                assert est_w <= rw - 6.0, f"docs/index.html SVG box overflow: {txt!r} ({est_w:.1f} > {rw})"
+
+    # 2. Exact prime factorizations of D_4..D_9 + deterministic primality + paper/main.tex check
+    def is_prime_det(n: int) -> bool:
+        if n < 2:
+            return False
+        for p in (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37):
+            if n == p:
+                return True
+            if n % p == 0:
+                return False
+        d, s = n - 1, 0
+        while d % 2 == 0:
+            d //= 2
+            s += 1
+        for a in (2, 325, 9375, 28178, 450775, 9780504, 1795265022):
+            if a % n == 0:
+                continue
+            x = pow(a, d, n)
+            if x == 1 or x == n - 1:
+                continue
+            for _ in range(s - 1):
+                x = (x * x) % n
+                if x == n - 1:
+                    break
+            else:
+                return False
+        return True
+
+    factorizations: dict[str, tuple[int, list[tuple[int, int]]]] = {
+        "4": (54, [(2, 1), (3, 3)]),
+        "5": (576, [(2, 6), (3, 2)]),
+        "6": (382500000, [(2, 5), (3, 2), (5, 7), (17, 1)]),
+        "7": (68724637549388656012800, [(2, 9), (3, 4), (5, 2), (7, 2), (538423, 1), (2512452073, 1)]),
+        "8": (2656207148788801777680, [(2, 4), (3, 2), (5, 1), (7, 5), (137, 1), (1602207194491, 1)]),
+        "9": (
+            876702103804656272895371895753963647960420947968000,
+            [(2, 14), (3, 6), (5, 3), (7, 3), (23, 1), (5263716917, 1), (22130905714103, 1), (638970634117961, 1)],
+        ),
+    }
+    exp2 = json.loads((REPO / "results" / "exp2_three_register.json").read_text(encoding="utf-8"))
+    prog_by_t = {str(p["t"]): p for p in exp2["programs"]}
+    for t_key, (d_exact, facs) in factorizations.items():
+        prod = 1
+        for p, e in facs:
+            assert is_prime_det(p), f"Non-prime factor {p} in D_{t_key}"
+            prod *= p**e
+        assert prod == d_exact, f"Factorization product mismatch for D_{t_key}"
+        assert t_key in prog_by_t, f"Missing t={t_key} in exp2_three_register.json"
+        assert int(prog_by_t[t_key]["out_scale"]) == d_exact
+        assert prog_by_t[t_key]["bad_primes"] == [p for p, _ in facs]
+
+    tex = (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
+    assert r"2^5 \cdot 3^2 \cdot 5^7 \cdot 17" in tex
+    assert r"2^6 \cdot 3^2 \cdot 5^6" not in tex
+
+    # 3. Verbatim cross-check of Table 3 (prog5_x7) & Table 4 (prog6_x9) in paper/main.tex vs Lean
+    lean_t3 = (REPO / "lean" / "Catalytic" / "ThreeRegisterBreakthrough.lean").read_text(encoding="utf-8")
+
+    def parse_lean_prog(name: str, monoms: list[tuple[int, int]]) -> list[tuple[int, int, list[int]]]:
+        blk_m = re.search(rf"def {name} : List Pass3Instr :=\n((?:  loopStep .*\n)+)", lean_t3)
+        assert blk_m is not None, f"Could not locate {name} in ThreeRegisterBreakthrough.lean"
+        rows: list[tuple[int, int, list[int]]] = []
+        for line in blk_m.group(1).strip().splitlines():
+            m = re.search(r"\[([^\]]+)\]\s+\(?(-?\d+)\)?\s+\(?(-?\d+)\)?", line)
+            assert m is not None, f"Unparseable loopStep line: {line}"
+            term_map = {(int(a), int(b)): int(c) for a, b, c in re.findall(r"\((\d+),\s*(\d+),\s*(-?\d+)\)", m.group(1))}
+            rows.append((int(m.group(2)), int(m.group(3)), [term_map.get(mon, 0) for mon in monoms]))
+        return rows
+
+    def parse_tex_table(label: str, n_coeffs: int) -> list[tuple[int, int, list[int]]]:
+        m = re.search(rf"\\label\{{{label}\}}.*?\\midrule\n(.*?)\\bottomrule", tex, re.S)
+        assert m is not None, f"Could not locate table {label} in paper/main.tex"
+        rows: list[tuple[int, int, list[int]]] = []
+        for line in m.group(1).strip().splitlines():
+            cells = [int(c.replace("$", "").replace("{,}", "").replace("+", "").replace(r"\\", "").strip()) for c in line.split("&")]
+            assert len(cells) == 3 + n_coeffs
+            rows.append((cells[1], cells[2], cells[3:]))
+        return rows
+
+    assert parse_tex_table("tab:prog5", 4) == parse_lean_prog("prog5_x7", [(7, 0), (5, 1), (3, 2), (1, 3)])
+    assert parse_tex_table("tab:prog6", 3) == parse_lean_prog("prog6_x9", [(9, 0), (5, 1), (1, 2)])
+
+    # 4. .editorconfig LF consistency, Audit-Repo.ps1 -LiteralPath safety, and canonical Apache-2.0 LICENSE
+    editorconfig = (REPO / ".editorconfig").read_text(encoding="utf-8")
+    assert "end_of_line = crlf" not in editorconfig.lower()
+    audit_ps1 = (REPO / "scripts" / "Audit-Repo.ps1").read_text(encoding="utf-8")
+    assert "Get-ChildItem -LiteralPath $Root" in audit_ps1
+    lic_txt = (REPO / "LICENSE").read_text(encoding="utf-8")
+    assert "TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION" in lic_txt
+    assert "END OF TERMS AND CONDITIONS" in lic_txt
+
 
 
 

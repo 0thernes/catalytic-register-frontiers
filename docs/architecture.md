@@ -19,11 +19,11 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-  subgraph Formal["1. Formal Core (Zero-Mathlib Lean 4.35.0 — 14 Modules, 19 Theorems)"]
+  subgraph Formal["1. Formal Core (Zero-Mathlib Lean 4.35.0 — 14 Modules, 20 Theorems)"]
     CR["Catalytic/CommRing.lean"] --> BF["BilinearFrobenius.lean (T2, T2b)"]
     CR --> BP["BalancedProduct.lean (T4)"]
     CR --> TR["ThreeRegisterBreakthrough.lean (T3a-T3g)"]
-    TR --> FP["FourRegisterPowering.lean (T3h)"]
+    TR --> FP["FourRegisterPowering.lean (T3h, T3i)"]
     PF["PrimeFieldTools.lean"] --> DS["DigitSumDichotomy.lean (T1, T1a-T1d)"]
     CR --> EF["ExtensionFieldSeparation.lean (T1e)"]
     DS & EF --> PS["Pass2Soundness.lean (T1s, T1es)"]

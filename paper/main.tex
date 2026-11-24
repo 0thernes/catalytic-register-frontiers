@@ -68,7 +68,7 @@ We resolve two structural questions left open by Vinciguerra's operator analysis
   \item \emph{Balanced zero-workspace bilinear product (Theorem~\ref{thm:T4}).}
   Over any commutative ring, a recursive zero-workspace commutator computes $x_0 \cdots x_{d-1}$ ($d = 2^k$) in $\log_2 d + 2$ registers and $(7d^2 - 4)/3$ primitive ops.
 \end{enumerate}
-All $19$ theorems, corollaries, and literal commutative-ring soundness bridges (including sharp $\F_4$ separation, distinct-operand bilinear collapse, and complete $4$-register passive powering for all $N \ge 1$) plus $0 \neq 1$ non-vacuity witnesses are formalized across $14$ zero-Mathlib Lean~4.35.0 \texttt{module} files using only the three standard Lean axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}) and pass $6$ verification kernels (\texttt{lean}, \texttt{leanchecker}, \texttt{leanchecker-paranoid}, \texttt{con-leche}, \texttt{con-ron}, \texttt{nanoda\_bin}).
+All $20$ theorems, corollaries, and literal commutative-ring soundness bridges (including sharp $\F_4$ separation, distinct-operand bilinear collapse, complete $4$-register passive powering for all $N \ge 1$, and algebraic streaming frequency moments over $R^n$) plus $0 \neq 1$ non-vacuity witnesses are formalized across $14$ zero-Mathlib Lean~4.35.0 \texttt{module} files using only the three standard Lean axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}) and pass $6$ verification kernels (\texttt{lean}, \texttt{leanchecker}, \texttt{leanchecker-paranoid}, \texttt{con-leche}, \texttt{con-ron}, \texttt{nanoda\_bin}).
 An accompanying CaDiCaL~2.1.2 SAT audit ($8/8$ verified LRAT UNSAT proofs, brute-force and second-encoder cross-checked) contrasts these gains against Boolean XAG rigidity~\cite{BoyarFind2018,Morse2026}.
 \end{abstract}
 
@@ -135,7 +135,7 @@ Let $K$ be any commutative ring (in particular any field) in which the scaling i
 Explicit literal passive-output $3$-register programs (Definition~\ref{def:rp}) establish:
 \begin{enumerate}
   \item $x^7 \in \RP_K^{\pass}(3, 5)$ whenever $D_5 = 576 = 2^6 \cdot 3^2$ is invertible (i.e., $\operatorname{char}(K) \neq 2, 3$), with $\log_7 5 \approx 0.827087$;
-  \item $x^9 \in \RP_K^{\pass}(3, 6)$ whenever $D_6 = 382{,}500{,}000 = 2^6 \cdot 3^2 \cdot 5^6 \cdot 17$ is invertible ($\operatorname{char}(K) \notin \{2, 3, 5, 17\}$), with $\log_9 6 \approx 0.815465$;
+  \item $x^9 \in \RP_K^{\pass}(3, 6)$ whenever $D_6 = 382{,}500{,}000 = 2^5 \cdot 3^2 \cdot 5^7 \cdot 17$ is invertible ($\operatorname{char}(K) \notin \{2, 3, 5, 17\}$), with $\log_9 6 \approx 0.815465$;
   \item $x^{11} \in \RP_K^{\pass}(3, 7)$ whenever $D_7 = 68{,}724{,}637{,}549{,}388{,}656{,}012{,}800$ is invertible in $K$, achieving $\log_{11} 7 \approx 0.811508$;
   \item $x^{13} \in \RP_K^{\pass}(3, 8)$ whenever $D_8 = 2{,}656{,}207{,}148{,}788{,}801{,}777{,}680$ is invertible in $K$, achieving $\log_{13} 8 \approx \mathbf{0.810714}$;
   \item $x^{15} \in \RP_K^{\pass}(3, 9)$ whenever $D_9$ (Table~\ref{tab:t3-frontier}) is invertible in $K$, achieving $\log_{15} 9 \approx 0.811368 > \log_{13} 8$.
@@ -169,9 +169,9 @@ To enforce transparent verification boundaries, every claim in this manuscript b
 \toprule
 \textbf{Tier} & \textbf{Scope} & \textbf{Certification Mechanism} \\
 \midrule
-Tier-1 & Theorems~\ref{thm:T1}--\ref{thm:T4}, Cor.~\ref{cor:powering} (\texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2b}, \texttt{T3a}--\texttt{T3h}) & Zero-Mathlib Lean~4.35.0; 6 kernels (Table~\ref{tab:kernels}) \\
+Tier-1 & Theorems~\ref{thm:T1}--\ref{thm:T4}, Cor.~\ref{cor:powering} (\texttt{T3h}), algebraic Cor.~\ref{cor:streaming} (\texttt{T3i}), \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2b}, \texttt{T3a}--\texttt{T3g} & Zero-Mathlib Lean~4.35.0; 6 kernels (Table~\ref{tab:kernels}) \\
 Tier-2 & Full $\F_4$ ($d \le 16$) spectrum, $r=4$ loops, Boyar--Find SAT ($8/8$ LRAT) & Exact $\F_p/\Q/\Z$ arithmetic \& CaDiCaL~2.1.2 \\
-Tier-3 & Corollaries~\ref{cor:streaming} and~\ref{cor:matpow} (streaming \& matrix powering) & Paper proof via \cite[Cor.~5.1.1, \S4.4, Thm.~5.2]{Vinciguerra2026} \\
+Tier-3 & Bit-space accounting of Cor.~\ref{cor:streaming} \& Cor.~\ref{cor:matpow} (matrix powering) & Paper proof via \cite[Cor.~5.1.1, \S4.4, Thm.~5.2]{Vinciguerra2026} \\
 Tier-4 & General $D_{3,\Q}^{\pass}(t)=2t-3$, $r \ge 4$, Boyar--Find & Explicitly open (Section~\ref{sec:open}) \\
 \bottomrule
 \end{tabular}
@@ -476,7 +476,7 @@ $5$ & $0$ & $-5$ & $-4{,}154{,}985$ & $+9{,}394{,}056$ & $-5{,}454{,}540$ \\
 
 \subsection{Downstream Improvements to Powering, Streaming, and Matrix Powering}
 
-Substituting $x^{13} \in \RP_K^{\pass}(3, 8)$ (or $x^7 \in \RP_K^{\pass}(3, 5)$ whenever only low characteristic or quadratic shear degree $d = 2$ is required) into the powering, streaming, and matrix-lifting framework of~\cite[Lemma~8]{AFM2025} and~\cite[Corollaries~4.3.1, 5.1.1, \S4.4, and Theorem~5.2]{Vinciguerra2026} yields a machine-checked Tier-1 four-register powering theorem (Corollary~\ref{cor:powering}, Lean~\texttt{T3h}) and immediate Tier-3 streaming and matrix-powering improvements (writing $\varepsilon_* := \log_{13} 8 \approx 0.810714 < \log_7 5 \approx 0.827087 < 0.861353 = \log_5 4$):
+Substituting $x^{13} \in \RP_K^{\pass}(3, 8)$ (or $x^7 \in \RP_K^{\pass}(3, 5)$ whenever only low characteristic or quadratic shear degree $d = 2$ is required) into the powering, streaming, and matrix-lifting framework of~\cite[Lemma~8]{AFM2025} and~\cite[Corollaries~4.3.1, 5.1.1, \S4.4, and Theorem~5.2]{Vinciguerra2026} yields a machine-checked Tier-1 four-register powering theorem (Corollary~\ref{cor:powering}, Lean~\texttt{T3h}), a machine-checked algebraic vector streaming frequency-moment theorem (Corollary~\ref{cor:streaming}, Lean~\texttt{T3i}; bit-space accounting Tier-3), and a Tier-3 non-commutative matrix-powering improvement (Corollary~\ref{cor:matpow}; writing $\varepsilon_* := \log_{13} 8 \approx 0.810714 < \log_7 5 \approx 0.827087 < 0.861353 = \log_5 4$):
 
 \begin{corollary}[Four-Register Powering; sharpening {\cite[Corollary~4.3.1]{Vinciguerra2026}}; Lean \texttt{T3h}]
 \label{cor:powering}
@@ -505,7 +505,7 @@ For every $D \ge 1$, the $D$-th frequency moment $F_D(\sigma) = \sum_{i=1}^n f_i
 \end{corollary}
 
 \begin{proof}
-Since the frequency vector $\mathbf{f} = (f_1, \dots, f_n)$ lives in the commutative $\F_p$-algebra $\F_p^n$ and $D_8$ has only six fixed prime factors (Table~\ref{tab:t3-frontier}), choosing a prime $p > \max(12, m^D, \lfloor \log_{13} D \rfloor + 1)$ not dividing $D_8$ satisfies $\log p = O(D \log(m + 1))$ and directly instantiates Corollary~\ref{cor:powering}(1) inside~\cite[Theorem~5.1 and Corollary~5.1.1]{Vinciguerra2026}.
+Since the frequency vector $\mathbf{f} = (f_1, \dots, f_n)$ lives in the commutative $\F_p$-algebra $\F_p^n$ and $D_8$ has only six fixed prime factors (Table~\ref{tab:t3-frontier}), choosing a prime $p > \max(12, m^D, \lfloor \log_{13} D \rfloor + 1)$ not dividing $D_8$ satisfies $\log p = O(D \log(m + 1))$ and directly instantiates Corollary~\ref{cor:powering}(1) over $\F_p^n$ (whose clean vector pass bound and moment sum $\sum_{i=1}^n f_i^D$ are formally machine-checked in \texttt{FourRegisterPowering.lean} as Lean~\texttt{T3i}) inside the bit-space streaming reduction of~\cite[Theorem~5.1 and Corollary~5.1.1]{Vinciguerra2026}.
 \end{proof}
 
 \begin{corollary}[Non-Commutative Matrix Powering; sharpening {\cite[Theorem~5.2]{Vinciguerra2026}}]
@@ -587,14 +587,14 @@ This sharp empirical contrast highlights a structural asymmetry: whereas Boolean
 \section{Lean~4.35.0 Formalization, Statement Fidelity, and Open Problems}
 \label{sec:lean}
 
-Every theorem in Tier~1 (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3h}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}), using the Lean~4.35 \texttt{module} system and strict zero-dependency core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unusedVariables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across all $14$ source files ($7{,}892$ lines total; longest file \texttt{PrimeFieldTools.\allowbreak lean}, $1{,}300$ lines).
-To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.\allowbreak lean} exhibits concrete non-trivial ($0 \neq 1$) witnesses (\texttt{ModP 2}, \texttt{ModP 5}, \texttt{ModP 7}, \texttt{ModP 11}, \texttt{ModP 13}, \texttt{GF4} with \texttt{GF4Hom.\allowbreak id}, and \texttt{Int}) satisfying every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}, Corollary~\ref{cor:powering} (\texttt{T3h}), and their soundness bridges (including inverses for all five scaling integers $D_5, \dots, D_9$ and factorial denominators).
+Every theorem in Tier~1 (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3i}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}), using the Lean~4.35 \texttt{module} system and strict zero-dependency core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unusedVariables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across all $14$ source files ($8{,}036$ lines total; longest file \texttt{FourRegisterPowering.\allowbreak lean}, $1{,}361$ lines).
+To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.\allowbreak lean} exhibits concrete non-trivial ($0 \neq 1$) witnesses (\texttt{ModP 2}, \texttt{ModP 5}, \texttt{ModP 7}, \texttt{ModP 11}, \texttt{ModP 13}, \texttt{GF4} with \texttt{GF4Hom.\allowbreak id}, and \texttt{Int}) satisfying every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}, Corollaries~\ref{cor:powering}--\ref{cor:streaming} (\texttt{T3h}, \texttt{T3i}), and their soundness bridges (including inverses for all five scaling integers $D_5, \dots, D_9$ and factorial denominators).
 A repository-wide scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_\allowbreak decide}, \texttt{implemented\_\allowbreak by}, \texttt{unsafe}, custom \texttt{axiom}, or \texttt{@[extern]}.
 Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay and statement-fidelity audit.
 
 \begin{table}[ht]
 \centering
-\caption{Clean-room multi-kernel verification audit of the master theorem bundle and non-vacuity witnesses ($21$ audited declarations, Lean~4.35.0, zero Mathlib).}
+\caption{Clean-room multi-kernel verification audit of the master theorem bundle and non-vacuity witnesses ($22$ audited declarations, Lean~4.35.0, zero Mathlib).}
 \label{tab:kernels}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
@@ -605,9 +605,9 @@ Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay 
 1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ reference kernel & 17/17 jobs, 0 warnings; axioms $\subseteq \{\text{propext}, \text{choice}, \text{Quot.sound}\}$ \\
 2 & \texttt{leanchecker} & C++ external \texttt{.olean} replayer & Exit 0 (PASS) \\
 3 & \texttt{leanchecker-paranoid} & C++ paranoid \texttt{.olean} replayer & Exit 0 (PASS) \\
-4 & \texttt{con-leche --verified} & Verified Lean-in-Lean kernel & Accepted 3,506 declarations (Exit 0) \\
-5 & \texttt{con-ron --verified} & Verified Aeneas Rust kernel & Accepted 3,506 declarations (Exit 0) \\
-6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & 3,819 decls, 0 errors, strict 3-axiom check (Exit 0) \\
+4 & \texttt{con-leche --verified} & Verified Lean-in-Lean kernel & Accepted 3,523 declarations (Exit 0) \\
+5 & \texttt{con-ron --verified} & Verified Aeneas Rust kernel & Accepted 3,523 declarations (Exit 0) \\
+6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & 3,836 decls, 0 errors, strict 3-axiom check (Exit 0) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -624,7 +624,7 @@ Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay 
 \midrule
 \texttt{T1} & \texttt{InRPPass2}, \texttt{GF4}, \texttt{execRing}, \texttt{execAlg} (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Thm.~3.5 & \texttt{IsPrime 2,3,5,7}; \texttt{ModP 5} ($\mathrm{char}=5$); \texttt{GF4} (\texttt{GF4Hom.id}) \\
 \texttt{T2} & \texttt{BilinInstr}, \texttt{DistinctBilinInstr} (\texttt{T2}, \texttt{T2b}) & Bilinear \& distinct-operand Def.~2.2 & \texttt{F2 = ModP 2}, $k=2$, $x=1$ cleanly evaluated \\
-\texttt{T3} & \texttt{Pass3InstrR}, \texttt{Pass4Instr} (\texttt{T3a}--\texttt{T3h}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Cor.~4.3.1; \cite[Lem.~8]{AFM2025} & \texttt{ModP 5,7,11,13} ($D_5^{-1}\!\dots D_9^{-1}$, $12!^{-1}$, $6!^{-1}$); global $t \ge 4$ opt \\
+\texttt{T3} & \texttt{Pass3InstrR}, \texttt{Pass4Instr}, \texttt{sumFin} (\texttt{T3a}--\texttt{T3i}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Cor.~4.3.1, 5.1.1; \cite[Lem.~8]{AFM2025} & \texttt{ModP 5,7,11,13} ($D_5^{-1}\!\dots D_9^{-1}$, $12!^{-1}$, $6!^{-1}$); global $t \ge 4$ opt \\
 \texttt{T4} & \texttt{CatOp}, \texttt{balancedProdProg} (\texttt{T4}) & Zero-workspace distinct-index bilinear ops & \texttt{Int} ($d=4$, $36$ ops, clean restoration) \\
 \bottomrule
 \end{tabular}

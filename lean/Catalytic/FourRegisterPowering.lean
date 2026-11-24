@@ -1241,6 +1241,121 @@ theorem four_reg_powering_x7 {R : Type u} [CRing R] (N : Nat) (hN : 1 ≤ N)
   have hb := hspec.2.1
   omega
 
+/-! ## 5. Pointwise Product-Ring Instantiation (`Fin n → R`) for Catalytic Streaming Frequency Moments (`T3i`) -/
+
+/-- Pointwise commutative ring structure on `Fin n → R` (modelling the frequency-vector algebra `𝔽_p^n`). -/
+instance instCRingFinFun {n : Nat} {R : Type u} [CRing R] : CRing (Fin n → R) where
+  zero := fun _ => 0
+  one := fun _ => 1
+  add f g := fun i => f i + g i
+  mul f g := fun i => f i * g i
+  neg f := fun i => -(f i)
+  add_assoc a b c := funext fun i => CRing.add_assoc (a i) (b i) (c i)
+  add_comm a b := funext fun i => CRing.add_comm (a i) (b i)
+  zero_add a := funext fun i => CRing.zero_add (a i)
+  add_neg a := funext fun i => CRing.add_neg (a i)
+  mul_assoc a b c := funext fun i => CRing.mul_assoc (a i) (b i) (c i)
+  mul_comm a b := funext fun i => CRing.mul_comm (a i) (b i)
+  one_mul a := funext fun i => CRing.one_mul (a i)
+  left_distrib a b c := funext fun i => CRing.left_distrib (a i) (b i) (c i)
+
+private theorem natCast_finFun {n : Nat} {R : Type u} [CRing R] (k : Nat) (i : Fin n) :
+    (CRing.natCast k : Fin n → R) i = CRing.natCast k := by
+  induction k with
+  | zero => rfl
+  | succ m ih =>
+    change (CRing.natCast m : Fin n → R) i + (1 : R) = CRing.natCast m + 1
+    rw [ih]
+
+private theorem intCast_finFun {n : Nat} {R : Type u} [CRing R] (z : Int) (i : Fin n) :
+    (CRing.intCast z : Fin n → R) i = CRing.intCast z := by
+  cases z with
+  | ofNat k => exact natCast_finFun k i
+  | negSucc k =>
+    change -((CRing.natCast (k + 1) : Fin n → R) i) = -(CRing.natCast (k + 1))
+    rw [natCast_finFun]
+
+private theorem pow_finFun {n : Nat} {R : Type u} [CRing R] (f : Fin n → R) (D : Nat) (i : Fin n) :
+    CRing.pow f D i = CRing.pow (f i) D := by
+  induction D with
+  | zero => rfl
+  | succ m ih =>
+    change CRing.pow f m i * f i = CRing.pow (f i) m * f i
+    rw [ih]
+
+/-- Coordinate sum `∑_{i < n} v i` of a vector `v : Fin n → R`. -/
+def sumFin {n : Nat} {R : Type u} [CRing R] (v : Fin n → R) : R :=
+  sumR n (fun j => if h : j < n then v ⟨j, h⟩ else 0)
+
+theorem sumFin_add {n : Nat} {R : Type u} [CRing R] (u v : Fin n → R) :
+    sumFin (fun i => u i + v i) = sumFin u + sumFin v := by
+  unfold sumFin
+  have hcongr :
+      sumR n (fun j => if h : j < n then u ⟨j, h⟩ + v ⟨j, h⟩ else 0) =
+      sumR n (fun j => (if h : j < n then u ⟨j, h⟩ else 0) + (if h : j < n then v ⟨j, h⟩ else 0)) := by
+    refine sumR_congr (fun j hj => ?_)
+    simp [hj]
+  rw [hcongr, sumR_add]
+
+/--
+**Theorem `T3i` (Algebraic Catalytic Streaming Frequency-Moment Pass Bound over `R^n`):**
+For EVERY universe size `n : Nat`, EVERY commutative ring `R` (e.g., `𝔽_p`), and EVERY moment
+order `D ≥ 1` with `ℓ = (baseDigits 13 D).length - 1`, whenever `D_8`, `12!`, and `(ℓ + 1)!`
+are invertible in `R`, there is an explicit 4-vector-register passive catalytic program over
+`Fin n → R` performing strictly fewer than `(104/3) * 8^ℓ ≤ (8/3) * 13 * D^{log_13 8}` passes
+over the stream frequency vector `f : Fin n → R` that cleanly updates every coordinate
+`O_i ← O_i + f_i^D`, restores all three catalytic vectors `(U, R1, R2)` identically, and
+cleanly accumulates the `D`-th frequency moment `F_D(f) = ∑_{i < n} f_i^D` in `sumFin O`.
+-/
+theorem four_reg_streaming_moment_x13 {R : Type u} [CRing R] (n D : Nat) (hD : 1 ≤ D)
+    (invD8 invFact12 invFactLen : R)
+    (hD8 : invD8 * CRing.intCast 2656207148788801777680 = 1)
+    (hF12 : invFact12 * CRing.natCast (fact 12) = 1)
+    (hFL : invFactLen * CRing.natCast (fact (baseDigits 13 (by decide) D).length) = 1) :
+    ∃ prog : List (Pass4Instr (Fin n → R)),
+      let ℓ := (baseDigits 13 (by decide) D).length - 1
+      13 ^ ℓ ≤ D ∧
+      3 * Pass4Prog.accesses prog < 104 * 8 ^ ℓ ∧
+      ∀ f o u r1 r2 : Fin n → R,
+        let res := Pass4Prog.exec f prog (o, u, r1, r2)
+        (∀ i : Fin n, res.1 i = o i + CRing.pow (f i) D) ∧
+        res.2 = (u, r1, r2) ∧
+        sumFin res.1 = sumFin o + sumFin (fun i => CRing.pow (f i) D) := by
+  have hD8' : (fun _ : Fin n => invD8) * CRing.intCast 2656207148788801777680 = (1 : Fin n → R) := by
+    funext i
+    change invD8 * (CRing.intCast 2656207148788801777680 : Fin n → R) i = 1
+    rw [intCast_finFun, hD8]
+  have hF12' : (fun _ : Fin n => invFact12) * CRing.natCast (fact 12) = (1 : Fin n → R) := by
+    funext i
+    change invFact12 * (CRing.natCast (fact 12) : Fin n → R) i = 1
+    rw [natCast_finFun, hF12]
+  have hFL' :
+      (fun _ : Fin n => invFactLen) * CRing.natCast (fact (baseDigits 13 (by decide) D).length) =
+        (1 : Fin n → R) := by
+    funext i
+    change invFactLen * (CRing.natCast (fact (baseDigits 13 (by decide) D).length) : Fin n → R) i = 1
+    rw [natCast_finFun, hFL]
+  obtain ⟨prog, hpow, hacc, hexec⟩ :=
+    four_reg_powering_x13 (R := Fin n → R) D hD
+      (fun _ => invD8) (fun _ => invFact12) (fun _ => invFactLen) hD8' hF12' hFL'
+  refine ⟨prog, hpow, hacc, ?_⟩
+  intro f o u r1 r2
+  have he := hexec f o u r1 r2
+  refine ⟨?_, ?_, ?_⟩
+  · intro i
+    have h1 : (Pass4Prog.exec f prog (o, u, r1, r2)).1 = o + CRing.pow f D := congrArg Prod.fst he
+    rw [h1]
+    change o i + CRing.pow f D i = o i + CRing.pow (f i) D
+    rw [pow_finFun]
+  · exact congrArg Prod.snd he
+  · have h1 : (Pass4Prog.exec f prog (o, u, r1, r2)).1 = fun i => o i + CRing.pow (f i) D := by
+      have hf := congrArg Prod.fst he
+      rw [hf]
+      funext i
+      change o i + CRing.pow f D i = o i + CRing.pow (f i) D
+      rw [pow_finFun]
+    rw [h1, sumFin_add]
+
 end
 
 end Catalytic

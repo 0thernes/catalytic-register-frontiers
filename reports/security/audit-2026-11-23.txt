@@ -1,5 +1,5 @@
 # Security, Supply-Chain, and Integrity Scan Report
-Date: 2026-11-23 (updated 2026-11-24 after Pass 6 full 148-file audit & T3h formalization)
+Date: 2026-11-23 (updated 2026-11-24 after Pass 7 deep 148-file audit & T3i formalization)
 Repository: catalytic-register-frontiers (v1.0.0)
 Pipeline Artifact: P7.F3
 
@@ -8,10 +8,10 @@ Pipeline Artifact: P7.F3
 - Result: PASS (0 secrets found; `.env.example` documents optional local binary path overrides only; zero runtime network credentials required; hardcoded user paths removed from `scripts/run_all.ps1` and `experiments/exp4_boolean_mc_companion.py`).
 
 ## 2. Lean 4.35 Trust-Base & Forbidden-Token Scan
-- Scope: All 14 `.lean` files under `lean/` (7,892 lines total, longest 1,300 lines).
+- Scope: All 14 `.lean` files under `lean/` (8,036 lines total, longest 1,361 lines).
 - Forbidden tokens (`sorry`, `admit`, `native_decide`, `implemented_by`, `unsafe`, custom `axiom`, `@[extern]`): 0 matches (PASS).
-- Axioms (`VerifyAxioms.lean`): 21/21 declarations strictly within `[propext, Classical.choice, Quot.sound]` (PASS).
-- Multi-kernel replay (`results/six_kernel_audit.txt`): 6/6 native Windows runs PASS (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified` [3,506 decls], `con-ron --verified` [3,506 decls], `nanoda_bin 0.4.19` [3,819 decls]). Upstream Windows `lean4lean.exe` `.olean` header mismatch recorded as external `problem`.
+- Axioms (`VerifyAxioms.lean`): 22/22 declarations strictly within `[propext, Classical.choice, Quot.sound]` (PASS).
+- Multi-kernel replay (`results/six_kernel_audit.txt`): 6/6 native Windows runs PASS (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified` [3,523 decls], `con-ron --verified` [3,523 decls], `nanoda_bin 0.4.19` [3,836 decls]). Upstream Windows `lean4lean.exe` `.olean` header mismatch recorded as external `problem`.
 
 ## 3. Supply-Chain & Licensing Inventory
 - Lean external packages: 0 (`lean/lake-manifest.json` empty; zero Mathlib dependency).
@@ -26,4 +26,4 @@ Pipeline Artifact: P7.F3
 ## 5. Manifest, Workflow, & Cache Hygiene
 - Fixed `.hypothesis/` cache-tracking leakage and global `.gitignore` `.env.example` omission (`ERRATA.md`).
 - Continuous DigiCert RFC 3161 TSA verification wired into `scripts/run_all.ps1`, `scripts/run_all.sh`, and `.github/workflows/ci.yml`.
-- Guarded permanently by `test_manifest_and_reuse_hygiene()` and `test_doc_citation_and_workflow_consistency()` in `tests/test_all.py`.
+- Guarded permanently by `test_manifest_and_reuse_hygiene()`, `test_doc_citation_and_workflow_consistency()`, and `test_pass7_svg_factorization_and_table_integrity()` in `tests/test_all.py`.

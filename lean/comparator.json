@@ -20,6 +20,7 @@
     "Catalytic.Solution.t3f_global_integer_optimality",
     "Catalytic.Solution.t3g_three_reg_9call_x15",
     "Catalytic.Solution.t3h_four_reg_powering",
+    "Catalytic.Solution.t3i_streaming_frequency_moment",
     "Catalytic.Solution.t4_balanced_multilinear_product",
     "Catalytic.Solution.prove_all_catalytic_theorems"
   ],
@@ -42,6 +43,7 @@
     "Catalytic.Challenge.T3f_GlobalIntegerOptimality",
     "Catalytic.Challenge.T3g_ThreeReg9CallX15",
     "Catalytic.Challenge.T3h_FourRegPowering",
+    "Catalytic.Challenge.T3i_StreamingFrequencyMoment",
     "Catalytic.Challenge.T4_BalancedMultilinearProduct"
   ],
   "permitted_axioms": [

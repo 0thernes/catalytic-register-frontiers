@@ -5,7 +5,7 @@ public import Challenge
 public import Catalytic
 
 /-!
-# Verified Solutions to All 19 Formalized Theorems (`T1`–`T4`, Corollaries, and Soundness Bridges)
+# Verified Solutions to All 20 Formalized Theorems (`T1`–`T4`, Corollaries, and Soundness Bridges)
 
 All proofs are kernel-checked in pure Lean 4.35.0 with zero external dependencies and only the three standard Lean axioms.
 -/
@@ -86,13 +86,17 @@ public theorem t3h_four_reg_powering : T3h_FourRegPowering :=
    fun R _ N hN invF6 invFL hF6 hFL =>
      four_reg_powering_x7 (R := R) N hN invF6 invFL hF6 hFL⟩
 
+public theorem t3i_streaming_frequency_moment : T3i_StreamingFrequencyMoment :=
+  fun R _ n D hD invD8 invF12 invFL hD8 hF12 hFL =>
+    four_reg_streaming_moment_x13 (R := R) n D hD invD8 invF12 invFL hD8 hF12 hFL
+
 public theorem t4_balanced_multilinear_product : T4_BalancedMultilinearProduct :=
   fun k target sign pool offset hsign hpool hnd =>
     ⟨by rw [balancedProdProg_length k target sign pool offset hpool]; exact balancedOpCount_formula k,
      balancedProdProg_strictValid k target sign pool offset hsign hpool hnd,
      fun R _ xs st => balancedProdProg_clean (R := R) k target sign pool offset hpool hnd xs st⟩
 
-/-- Single master conjunction bundling all 19 verified theorems for one-shot external kernel export. -/
+/-- Single master conjunction bundling all 20 verified theorems for one-shot external kernel export. -/
 public theorem prove_all_catalytic_theorems :
     T1_DigitSumDichotomy ∧
     T1a_TwoAccessFrobeniusCollapse ∧
@@ -112,6 +116,7 @@ public theorem prove_all_catalytic_theorems :
     T3f_GlobalIntegerOptimality ∧
     T3g_ThreeReg9CallX15 ∧
     T3h_FourRegPowering ∧
+    T3i_StreamingFrequencyMoment ∧
     T4_BalancedMultilinearProduct :=
   ⟨t1_digit_sum_dichotomy,
    t1a_two_access_frobenius_collapse,
@@ -131,6 +136,7 @@ public theorem prove_all_catalytic_theorems :
    t3f_global_integer_optimality,
    t3g_three_reg_9call_x15,
    t3h_four_reg_powering,
+   t3i_streaming_frequency_moment,
    t4_balanced_multilinear_product⟩
 
 end Catalytic.Solution

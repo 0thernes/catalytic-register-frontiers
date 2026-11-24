@@ -3,7 +3,7 @@
 
 ## Shipped (`v1.0.0`)
 
-- Zero-Mathlib Lean 4.35.0 formalization of all 19 theorems & soundness bridges (`T1`, `T1a`–`T1e`, `T1s`, `T1es`, `T2`, `T2b`, `T3a`–`T3h`, `T4`) plus concrete `0 ≠ 1` `NonVacuity` witnesses (14 modules, 21 audited declarations), passing 6 kernel runs across 5 implementations (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin`).
+- Zero-Mathlib Lean 4.35.0 formalization of all 20 theorems & soundness bridges (`T1`, `T1a`–`T1e`, `T1s`, `T1es`, `T2`, `T2b`, `T3a`–`T3i`, `T4`) plus concrete `0 ≠ 1` `NonVacuity` witnesses (14 modules, 8,036 lines, 22 audited declarations), passing 6 kernel runs across 5 implementations (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin`).
 - Exact-arithmetic computational suite (`exp1`–`exp4`), `pytest` + Hypothesis property/metamorphic tests + mutant-killing tests + brute-force & second-encoder differential SAT audits + 8/8 archived & verified CaDiCaL 2.1.2 LRAT UNSAT proofs (`18,932` steps).
 - Deterministic vector PDF figures, frozen AMS-LaTeX white paper + clean-room `dist/arxiv_submission.tar.gz`, 100% REUSE 3.3 SPDX coverage, and cryptographically verified DigiCert RFC 3161 + OpenTimestamps provenance (`provenance/`).
 
