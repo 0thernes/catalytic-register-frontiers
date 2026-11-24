@@ -256,7 +256,7 @@ def test_sat_encoder_bruteforce_equivalence() -> None:
 
 
 def test_lean_formalization_and_governance_hygiene() -> None:
-    """Negative & regression guard (B06, B07): zero forbidden tokens, all 11 Lean files use
+    """Negative & regression guard (B06, B07): zero forbidden tokens, all 13 Lean files use
     `module`, axioms strictly within the 3 standard Lean axioms, and citations verified."""
     lean_dir = REPO / "lean"
     pat = re.compile(r"\b(sorry|admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern", re.M)
@@ -266,21 +266,22 @@ def test_lean_formalization_and_governance_hygiene() -> None:
         for fn in sorted(fnames):
             if fn.endswith(".lean"):
                 lean_files.append(pathlib.Path(root) / fn)
-    assert len(lean_files) == 12
+    assert len(lean_files) == 13
     for f in lean_files:
         text = f.read_text(encoding="utf-8")
         assert text.lstrip().startswith("module"), f"Missing Lean 4.35 `module` header in {f}"
         assert not pat.search(text), f"Forbidden token found in {f}"
 
-    # Verify Palomar, comparator, and extension-field separation artifacts exist
+    # Verify Palomar, comparator, soundness bridge, and extension-field separation artifacts exist
     assert (lean_dir / "comparator.json").exists()
     assert (lean_dir / "formalization.yaml").exists()
     assert (lean_dir / "Catalytic" / "NonVacuity.lean").exists()
     assert (lean_dir / "Catalytic" / "ExtensionFieldSeparation.lean").exists()
+    assert (lean_dir / "Catalytic" / "Pass2Soundness.lean").exists()
 
-    # Verify results/lean_axioms.txt covers all 18 declarations with zero unpermitted axioms
+    # Verify results/lean_axioms.txt covers all 20 declarations with zero unpermitted axioms
     ax_lines = (REPO / "results" / "lean_axioms.txt").read_text(encoding="utf-8").strip().splitlines()
-    assert len(ax_lines) == 18
+    assert len(ax_lines) == 20
     for line in ax_lines:
         assert "sorryAx" not in line and "ofReduceBool" not in line and "trustCompiler" not in line
 
@@ -545,5 +546,64 @@ def test_all_metadata_schemas_valid() -> None:
         assert status in {"todo", "doing", "done", "n/a"}, f"Invalid status {status} on {step_id}"
         if status == "n/a":
             assert len(note.strip()) >= 8, f"n/a step {step_id} missing justification note"
+
+
+def test_doc_citation_and_workflow_consistency() -> None:
+    """Pass 5 anti-staleness and cross-artifact consistency guard:
+    - All BibTeX entries are cited in paper/main.tex, zero undefined refs, all 3 figures cited.
+    - arXiv metadata abstract obeys the 1,920-character arXiv submission limit.
+    - No stale theorem/module/line counts in active canonical docs.
+    - All local blueprint links in docs/index.html match files deployed by pages.yml.
+    - CI and POSIX runner invoke con-leche/con-ron inside `lake env`.
+    """
+    tex = (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
+    bib = BIB_PATH.read_text(encoding="utf-8")
+    bib_keys = set(re.findall(r"@\w+\{([^,]+),", bib))
+    cited_keys: set[str] = set()
+    for grp in re.findall(r"\\cite(?:\[[^\]]*\])?\{([^}]+)\}", tex):
+        for k in grp.split(","):
+            cited_keys.add(k.strip())
+    assert bib_keys == cited_keys, f"Bib/cite mismatch: uncited={bib_keys - cited_keys}, missing={cited_keys - bib_keys}"
+
+    labels = set(re.findall(r"\\label\{([^}]+)\}", tex))
+    refs = set(re.findall(r"\\(?:eq)?ref\{([^}]+)\}", tex))
+    assert not (refs - labels), f"Undefined LaTeX refs: {refs - labels}"
+    for fig_lbl in ("fig:T1", "fig:T3", "fig:T2T4"):
+        assert fig_lbl in refs, f"Figure label {fig_lbl} is never cited in paper prose"
+
+    # arXiv plain-text abstract must be <= 1920 characters
+    arxiv_meta = (REPO / "paper" / "arxiv_metadata.txt").read_text(encoding="utf-8")
+    abstract_part = arxiv_meta.split("Abstract:\n", 1)[1].strip()
+    assert len(abstract_part) <= 1920, f"arXiv abstract too long: {len(abstract_part)} > 1920"
+
+    # Verify active docs contain no stale counts from earlier passes
+    stale_tokens = ("longest file 1{,}026", "12 headline theorems", "12 exported theorems", "14/14 decls")
+    for rel in (
+        "paper/main.tex",
+        "paper/arxiv_metadata.txt",
+        "README.md",
+        "AGENTS.md",
+        "llms.txt",
+        "repo.yaml",
+        "docs/index.html",
+        "docs/plan/02-requirements.md",
+        "docs/plan/slices.md",
+    ):
+        txt = (REPO / rel).read_text(encoding="utf-8")
+        for tok in stale_tokens:
+            assert tok not in txt, f"Stale token {tok!r} found in {rel}"
+
+    # Verify docs/index.html blueprint hrefs are all copied by .github/workflows/pages.yml
+    html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    pages = (REPO / ".github" / "workflows" / "pages.yml").read_text(encoding="utf-8")
+    for href in re.findall(r'href="(blueprint/[^"]+)"', html):
+        assert f"_site/{href}" in pages, f"Broken Pages blueprint link {href} not copied in pages.yml"
+
+    # Verify CI and POSIX runner invoke con-leche/con-ron via `lake env`
+    ci_yml = (REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    run_sh = (REPO / "scripts" / "run_all.sh").read_text(encoding="utf-8")
+    assert "lake env con-leche --verified" in ci_yml and "lake env con-ron --verified" in ci_yml
+    assert "lake env con-leche --verified" in run_sh and "lake env con-ron --verified" in run_sh
+
 
 

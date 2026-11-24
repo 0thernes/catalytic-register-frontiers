@@ -5,6 +5,7 @@ public import Catalytic.CommRing
 public import Catalytic.PrimeFieldTools
 public import Catalytic.DigitSumDichotomy
 public import Catalytic.ExtensionFieldSeparation
+public import Catalytic.Pass2Soundness
 public import Catalytic.BilinearFrobenius
 public import Catalytic.ThreeRegisterBreakthrough
 public import Catalytic.BalancedProduct
@@ -110,6 +111,12 @@ theorem mul_intCast_lit_eq_one {p : Nat} {hp : 1 < p} (u : ModP p hp) (k : Nat)
   change (u.val * (CRing.natCast k : ModP p hp).val) % p = 1
   rw [natCast_val]
   exact h
+
+theorem natCast_p_eq_zero (p : Nat) (hp : 1 < p) :
+    (CRing.natCast p : ModP p hp) = (0 : ModP p hp) := by
+  apply ext
+  rw [natCast_val, Nat.mod_self]
+  rfl
 
 end ModP
 
@@ -244,12 +251,13 @@ theorem nonvac_T4_witness :
   · have h3 := congrFun hclean 3
     simpa using h3
 
-/-- Master non-vacuity witness bundling all theorem families (`T1`–`T4`, including `GF4` for `T1e` and `D9` for `T3g`). -/
+/-- Master non-vacuity witness bundling all theorem families (`T1`–`T4`, including `Pass2Soundness` char-`p`/`GF4` hom witnesses, `GF4` for `T1e`, and `D9` for `T3g`). -/
 theorem nonvac_all_hypotheses :
     (IsPrime 2 ∧ IsPrime 3 ∧ IsPrime 5 ∧ IsPrime 7 ∧
       InRPPass2 2 2 (monomial 4) ∧ ¬ InRPPass2 2 10 (monomial 3) ∧
       InRPPass2 5 3 (monomial 2) ∧ ¬ InRPPass2 5 2 (monomial 2)) ∧
-    ((GF4.one : GF4) ≠ GF4.z) ∧
+    ((CRing.natCast 5 : ModP 5 (by decide)) = 0) ∧
+    ((GF4Hom.id.toFun .one : GF4) ≠ GF4Hom.id.toFun .z) ∧
     ((0 : F2) ≠ (1 : F2)) ∧
     (∃ inv5 : ModP 5 (by decide), inv5 * CRing.intCast 576 = 1) ∧
     (∃ inv6 : ModP 7 (by decide), inv6 * CRing.intCast 382500000 = 1) ∧
@@ -259,7 +267,7 @@ theorem nonvac_all_hypotheses :
       inv9 * CRing.intCast 876702103804656272895371895753963647960420947968000 = 1) ∧
     ((0 : Int) ≠ (1 : Int)) := by
   rcases nonvac_T3_witnesses with ⟨⟨i5, _, h5⟩, ⟨i6, _, h6⟩, ⟨i7, _, h7⟩, ⟨i8, _, h8⟩, ⟨i9, _, h9⟩⟩
-  exact ⟨nonvac_T1_witnesses, GF4.one_ne_zero, nonvac_T2_witness.1,
+  exact ⟨nonvac_T1_witnesses, ModP.natCast_p_eq_zero 5 (by decide), GF4.one_ne_zero, nonvac_T2_witness.1,
     ⟨i5, h5⟩, ⟨i6, h6⟩, ⟨i7, h7⟩, ⟨i8, h8⟩, ⟨i9, h9⟩, nonvac_T4_witness.1⟩
 
 end

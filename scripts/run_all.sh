@@ -22,14 +22,14 @@ run_lean() {
     lake env lean VerifyAxioms.lean
     lake env leanchecker Solution
     lake env leanchecker-paranoid Solution
-    if command -v con-leche >/dev/null 2>&1 && command -v con-ron >/dev/null 2>&1; then
+    if lake env sh -c 'command -v con-leche >/dev/null 2>&1 && command -v con-ron >/dev/null 2>&1'; then
       TMP_EXP="$(mktemp)"
       trap 'rm -f "$TMP_EXP"' EXIT
       lake env leanexport Solution -- \
         Catalytic.Solution.prove_all_catalytic_theorems \
         Catalytic.NonVacuity.nonvac_all_hypotheses > "$TMP_EXP"
-      con-leche --verified "$TMP_EXP"
-      con-ron --verified "$TMP_EXP"
+      lake env con-leche --verified "$TMP_EXP"
+      lake env con-ron --verified "$TMP_EXP"
     fi
   )
 }

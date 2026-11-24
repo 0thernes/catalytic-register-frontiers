@@ -37,6 +37,8 @@ jobs:
           cp results/lean_axioms.txt dist/lean_axioms.txt
           cp results/six_kernel_audit.txt dist/six_kernel_audit.txt
           cp sbom.cdx.json dist/sbom.cdx.json
+          cp MANIFEST.sha256 dist/MANIFEST.sha256
+          cp provenance/MANIFEST.sha256.tsr dist/MANIFEST.sha256.tsr
 
       - name: Generate SHA256SUMS
         working-directory: dist

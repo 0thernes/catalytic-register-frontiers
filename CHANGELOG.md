@@ -7,6 +7,15 @@ All notable changes to `catalytic-register-frontiers` are documented here follow
 
 - Pending external publication milestones: GitHub push + live CI/SLSA run, Zenodo/OSF DOI minting, Software Heritage SWHID, Palomar Registry submission, and independent external second-person reproduction (`ROADMAP.md`).
 
+### Added (Pre-Release Hardening Passes 2–5, 2026-11-23 to 2026-11-24)
+- **Literal commutative-ring & $\mathbb{F}_4$-algebra soundness bridges (`lean/Catalytic/Pass2Soundness.lean`):** Zero-Mathlib binomial theorem (`CRing.add_pow`) plus exported theorems `T1s_Pass2RingSoundness` and `T1es_Pass2GF4Soundness` proving symbolic `Pass2Prog.exec` / `Pass2GF4Prog.exec` match direct ring/algebra execution identically for ALL programs.
+- **Additional Tier-1 Lean 4.35 theorems:** Sharp $\mathbb{F}_4$ separation `T1e_ExtensionFieldSeparation` ($t_{\min}(5)=3, t_{\min}(3)=4, x^7$ impossible), distinct-operand bilinear collapse `T2b_DistinctOperandFrobenius`, universal global $t = 8$ optimality `T3f_GlobalIntegerOptimality` ($\forall t \ge 4, t \ne 8$), and 9-access post-minimum ascent `T3g_ThreeReg9CallX15` (13 modules, 6,564 lines, 18 theorems + `prove_all` + `NonVacuity` = 20 audited decls across all 6 kernels: `con-leche`/`con-ron` 3,307 decls, `nanoda_bin` 3,614 decls).
+- **SAT / LRAT / Testing & Governance:** Expanded CaDiCaL 2.1.2 LRAT archive to 8/8 certificates (18,932 verified steps), added independent second direct-parity-cube CNF encoder differential test, REUSE 3.3 verifier (`scripts/check_reuse.py`), POSIX orchestrator (`scripts/run_all.sh`), interactive SVG Blueprint (`docs/index.html`), Build Pipeline Models v1.0.0 (`project.yaml`, `scripts/pipeline-audit.py`), continuous DigiCert RFC 3161 TSA verification, and permanent doc/citation/workflow anti-staleness test (`18/18` pytest).
+
+### Fixed (Pre-Release Hardening Passes 2–5)
+- Corrected `cor:matpow` in `paper/main.tex` to distinguish quadratic-shear `prog5_x7` ($d = 2$, exact $2m^2 + \binom{m^2+2}{2} - 1$ scalars, $p > \max(7, \lfloor\log_7 N\rfloor + 1)$, $O(N^{\log_7 5})$ calls) from degree-6-shear `prog8_x13` ($3m^2 + \binom{m^2+5}{6}$ scalars, $p > \max(13, \lfloor\log_{13} N\rfloor + 1)$, $p \nmid D_8$, $O(N^{\log_{13} 8})$ calls), and tightened `cor:powering` proof to invoke non-passive clean composition (Alekseev et al., MFCS 2025, Lemma 8) on the 3 work registers $(R_1, R_2, U)$ with $O$ strictly passive (`ERRATA.md`).
+- Fixed `.hypothesis/` cache-tracking leakage, `.env.example` global gitignore omission, `ci.yml` / `run_all.sh` bare `con-leche`/`con-ron` calls (`lake env`), stale doc/manuscript counts (`longest file 1,300 lines`, `20 audited declarations`), and uncited figure labels (`fig:T1`, `fig:T3`, `fig:T2T4`).
+
 ## [1.0.0] - 2026-11-23
 
 ### Added

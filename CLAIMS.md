@@ -5,7 +5,7 @@ Every scientific claim in `catalytic-register-frontiers` is assigned an explicit
 
 - **`TIER-1 (Lean 4.35 Multi-Kernel)`**: Formally verified from first principles in `lean/Solution.lean` + `lean/Catalytic/NonVacuity.lean` (zero Mathlib, zero forbidden tokens, strict core linters clean, axioms $\subseteq \{\text{propext}, \text{Classical.choice}, \text{Quot.sound}\}$, 6 passing kernel runs across 5 implementations).
 - **`TIER-2 (Exact-Arithmetic / SAT-Certified)`**: 100% exact integer, rational (`fractions.Fraction`), finite-field ($\mathbb{F}_p$, $\mathbb{F}_4$), or CaDiCaL 2.1.2 SAT/UNSAT computation verified by `pytest`, Hypothesis property tests, mutant checks, and brute-force SAT encoder equivalence tests.
-- **`TIER-3 (Paper-Level Reduction)`**: Standard mathematical deduction combining our Tier-1 theorems with published composition theorems in Vinciguerra (`arXiv:2609.18692`, Lemma 2.2, Corollaries 4.3.1, 5.1.1, §4.4, and Theorem 5.2).
+- **`TIER-3 (Paper-Level Reduction)`**: Standard mathematical deduction combining our Tier-1 theorems with published composition theorems in Alekseev et al. (MFCS 2025, Lemma 8) and Vinciguerra (`arXiv:2609.18692`, Corollaries 4.3.1, 5.1.1, §4.4, and Theorem 5.2).
 - **`TIER-4 (Open Frontier)`**: Explicitly unresolved conjecture or research question.
 
 ## Tier-1 Machine-Checked Lean 4.35 Theorems
@@ -18,6 +18,8 @@ Every scientific claim in `catalytic-register-frontiers` is assigned an explicit
 | `T1c` | `T1c_ImpossibilityThreshold` ($s_p(d) \ge p \implies \forall t,\, x^d \notin \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t)$) | `t1c_impossibility_threshold` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
 | `T1d` | `T1d_VinciguerraRecovery` ($2 \le d < p \implies (x^d \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t) \iff d + 1 \le t)$) | `t1d_vinciguerra_recovery` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
 | `T1e` | `T1e_ExtensionFieldSeparation` (exact sharp $\mathbb{F}_4$ separation: $x^5 \in \mathrm{RP}(2, 3) \setminus \mathrm{RP}(2, 2)$, $x^3 \in \mathrm{RP}(2, 4) \setminus \mathrm{RP}(2, 3)$, and $\forall t,\, x^7 \notin \mathrm{RP}(2, t)$) | `t1e_extension_field_separation` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `T1s` | `T1s_Pass2RingSoundness` (literal `CRing` execution `Pass2Prog.execRing` agrees identically with symbolic `Pass2Prog.exec` over every char-$p$ commutative ring $R$) | `t1s_pass2_ring_soundness` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `T1es` | `T1es_Pass2GF4Soundness` (literal `GF4`-algebra execution `Pass2GF4Prog.execAlg` agrees identically with symbolic `Pass2GF4Prog.exec` over every commutative $\mathbb{F}_4$-algebra $(R, \varphi)$) | `t1es_pass2_gf4_soundness` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
 | `T2` | `T2_BilinearFrobeniusCollapse` ($\forall k \ge 1$, $x^{2^k}$ cleanly in $k+1$ regs, $4k-2$ bilinear ops, **2** input accesses over any `Char2CRing`) | `t2_bilinear_frobenius_collapse` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
 | `T2b` | `T2b_DistinctOperandFrobenius` ($\forall k \ge 1$, $x^{2^k}$ cleanly in $k+2$ regs using strictly pairwise-distinct bilinear operands + passive linear copies, **2** input accesses over any `Char2CRing`) | `t2b_distinct_operand_frobenius` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
 | `T3a` | `T3a_ThreeReg5CallX7` ($x^7 \in \mathrm{RP}_R^{\mathrm{pass}}(3, 5)$ whenever $576$ invertible, i.e., $\mathrm{char} \neq 2, 3$) | `t3a_three_reg_5call_x7` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
@@ -28,8 +30,8 @@ Every scientific claim in `catalytic-register-frontiers` is assigned an explicit
 | `T3f` | `T3f_GlobalIntegerOptimality` ($8^{37} < 13^{30}$ and $\forall t \ge 4,\, t \ne 8 \implies (2t-3)^{30} < t^{37}$, proving $\log_{13} 8 < \frac{30}{37} < \log_{2t-3} t$ for ALL $t \ge 4$) | `t3f_global_integer_optimality` | `propext`, `Quot.sound` | 6 kernels |
 | `T3g` | `T3g_ThreeReg9CallX15` ($x^{15} \in \mathrm{RP}_R^{\mathrm{pass}}(3, 9)$ whenever $D_9$ invertible, post-minimum ascent point $\log_{15} 9 \approx 0.811368$) | `t3g_three_reg_9call_x15` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
 | `T4` | `T4_BalancedMultilinearProduct` ($\forall k$, $d=2^k$, clean $x_0\cdots x_{d-1}$ with $0$ workspace, $k+2$ regs, $(7d^2-4)/3$ ops) | `t4_balanced_multilinear_product` | `propext`, `Quot.sound` | 6 kernels |
-| `ALL` | Conjunction of all 16 theorems above | `prove_all_catalytic_theorems` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
-| `NONVAC` | Concrete $0 \neq 1$ ring/prime/evaluation witnesses for `T1`–`T4` (incl. `GF4` and all five $D_5 \dots D_9$) | `Catalytic.NonVacuity.nonvac_all_hypotheses` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels (`con-leche`, `con-ron`, `nanoda_bin`) |
+| `ALL` | Conjunction of all 18 theorems above | `prove_all_catalytic_theorems` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `NONVAC` | Concrete $0 \neq 1$ ring/prime/evaluation witnesses for `T1`–`T4` (incl. `ModP 5` $\mathrm{char}=5$, `GF4Hom.id`, and all five $D_5 \dots D_9$) | `Catalytic.NonVacuity.nonvac_all_hypotheses` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels (`con-leche`, `con-ron`, `nanoda_bin`) |
 
 ## Tier-2 Exact-Arithmetic & SAT-Certified Claims
 
@@ -43,9 +45,9 @@ Every scientific claim in `catalytic-register-frontiers` is assigned an explicit
 
 ## Tier-3 Paper-Level Reductions
 
-- **`R1` (Powering with 4 registers):** Composing `T3d` with Vinciguerra (`arXiv:2609.18692`, Lemma 2.2 & Corollary 4.3.1) gives $x^N \in \mathrm{RP}_K^{\mathrm{pass}}(4, \frac{8}{3} \cdot 13 \cdot N^{\log_{13} 8}) = \mathrm{RP}_K^{\mathrm{pass}}(4, O(N^{0.81072}))$ (vs. $O(N^{0.86136})$).
+- **`R1` (Powering with 4 registers):** Composing `T3d` via clean non-passive composition on the 3 work registers $(R_1, R_2, U)$ (Alekseev et al., MFCS 2025, Lemma 8) inside Vinciguerra (`arXiv:2609.18692`, Corollary 4.3.1) gives $x^N \in \mathrm{RP}_K^{\mathrm{pass}}(4, \frac{8}{3} \cdot 13 \cdot N^{\log_{13} 8}) = \mathrm{RP}_K^{\mathrm{pass}}(4, O(N^{0.81072}))$ (vs. $O(N^{0.86136})$); composing `T3a` gives $O(N^{\log_7 5}) = O(N^{0.82709})$ over every field with $\operatorname{char}(K) \neq 2, 3$.
 - **`R2` (Catalytic streaming frequency moments $F_D(\sigma)$):** Reduces pass complexity at the $r=3$ base space tier from $O(D^{0.86136})$ to $O(D^{0.81072})$ using $O(n D \log(m+1))$ catalytic bits and $O(D \log(m+1) + \log n + \log D)$ regular workspace bits (matching Corollary 5.1.1 of `arXiv:2609.18692`).
-- **`R3` (Matrix powering $A^N$):** Lifting `T3d` via Vinciguerra §4.4's $\ell_A(z)$ symmetric-tensor lift computes $A^N$ for arbitrary non-commutative $A \in M_m(\mathbb{F}_p)$ using $O(N^{0.81072})$ recursive matrix-input calls and the exact $r=3$ scalar register count $2m^2 + \binom{m^2+2}{2} - 1$ (Theorem 5.2 of `arXiv:2609.18692`, for primes $p$ exceeding $\max(\ell+1)$ and avoiding the bad primes of $D_8$).
+- **`R3` (Non-commutative matrix powering $A^N$):** Lifting `T3a` (`prog5_x7`, shear degree $d = 2$) via Vinciguerra §4.4's $\ell_A(z)$ homogeneous lift cleanly computes $A^N$ for $A \in M_m(\mathbb{F}_p)$ ($p > \max(7, \lfloor \log_7 N \rfloor + 1)$) using at most $\frac{10}{3} \cdot 7 \cdot N^{\log_7 5} = O(N^{0.82709})$ recursive matrix calls and the **exact** $r=3$ scalar register count $2m^2 + \binom{m^2+2}{2} - 1$ (zero extra scalar registers vs. Theorem 5.2 of `arXiv:2609.18692`). Lifting `T3d` (`prog8_x13`, shear degree $d = 6$, $p > \max(13, \lfloor \log_{13} N \rfloor + 1)$, $p \nmid D_8$) achieves $O(N^{0.81072})$ calls using $3m^2 + \binom{m^2+5}{6} = \Theta(m^{12})$ scalar registers.
 
 ## What Would Prove Us Wrong (Refutation & Falsification Criteria — Build Standard B42)
 

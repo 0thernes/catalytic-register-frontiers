@@ -38,7 +38,7 @@ jobs:
           cd lean
           lake build
           lake env lean VerifyAxioms.lean | tee /tmp/axioms.txt
-          diff -u ../results/lean_axioms.txt /tmp/axioms.txt || true
+          diff -u ../results/lean_axioms.txt /tmp/axioms.txt
           if grep -qE 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' /tmp/axioms.txt; then
             echo "UNPERMITTED AXIOM DETECTED!" >&2
             exit 1
@@ -46,8 +46,8 @@ jobs:
           lake env leanchecker Solution
           lake env leanchecker-paranoid Solution
           lake env leanexport Solution -- Catalytic.Solution.prove_all_catalytic_theorems Catalytic.NonVacuity.nonvac_all_hypotheses > /tmp/catalytic_solution.ndjson
-          con-leche --verified /tmp/catalytic_solution.ndjson
-          con-ron --verified /tmp/catalytic_solution.ndjson
+          lake env con-leche --verified /tmp/catalytic_solution.ndjson
+          lake env con-ron --verified /tmp/catalytic_solution.ndjson
           lake check --paranoid || true
 
       - name: Setup Python 3.13 and run exact verification suite + pytest + LRAT verifier

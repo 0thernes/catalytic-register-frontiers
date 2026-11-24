@@ -6,7 +6,7 @@ name: Pages
 on:
   push:
     branches: [main]
-    paths: ["docs/**", "README.md", "CLAIMS.md", "results/lean_axioms.txt", ".github/workflows/pages.yml"]
+    paths: ["docs/**", "README.md", "CLAIMS.md", "results/lean_axioms.txt", "results/six_kernel_audit.txt", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:

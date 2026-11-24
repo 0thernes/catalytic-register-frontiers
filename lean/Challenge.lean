@@ -58,6 +58,38 @@ def T1e_ExtensionFieldSeparation : Prop :=
   ¬ InRPPass2GF4 3 (monomialGF4 3) ∧
   (∀ t : Nat, ¬ InRPPass2GF4 t (monomialGF4 7))
 
+/-- **T1s (Literal `CRing` Soundness Bridge for `T1`):**
+For EVERY program `prog`, EVERY modulus `p`, and EVERY commutative ring `R` of characteristic `p`
+(`natCast p = 0`), literal ring execution `Pass2Prog.execRing` agrees identically with symbolic
+`Pass2Prog.exec`, and `CleanlyComputes2 p prog f` implies literal clean execution
+`Pass2Prog.execRing x prog (o, u) = (o + evalPolyR f x, u)` for all `o, u, x : R`. -/
+def T1s_Pass2RingSoundness : Prop :=
+  (∀ (R : Type) [CRing R] (p : Nat), (CRing.natCast p : R) = 0 →
+    ∀ (prog : List Pass2Instr) (D : Nat), Pass2Prog.maxDeg prog ≤ D →
+      ∀ o u x : R,
+        Pass2Prog.execRing x prog (o, u) =
+          let st := Pass2Prog.exec p prog
+          (o + evalState2Coeff D st.coeff u x, u + CRing.natCast st.b + CRing.natCast st.a * x)) ∧
+  (∀ (p : Nat) (prog : List Pass2Instr) (f : List Nat), CleanlyComputes2 p prog f →
+    ∀ (R : Type) [CRing R], (CRing.natCast p : R) = 0 →
+      ∀ o u x : R, Pass2Prog.execRing x prog (o, u) = (o + evalPolyR f x, u))
+
+/-- **T1es (Literal `GF4`-Algebra Soundness Bridge for `T1e`):**
+For EVERY program `prog` and EVERY commutative `GF4`-algebra `(R, φ)` (including `R = GF4` via `GF4Hom.id`),
+literal algebra execution `Pass2GF4Prog.execAlg` agrees identically with symbolic `Pass2GF4Prog.exec`,
+and `CleanlyComputes2GF4 prog f` implies literal clean execution
+`Pass2GF4Prog.execAlg φ x prog (o, u) = (o + evalPolyGF4Alg φ f x, u)` for all `o, u, x : R`. -/
+def T1es_Pass2GF4Soundness : Prop :=
+  (∀ (R : Type) [CRing R] (φ : GF4Hom R) (prog : List Pass2GF4Instr) (D : Nat),
+    Pass2GF4Prog.maxDeg prog ≤ D →
+      ∀ o u x : R,
+        Pass2GF4Prog.execAlg φ x prog (o, u) =
+          let st := Pass2GF4Prog.exec prog
+          (o + evalState2GF4Coeff φ D st.coeff u x, u + φ.toFun st.b + φ.toFun st.a * x)) ∧
+  (∀ (prog : List Pass2GF4Instr) (f : List GF4), CleanlyComputes2GF4 prog f →
+    ∀ (R : Type) [CRing R] (φ : GF4Hom R) (o u x : R),
+      Pass2GF4Prog.execAlg φ x prog (o, u) = (o + evalPolyGF4Alg φ f x, u))
+
 /-- **T2 (Strictly Bilinear 2-Access Frobenius Collapse over Characteristic 2):**
 For every `k ≥ 1`, there is a passive-output strictly bilinear register program on `k + 1`
 registers using ONLY 2 input accesses and `4*k - 2` bilinear ops that cleanly computes

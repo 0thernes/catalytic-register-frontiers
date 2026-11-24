@@ -1,15 +1,15 @@
-# Cryptographic Timestamp Provenance Audit (Playbook #26)
-MANIFEST.sha256 SHA-256: edb62cee6ea4ef1cb709dd2d44f995e108f9b4448b46ae297548149881a3d738
-MANIFEST.sha256 entries: 141 git-tracked files (0 caches)
-MANIFEST.sha256 size: 12971 bytes
+# Cryptographic Trusted Timestamp Audit (provenance/TIMESTAMP_AUDIT.txt)
+Date (UTC): 2026-11-24T06:42:03Z
+Target: MANIFEST.sha256
+MANIFEST.sha256 SHA-256: 37698cb50912e96c11cfe26751a01ec6a3ef168161d801877b6e4230ec86e89b
+MANIFEST.sha256.tsr SHA-256: 08c9e0bc36e0d129a82d371ac7715f324b5083d266372e66d0ad7fd0d08ac1e6
+MANIFEST.sha256.ots SHA-256: 6b241f9868d39a84de7b084ff91fd04c61e0e51eb060bd5ecab232f5657eddac
 
-## RFC 3161 Trusted Timestamp (DigiCert RFC 3161 TSA)
-Endpoint: http://timestamp.digicert.com
-Query file: provenance/MANIFEST.sha256.tsq (70 bytes)
-Response file: provenance/MANIFEST.sha256.tsr (6007 bytes)
-OpenSSL cryptographic verification (`openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CAfile /usr/ssl/certs/ca-bundle.crt`, exit 0): Verification: OK
+## 1. DigiCert RFC 3161 Trusted Timestamp (TSA: http://timestamp.digicert.com)
+Verification Command (POSIX / Git Bash):
+  openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CAfile /usr/ssl/certs/ca-bundle.crt
+Verification Result: Verification: OK
 
-### OpenSSL `ts -reply -text` Output:
 Status info:
 Status: Granted.
 Status description: unspecified
@@ -20,17 +20,16 @@ Version: 1
 Policy OID: 2.16.840.1.114412.7.1
 Hash Algorithm: sha256
 Message data:
-    0000 - ed b6 2c ee 6e a4 ef 1c-b7 09 dd 2d 44 f9 95 e1   ..,.n......-D...
-    0010 - 08 f9 b4 44 8b 46 ae 29-75 48 14 98 81 a3 d7 38   ...D.F.)uH.....8
-Serial number: 0x7B4D2D2D0D13DCB50C89F91454B7F691
-Time stamp: Nov 24 10:45:21 2026 GMT
+    0000 - 37 69 8c b5 09 12 e9 6c-11 cf e2 67 51 a0 1e c6   7i.....l...gQ...
+    0010 - a3 ef 16 81 61 d8 01 87-7b 6e 42 30 ec 86 e8 9b   ....a...{nB0....
+Serial number: 0xF8F67D07E6C446D99AD9C8EFB18826A3
+Time stamp: Nov 24 14:49:56 2026 GMT
 Accuracy: unspecified
 Ordering: no
-Nonce: 0x97DBE8A50E64C862
+Nonce: unspecified
 TSA: unspecified
 Extensions:
 
-## OpenTimestamps Calendar Proof (Pending Bitcoin Block Confirmation)
+## 2. OpenTimestamps Bitcoin Calendar Submission
 Calendar: https://a.pool.opentimestamps.org/digest
-File: provenance/MANIFEST.sha256.ots (272 bytes)
-Status: Submitted to OpenTimestamps calendar; upgrade with `ots upgrade provenance/MANIFEST.sha256.ots` once confirmed in a Bitcoin block (~1-2 hours).
+Artifact: provenance/MANIFEST.sha256.ots (pending Bitcoin block attestation; upgradeable later via `ots upgrade`)

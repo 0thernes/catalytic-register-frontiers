@@ -40,7 +40,7 @@
 Code and Lean~4.35.0 proofs are dual-licensed under Apache-2.0; prose and figures under CC-BY-4.0.
 This work has not undergone external peer review; all formal proofs are independently certified by six Lean~4.35.0 verification kernels across five independent implementations.}
 
-\date{November 23, 2026}
+\date{November 24, 2026}
 
 \subjclass[2020]{68Q06, 68Q15, 11T06, 12E20}
 \keywords{Catalytic computing, register programs, finite fields, Lucas's theorem, powering algorithms, streaming algorithms, matrix powering, Lean~4 formal verification}
@@ -48,29 +48,28 @@ This work has not undergone external peer review; all formal proofs are independ
 \begin{document}
 
 \begin{abstract}
-We resolve two structural questions left open by Vinciguerra's operator analysis of passive-output catalytic register programs (\href{https://arxiv.org/abs/2609.18692}{\texttt{arXiv:2609.18692}}, September~2026) and connect them to bilinear catalytic algebra and Boolean multiplicative complexity.
+We resolve two structural questions left open by Vinciguerra's operator analysis of passive-output catalytic register programs (\href{https://arxiv.org/abs/2609.18692}{\texttt{arXiv:2609.18692}}, Sep.\ 2026) and connect them to bilinear catalytic algebra and Boolean multiplicative complexity.
 \begin{enumerate}
   \item \emph{Exact positive-characteristic two-register dichotomy (Theorem~\ref{thm:T1}).}
-  Over any prime field $\F_p$, every budget $t \ge 1$, and every polynomial $f(x) = \sum_{d \ge 0}\alpha_d x^d \in \F_p[x]$, we prove the unconditional equivalence
+  Over any prime field $\F_p$, budget $t \ge 1$, and $f(x) = \sum_{d \ge 0}\alpha_d x^d \in \F_p[x]$,
   \[
     f \in \RP_{\F_p}^{\pass}(2, t) \iff \forall\, d \ge 2 \text{ with } \alpha_d \neq 0,\;\; s_p(d) \le \min(p-1,\, t-1),
   \]
-  where $s_p(d)$ denotes the sum of the base-$p$ digits of $d$.
-  Consequently, the characteristic-$0$ lower bounds of~\cite[Theorems~3.2, 3.3, and~3.5]{Vinciguerra2026} collapse completely in every positive prime characteristic: $D_{2,\F_p}^{\pass}(2) = +\infty$ via the Frobenius monomials $x^{p^m}$ ($s_p(p^m)=1$), whereas every degree with $s_p(d) \ge p$ (such as $x^3$ over $\F_2$) is permanently uncomputable in two passive registers for \emph{all} $t \ge 1$.
-  When $p > \deg f$, the criterion reduces to $t \ge \deg f + 1$, recovering Vinciguerra's Theorem~3.5.
+  where $s_p(d)$ is the base-$p$ digit sum of $d$.
+  Thus the char.-$0$ lower bounds of~\cite[Thms.\ 3.2, 3.3, 3.5]{Vinciguerra2026} collapse in every prime characteristic ($D_{2,\F_p}^{\pass}(2) = +\infty$ via $x^{p^m}$), whereas degrees with $s_p(d) \ge p$ (e.g., $x^3$ over $\F_2$) are permanently uncomputable in two passive registers for all $t \ge 1$; for $p > \deg f$, this recovers Vinciguerra's Theorem~3.5.
 
   \item \emph{Strictly bilinear two-access Frobenius collapse (Theorem~\ref{thm:T2}).}
-  Over any commutative ring of characteristic~$2$, we construct an explicit passive-output program using strictly bilinear basic instructions ($R_i \leftarrow R_i + R_j R_\ell$ with $j,\ell \neq i$) that cleanly computes $x^{2^k}$ in $k+1$ registers, $4k-2$ bilinear operations, and \emph{only two} input accesses for every $k \ge 1$.
+  Over any char.-$2$ commutative ring, an explicit strictly bilinear passive program ($R_i \leftarrow R_i + R_j R_\ell$, $j,\ell \neq i$) cleanly computes $x^{2^k}$ in $k+1$ registers, $4k-2$ bilinear ops, and \emph{only two} input accesses ($\forall k \ge 1$).
 
-  \item \emph{Strict improvement over Vinciguerra's three-register powering exponent (Theorem~\ref{thm:T3}).}
-  Using explicit elementary shear loops with integer Pascal-row coefficients, we prove $x^7 \in \RP_K^{\pass}(3, 5)$ (for all $\operatorname{char}(K) \neq 2, 3$), $x^9 \in \RP_K^{\pass}(3, 6)$ ($\operatorname{char}(K) \notin \{2,3,5,17\}$), $x^{11} \in \RP_K^{\pass}(3, 7)$, $x^{13} \in \RP_K^{\pass}(3, 8)$, and $x^{15} \in \RP_K^{\pass}(3, 9)$ over $\Q$ and all good prime fields.
-  This improves the three-register composition exponent from Vinciguerra's $\log_5 4 \approx 0.86135$ down to the unique global integer minimizer $\log_{13} 8 \approx 0.81071$ of $\log_{2t-3} t$ (certified unconditionally for all $t \ge 4$), immediately tightening the asymptotic exponents for $4$-register powering (Corollary~4.3.1), catalytic streaming frequency moments (Corollary~5.1.1), and $3$-register matrix powering (Theorem~5.2) of~\cite{Vinciguerra2026}.
+  \item \emph{Strict three-register powering improvement (Theorem~\ref{thm:T3}).}
+  Explicit Pascal-row shear loops prove $x^7 \in \RP_K^{\pass}(3, 5)$ ($\operatorname{char} \neq 2, 3$), $x^9 \in \RP_K^{\pass}(3, 6)$ ($\operatorname{char} \notin \{2,3,5,17\}$), and $x^{11}, x^{13}, x^{15}$ in $7, 8, 9$ accesses over $\Q$ and good primes.
+  This reduces the three-register exponent from $\log_5 4 \approx 0.86135$ to the unique global integer minimizer $\log_{13} 8 \approx 0.81071$ of $\log_{2t-3} t$ ($\forall t \ge 4$), tightening $4$-register powering (Cor.\ 4.3.1) and catalytic streaming (Cor.\ 5.1.1) of~\cite{Vinciguerra2026}, while quadratic-shear \texttt{prog5\_x7} tightens non-commutative matrix powering (Thm.\ 5.2) to $O(N^{\log_7 5}) = O(N^{0.82709})$ at the exact $r = 3$ scalar register tier $2m^2 + \binom{m^2+2}{2} - 1$.
 
-  \item \emph{Balanced zero-workspace bilinear multilinear product (Theorem~\ref{thm:T4}).}
-  Over any commutative ring, we formalize a recursive zero-workspace commutator computing $x_0 \cdots x_{d-1}$ ($d = 2^k$) using $\log_2 d + 2$ registers and exactly $(7d^2 - 4)/3$ primitive operations.
+  \item \emph{Balanced zero-workspace bilinear product (Theorem~\ref{thm:T4}).}
+  Over any commutative ring, a recursive zero-workspace commutator computes $x_0 \cdots x_{d-1}$ ($d = 2^k$) in $\log_2 d + 2$ registers and $(7d^2 - 4)/3$ primitive ops.
 \end{enumerate}
-All sixteen theorems and corollaries (including sharp $\F_4$ separation and distinct-operand bilinear collapse) together with explicit non-trivial ($0 \neq 1$) non-vacuity witnesses are formalized with zero Mathlib dependencies across twelve Lean~4.35.0 \texttt{module} files, depend strictly on $\{\texttt{propext},\allowbreak\,\texttt{Classical.choice},\allowbreak\,\texttt{Quot.sound}\}$, and pass six independent verification kernel runs across five implementations (\texttt{lean}, \texttt{leanchecker}, \texttt{leanchecker-paranoid}, \texttt{con-leche}, \texttt{con-ron}, and \texttt{nanoda\_bin}).
-An accompanying CaDiCaL~2.1.2 SAT audit ($8/8$ archived and independently verified LRAT UNSAT proofs, cross-checked against both brute-force enumeration and a second independent CNF encoder) contrasts these catalytic gains against the rigidity of nonlinear cancellation in Boolean XAG circuits~\cite{BoyarFind2018,Morse2026}.
+All $18$ theorems, corollaries, and literal commutative-ring soundness bridges (including sharp $\F_4$ separation and distinct-operand bilinear collapse) plus $0 \neq 1$ non-vacuity witnesses are formalized across $13$ zero-Mathlib Lean~4.35.0 \texttt{module} files using only the three standard Lean axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}) and pass $6$ verification kernels (\texttt{lean}, \texttt{leanchecker}, \texttt{leanchecker-paranoid}, \texttt{con-leche}, \texttt{con-ron}, \texttt{nanoda\_bin}).
+An accompanying CaDiCaL~2.1.2 SAT audit ($8/8$ verified LRAT UNSAT proofs, brute-force and second-encoder cross-checked) contrasts these gains against Boolean XAG rigidity~\cite{BoyarFind2018,Morse2026}.
 \end{abstract}
 
 \maketitle
@@ -148,7 +147,7 @@ Moreover, exact integer exponentiation certifies the strict chain of rational se
 and unconditionally $\log_{13} 8 < \frac{30}{37} < \log_{2t-3} t$ for \emph{every} integer $t \ge 4$ with $t \neq 8$ (Lean~\texttt{T3f}), proving that $t = 8$ is the unique global integer minimizer of $\varepsilon(t) = \log_{2t-3} t$.
 \end{theorem}
 
-Composing Theorem~\ref{thm:T3}(4) via Vinciguerra's passive composition lemma (\cite[Lemma~2.2]{Vinciguerra2026}) immediately tightens all three downstream applications of~\cite{Vinciguerra2026} at the minimal non-trivial register count ($r = 3$ base, $4$ composed registers): powering $x^N$ in $O(N^{0.81072})$ accesses (improving Corollary~4.3.1), catalytic streaming frequency moments $F_D(\sigma)$ in $O(D^{0.81072})$ passes (improving Corollary~5.1.1), and $3$-register matrix powering $A^N$ in $O(N^{0.81072})$ recursive calls (improving Theorem~5.2) --- see Section~\ref{sec:T3}.
+Composing Theorem~\ref{thm:T3}(4) inside Vinciguerra's powering and streaming framework (\cite[Corollaries~4.3.1 and~5.1.1]{Vinciguerra2026}) immediately tightens scalar powering $x^N$ in $4$ passive registers to $O(N^{0.81072})$ accesses and catalytic streaming frequency moments $F_D(\sigma)$ at the $r = 3$ space tier to $O(D^{0.81072})$ passes, while lifting our quadratic-shear ($d = 2$) $5$-access program \texttt{prog5\_x7} via~\cite[\S4.4, Theorem~5.2]{Vinciguerra2026} improves non-commutative matrix powering $A^N$ to $O(N^{0.82709})$ recursive calls at the exact $r = 3$ scalar register count $2m^2 + \binom{m^2+2}{2} - 1$ (with \texttt{prog8\_x13} achieving $O(N^{0.81072})$ calls at shear-degree-$6$ scalar register count $3m^2 + \binom{m^2+5}{6}$) --- see Section~\ref{sec:T3}.
 
 Finally, on the multivariate bilinear frontier, we formalize a sharp balanced zero-workspace product construction improving the exponential linear-chain bound $3\cdot 4^{d-1}-2$ to exact quadratic cost with logarithmic catalysts:
 
@@ -170,9 +169,9 @@ To enforce transparent verification boundaries, every claim in this manuscript b
 \toprule
 \textbf{Tier} & \textbf{Scope} & \textbf{Certification Mechanism} \\
 \midrule
-Tier-1 & Theorems~\ref{thm:T1}--\ref{thm:T4} \& \texttt{T1a}--\texttt{T1e}, \texttt{T2b}, \texttt{T3a}--\texttt{T3g} & Zero-Mathlib Lean~4.35.0; 6 kernels (Table~\ref{tab:kernels}) \\
+Tier-1 & Theorems~\ref{thm:T1}--\ref{thm:T4} \& \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2b}, \texttt{T3a}--\texttt{T3g} & Zero-Mathlib Lean~4.35.0; 6 kernels (Table~\ref{tab:kernels}) \\
 Tier-2 & Full $\F_4$ ($d \le 16$) spectrum, $r=4$ loops, Boyar--Find SAT ($8/8$ LRAT) & Exact $\F_p/\Q/\Z$ arithmetic \& CaDiCaL~2.1.2 \\
-Tier-3 & Corollaries~\ref{cor:powering}--\ref{cor:matpow} (asymptotic exponents) & Paper proof via \cite[Lem.~2.2, Cor.~5.1.1, Thm.~5.2]{Vinciguerra2026} \\
+Tier-3 & Corollaries~\ref{cor:powering}--\ref{cor:matpow} (asymptotic exponents) & Paper proof via \cite[Lem.~8]{AFM2025} \& \cite[Cor.~4.3.1, 5.1.1, Thm.~5.2]{Vinciguerra2026} \\
 Tier-4 & General $D_{3,\Q}^{\pass}(t)=2t-3$, $r \ge 4$, Boyar--Find & Explicitly open (Section~\ref{sec:open}) \\
 \bottomrule
 \end{tabular}
@@ -209,7 +208,7 @@ Formal polynomial cleanliness in $\F_p[O, R_1, \dots, R_{r-1}, x]$ is strictly s
 \label{sec:T1}
 
 Over characteristic~$0$, Vinciguerra~\cite[Theorem~3.5]{Vinciguerra2026} proved $D_{2, K}^{\pass}(t) = t - 1$.
-In characteristic $p > 0$, two competing phenomena interact:
+In characteristic $p > 0$, two competing phenomena interact (visualized across prime fields in Figure~\ref{fig:T1}):
 (i)~the Frobenius identity $a^p = a$ on $\F_p$ collapses high powers $a^d$ to $a^{s_p(d)}$, allowing degrees such as $d = p^m$ to be isolated in only two accesses;
 (ii)~conversely, because the register shift $a$ ranges only over the $p$-element field $\F_p$, Lucas's theorem couples $a^d$ to a strictly smaller binomial sub-exponent $j < d$ whenever $s_p(d) \ge p$, making such degrees permanently unreachable in two passive registers regardless of $t$.
 
@@ -311,6 +310,11 @@ Over $\F_4 = \F_2[\omega]/(\omega^2 + \omega + 1)$, our Tier-1 Lean~4.35 theorem
 Exact finite-field linear algebra for $d \in [1, 16]$ (\texttt{exp1}, Tier-2) further confirms $t_{\min} = 2$ for $d \in \{1, 2, 4, 8, 16\}$, $t_{\min} = 3$ for $d \in \{5, 10\}$, $t_{\min} = 4$ for $d \in \{3, 6, 9, 12\}$, and impossibility for all $t$ at $d \in \{7, 11, 13, 14, 15\}$.
 \end{remark}
 
+\begin{remark}[Literal commutative-ring soundness bridge; Lean \texttt{T1s}, \texttt{T1es}]
+\label{rem:soundness}
+To eliminate any trust-base gap between the symbolic trinomial-coefficient semantics (\texttt{Pass2Prog.\allowbreak exec}, \texttt{Pass2GF4Prog.\allowbreak exec}) and literal ring evaluation, \texttt{Pass2Soundness.\allowbreak lean} proves the binomial theorem from first principles in zero-Mathlib Lean~4.35 (\texttt{CRing.\allowbreak add\_pow}) and certifies that direct ring execution (using only ring addition, multiplication, and powers, with zero binomial formulas in its definition) agrees identically with symbolic execution on \emph{every} program over every characteristic-$p$ commutative ring $R$ (\texttt{T1s}) and every commutative $\F_4$-algebra $(R, \varphi)$ (\texttt{T1es}).
+\end{remark}
+
 \section{Theorem~\ref{thm:T2}: Strictly Bilinear Two-Access Collapse over Characteristic~2}
 \label{sec:T2}
 
@@ -401,7 +405,7 @@ Table~\ref{tab:t3-frontier} summarizes our synthesized and verified $3$-register
 Crucially, at $t = 5$, choosing quadratic shear degree $d = 2$ (rather than $d = t - 2 = 3$, which saturates at $N = 5$) unlocks $x^7 \in \RP_K^{\pass}(3, 5)$ with scaling integer $D_5 = 576 = 2^6 \cdot 3^2$, so its bad primes are \emph{only} $\{2, 3\}$ --- strictly improving Vinciguerra's $t = 4$ exponent $0.861353 \to 0.827087$ under the \emph{exact same} characteristic restriction ($\operatorname{char}(K) \neq 2, 3$, valid over $\F_5$ and $\F_7$!).
 For $t = 6, 7, 8, 9$, taking $d = t - 2$ gives sparse $3$-term output polynomials per step ($18, 21, 24, 27$ nonzero terms total), reaching $x^9$, $x^{11}$, $x^{13}$, and $x^{15}$, with \emph{all five} programs ($t = 5, 6, 7, 8, 9$) formally certified by pure kernel reduction in Lean~4.35.0 (\texttt{ThreeRegisterBreakthrough.lean}, Theorems~\texttt{T3a}--\texttt{T3d} and \texttt{T3g}).
 Moreover, Theorem \texttt{T3f} (\texttt{t3f\_global\_integer\_optimality}) constructively proves in Lean~4.35 via the single rational separator $30/37$ that $8^{37} < 13^{30}$ and $(2t - 3)^{30} < t^{37}$ for \emph{every} integer $t \ge 4$ with $t \neq 8$ (checking $t < 20$ explicitly and bounding $(2t - 3)^{30} \le 2^{30} t^{30} < 20^7 t^{30} \le t^{37}$ for all $t \ge 20$), certifying unconditionally that $t = 8$ is the unique global integer minimizer of $\log_{2t - 3} t$.
-Explicit integer coefficients for our two smallest-denominator programs ($t = 5 \to x^7$ and $t = 6 \to x^9$) are listed in Tables~\ref{tab:prog5} and~\ref{tab:prog6}; the full 21-term ($t=7$) and 24-term ($t=8$) integer certificates are compiled directly inside \texttt{lean/Catalytic/ThreeRegisterBreakthrough.lean}.
+Explicit integer coefficients for our two smallest-denominator programs ($t = 5 \to x^7$ and $t = 6 \to x^9$) are listed in Tables~\ref{tab:prog5} and~\ref{tab:prog6}; the full 21-term ($t=7$), 24-term ($t=8$), and 27-term ($t=9$) integer certificates are compiled directly inside \texttt{lean/Catalytic/ThreeRegisterBreakthrough.lean}, and the resulting degree frontier and exponent curve $\varepsilon(t) = \log_{2t-3} t$ are plotted in Figure~\ref{fig:T3}.
 
 \begin{table}[ht]
 \centering
@@ -472,29 +476,52 @@ $5$ & $0$ & $-5$ & $-4{,}154{,}985$ & $+9{,}394{,}056$ & $-5{,}454{,}540$ \\
 
 \subsection{Downstream Improvements to Powering, Streaming, and Matrix Powering}
 
-Substituting $x^{13} \in \RP_K^{\pass}(3, 8)$ (or $x^7 \in \RP_K^{\pass}(3, 5)$ whenever only $\operatorname{char}(K) \neq 2, 3$ is assumed) directly into Vinciguerra's passive composition framework~\cite[Lemma~2.2, Corollaries~4.3.1, 5.1.1, \S4.4, and Theorem~5.2]{Vinciguerra2026} yields immediate Tier-3 asymptotic improvements (we write $\varepsilon_* := \log_{13} 8 \approx 0.810714 < 0.861353 = \log_5 4$):
+Substituting $x^{13} \in \RP_K^{\pass}(3, 8)$ (or $x^7 \in \RP_K^{\pass}(3, 5)$ whenever only $\operatorname{char}(K) \neq 2, 3$ or quadratic shear degree $d = 2$ is required) into the powering, streaming, and matrix-lifting framework of~\cite[Lemma~8]{AFM2025} and~\cite[Corollaries~4.3.1, 5.1.1, \S4.4, and Theorem~5.2]{Vinciguerra2026} yields immediate Tier-3 asymptotic improvements (writing $\varepsilon_* := \log_{13} 8 \approx 0.810714 < \log_7 5 \approx 0.827087 < 0.861353 = \log_5 4$):
 
 \begin{corollary}[Four-Register Powering; sharpening {\cite[Corollary~4.3.1]{Vinciguerra2026}}]
 \label{cor:powering}
 Over any field $K$ of characteristic~$0$ (or prime characteristic avoiding the bad primes of $D_8$), for every integer $N \ge 1$ there exists a passive $4$-register program cleanly computing $x^N$ using at most $\frac{8}{3} \cdot 13 \cdot N^{\log_{13} 8} = O(N^{0.81072})$ input accesses (improving Vinciguerra's $O(N^{0.86136})$).
-Over every field of characteristic $\neq 2, 3$, composing \texttt{prog5\_x7} achieves $O(N^{\log_7 5}) = O(N^{0.82709})$ accesses.
+Over every field of characteristic $\neq 2, 3$, composing \texttt{prog5\_x7} achieves at most $\frac{10}{3} \cdot 7 \cdot N^{\log_7 5} = O(N^{0.82709})$ accesses in $4$ passive registers.
 \end{corollary}
 
 \begin{proof}
-Iterated composition of $f(x) = x^{13} \in \RP_K^{\pass}(3, 8)$ via \cite[Lemma~2.2]{Vinciguerra2026} computes $x^{13^i}$ in $3$ registers and $8^i$ accesses, and composing with each base-$13$ digit $x^{b_i}$ ($0 \le b_i < 13$, at most $13$ accesses in $2$ registers by Theorem~3.5) yields $q_i \le 13 \cdot 8^i$ accesses.
-Substituting $q_i$ into the finite-difference accumulation recurrence $T_i \le 2 T_{i-1} + 2 q_i$ of~\cite[Corollary~4.3.1]{Vinciguerra2026} gives $T_\ell \le 2 \cdot 13 \cdot 8^\ell \sum_{j=0}^\ell (2/8)^j < \frac{8}{3} \cdot 13 \cdot N^{\log_{13} 8}$ accesses in $4$ passive registers.
+Work on four registers $(R_1, R_2, U, O)$ where $O$ is the passive output register of the main program and $(R_1, R_2, U)$ act as work registers.
+Expand $N = \sum_{i=0}^\ell b_i 13^i$ ($0 \le b_i < 13$).
+Crucially, because the inner subprograms $C_i$ computing $U \leftarrow U + x^{b_i 13^i}$ never touch $O$ and do \emph{not} require $U$ to remain passive inside $C_i$, we apply clean non-passive composition (\cite[Lemma~8]{AFM2025}, register bound $\max\{r, s\} = 3$, whereas passive composition \cite[Lemma~2.2]{Vinciguerra2026} would incur $\max\{r, s+1\}$): starting from $x^{b_i} \in \RP_K^{\pass}(2, 13)$ (\cite[Theorem~3.5]{Vinciguerra2026}), each recursive substitution of \texttt{prog8\_x13} targeting $R_1$ reuses $(R_2, U)$ as its two catalytic work registers and restores both identically, yielding clean subprograms $C_i$ on $(R_1, R_2, U)$ with $q_i \le 13 \cdot 8^i$ accesses.
+Substituting $q_i$ into the finite-difference accumulation recurrence $T_i \le 2 T_{i-1} + 2 q_i$ on $(R_1, R_2, U, O)$ of~\cite[Corollary~4.3.1]{Vinciguerra2026} (in which $O$ is strictly passive) gives
+\[
+  T_\ell \le 2 \cdot 13 \cdot 8^\ell \sum_{j=0}^\ell (2/8)^j < \frac{8}{3} \cdot 13 \cdot N^{\log_{13} 8}
+\]
+accesses in $4$ passive registers.
+Replacing $(13, 8)$ by $(7, 5)$ via \texttt{prog5\_x7} gives $T_\ell < 2 \cdot 7 \cdot 5^\ell / (1 - 2/5) = \frac{10}{3} \cdot 7 \cdot N^{\log_7 5}$ accesses whenever $\operatorname{char}(K) \neq 2, 3$.
 \end{proof}
 
 \begin{corollary}[Catalytic Streaming Frequency Moments; sharpening {\cite[Corollary~5.1.1]{Vinciguerra2026}}]
 \label{cor:streaming}
-For every $D \ge 1$, the $D$-th frequency moment $F_D(\sigma) = \sum_{i=1}^n f_i^D$ of a stream $\sigma \in \{1, \dots, n\}^m$ can be computed exactly by a catalytic streaming algorithm using $O(D \log(m + 1) + \log n + \log D)$ bits of regular workspace, $O(n D \log(m + 1))$ bits of catalytic memory (matching the $r = 3$ space tier of~\cite[Corollary~5.1.1]{Vinciguerra2026}), and $O(D^{\log_{13} 8}) = O(D^{0.81072})$ passes over the stream (reducing the pass exponent from $0.86135$ by more than $0.0506$).
+For every $D \ge 1$, the $D$-th frequency moment $F_D(\sigma) = \sum_{i=1}^n f_i^D$ of a stream $\sigma \in \{1, \dots, n\}^m$ can be computed exactly by a catalytic streaming algorithm using $O(D \log(m + 1) + \log n + \log D)$ bits of regular workspace, $O(n D \log(m + 1))$ bits of catalytic memory (matching the $r = 3$ space tier of~\cite[Corollary~5.1.1]{Vinciguerra2026}), and at most $\frac{8}{3} \cdot 13 \cdot D^{\log_{13} 8} = O(D^{0.81072})$ passes over the stream (reducing the pass exponent from $0.86135$ by more than $0.0506$).
 \end{corollary}
 
-\begin{corollary}[Matrix Powering; sharpening {\cite[Theorem~5.2]{Vinciguerra2026}}]
+\begin{proof}
+Since the frequency vector $\mathbf{f} = (f_1, \dots, f_n)$ lives in the commutative $\F_p$-algebra $\F_p^n$ and $D_8$ has only six fixed prime factors (Table~\ref{tab:t3-frontier}), choosing a prime $p > \max(m^D, \lfloor \log_{13} D \rfloor + 1)$ not dividing $D_8$ satisfies $\log p = O(D \log(m + 1))$ and directly instantiates Corollary~\ref{cor:powering} inside~\cite[Theorem~5.1 and Corollary~5.1.1]{Vinciguerra2026}.
+\end{proof}
+
+\begin{corollary}[Non-Commutative Matrix Powering; sharpening {\cite[Theorem~5.2]{Vinciguerra2026}}]
 \label{cor:matpow}
-Let $p$ be a prime exceeding $\lfloor \log_{13} N \rfloor + 1$ and not dividing $D_8$ (or $p > \max(3, \lfloor \log_7 N \rfloor + 1)$ using \texttt{prog5\_x7}).
-Lifting \texttt{prog8\_x13} (respectively \texttt{prog5\_x7}) via the homogeneous degree-preserving linear form $\ell_A(z)$ of~\cite[\S4.4]{Vinciguerra2026} cleanly computes the $N$-th power $A^N$ of any non-commutative matrix $A \in M_m(\F_p)$ using $O(N^{\log_{13} 8}) = O(N^{0.81072})$ recursive calls to $A$ (respectively $O(N^{0.82709})$) and the exact $r = 3$ scalar register count $2m^2 + \binom{m^2 + 2}{2} - 1$ of~\cite[Theorem~5.2]{Vinciguerra2026}.
+Let $A \in M_m(\F_p)$ and $N \ge 1$.
+\begin{enumerate}
+  \item \emph{Zero-register-overhead $r = 3$ improvement via \texttt{prog5\_x7} ($d = 2$):}
+  For every prime $p > \max(7, \lfloor \log_7 N \rfloor + 1)$, lifting \texttt{prog5\_x7} via the homogeneous linear form $\ell_A(z) = \sum_{i=1}^{m^2} a_i z_i$ and linear map $\mu_7$ of~\cite[\S4.4, Theorem~5.2]{Vinciguerra2026} cleanly computes $A^N$ using at most $\frac{10}{3} \cdot 7 \cdot N^{\log_7 5} = O(N^{0.82709})$ recursive matrix calls and the \emph{exact} $r = 3$ scalar register count $2m^2 + \binom{m^2 + 2}{2} - 1 = 3m^2 + \binom{m^2 + 1}{2}$ of~\cite[Theorem~5.2]{Vinciguerra2026} (strictly improving Vinciguerra's $O(N^{0.86136})$ with zero extra scalar registers).
+  \item \emph{Degree-$6$ shear lift via \texttt{prog8\_x13} ($d = 6$):}
+  For every prime $p > \max(13, \lfloor \log_{13} N \rfloor + 1)$ with $p \nmid D_8$, lifting \texttt{prog8\_x13} via $\mu_{13}$ cleanly computes $A^N$ in at most $\frac{8}{3} \cdot 13 \cdot N^{\log_{13} 8} = O(N^{0.81072})$ recursive matrix calls using $3m^2 + \binom{m^2 + 5}{6} = \Theta(m^{12})$ scalar registers (reflecting the homogeneous degree-$6$ shear register $v$).
+\end{enumerate}
 \end{corollary}
+
+\begin{proof}
+In Vinciguerra's homogeneous lift~\cite[\S4.4]{Vinciguerra2026}, substituting $x \mapsto \ell_A(z)$ (homogeneous of degree~$1$ in $b = m^2$ commuting variables $z_1, \dots, z_b$) maps the linear work register $u$ to $m^2$ scalar registers and the shear register $v$ (updated by $v \leftarrow v \pm Q_k u^d$) to $\binom{m^2 + d - 1}{d}$ scalar registers holding a homogeneous degree-$d$ polynomial in $z$.
+Because every output polynomial $F_k(u, v)$ is weighted-homogeneous of degree~$N_0 \in \{7, 13\}$ with $\mathrm{wt}(u) = 1$, $\mathrm{wt}(v) = d$, applying the linear map $\mu_{N_0}$ (well-defined whenever $p > N_0$ so $\binom{N_0}{\alpha}$ is invertible mod~$p$) yields $A^{N_0}$ cleanly in $m^2 + \binom{m^2+d-1}{d}$ work scalars plus $m^2$ output scalars.
+During recursive base-$N_0$ composition in Corollary~\ref{cor:powering}, each inner call targeting $u$ ($m^2$ scalars) reuses $(U, v)$ ($m^2 + \binom{m^2+d-1}{d}$ scalars) catalytically, requiring $3m^2 + \binom{m^2+d-1}{d}$ total scalar registers including the passive matrix output $O$.
+At $d = 2$ (\texttt{prog5\_x7}), $3m^2 + \binom{m^2+1}{2} = 2m^2 + \binom{m^2+2}{2} - 1$ matches~\cite[Theorem~5.2]{Vinciguerra2026} at $r = 3$ identically; at $d = 6$ (\texttt{prog8\_x13}), the $\Theta(m^{12})$ scalar register cost is higher than Vinciguerra's $r = 4$ matrix lift ($\Theta(m^6)$ scalars, $O(N^{\log_7 4})$ calls), making \texttt{prog5\_x7} the strict Pareto winner at the $\Theta(m^4)$ matrix-powering tier.
+\end{proof}
 
 \begin{remark}[Why $r = 4$ triangular loops do not immediately beat $\log_7 4$]
 Exact modular linear algebra over $\F_{10^9 + 7}$ (\texttt{probe12}, Tier-2) applied to the analogous $r = 4$ triangular closed-loop family on $(O, u, v, w)$ achieves $N = 7$ at $t = 4$ (Vinciguerra's $\log_7 4 \approx 0.71241$), $N = 9$ at $t = 5$ ($\log_9 5 \approx 0.73249$), and $N = 11$ at $t = 6$ ($\log_{11} 6 \approx 0.74722$).
@@ -506,7 +533,7 @@ Whether non-triangular or multi-stage $r = 4$ loops can reach $N \ge 10$ at $t =
 \label{sec:T4}
 
 In the multivariate bilinear catalytic setting (where every instruction is either $R_i \leftarrow R_i \pm x_\ell$ or $R_i \leftarrow R_i \pm R_a R_b$ with $i, a, b$ pairwise distinct, and zero clean workspace is available), naive linear-chain composition of a $10$-operation product gadget computes $x_0 \cdots x_{d-1}$ using $d$ catalysts and $3 \cdot 4^{d-1} - 2$ operations.
-Replacing the linear chain by an $8$-operation $3$-register commutator composed in a balanced binary tree cuts the operation count from exponential $O(4^d)$ to quadratic $O(d^2)$ and the register count from $d$ to $\log_2 d + 2$.
+Replacing the linear chain by an $8$-operation $3$-register commutator composed in a balanced binary tree cuts the operation count from exponential $O(4^d)$ to quadratic $O(d^2)$ and the register count from $d$ to $\log_2 d + 2$ (compared alongside Theorem~\ref{thm:T2} in Figure~\ref{fig:T2T4}).
 
 \begin{proof}[Proof of Theorem~\ref{thm:T4}]
 For $k = 0$ ($d = 1$), the single instruction $R_{\mathrm{target}} \leftarrow R_{\mathrm{target}} + s x_{\mathrm{offset}}$ ($s \in \{+1, -1\}$) uses $T(0) = 1$ op.
@@ -557,14 +584,14 @@ This sharp empirical contrast highlights a structural asymmetry: whereas Boolean
 \section{Lean~4.35.0 Formalization, Statement Fidelity, and Open Problems}
 \label{sec:lean}
 
-Every theorem in Tier~1 (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3g}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/Catalytic/*.lean}, \texttt{Challenge.lean}, \texttt{Solution.lean}), using the Lean~4.35 \texttt{module} system and strict zero-dependency core linters (\texttt{autoImplicit=false}, \texttt{linter.unusedVariables=true}, \texttt{linter.deprecated=true}) across all $12$ source files (longest file $1{,}026$ lines).
-To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.lean} exhibits concrete non-trivial ($0 \neq 1$) witnesses (\texttt{ModP 2}, \texttt{ModP 5}, \texttt{ModP 7}, \texttt{ModP 11}, \texttt{GF4}, and \texttt{Int}) satisfying every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4} (including inverses for all five scaling integers $D_5, \dots, D_9$).
-A repository-wide scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_decide}, \texttt{implemented\_by}, \texttt{unsafe}, custom \texttt{axiom}, or \texttt{@[extern]}.
+Every theorem in Tier~1 (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3g}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}), using the Lean~4.35 \texttt{module} system and strict zero-dependency core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unusedVariables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across all $13$ source files ($6{,}564$ lines total; longest file \texttt{PrimeFieldTools.\allowbreak lean}, $1{,}300$ lines).
+To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.\allowbreak lean} exhibits concrete non-trivial ($0 \neq 1$) witnesses (\texttt{ModP 2}, \texttt{ModP 5}, \texttt{ModP 7}, \texttt{ModP 11}, \texttt{GF4} with \texttt{GF4Hom.\allowbreak id}, and \texttt{Int}) satisfying every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4} and their soundness bridges (including inverses for all five scaling integers $D_5, \dots, D_9$).
+A repository-wide scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_\allowbreak decide}, \texttt{implemented\_\allowbreak by}, \texttt{unsafe}, custom \texttt{axiom}, or \texttt{@[extern]}.
 Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay and statement-fidelity audit.
 
 \begin{table}[ht]
 \centering
-\caption{Clean-room multi-kernel verification audit of the master theorem bundle and non-vacuity witnesses ($18$ audited declarations, Lean~4.35.0, zero Mathlib).}
+\caption{Clean-room multi-kernel verification audit of the master theorem bundle and non-vacuity witnesses ($20$ audited declarations, Lean~4.35.0, zero Mathlib).}
 \label{tab:kernels}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
@@ -572,12 +599,12 @@ Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay 
 \toprule
 \textbf{\#} & \textbf{Kernel / Tool} & \textbf{Implementation} & \textbf{Verified Result} \\
 \midrule
-1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ reference kernel & 15/15 jobs, 0 warnings; axioms $\subseteq \{\text{propext}, \text{choice}, \text{Quot.sound}\}$ \\
+1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ reference kernel & 16/16 jobs, 0 warnings; axioms $\subseteq \{\text{propext}, \text{choice}, \text{Quot.sound}\}$ \\
 2 & \texttt{leanchecker} & C++ external \texttt{.olean} replayer & Exit 0 (PASS) \\
 3 & \texttt{leanchecker-paranoid} & C++ paranoid \texttt{.olean} replayer & Exit 0 (PASS) \\
-4 & \texttt{con-leche --verified} & Verified Lean-in-Lean kernel & Accepted 3,190 declarations (Exit 0) \\
-5 & \texttt{con-ron --verified} & Verified Aeneas Rust kernel & Accepted 3,190 declarations (Exit 0) \\
-6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & 3,495 decls, 0 errors, strict 3-axiom check (Exit 0) \\
+4 & \texttt{con-leche --verified} & Verified Lean-in-Lean kernel & Accepted 3,307 declarations (Exit 0) \\
+5 & \texttt{con-ron --verified} & Verified Aeneas Rust kernel & Accepted 3,307 declarations (Exit 0) \\
+6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & 3,614 decls, 0 errors, strict 3-axiom check (Exit 0) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -592,7 +619,7 @@ Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay 
 \toprule
 \textbf{ID} & \textbf{Lean Declaration} & \textbf{Literature Anchor} & \textbf{Non-Vacuity ($0 \neq 1$)} \\
 \midrule
-\texttt{T1} & \texttt{InRPPass2}, \texttt{GF4} (\texttt{T1}, \texttt{T1a}--\texttt{T1e}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Thm.~3.5 & \texttt{IsPrime 2,3,5,7}; \texttt{GF4} ($0 \neq 1$); sharp $t_{\min}$ bounds \\
+\texttt{T1} & \texttt{InRPPass2}, \texttt{GF4}, \texttt{execRing}, \texttt{execAlg} (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Thm.~3.5 & \texttt{IsPrime 2,3,5,7}; \texttt{ModP 5} ($\mathrm{char}=5$); \texttt{GF4} (\texttt{GF4Hom.id}) \\
 \texttt{T2} & \texttt{BilinInstr}, \texttt{DistinctBilinInstr} (\texttt{T2}, \texttt{T2b}) & Bilinear \& distinct-operand Def.~2.2 & \texttt{F2 = ModP 2}, $k=2$, $x=1$ cleanly evaluated \\
 \texttt{T3} & \texttt{Pass3InstrR} (\texttt{T3a}--\texttt{T3g}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, \S4--5 & \texttt{ModP 5, 7, 11} ($D_5^{-1}\!\dots D_9^{-1}$); global $t \ge 4$ opt \\
 \texttt{T4} & \texttt{CatOp}, \texttt{balancedProdProg} (\texttt{T4}) & Zero-workspace distinct-index bilinear ops & \texttt{Int} ($d=4$, $36$ ops, clean restoration) \\

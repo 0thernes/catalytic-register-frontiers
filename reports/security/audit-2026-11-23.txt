@@ -1,5 +1,5 @@
 # Security, Supply-Chain, and Integrity Scan Report
-Date: 2026-11-23
+Date: 2026-11-23 (updated 2026-11-24 after Pass 5 hardening)
 Repository: catalytic-register-frontiers (v1.0.0)
 Pipeline Artifact: P7.F3
 
@@ -8,21 +8,22 @@ Pipeline Artifact: P7.F3
 - Result: PASS (0 secrets found; `.env.example` documents optional local binary path overrides only; zero runtime network credentials required).
 
 ## 2. Lean 4.35 Trust-Base & Forbidden-Token Scan
-- Scope: All 11 `.lean` files under `lean/`.
+- Scope: All 13 `.lean` files under `lean/` (6,564 lines total, longest 1,300 lines).
 - Forbidden tokens (`sorry`, `admit`, `native_decide`, `implemented_by`, `unsafe`, custom `axiom`, `@[extern]`): 0 matches (PASS).
-- Axioms (`VerifyAxioms.lean`): 14/14 declarations strictly within `[propext, Classical.choice, Quot.sound]` (PASS).
-- Multi-kernel replay (`results/six_kernel_audit.txt`): 6/6 native Windows runs PASS (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin 0.4.19`). Upstream Windows `lean4lean.exe` `.olean` header mismatch recorded as external `problem`.
+- Axioms (`VerifyAxioms.lean`): 20/20 declarations strictly within `[propext, Classical.choice, Quot.sound]` (PASS).
+- Multi-kernel replay (`results/six_kernel_audit.txt`): 6/6 native Windows runs PASS (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified` [3,307 decls], `con-ron --verified` [3,307 decls], `nanoda_bin 0.4.19` [3,614 decls]). Upstream Windows `lean4lean.exe` `.olean` header mismatch recorded as external `problem`.
 
 ## 3. Supply-Chain & Licensing Inventory
 - Lean external packages: 0 (`lean/lake-manifest.json` empty; zero Mathlib dependency).
 - Python dependencies: Pinned in `requirements.lock.txt` and inventoried in CycloneDX 1.5 SBOM (`sbom.cdx.json`).
 - Static analysis: `ruff check` 0 findings; `mypy` 0 errors across `experiments/`, `scripts/`, `tests/`.
-- Licensing: REUSE 3.3 compliant (`REUSE.toml` + inline `SPDX-License-Identifier` headers; dual `Apache-2.0` / `CC-BY-4.0`).
+- Licensing: REUSE 3.3 compliant (`REUSE.toml` + inline `SPDX-License-Identifier` headers; dual `Apache-2.0` / `CC-BY-4.0`, verified by `scripts/check_reuse.py`).
 
 ## 4. Citation, Retraction, & SAT Certificate Verification
 - Live DOI/arXiv & Retraction Watch check (`scripts/check_citations.py`): 10/10 PASS, 0 retractions.
-- Archived CaDiCaL 2.1.2 LRAT UNSAT proofs (`scripts/verify_lrat.py`): 2/2 PASS (`f4_mul_k2.lrat`: 2,338 steps; `orthogonal_bent_pair_k2.lrat`: 3,264 steps) + mutant-rejection tests PASS.
+- Archived CaDiCaL 2.1.2 LRAT UNSAT proofs (`scripts/verify_lrat.py`): 8/8 PASS (18,932 verified steps across `f4_mul_k2`, `orthogonal_bent_pair_k2`, and `hard_n4_m3_trial0..5_k2`) + mutant-rejection tests + brute-force and second-encoder differential SAT checks PASS.
 
-## 5. Manifest & Cache Hygiene
+## 5. Manifest, Workflow, & Cache Hygiene
 - Fixed `.hypothesis/` cache-tracking leakage and global `.gitignore` `.env.example` omission (`ERRATA.md`).
-- Guarded permanently by `test_manifest_and_reuse_hygiene()` in `tests/test_all.py`.
+- Continuous DigiCert RFC 3161 TSA verification wired into `scripts/run_all.ps1`, `scripts/run_all.sh`, and `.github/workflows/ci.yml`.
+- Guarded permanently by `test_manifest_and_reuse_hygiene()` and `test_doc_citation_and_workflow_consistency()` in `tests/test_all.py`.

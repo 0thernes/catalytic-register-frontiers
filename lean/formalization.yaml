@@ -84,6 +84,14 @@ theorems:
     name: Catalytic.Solution.t1e_extension_field_separation
     module: Catalytic.ExtensionFieldSeparation
     summary: "Exact sharp F_4 separation: x^5 in RP(2,3) and not RP(2,2), x^3 in RP(2,4) and not RP(2,3), and x^7 not in RP(2,t) for all t."
+  - id: T1s
+    name: Catalytic.Solution.t1s_pass2_ring_soundness
+    module: Catalytic.Pass2Soundness
+    summary: "Literal CRing soundness bridge: direct ring execution of every Pass2Prog agrees identically with symbolic Pass2Prog.exec over every char-p commutative ring R."
+  - id: T1es
+    name: Catalytic.Solution.t1es_pass2_gf4_soundness
+    module: Catalytic.Pass2Soundness
+    summary: "Literal GF4-algebra soundness bridge: direct algebra execution of every Pass2GF4Prog agrees identically with symbolic Pass2GF4Prog.exec over every commutative GF4-algebra (R, phi)."
   - id: T2
     name: Catalytic.Solution.t2_bilinear_frobenius_collapse
     module: Catalytic.BilinearFrobenius

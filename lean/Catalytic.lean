@@ -8,4 +8,5 @@ public import Catalytic.ThreeRegisterBreakthrough
 public import Catalytic.PrimeFieldTools
 public import Catalytic.DigitSumDichotomy
 public import Catalytic.ExtensionFieldSeparation
+public import Catalytic.Pass2Soundness
 public import Catalytic.NonVacuity

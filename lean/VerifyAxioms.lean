@@ -18,6 +18,8 @@ No unproven placeholders, no compiler-trusted reduction, and no custom axioms ar
 #print axioms Catalytic.Solution.t1c_impossibility_threshold
 #print axioms Catalytic.Solution.t1d_vinciguerra_recovery
 #print axioms Catalytic.Solution.t1e_extension_field_separation
+#print axioms Catalytic.Solution.t1s_pass2_ring_soundness
+#print axioms Catalytic.Solution.t1es_pass2_gf4_soundness
 #print axioms Catalytic.Solution.t2_bilinear_frobenius_collapse
 #print axioms Catalytic.Solution.t2b_distinct_operand_frobenius
 #print axioms Catalytic.Solution.t3a_three_reg_5call_x7
