@@ -230,12 +230,12 @@
   <div class="card">
     <h2>Tier-1 Machine-Checked Theorems &amp; Witnesses</h2>
     <div class="filter-bar" role="group" aria-label="Filter theorems by family">
-      <button class="filter-btn active" onclick="filterRows('all', this)">All (21)</button>
-      <button class="filter-btn" onclick="filterRows('T1', this)">T1 Prime/Ext Dichotomy</button>
-      <button class="filter-btn" onclick="filterRows('T2', this)">T2 Bilinear Frobenius</button>
-      <button class="filter-btn" onclick="filterRows('T3', this)">T3 3-Reg Powering</button>
-      <button class="filter-btn" onclick="filterRows('T4', this)">T4 Balanced Product</button>
-      <button class="filter-btn" onclick="filterRows('NV', this)">Non-Vacuity</button>
+      <button class="filter-btn active" aria-pressed="true" onclick="filterRows('all', this)">All (21)</button>
+      <button class="filter-btn" aria-pressed="false" onclick="filterRows('T1', this)">T1 Prime/Ext Dichotomy</button>
+      <button class="filter-btn" aria-pressed="false" onclick="filterRows('T2', this)">T2 Bilinear Frobenius</button>
+      <button class="filter-btn" aria-pressed="false" onclick="filterRows('T3', this)">T3 3-Reg Powering</button>
+      <button class="filter-btn" aria-pressed="false" onclick="filterRows('T4', this)">T4 Balanced Product</button>
+      <button class="filter-btn" aria-pressed="false" onclick="filterRows('NV', this)">Non-Vacuity</button>
     </div>
     <table id="thm-table">
       <thead><tr><th>ID</th><th>Lean Declaration</th><th>Result Summary</th><th>Axioms</th></tr></thead>
@@ -260,7 +260,7 @@
         <tr data-fam="T3"><td><code>T3h</code></td><td><code>t3h_four_reg_powering</code></td><td>Complete 4-register passive powering for ALL N &ge; 1: &lt; (104/3)N<sup>log<sub>13</sub> 8</sup> (prog8_x13) and &lt; (70/3)N<sup>log<sub>7</sub> 5</sup> (prog5_x7)</td><td>3 standard</td></tr>
         <tr data-fam="T3"><td><code>T3i</code></td><td><code>t3i_streaming_frequency_moment</code></td><td>Pointwise product-ring (Fin n &rarr; R) catalytic streaming frequency moment F<sub>D</sub>(f) = &sum; f<sub>i</sub><sup>D</sup> in &lt; (104/3)D<sup>log<sub>13</sub> 8</sup> passes</td><td>3 standard</td></tr>
         <tr data-fam="T4"><td><code>T4</code></td><td><code>t4_balanced_multilinear_product</code></td><td>Zero-workspace balanced product x<sub>0</sub>&cdots;x<sub>d&minus;1</sub> in log<sub>2</sub> d + 2 regs, (7d<sup>2</sup>&minus;4)/3 ops</td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
-        <tr data-fam="NV"><td><code>NONVAC</code></td><td><code>nonvac_all_hypotheses</code></td><td>Concrete <code>0 &ne; 1</code> witnesses (<code>ModP 2, 5, 7, 11, 13</code>, <code>GF4</code>, <code>Int</code>; all D<sub>5</sub>..D<sub>9</sub> &amp; factorials)</td><td>3 standard</td></tr>
+        <tr data-fam="NV"><td><code>NONVAC</code></td><td><code>nonvac_all_hypotheses</code></td><td>Concrete <code>0 &ne; 1</code> witnesses (<code>ModP 2..13</code>, <code>Fin 3 &rarr; ModP 13</code> for <code>T3i</code>, <code>GF4</code>, <code>Int</code>; all D<sub>5</sub>..D<sub>9</sub> &amp; factorials)</td><td>3 standard</td></tr>
       </tbody>
     </table>
   </div>
@@ -297,8 +297,12 @@
 </main>
 <script>
 function filterRows(fam, btn) {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
   btn.classList.add('active');
+  btn.setAttribute('aria-pressed', 'true');
   document.querySelectorAll('#thm-table tbody tr').forEach(tr => {
     tr.style.display = (fam === 'all' || tr.dataset.fam === fam) ? '' : 'none';
   });

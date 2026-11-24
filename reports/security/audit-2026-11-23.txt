@@ -1,5 +1,5 @@
 # Security, Supply-Chain, and Integrity Scan Report
-Date: 2026-11-23 (updated 2026-11-24 after Pass 8 deep 148-file audit & nonvac_T3i_witness)
+Date: 2026-11-23 (updated 2026-11-24 after Pass 9 cold-start clean build & cross-domain audit)
 Repository: catalytic-register-frontiers (v1.0.0)
 Pipeline Artifact: P7.F3
 
@@ -26,4 +26,4 @@ Pipeline Artifact: P7.F3
 ## 5. Manifest, Workflow, & Cache Hygiene
 - Fixed `.hypothesis/` cache-tracking leakage and global `.gitignore` `.env.example` omission (`ERRATA.md`).
 - Continuous DigiCert RFC 3161 TSA verification wired into `scripts/run_all.ps1`, `scripts/run_all.sh`, and `.github/workflows/ci.yml`.
-- Guarded permanently by `test_manifest_and_reuse_hygiene()`, `test_doc_citation_and_workflow_consistency()`, `test_pass7_svg_factorization_and_table_integrity()`, and `test_pass8_sbom_workflow_determinism_and_reuse_strictness()` in `tests/test_all.py`.
+- Guarded permanently by `test_manifest_and_reuse_hygiene()`, `test_doc_citation_and_workflow_consistency()`, `test_pass7_svg_factorization_and_table_integrity()`, `test_pass8_sbom_workflow_determinism_and_reuse_strictness()`, and `test_pass9_cor54_matrix_lift_and_blueprint_integrity()` in `tests/test_all.py`.

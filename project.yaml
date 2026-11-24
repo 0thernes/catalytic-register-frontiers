@@ -65,7 +65,7 @@ steps:
   P7.01: {status: done, note: "docs/verification.md (6 Lean kernels + exact/property/mutant/LRAT tests)"}
   P7.02: {status: done, note: "CLAIMS.md + docs/statement-fidelity.md"}
   P7.03: {status: done, note: "tests/test_all.py + scripts/run_all.ps1 -Task all"}
-  P7.04: {status: done, note: "Lean kernel build < 30s; all 6 external kernels verified in seconds"}
+  P7.04: {status: done, note: "Cold-start clean Lean build 56.6 s (< 60 s from empty .lake); all 6 external kernels verified in seconds"}
   P7.05: {status: done, note: "reports/security/audit-2026-11-23.txt + sbom.cdx.json"}
   P7.06: {status: done, note: "Windows bracket-path safety verified + Linux ubuntu-latest CI defined"}
   P7.07: {status: n/a, note: "No ML model evaluation; mathematical proof & exact SAT companion"}

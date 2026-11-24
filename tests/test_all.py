@@ -987,6 +987,263 @@ def test_pass8_sbom_workflow_determinism_and_reuse_strictness() -> None:
     assert "3,819" not in lim_txt and "3,838" in lim_txt
 
 
+def test_pass9_cor54_matrix_lift_and_blueprint_integrity() -> None:
+    """Pass 9 permanent regression guard covering:
+    1. Exact non-commutative homogeneous lift mu_7(prog5_x7) over M_2(F_11) with non-commuting
+       catalytic (O_0, u_0(z), v_0(z)), verifying O_0 + A^7 and clean restoration of u_0, v_0,
+       plus mu_2-lifted Cook-Mertz finite-difference A^23 over M_2(F_11) and M_3(F_11) and
+       the exact scalar-register binomial identity 3m^2 + C(m^2+1,2) = 2m^2 + C(m^2+2,2) - 1.
+    2. Verbatim #print axioms parity across results/lean_axioms.txt, README.md, and docs/index.html.
+    3. Strict HTML5 tag balance, unique IDs, aria-pressed filter buttons, and 21 == All (21) rows
+       in docs/index.html.
+    4. Required-key JSON Schema checks on repo.yaml and project.yaml (stdlib-only).
+    5. Anti-staleness guards on cold-start Lean build time (56.6 s / < 60 s) and maxRecDepth disclosure.
+    """
+    from html.parser import HTMLParser
 
+    # 1. Exact non-commutative matrix powering lift (Corollary 5.4) over M_2(F_11)
+    p = 11
 
+    def mat_add(a: list[list[int]], b: list[list[int]]) -> list[list[int]]:
+        n = len(a)
+        return [[(a[i][j] + b[i][j]) % p for j in range(n)] for i in range(n)]
+
+    def mat_scale(c: int, a: list[list[int]]) -> list[list[int]]:
+        return [[(c * x) % p for x in row] for row in a]
+
+    def mat_mul(a: list[list[int]], b: list[list[int]]) -> list[list[int]]:
+        n = len(a)
+        return [[sum(a[i][k] * b[k][j] for k in range(n)) % p for j in range(n)] for i in range(n)]
+
+    def mat_pow(a: list[list[int]], e: int) -> list[list[int]]:
+        n = len(a)
+        res = [[1 if i == j else 0 for j in range(n)] for i in range(n)]
+        base = a
+        while e > 0:
+            if e & 1:
+                res = mat_mul(res, base)
+            base = mat_mul(base, base)
+            e >>= 1
+        return res
+
+    # Basis matrices E_0..E_3 of M_2(F_11)
+    basis_2: list[list[list[int]]] = [
+        [[1, 0], [0, 0]],
+        [[0, 1], [0, 0]],
+        [[0, 0], [1, 0]],
+        [[0, 0], [0, 1]],
+    ]
+    MatPoly = dict[tuple[int, int, int, int], int]
+
+    def poly_add(a: MatPoly, b: MatPoly) -> MatPoly:
+        out = dict(a)
+        for k, v in b.items():
+            nv = (out.get(k, 0) + v) % p
+            if nv:
+                out[k] = nv
+            else:
+                out.pop(k, None)
+        return out
+
+    def poly_scale(c: int, a: MatPoly) -> MatPoly:
+        c %= p
+        if c == 0:
+            return {}
+        return {k: (v * c) % p for k, v in a.items()}
+
+    def poly_mul(a: MatPoly, b: MatPoly) -> MatPoly:
+        out: MatPoly = {}
+        for k1, v1 in a.items():
+            for k2, v2 in b.items():
+                k = (k1[0] + k2[0], k1[1] + k2[1], k1[2] + k2[2], k1[3] + k2[3])
+                nv = (out.get(k, 0) + v1 * v2) % p
+                if nv:
+                    out[k] = nv
+                else:
+                    out.pop(k, None)
+        return out
+
+    def poly_pow(a: MatPoly, e: int) -> MatPoly:
+        res: MatPoly = {(0, 0, 0, 0): 1}
+        for _ in range(e):
+            res = poly_mul(res, a)
+        return res
+
+    # DP table S(alpha) = sum over all words of counts alpha of E_{w_1} ... E_{w_d}
+    sym_dp: dict[tuple[int, int, int, int], list[list[int]]] = {(0, 0, 0, 0): [[1, 0], [0, 1]]}
+
+    def sym_sum(alpha: tuple[int, int, int, int]) -> list[list[int]]:
+        if alpha in sym_dp:
+            return sym_dp[alpha]
+        acc = [[0, 0], [0, 0]]
+        for j in range(4):
+            if alpha[j] > 0:
+                prev = list(alpha)
+                prev[j] -= 1
+                acc = mat_add(acc, mat_mul(sym_sum((prev[0], prev[1], prev[2], prev[3])), basis_2[j]))
+        sym_dp[alpha] = acc
+        return acc
+
+    def mu_d(poly: MatPoly, deg: int) -> list[list[int]]:
+        fact_d = math.factorial(deg) % p
+        out = [[0, 0], [0, 0]]
+        for alpha, coeff in poly.items():
+            assert sum(alpha) == deg
+            denom = 1
+            for ai in alpha:
+                denom = (denom * math.factorial(ai)) % p
+            multinom = (fact_d * pow(denom, -1, p)) % p
+            weight = (coeff * pow(multinom, -1, p)) % p
+            out = mat_add(out, mat_scale(weight, sym_sum(alpha)))
+        return out
+
+    # Parse literal prog5_x7 from ThreeRegisterBreakthrough.lean
+    lean_t3 = (REPO / "lean" / "Catalytic" / "ThreeRegisterBreakthrough.lean").read_text(encoding="utf-8")
+    blk_m = re.search(r"def prog5_x7 : List Pass3Instr :=\n((?:  loopStep .*\n)+)", lean_t3)
+    assert blk_m is not None
+    prog5_steps: list[tuple[list[tuple[int, int, int]], int, int]] = []
+    for line in blk_m.group(1).strip().splitlines():
+        m = re.search(r"\[([^\]]+)\]\s+\(?(-?\d+)\)?\s+\(?(-?\d+)\)?", line)
+        assert m is not None
+        terms = [(int(a), int(b), int(c)) for a, b, c in re.findall(r"\((\d+),\s*(\d+),\s*(-?\d+)\)", m.group(1))]
+        prog5_steps.append((terms, int(m.group(2)), int(m.group(3))))
+
+    mat_a = [[1, 2], [3, 5]]
+    mat_o0 = [[4, 7], [2, 9]]
+    assert mat_mul(mat_a, mat_o0) != mat_mul(mat_o0, mat_a)
+    ell_a: MatPoly = {
+        (1, 0, 0, 0): mat_a[0][0],
+        (0, 1, 0, 0): mat_a[0][1],
+        (0, 0, 1, 0): mat_a[1][0],
+        (0, 0, 0, 1): mat_a[1][1],
+    }
+    u0: MatPoly = {(1, 0, 0, 0): 2, (0, 1, 0, 0): 5, (0, 0, 1, 0): 1, (0, 0, 0, 1): 8}
+    v0: MatPoly = {
+        (2, 0, 0, 0): 3,
+        (1, 1, 0, 0): 7,
+        (1, 0, 1, 0): 4,
+        (1, 0, 0, 1): 9,
+        (0, 2, 0, 0): 2,
+        (0, 1, 1, 0): 6,
+        (0, 1, 0, 1): 1,
+        (0, 0, 2, 0): 5,
+        (0, 0, 1, 1): 8,
+        (0, 0, 0, 2): 10,
+    }
+    inv_d5 = pow(576, -1, p)
+    o_reg = [row[:] for row in mat_o0]
+    u_reg = dict(u0)
+    v_reg = dict(v0)
+    for terms, q_next, alpha in prog5_steps:
+        f_uv: MatPoly = {}
+        for du, dv, c in terms:
+            term_poly = poly_mul(poly_pow(u_reg, du), poly_pow(v_reg, dv))
+            f_uv = poly_add(f_uv, poly_scale(c, term_poly))
+        o_reg = mat_add(o_reg, mat_scale(inv_d5, mu_d(f_uv, 7)))
+        if q_next != 0:
+            v_reg = poly_add(v_reg, poly_scale(-q_next, poly_pow(u_reg, 2)))
+        u_reg = poly_add(u_reg, poly_scale(alpha, ell_a))
+        if q_next != 0:
+            v_reg = poly_add(v_reg, poly_scale(q_next, poly_pow(u_reg, 2)))
+    assert o_reg == mat_add(mat_o0, mat_pow(mat_a, 7)), "mu_7(prog5_x7) failed to compute O_0 + A^7"
+    assert u_reg == u0 and v_reg == v0, "mu_7(prog5_x7) failed to cleanly restore catalytic u_0, v_0"
+
+    # Non-commutative Cook-Mertz finite-difference powering for A^23 = A^2 * (A^7)^3
+    # (a) Single-catalyst mu_2-lifted over M_2(F_11) with non-commuting U_0
+    f0 = mat_pow(mat_a, 2)
+    f1 = mat_pow(mat_pow(mat_a, 7), 3)
+    ell_u0: MatPoly = {(1, 0, 0, 0): 4, (0, 1, 0, 0): 7, (0, 0, 1, 0): 2, (0, 0, 0, 1): 9}
+    ell_f0: MatPoly = {(1, 0, 0, 0): f0[0][0], (0, 1, 0, 0): f0[0][1], (0, 0, 1, 0): f0[1][0], (0, 0, 0, 1): f0[1][1]}
+    ell_f1: MatPoly = {(1, 0, 0, 0): f1[0][0], (0, 1, 0, 0): f1[0][1], (0, 0, 1, 0): f1[1][0], (0, 0, 0, 1): f1[1][1]}
+    cm_acc = [[0, 0], [0, 0]]
+    for s0 in (0, 1):
+        for s1 in (0, 1):
+            sign = 1 if (2 - s0 - s1) % 2 == 0 else p - 1
+            g_s = poly_add(ell_u0, poly_add(poly_scale(s0, ell_f0), poly_scale(s1, ell_f1)))
+            cm_acc = mat_add(cm_acc, mat_scale(sign, mu_d(poly_pow(g_s, 2), 2)))
+    assert mat_scale(pow(2, -1, p), cm_acc) == mat_pow(mat_a, 23)
+
+    # (b) Two-factor non-commutative Cook-Mertz product on M_3(F_11) with non-commuting U_0
+    a3 = [[1, 2, 0], [0, 3, 1], [4, 1, 2]]
+    u3 = [[2, 0, 5], [1, 4, 3], [7, 2, 1]]
+    assert mat_mul(a3, u3) != mat_mul(u3, a3)
+    f3_0, f3_1 = mat_pow(a3, 2), mat_pow(mat_pow(a3, 7), 3)
+    acc3 = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    for s0 in (0, 1):
+        for s1 in (0, 1):
+            sign = 1 if (2 - s0 - s1) % 2 == 0 else p - 1
+            t0 = mat_add(u3, mat_scale(s0, f3_0))
+            t1 = mat_add(u3, mat_scale(s1, f3_1))
+            acc3 = mat_add(acc3, mat_scale(sign, mat_mul(t0, t1)))
+    assert acc3 == mat_pow(a3, 23)
+
+    # Scalar-register binomial identity for Corollary 5.4(1) across m = 1..20
+    for dim in range(1, 21):
+        b = dim * dim
+        assert 3 * b + math.comb(b + 1, 2) == 2 * b + math.comb(b + 2, 2) - 1
+
+    # 2. Verbatim #print axioms parity across lean_axioms.txt, README.md, and docs/index.html
+    axioms_txt = (REPO / "results" / "lean_axioms.txt").read_text(encoding="utf-8").strip()
+    readme_txt = (REPO / "README.md").read_text(encoding="utf-8")
+    html_txt = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    assert f"```text\n{axioms_txt}\n```" in readme_txt, "README.md axiom block drifted from results/lean_axioms.txt"
+    assert f"<pre><code>{axioms_txt}</code></pre>" in html_txt, "docs/index.html axiom block drifted from results/lean_axioms.txt"
+
+    # 3. Strict HTML5 tag balance, unique IDs, aria-pressed buttons, and 21 == All (21) rows
+    void_tags = {"meta", "link", "br", "hr", "img", "input", "source", "area", "base", "col", "embed", "param", "track", "wbr"}
+
+    class StrictHTMLAuditor(HTMLParser):
+        def __init__(self) -> None:
+            super().__init__(convert_charrefs=False)
+            self.stack: list[str] = []
+            self.ids: list[str] = []
+            self.filter_btns: list[dict[str, str | None]] = []
+            self.fam_rows: list[str] = []
+
+        def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+            ad = dict(attrs)
+            if "id" in ad and ad["id"] is not None:
+                self.ids.append(ad["id"])
+            if tag == "button" and ad.get("class") and "filter-btn" in (ad.get("class") or ""):
+                self.filter_btns.append(ad)
+            if tag == "tr" and ad.get("data-fam"):
+                self.fam_rows.append(str(ad["data-fam"]))
+            if tag not in void_tags:
+                self.stack.append(tag)
+
+        def handle_endtag(self, tag: str) -> None:
+            if tag in void_tags:
+                return
+            assert self.stack and self.stack[-1] == tag, f"Mismatched HTML closing tag </{tag}> (stack={self.stack[-3:]})"
+            self.stack.pop()
+
+    auditor = StrictHTMLAuditor()
+    auditor.feed(html_txt)
+    auditor.close()
+    assert not auditor.stack, f"Unclosed HTML tags in docs/index.html: {auditor.stack}"
+    assert len(auditor.ids) == len(set(auditor.ids)), f"Duplicate HTML IDs in docs/index.html: {auditor.ids}"
+    assert len(auditor.fam_rows) == 21 and "All (21)" in html_txt
+    assert len(auditor.filter_btns) == 6
+    assert all("aria-pressed" in b for b in auditor.filter_btns), "Filter buttons missing WCAG aria-pressed attribute"
+    assert sum(1 for b in auditor.filter_btns if b.get("aria-pressed") == "true") == 1
+    assert "Fin 3 &rarr; ModP 13" in html_txt or "Fin 3 → ModP 13" in html_txt
+
+    # 4. Required-key JSON Schema checks on repo.yaml and project.yaml (stdlib-only)
+    for yml_name, schema_name in (
+        ("repo.yaml", "repo-standard.schema.json"),
+        ("project.yaml", "project.schema.json"),
+    ):
+        schema = json.loads((REPO / schema_name).read_text(encoding="utf-8"))
+        top_keys = set(re.findall(r"^([a-zA-Z0-9_]+):", (REPO / yml_name).read_text(encoding="utf-8"), re.M))
+        missing = set(schema["required"]) - top_keys
+        assert not missing, f"{yml_name} missing required schema keys: {missing}"
+
+    # 5. Anti-staleness guards on cold-start Lean build time & maxRecDepth disclosure
+    for rel in ("docs/stack-matrix.md", "project.yaml", "docs/plan/02-requirements.md"):
+        txt = (REPO / rel).read_text(encoding="utf-8")
+        for bad in ("< 30 s", "< 30s", "~45 s"):
+            assert bad not in txt, f"Stale Lean build timing {bad!r} found in {rel}"
+        assert "56.6 s" in txt and "< 60 s" in txt, f"Missing measured 56.6 s (< 60 s) cold-build timing in {rel}"
+    lim_txt = (REPO / "LIMITATIONS.md").read_text(encoding="utf-8")
+    assert "maxRecDepth 4096" in lim_txt and "maxRecDepth 8192" in lim_txt
 

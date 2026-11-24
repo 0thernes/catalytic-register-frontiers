@@ -96,7 +96,7 @@ pwsh -NoProfile -File scripts/run_all.ps1 -Task all
 bash scripts/run_all.sh all
 ```
 
-Expected result: 17/17 Lean jobs built with 0 warnings, `leanchecker`, `leanchecker-paranoid`, `con-leche`, and `con-ron` exit 0, all 21 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / SBOM / workflow / schema / SVG / factorization / consistency tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, 100% `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK`.
+Expected result: 17/17 Lean jobs built with 0 warnings, `leanchecker`, `leanchecker-paranoid`, `con-leche`, and `con-ron` exit 0, all 22 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / SBOM / workflow / schema / SVG / HTML5 / matrix-lift / factorization / consistency tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, 100% `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK`.
 
 ## Usage and Examples
 

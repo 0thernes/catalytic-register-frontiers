@@ -248,7 +248,7 @@ By Fermat's Little Theorem ($a^p \equiv a \pmod p$ for all $a \in \F_p$, includi
 \end{equation}
 Now fix any $d \ge 2$ with $\alpha_d \not\equiv 0 \pmod{p}$, and set $s := s_p(d)$.
 For every integer $r$ with $0 \le r < s$, greedily choosing digits $0 \le j_i \le d_i$ summing to $r$ produces $0 \le j < d$ with $s_p(j) = r$ and $\binom{d}{j} \not\equiv 0 \pmod{p}$.
-Since $p$ is prime, \eqref{eq:decoupled} and \eqref{eq:fermat-digit} force
+Since $p$ is prime,~\eqref{eq:decoupled} and~\eqref{eq:fermat-digit} force
 \begin{align}
 \label{eq:vanish}
   \sum_\ell h_\ell a_\ell^r &\equiv \sum_\ell h_\ell a_\ell^j \equiv 0 \pmod{p} \qquad (\forall\, 0 \le r < s), \\
@@ -258,7 +258,7 @@ Since $p$ is prime, \eqref{eq:decoupled} and \eqref{eq:fermat-digit} force
 \smallskip
 \noindent\textbf{Step 3: Necessity ($\Rightarrow$).}
 First, suppose for contradiction that $s \ge p$.
-Set $r := s - (p - 1)$; then $1 \le r < s$, so $\sum_\ell h_\ell a_\ell^r \equiv 0 \pmod{p}$ by \eqref{eq:vanish}.
+Set $r := s - (p - 1)$; then $1 \le r < s$, so $\sum_\ell h_\ell a_\ell^r \equiv 0 \pmod{p}$ by~\eqref{eq:vanish}.
 Yet $s = (r - 1) + p$, so for every $a \in \F_p$, $a^s = a^{r-1} a^p \equiv a^{r-1} a = a^r \pmod{p}$, giving $\alpha_d \equiv \sum_\ell h_\ell a_\ell^s \equiv \sum_\ell h_\ell a_\ell^r \equiv 0 \pmod{p}$, contradiction.
 Thus $s \le p - 1$.
 
@@ -287,7 +287,7 @@ At shift $a \in \{0, \dots, M\}$, execute $O \leftarrow O + P_a(R)$ where $[z^0]
 For every $(d_R, d_x)$ with $d = d_R + d_x \ge 1$ and $\alpha_d \neq 0$, the accumulated coefficient of $R^{d_R} x^{d_x}$ is $\alpha_d \binom{d}{d_x} \sum_{a=0}^{s_p(d)} w_{s_p(d), a} a^{d_x} \pmod{p}$.
 If $\binom{d}{d_x} \equiv 0 \pmod{p}$, this vanishes (and $d_x \neq d$).
 If $\binom{d}{d_x} \not\equiv 0 \pmod{p}$, Lucas's theorem ensures $s_p(d_x) \le s_p(d)$ with strict inequality whenever $d_x < d$ (i.e., $d_R > 0$).
-By \eqref{eq:fermat-digit}, the inner sum reduces to $\sum_{a=0}^{s_p(d)} w_{s_p(d), a} a^{s_p(d_x)} \equiv \mathbf{1}_{d_R = 0} \pmod{p}$, yielding $\alpha_d$ when $d_R = 0$ and $0$ when $d_R > 0$.
+By~\eqref{eq:fermat-digit}, the inner sum reduces to $\sum_{a=0}^{s_p(d)} w_{s_p(d), a} a^{s_p(d_x)} \equiv \mathbf{1}_{d_R = 0} \pmod{p}$, yielding $\alpha_d$ when $d_R = 0$ and $0$ when $d_R > 0$.
 \end{proof}
 
 \begin{figure}[ht]
@@ -401,7 +401,7 @@ Over any commutative ring $K$ in which $D_t$ is invertible, scaling every $F_k$ 
 
 \subsection{Explicit Certified Programs for \texorpdfstring{$t = 5, 6, 7, 8$}{t = 5, 6, 7, 8} (and \texorpdfstring{$t = 9$}{t = 9})}
 
-Table~\ref{tab:t3-frontier} summarizes our synthesized and verified $3$-register programs across $t = 4, \dots, 9$.
+Table~\ref{tab:t3-frontier} summarizes our synthesized and verified $3$-register programs built via loop~\eqref{eq:loop-step} and Lemma~\ref{lem:closure} across $t = 4, \dots, 9$.
 Crucially, at $t = 5$, choosing quadratic shear degree $d = 2$ (rather than $d = t - 2 = 3$, which saturates at $N = 5$) unlocks $x^7 \in \RP_K^{\pass}(3, 5)$ with scaling integer $D_5 = 576 = 2^6 \cdot 3^2$, so its bad primes are \emph{only} $\{2, 3\}$ --- strictly improving Vinciguerra's $t = 4$ exponent $0.861353 \to 0.827087$ under the \emph{exact same} characteristic restriction ($\operatorname{char}(K) \neq 2, 3$, valid over $\F_5$ and $\F_7$!).
 For $t = 6, 7, 8, 9$, taking $d = t - 2$ gives sparse $3$-term output polynomials per step ($18, 21, 24, 27$ nonzero terms total), reaching $x^9$, $x^{11}$, $x^{13}$, and $x^{15}$, with \emph{all five} programs ($t = 5, 6, 7, 8, 9$) formally certified by pure kernel reduction in Lean~4.35.0 (\texttt{ThreeRegisterBreakthrough.lean}, Theorems~\texttt{T3a}--\texttt{T3d} and \texttt{T3g}).
 Moreover, Theorem \texttt{T3f} (\texttt{t3f\_global\_integer\_optimality}) constructively proves in Lean~4.35 via the single rational separator $30/37$ that $8^{37} < 13^{30}$ and $(2t - 3)^{30} < t^{37}$ for \emph{every} integer $t \ge 4$ with $t \neq 8$ (checking $t < 20$ explicitly and bounding $(2t - 3)^{30} \le 2^{30} t^{30} < 20^7 t^{30} \le t^{37}$ for all $t \ge 20$), certifying unconditionally that $t = 8$ is the unique global integer minimizer of $\log_{2t - 3} t$.

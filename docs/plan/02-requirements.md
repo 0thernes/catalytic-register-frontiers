@@ -25,7 +25,7 @@
 ## Non-Functional Requirements
 | NFR | Measurable Target | Measured |
 |---|---|---|
-| Clean Lean build time | < 120 s offline, zero external deps | ~45 s, 0 deps |
+| Clean Lean build time | < 120 s offline, zero external deps | 56.6 s cold-start (< 60 s), 0 deps |
 | Axiom trust base | $\subseteq \{\text{propext}, \text{Classical.choice}, \text{Quot.sound}\}$ | 22/22 decls pass |
 | Forbidden tokens in `lean/` | 0 matches | 0 matches |
 | LaTeX warnings (Overfull/Underfull/hyperref) | 0 warnings | 0 warnings |
