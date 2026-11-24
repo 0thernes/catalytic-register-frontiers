@@ -6,3 +6,4 @@ public import Catalytic.BalancedProduct
 public import Catalytic.ThreeRegisterBreakthrough
 public import Catalytic.PrimeFieldTools
 public import Catalytic.DigitSumDichotomy
+public import Catalytic.NonVacuity

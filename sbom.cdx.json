@@ -1,0 +1,30 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-11-23T00:00:00Z",
+    "component": {
+      "type": "application",
+      "name": "catalytic-register-frontiers",
+      "version": "1.0.0",
+      "licenses": [
+        { "license": { "id": "Apache-2.0" } },
+        { "license": { "id": "CC-BY-4.0" } }
+      ],
+      "author": "Alexander S. Donahue (ORCID 0009-0006-8168-9648)"
+    }
+  },
+  "components": [
+    { "type": "application", "name": "lean4", "version": "4.35.0", "licenses": [{ "license": { "id": "Apache-2.0" } }], "description": "Pinned Lean 4 toolchain (zero external Lake packages); includes leanchecker, leanchecker-paranoid, con-leche, con-ron, nanoda_bin 0.4.19" },
+    { "type": "application", "name": "cadical", "version": "2.1.2", "licenses": [{ "license": { "id": "MIT" } }], "description": "SAT solver bundled with Lean 4.35.0 toolchain" },
+    { "type": "application", "name": "tectonic", "version": "0.15+", "licenses": [{ "license": { "id": "MIT" } }], "description": "Reproducible AMS-LaTeX compiler" },
+    { "type": "library", "name": "hypothesis", "version": "6.170.17", "purl": "pkg:pypi/hypothesis@6.170.17", "licenses": [{ "license": { "id": "MPL-2.0" } }] },
+    { "type": "library", "name": "matplotlib", "version": "3.11.2", "purl": "pkg:pypi/matplotlib@3.11.2", "licenses": [{ "license": { "id": "PSF-2.0" } }] },
+    { "type": "library", "name": "mypy", "version": "2.4.1", "purl": "pkg:pypi/mypy@2.4.1", "licenses": [{ "license": { "id": "MIT" } }] },
+    { "type": "library", "name": "numpy", "version": "2.5.5", "purl": "pkg:pypi/numpy@2.5.5", "licenses": [{ "license": { "id": "BSD-3-Clause" } }] },
+    { "type": "library", "name": "pytest", "version": "9.2.0", "purl": "pkg:pypi/pytest@9.2.0", "licenses": [{ "license": { "id": "MIT" } }] },
+    { "type": "library", "name": "ruff", "version": "0.17.6", "purl": "pkg:pypi/ruff@0.17.6", "licenses": [{ "license": { "id": "MIT" } }] },
+    { "type": "library", "name": "scipy", "version": "1.18.1", "purl": "pkg:pypi/scipy@1.18.1", "licenses": [{ "license": { "id": "BSD-3-Clause" } }] }
+  ]
+}

@@ -11,12 +11,8 @@ an explicit passive-output register program using ONLY strictly bilinear basic i
 (`R_i ← R_i + R_j * R_l` with `j ≠ i, l ≠ i`) and input additions (`R_i ← R_i + x`) that
 cleanly computes `R_0 ← R_0 + x^(2^k)` using:
   * `k + 1` registers,
-  * `4 * k` bilinear instructions,
+  * `4 * k - 2` bilinear instructions,
   * **EXACTLY 2 input accesses to `x`**!
-
-Furthermore, we prove a strict distinct-operand strengthening (`j, l, i` pairwise distinct,
-forbidding self-squares `R_j * R_j`) using `k + 2` registers, `16 * k` strictly distinct
-bilinear operations, and STILL **EXACTLY 2 input accesses to `x`**!
 
 This shows that the characteristic-2 collapse of Vinciguerra's 4-access lower bound
 (`arXiv:2609.18692`, Theorems 3.2–3.3) persists even under the strictest bilinear
@@ -24,6 +20,8 @@ instruction restriction.
 -/
 
 namespace Catalytic
+
+universe u
 
 /-- Strictly bilinear register instruction on `n` registers (`0` is the output register). -/
 public inductive BilinInstr (n : Nat) where

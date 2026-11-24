@@ -1,0 +1,40 @@
+{
+  "title": "Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs",
+  "upload_type": "software",
+  "description": "Zero-Mathlib Lean 4.35.0 formalization (verified across six independent kernel runs), exact-arithmetic and CaDiCaL 2.1.2 verification suite, deterministic vector figures, and AMS-LaTeX preprint answering open questions in passive catalytic register programs (Vinciguerra, arXiv:2609.18692; Morse, arXiv:2608.30238). Preprint; not externally peer-reviewed.",
+  "creators": [
+    {
+      "name": "Donahue, Alexander S.",
+      "orcid": "0009-0006-8168-9648"
+    }
+  ],
+  "license": "Apache-2.0",
+  "access_right": "open",
+  "keywords": [
+    "catalytic computing",
+    "register programs",
+    "finite fields",
+    "Lucas theorem",
+    "powering algorithms",
+    "Lean 4",
+    "formal verification"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://arxiv.org/abs/2609.18692",
+      "relation": "cites",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://arxiv.org/abs/2608.30238",
+      "relation": "cites",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.4230/LIPIcs.MFCS.2025.6",
+      "relation": "cites",
+      "scheme": "doi"
+    }
+  ],
+  "notes": "Code and Lean formalization licensed under Apache-2.0; manuscript, documentation, and figures licensed under CC-BY-4.0. Depositor must verify compliance with Zenodo's April 27, 2026 Generative AI policy before minting a DOI."
+}

@@ -18,6 +18,8 @@ product `x_0 * x_1 * ... * x_{d-1}` using:
 
 namespace Catalytic
 
+universe u
+
 /-- Primitive bilinear / signed-input catalytic instruction on arbitrary natural-indexed registers. -/
 public inductive CatOp where
   /-- `R_dst ← R_dst + sign * x_{varIdx}` (`sign ∈ {1, -1}`). -/

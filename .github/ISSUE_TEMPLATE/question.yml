@@ -1,0 +1,11 @@
+name: Question or independent replication report
+description: Ask about a Lean definition, statement fidelity, or submit an independent replication log.
+labels: ["question"]
+body:
+  - type: textarea
+    id: details
+    attributes:
+      label: Question or replication environment & outcome
+      placeholder: "OS, Lean 4.35.0 commit SHA, command run, pass/fail result..."
+    validations:
+      required: true

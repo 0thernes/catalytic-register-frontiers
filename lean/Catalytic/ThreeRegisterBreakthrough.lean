@@ -34,6 +34,8 @@ namespace Catalytic
 
 @[expose] public section
 
+universe u
+
 /-! ## 1. Literal 3-Register Passive-Output Register Program Model (Vinciguerra Def. 2.2) -/
 
 /--

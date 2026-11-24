@@ -1,15 +1,23 @@
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # catalytic-register-frontiers
 
-> Zero-Mathlib Lean 4.35.0 formalization, exact-arithmetic verification suite, and AMS-LaTeX white paper proving a complete positive-characteristic base-p digit-sum dichotomy for 2-register passive catalytic programs, strictly bilinear 2-access Frobenius collapse over F_2, a strict improvement over Vinciguerra's 3-register powering/streaming/matrix-powering exponent (0.86135 -> 0.81071), and a balanced O(d^2) zero-workspace bilinear multilinear product.
+> Zero-Mathlib Lean 4.35.0 formalization (11 module files, 6 passing kernels, concrete 0 != 1 non-vacuity witnesses), exact-arithmetic + Hypothesis + mutant + brute-force SAT verification suite, and 14-page AMS-LaTeX preprint settling the exact base-p digit-sum dichotomy for RP^{pass}_{F_p}(2, t) and strictly improving Vinciguerra's 3-register catalytic powering exponent (0.86135 -> 0.81071).
 
 ## Key Files
-- [README.md](README.md): Overview, theorem summaries, and one-command verification
-- [CLAIMS.md](CLAIMS.md): Machine-auditable Tier 1-4 claims ledger
+- [README.md](README.md): Overview, 5-second verbatim `#print axioms` proof, Statement-Fidelity summary, Quickstart, and Usage examples
+- [AGENTS.md](AGENTS.md): Canonical agent instructions, invariants, and Build Standard v1.1.0 rules
+- [CLAIMS.md](CLAIMS.md): Machine-auditable Tier 1–4 claims ledger with explicit refutation/falsification criteria
 - [LIMITATIONS.md](LIMITATIONS.md): Epistemic scope, negative findings, and classified defect log
-- [REPLICATION.md](REPLICATION.md): Clean-room replication commands for Windows/Linux/macOS
-- [lean/Challenge.lean](lean/Challenge.lean): Literal specifications of all 12 exported theorems (T1, T1a-T1d, T2, T3a-T3e, T4)
+- [REPLICATION.md](REPLICATION.md): Clean-room replication commands and replication log
+- [ERRATA.md](ERRATA.md): Append-only errata log
+- [DEVIATIONS.md](DEVIATIONS.md): Append-only plan deviations log
+- [docs/statement-fidelity.md](docs/statement-fidelity.md): Full line-by-line Lean-to-literature Statement-Fidelity Audit Table
+- [docs/literature-search-log.md](docs/literature-search-log.md): Dated prior-art and Crossref/DataCite/arXiv citation audit log
+- [docs/legal-and-ethics.md](docs/legal-and-ethics.md): AI/CRediT disclosure, COI, licensing, and export-control self-screen
+- [docs/reviews/01-10-pass-review.md](docs/reviews/01-10-pass-review.md): Playbook v1.1 10-pass adversarial audit
+- [lean/Challenge.lean](lean/Challenge.lean): Zero-sorry specifications of all 12 exported theorems (T1, T1a–T1d, T2, T3a–T3e, T4)
 - [lean/Solution.lean](lean/Solution.lean): Zero-Mathlib Lean 4.35.0 proofs (6 passing verification kernels)
-- [lean/VerifyAxioms.lean](lean/VerifyAxioms.lean): Strict 3-axiom allowlist audit
-- [paper/main.tex](paper/main.tex): 13-page AMS-LaTeX manuscript
-- [dist/Donahue_2026_catalytic_register_frontiers.pdf](dist/Donahue_2026_catalytic_register_frontiers.pdf): Frozen release PDF
-- [MANIFEST.sha256](MANIFEST.sha256): SHA-256 provenance manifest
+- [lean/Catalytic/NonVacuity.lean](lean/Catalytic/NonVacuity.lean): Concrete 0 != 1 non-vacuity witnesses
+- [lean/comparator.json](lean/comparator.json) & [lean/formalization.yaml](lean/formalization.yaml): Palomar Registry verification metadata
+- [paper/main.tex](paper/main.tex) & [dist/Donahue_2026_catalytic_register_frontiers.pdf](dist/Donahue_2026_catalytic_register_frontiers.pdf): 14-page AMS-LaTeX manuscript and frozen PDF
+- [MANIFEST.sha256](MANIFEST.sha256) & [sbom.cdx.json](sbom.cdx.json): Cryptographic provenance manifest and CycloneDX 1.5 SBOM

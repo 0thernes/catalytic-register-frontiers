@@ -68,8 +68,8 @@ We resolve two structural questions left open by Vinciguerra's operator analysis
   \item \emph{Balanced zero-workspace bilinear multilinear product (Theorem~\ref{thm:T4}).}
   Over any commutative ring, we formalize a recursive zero-workspace commutator computing $x_0 \cdots x_{d-1}$ ($d = 2^k$) using $\log_2 d + 2$ registers and exactly $(7d^2 - 4)/3$ primitive operations.
 \end{enumerate}
-All twelve main theorem and corollary statements are formalized with zero Mathlib dependencies in Lean~4.35.0, depend strictly on the standard axiom set $\{\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}\}$, and pass six independent verification kernel runs across five implementations (\texttt{lean}, \texttt{leanchecker}, \texttt{leanchecker-paranoid}, \texttt{con-leche}, \texttt{con-ron}, and \texttt{nanoda\_bin}).
-An accompanying CaDiCaL~2.1.2 SAT audit contrasts these catalytic breakthroughs against the rigidity of nonlinear cancellation in Boolean XAG circuits~\cite{BoyarFind2018,Morse2026}.
+All twelve main theorem and corollary statements together with explicit non-trivial ($0 \neq 1$) non-vacuity witnesses are formalized with zero Mathlib dependencies across eleven Lean~4.35.0 \texttt{module} files, depend strictly on the standard axiom set $\{\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}\}$, and pass six independent verification kernel runs across five implementations (\texttt{lean}, \texttt{leanchecker}, \texttt{leanchecker-paranoid}, \texttt{con-leche}, \texttt{con-ron}, and \texttt{nanoda\_bin}).
+An accompanying CaDiCaL~2.1.2 SAT audit (cross-checked against an independent brute-force enumerator on $n = 2, 3$) contrasts these catalytic gains against the rigidity of nonlinear cancellation in Boolean XAG circuits~\cite{BoyarFind2018,Morse2026}.
 \end{abstract}
 
 \maketitle
@@ -129,7 +129,7 @@ For every $k \ge 1$, there is an explicit passive-output register program on $k 
 
 Turning to characteristic~$0$ (and good prime characteristics) with $r = 3$ registers, we break Vinciguerra's $4$-call powering barrier $x^5 \in \RP_K^{\pass}(3, 4)$ using explicit elementary shear loops whose work-register updates are pure integer Pascal-row shears $v \leftarrow v \pm q u^d$.
 
-\begin{theorem}[Three-Register Powering Breakthrough; Lean \texttt{T3a}--\texttt{T3e}]
+\begin{theorem}[Three-Register Powering Improvement; Lean \texttt{T3a}--\texttt{T3e}]
 \label{thm:T3}
 Let $K$ be any commutative ring (in particular any field) in which the scaling integer $D_t$ is invertible.
 Explicit literal passive-output $3$-register programs (Definition~\ref{def:rp}) establish:
@@ -456,7 +456,7 @@ $5$ & $0$ & $-5$ & $-4{,}154{,}985$ & $+9{,}394{,}056$ & $-5{,}454{,}540$ \\
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{figures/fig2_three_reg_exponent.pdf}
-  \caption{Theorem~\ref{thm:T3} three-register breakthrough.
+  \caption{Theorem~\ref{thm:T3} three-register powering improvement.
   (a)~Achieved clean polynomial degrees $D_{3,\Q}^{\pass}(t) \ge 2t - 3$ versus the two-register ceiling $t - 1$ and Vinciguerra's $t = 4 \to x^5$ baseline.
   (b)~Composition exponent curve $\varepsilon(t) = \log_{2t-3} t$, decreasing strictly from $\log_5 4 = 0.86135$ to its unique integer minimizer $\log_{13} 8 = 0.81071$ at $t = 8$ before rising for $t \ge 9$.}
   \label{fig:T3}
@@ -464,27 +464,28 @@ $5$ & $0$ & $-5$ & $-4{,}154{,}985$ & $+9{,}394{,}056$ & $-5{,}454{,}540$ \\
 
 \subsection{Downstream Improvements to Powering, Streaming, and Matrix Powering}
 
-Substituting $x^{13} \in \RP_K^{\pass}(3, 8)$ (or $x^7 \in \RP_K^{\pass}(3, 5)$ whenever only $\operatorname{char}(K) \neq 2, 3$ is assumed) directly into Vinciguerra's passive composition framework~\cite[Lemma~2.2, Corollaries~4.3.1, 5.1.1, and Theorem~5.2]{Vinciguerra2026} yields immediate Tier-3 asymptotic improvements (we write $\varepsilon_* := \log_{13} 8 \approx 0.810714 < 0.861353 = \log_5 4$):
+Substituting $x^{13} \in \RP_K^{\pass}(3, 8)$ (or $x^7 \in \RP_K^{\pass}(3, 5)$ whenever only $\operatorname{char}(K) \neq 2, 3$ is assumed) directly into Vinciguerra's passive composition framework~\cite[Lemma~2.2, Corollaries~4.3.1, 5.1.1, \S4.4, and Theorem~5.2]{Vinciguerra2026} yields immediate Tier-3 asymptotic improvements (we write $\varepsilon_* := \log_{13} 8 \approx 0.810714 < 0.861353 = \log_5 4$):
 
 \begin{corollary}[Four-Register Powering; sharpening {\cite[Corollary~4.3.1]{Vinciguerra2026}}]
 \label{cor:powering}
-Over any field $K$ of characteristic~$0$ (or prime characteristic avoiding the bad primes of $D_8$), for every integer $N \ge 1$ there exists a passive $4$-register program cleanly computing $x^N$ using $O(N^{\log_{13} 8}) = O(N^{0.81072})$ input accesses (improving Vinciguerra's $O(N^{0.86136})$).
+Over any field $K$ of characteristic~$0$ (or prime characteristic avoiding the bad primes of $D_8$), for every integer $N \ge 1$ there exists a passive $4$-register program cleanly computing $x^N$ using at most $\frac{8}{3} \cdot 13 \cdot N^{\log_{13} 8} = O(N^{0.81072})$ input accesses (improving Vinciguerra's $O(N^{0.86136})$).
 Over every field of characteristic $\neq 2, 3$, composing \texttt{prog5\_x7} achieves $O(N^{\log_7 5}) = O(N^{0.82709})$ accesses.
 \end{corollary}
 
 \begin{proof}
-Iterated composition of $f(x) = x^{13} \in \RP_K^{\pass}(3, 8)$ via \cite[Lemma~2.2]{Vinciguerra2026} computes $x^{13^m}$ in $\max(3, 3 + 1) = 4$ passive registers and $8^m$ input accesses.
-Writing any $N$ in base~$13$ and combining powers via standard binary/base-$13$ accumulation yields $O(N^{\log_{13} 8})$ accesses in $4$ registers (identically to the proof of \cite[Corollary~4.3.1]{Vinciguerra2026}).
+Iterated composition of $f(x) = x^{13} \in \RP_K^{\pass}(3, 8)$ via \cite[Lemma~2.2]{Vinciguerra2026} computes $x^{13^i}$ in $3$ registers and $8^i$ accesses, and composing with each base-$13$ digit $x^{b_i}$ ($0 \le b_i < 13$, at most $13$ accesses in $2$ registers by Theorem~3.5) yields $q_i \le 13 \cdot 8^i$ accesses.
+Substituting $q_i$ into the finite-difference accumulation recurrence $T_i \le 2 T_{i-1} + 2 q_i$ of~\cite[Corollary~4.3.1]{Vinciguerra2026} gives $T_\ell \le 2 \cdot 13 \cdot 8^\ell \sum_{j=0}^\ell (2/8)^j < \frac{8}{3} \cdot 13 \cdot N^{\log_{13} 8}$ accesses in $4$ passive registers.
 \end{proof}
 
 \begin{corollary}[Catalytic Streaming Frequency Moments; sharpening {\cite[Corollary~5.1.1]{Vinciguerra2026}}]
 \label{cor:streaming}
-For every $D \ge 1$, the $D$-th frequency moment $F_D(\sigma) = \sum_{i=1}^n f_i^D$ of a stream $\sigma \in \{1, \dots, n\}^m$ can be computed exactly by a catalytic streaming algorithm using $O(\log n + \log D + \log\log m)$ bits of clean workspace, $O(n D \log(m + 1))$ bits of catalytic space (the $r = 3$ base regime of~\cite[Corollary~5.1.1]{Vinciguerra2026}), and $O(D^{\log_{13} 8}) = O(D^{0.81072})$ passes over the stream (reducing the pass exponent from $0.86135$ by more than $0.0506$).
+For every $D \ge 1$, the $D$-th frequency moment $F_D(\sigma) = \sum_{i=1}^n f_i^D$ of a stream $\sigma \in \{1, \dots, n\}^m$ can be computed exactly by a catalytic streaming algorithm using $O(D \log(m + 1) + \log n + \log D)$ bits of regular workspace, $O(n D \log(m + 1))$ bits of catalytic memory (matching the $r = 3$ space tier of~\cite[Corollary~5.1.1]{Vinciguerra2026}), and $O(D^{\log_{13} 8}) = O(D^{0.81072})$ passes over the stream (reducing the pass exponent from $0.86135$ by more than $0.0506$).
 \end{corollary}
 
 \begin{corollary}[Matrix Powering; sharpening {\cite[Theorem~5.2]{Vinciguerra2026}}]
 \label{cor:matpow}
-Over any field $K$ where $D_8$ is invertible (or $\operatorname{char}(K) \neq 2, 3$ using \texttt{prog5\_x7}), the $N$-th power $A^N$ of an $n \times n$ matrix $A$ is cleanly computed by a $4$-matrix-register passive program using $O(N^{\log_{13} 8}) = O(N^{0.81072})$ recursive matrix-input calls (respectively $O(N^{0.82709})$ for $\operatorname{char}(K) \neq 2, 3$), tightening the $r = 3$ case of~\cite[Theorem~5.2]{Vinciguerra2026} from $O(N^{0.86136})$.
+Let $p$ be a prime exceeding $\lfloor \log_{13} N \rfloor + 1$ and not dividing $D_8$ (or $p > \max(3, \lfloor \log_7 N \rfloor + 1)$ using \texttt{prog5\_x7}).
+Lifting \texttt{prog8\_x13} (respectively \texttt{prog5\_x7}) via the homogeneous degree-preserving linear form $\ell_A(z)$ of~\cite[\S4.4]{Vinciguerra2026} cleanly computes the $N$-th power $A^N$ of any non-commutative matrix $A \in M_m(\F_p)$ using $O(N^{\log_{13} 8}) = O(N^{0.81072})$ recursive calls to $A$ (respectively $O(N^{0.82709})$) and the exact $r = 3$ scalar register count $2m^2 + \binom{m^2 + 2}{2} - 1$ of~\cite[Theorem~5.2]{Vinciguerra2026}.
 \end{corollary}
 
 \begin{remark}[Why $r = 4$ triangular loops do not immediately beat $\log_7 4$]
@@ -534,10 +535,10 @@ The exact operation count satisfies $T(k+1) = 4 T(k) + 4$ with $T(0) = 1$, solvi
 \section{Empirical Companion: Nonlinear Cancellation in Boolean XAGs vs.\ Catalytic Programs}
 \label{sec:companion}
 
-Our catalytic breakthroughs (Theorems~\ref{thm:T1}--\ref{thm:T3}) are driven by \emph{high-degree nonlinear cancellation}: intermediate work-register monomials of degree exceeding the target degree cancel completely upon summing across shifts or Frobenius phases.
+Our catalytic improvements (Theorems~\ref{thm:T1}--\ref{thm:T3}) are driven by \emph{high-degree nonlinear cancellation}: intermediate work-register monomials of degree exceeding the target degree cancel completely upon summing across shifts or Frobenius phases.
 It is therefore instructive to compare this phenomenon against the long-standing Boyar--Find conjecture~\cite{BoyarFind2018} and Morse's recent proof~\cite{Morse2026} that four-term binary polynomial multiplication has unrestricted Boolean multiplicative complexity $\MC(\mathrm{Mul}_4) = 9$ (matching its quadratic-only bound, with no gain from higher-degree intermediate cancellation).
 
-In \texttt{experiments/exp4\_boolean\_mc\_companion.py} (Tier-2), we run an exact CaDiCaL~2.1.2 SAT audit on unrestricted multi-output XAG circuits (allowing arbitrary nonlinear feedback between AND gates):
+In \texttt{experiments/exp4\_boolean\_mc\_companion.py} (Tier-2), we run an exact CaDiCaL~2.1.2 SAT audit on unrestricted multi-output XAG circuits (allowing arbitrary nonlinear feedback between AND gates), and cross-check the CNF encoder exhaustively against an independent brute-force truth-table enumerator on all $16$ Boolean functions for $n = 2$ ($k = 0, 1$) plus canonical $n = 3$ benchmarks in \texttt{tests/test\_all.py}:
 \begin{itemize}
   \item $\F_4$ multiplication ($n = 4, m = 2$) is certified $k = 2$ UNSAT and $k = 3$ SAT ($\MC = 3$, matching its quadratic Karatsuba bound);
   \item an orthogonal pair of bent quadratic forms on $n = 4$ is certified $k = 2$ UNSAT and $k = 3$ SAT ($\MC = 3$);
@@ -545,37 +546,63 @@ In \texttt{experiments/exp4\_boolean\_mc\_companion.py} (Tier-2), we run an exac
 \end{itemize}
 This sharp empirical contrast highlights a structural asymmetry: whereas Boolean XAG circuits exhibit strong cancellation rigidity in small regimes~\cite{BoyarFind2018,Morse2026}, passive catalytic register programs exploit nonlinear cancellation aggressively --- both via characteristic-$p$ Frobenius collapse (Theorems~\ref{thm:T1}--\ref{thm:T2}) and via multi-call Pascal shear cancellation (Theorem~\ref{thm:T3}).
 
-\section{Lean~4.35.0 Formalization, Multi-Kernel Audit, and Open Problems}
+\section{Lean~4.35.0 Formalization, Statement Fidelity, and Open Problems}
 \label{sec:lean}
 
-Every theorem in Tier~1 (\texttt{T1}, \texttt{T1a}--\texttt{T1d}, \texttt{T2}, \texttt{T3a}--\texttt{T3e}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/Catalytic/*.lean}, \texttt{lean/Challenge.lean}, \texttt{lean/Solution.lean}), using the Lean~4.35 \texttt{module} system across all $10$ source files.
-A repository-wide token scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_decide}, \texttt{implemented\_by}, \texttt{unsafe}, custom \texttt{axiom}, or \texttt{@[extern]}.
-Table~\ref{tab:kernels} records the clean-from-scratch multi-kernel replay across six independent verification runs spanning five separate type-checker implementations.
+Every theorem in Tier~1 (\texttt{T1}, \texttt{T1a}--\texttt{T1d}, \texttt{T2}, \texttt{T3a}--\texttt{T3e}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/Catalytic/*.lean}, \texttt{Challenge.lean}, \texttt{Solution.lean}), using the Lean~4.35 \texttt{module} system and strict zero-dependency core linters (\texttt{autoImplicit=false}, \texttt{linter.unusedVariables=true}, \texttt{linter.deprecated=true}) across all $11$ source files (longest file $1{,}299$ lines).
+To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.lean} exhibits concrete non-trivial ($0 \neq 1$) witnesses (\texttt{ModP 2}, \texttt{ModP 5}, \texttt{ModP 7}, \texttt{ModP 11}, and \texttt{Int}) satisfying every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}.
+A repository-wide scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_decide}, \texttt{implemented\_by}, \texttt{unsafe}, custom \texttt{axiom}, or \texttt{@[extern]}.
+Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay and statement-fidelity audit.
 
 \begin{table}[ht]
 \centering
-\caption{Clean-room multi-kernel verification audit of the master theorem bundle (all $12$ formalized theorems, Lean~4.35.0, zero Mathlib).}
+\caption{Clean-room multi-kernel verification audit of the master theorem bundle and non-vacuity witnesses ($14$ audited declarations, Lean~4.35.0, zero Mathlib).}
 \label{tab:kernels}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{5.8cm}@{}}
+\begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{5.9cm}@{}}
 \toprule
 \textbf{\#} & \textbf{Kernel / Tool} & \textbf{Implementation} & \textbf{Verified Result} \\
 \midrule
-1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ reference kernel & 13/13 jobs; axioms $\subseteq \{\text{propext}, \text{choice}, \text{Quot.sound}\}$ \\
+1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ reference kernel & 14/14 jobs, 0 warnings; axioms $\subseteq \{\text{propext}, \text{choice}, \text{Quot.sound}\}$ \\
 2 & \texttt{leanchecker} & C++ external \texttt{.olean} replayer & Exit 0 (PASS) \\
 3 & \texttt{leanchecker-paranoid} & C++ paranoid \texttt{.olean} replayer & Exit 0 (PASS) \\
-4 & \texttt{con-leche --verified} & Verified Lean-in-Lean kernel & Accepted 2,896 declarations (Exit 0) \\
-5 & \texttt{con-ron --verified} & Verified Aeneas Rust kernel & Accepted 2,896 declarations (Exit 0) \\
-6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & Checked 3,183 decls; strict 3-axiom error=true \\
+4 & \texttt{con-leche --verified} & Verified Lean-in-Lean kernel & Accepted 3,004 declarations (Exit 0) \\
+5 & \texttt{con-ron --verified} & Verified Aeneas Rust kernel & Accepted 3,004 declarations (Exit 0) \\
+6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & Strict 3-axiom hard-error=true (Exit 0) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Limitations and Open Problems}
+\begin{table}[ht]
+\centering
+\caption{Statement-fidelity mapping between formal Lean~4.35 declarations in \texttt{Challenge.lean}, primary literature definitions, and concrete non-vacuity witnesses.}
+\label{tab:fidelity}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.5cm}@{}}
+\toprule
+\textbf{ID} & \textbf{Lean Declaration} & \textbf{Literature Anchor} & \textbf{Non-Vacuity ($0 \neq 1$)} \\
+\midrule
+\texttt{T1} & \texttt{InRPPass2 p t f} (\texttt{T1}, \texttt{T1a}--\texttt{T1d}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Thm.~3.5 & \texttt{IsPrime 2,3,5,7}; $x^4 \in \RP_{\F_2}(2,2)$, $x^3 \notin \RP_{\F_2}(2,10)$ \\
+\texttt{T2} & \texttt{BilinInstr}, \texttt{frobBilinProg} (\texttt{T2}) & Strictly bilinear restriction of Def.~2.2 & \texttt{F2 = ModP 2}, $k=2$, $x=1$ cleanly evaluated \\
+\texttt{T3} & \texttt{Pass3InstrR} (\texttt{T3a}--\texttt{T3e}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, \S4--5 & \texttt{ModP 5, 7, 11} with explicit inverses of $D_5, \dots, D_8$ \\
+\texttt{T4} & \texttt{CatOp}, \texttt{balancedProdProg} (\texttt{T4}) & Zero-workspace distinct-index bilinear ops & \texttt{Int} ($d=4$, $36$ ops, clean restoration) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Limitations, Threats to Validity, and Open Problems}
 \label{sec:open}
 
-We explicitly flag four unresolved frontiers (Tier-4):
+We highlight four concrete threats to validity and four unresolved Tier-4 frontiers:
+\begin{itemize}
+  \item \emph{Statement fidelity vs.\ model conventions:} Definition~\ref{def:rp} uses formal polynomial-ring cleanliness in $R[O, R_1, \dots, R_{r-1}, x]$ (matching~\cite{Vinciguerra2026}); pointwise function equality over finite fields $\F_p$ collapses via $x^p = x$ and is outside scope.
+  \item \emph{Bad-prime denominators (\texttt{T3b}--\texttt{T3d}):} The $5$-call program \texttt{prog5\_x7} avoids only $\{2, 3\}$, whereas the $6$-, $7$-, and $8$-call programs exclude additional prime divisors of $D_t$ (Table~\ref{tab:t3-frontier}); all hold unconditionally in characteristic~$0$.
+  \item \emph{SAT companion certificate boundary:} Our Tier-2 CaDiCaL~2.1.2 UNSAT runs are cross-checked by exhaustive brute-force encoder equivalence on $n = 2, 3$ in \texttt{tests/test\_all.py}, but are not yet independently replayed through CakeML's \texttt{cake\_lpr}; no Tier-1 theorem depends on SAT.
+  \item \emph{Zero-dependency core linters vs.\ Mathlib/Batteries:} Retaining zero external Lake dependencies preserves a minimal six-kernel trust base while precluding Batteries' \texttt{\#lint}; strict built-in Lean~4.35 core linters pass with zero warnings.
+\end{itemize}
+
 \begin{openproblem}[Closed-form $3$-register frontier]
 Does $D_{3,\Q}^{\pass}(t) = 2t - 3$ hold for \emph{all} $t \ge 4$ (both upper and lower bounds)?
 Our explicit constructions establish $D_{3,\Q}^{\pass}(t) \ge 2t - 3$ for $t \in \{4, 5, 6, 7, 8, 9\}$, but a uniform non-vanishing proof for all $t \ge 4$ and matching upper bounds for $r \ge 3$ remain open.
@@ -594,10 +621,14 @@ Extend Theorem~\ref{thm:T1} to a closed-form combinatorial criterion over arbitr
 Resolve whether nonlinear cancellation can ever beat quadratic-only multiplicative complexity for any quadratic Boolean map~\cite{BoyarFind2018}, and complete the $n = 5$ program of Morse~\cite{Morse2026}.
 \end{openproblem}
 
-\subsection*{AI-Assistance, Attribution, and Reproducibility Disclosure}
-AI coding and proof-assistant tooling (Antigravity / Gemini) assisted in exploratory exact-arithmetic discovery, Lean~4.35 proof engineering, figure scripting, and manuscript drafting under the direction and scientific accountability of Alexander~S.\ Donahue (CRediT: Conceptualization, Methodology, Validation, Supervision, Writing).
-Mathematical correctness of all Tier-1 theorems is certified independently by the six Lean~4.35 verification kernels listed in Table~\ref{tab:kernels}, not by authoring provenance.
-Primary arXiv preprints~\cite{Vinciguerra2026,Morse2026} were consulted via their public arXiv records (\url{https://arxiv.org/abs/2609.18692} and \url{https://arxiv.org/abs/2608.30238}); no third-party PDFs are redistributed in the project repository.
+\subsection*{AI-Assistance, CRediT, COI, and Data/Code Availability}
+\emph{AI-Contribution and CRediT:} Antigravity and Gemini tooling assisted in exploratory exact-arithmetic discovery, Lean~4.35 proof engineering, figure scripting, and manuscript drafting under the direction and scientific accountability of Alexander~S.\ Donahue (CRediT: Conceptualization; Methodology; Formal analysis including definition and statement-fidelity audit; Validation; Writing -- review \& editing; Supervision).
+No AI tool is listed as an author; mathematical correctness of all Tier-1 theorems is certified independently by the six Lean~4.35 verification kernels in Table~\ref{tab:kernels}.
+
+\emph{Conflict of Interest \& Export-Control Self-Screen:} Self-funded independent research by Alexander~S.\ Donahue (ORCID \href{https://orcid.org/0009-0006-8168-9648}{0009-0006-8168-9648}); no institutional employer, corporate entity, external grant, or financial conflict of interest. This pure algebraic-complexity research is publicly available fundamental mathematics (15~CFR~734.8) with no dual-use or export-controlled content.
+
+\emph{Data, Code, and Reproducibility Availability:} All Lean~4.35.0 proofs (\texttt{lean/}), Palomar configuration (\texttt{lean/comparator.json}, \texttt{lean/formalization.yaml}), Python exact-arithmetic and Hypothesis/mutant/SAT tests (\texttt{experiments/}, \texttt{tests/test\_all.py}), deterministic figure generator (\texttt{scripts/make\_figures.py}), pinned lockfiles (\texttt{requirements.lock.txt}, \texttt{sbom.cdx.json}), and cryptographic checksums (\texttt{MANIFEST.sha256}) are released openly under Apache-2.0 (code) and CC-BY-4.0 (prose and figures).
+Primary arXiv preprints~\cite{Vinciguerra2026,Morse2026} were consulted via their public records; no third-party PDFs are redistributed.
 
 \bibliographystyle{amsplain}
 \bibliography{references}

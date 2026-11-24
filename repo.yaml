@@ -1,28 +1,118 @@
-# SPDX-License-Identifier: CC-BY-4.0
-schema_version: 1
-name: catalytic-register-frontiers
-version: 1.0.0
-status: released-local
-author:
-  name: Alexander S. Donahue
-  orcid: "0009-0006-8168-9648"
-  affiliation: "Independent Researcher, Spokane, WA, USA"
-  email: "0_0@0thernes.art"
-licenses:
-  code: Apache-2.0
-  prose_and_figures: CC-BY-4.0
-lean:
-  toolchain: leanprover/lean4:v4.35.0
-  mathlib: false
-  theorems_exported: 12
-  kernels_passed: 6
-  axiom_allowlist: [propext, Classical.choice, Quot.sound]
-python:
-  version: "3.13.12"
-  experiments: 4
-  pytest_passed: 8
-paper:
-  source: paper/main.tex
-  frozen_pdf: dist/Donahue_2026_catalytic_register_frontiers.pdf
-  arxiv_tarball: dist/arxiv_submission.tar.gz
-  figures: 3
+# yaml-language-server: $schema=./repo-standard.schema.json
+# Project manifest for the Build Standard for LLMs v1.1.0. Read by scripts/Audit-Repo.ps1 and scripts/audit-repo.sh.
+# Keep each item on one line. status: done | todo | partial | n/a (n/a needs a note).
+standard: "1.1.0"
+name: "catalytic-register-frontiers"
+description: "Zero-Mathlib Lean 4.35 formalization and exact-arithmetic verification of positive-characteristic dichotomy and optimal 3-register exponents in passive catalytic register programs."
+owner: "0thernes"
+year: 2026
+project_type: research
+stack: [python, other]
+flags:
+  public: true
+  package: false
+  visual: false
+  ui: false
+  native: false
+  ai: false
+  personal_data: false
+  service: false
+  deployed: false
+  api: false
+  perf: false
+  concurrent: false
+  numeric: false
+  experimental: false
+  ml: false
+  formal: true
+items:
+  A01: {status: done, evidence: "README.md"}
+  A02: {status: done, evidence: "README.md shields.io badge ribbon"}
+  A03: {status: done, evidence: "README.md Quickstart section"}
+  A04: {status: done, evidence: "README.md Usage and Examples section"}
+  A05: {status: n/a, note: "Research proof repository with vector figures in paper/figures/, no interactive UI"}
+  A06: {status: done, evidence: "LICENSE (Apache-2.0 code + CC-BY-4.0 prose/figures)"}
+  A07: {status: done, evidence: "CHANGELOG.md"}
+  A08: {status: done, evidence: "VERSION 1.0.0 matches CHANGELOG.md and CITATION.cff"}
+  A09: {status: done, evidence: "tests/test_all.py"}
+  A10: {status: done, evidence: ".github/workflows/ci.yml runs on push (informational)"}
+  A11: {status: done, evidence: ".github/workflows/release.yml triggered on v* tags"}
+  A12: {status: done, evidence: ".gitignore"}
+  A13: {status: done, evidence: ".gitattributes and .editorconfig"}
+  A14: {status: done, evidence: "CONTRIBUTING.md"}
+  A15: {status: done, evidence: "CODE_OF_CONDUCT.md"}
+  A16: {status: done, evidence: "SECURITY.md"}
+  A17: {status: done, evidence: "SUPPORT.md"}
+  A18: {status: done, evidence: ".github/ISSUE_TEMPLATE/{config,bug,feature,question}.yml (no PR template per R4)"}
+  A19: {status: todo, note: "Set GitHub About description and topics upon first remote push"}
+  A20: {status: done, evidence: "docs/architecture.md"}
+  A21: {status: done, evidence: "docs/adr/0001-*.md and 0002-*.md"}
+  A22: {status: done, evidence: "CITATION.cff"}
+  A23: {status: done, evidence: "Clean commit history on main with real author identity"}
+  A24: {status: done, evidence: "No secrets, build outputs, or >5MB files committed"}
+  A25: {status: done, evidence: ".github/workflows/ci.yml runs ubuntu-latest and windows-latest"}
+  A26: {status: done, evidence: "docs/media/social-preview.svg"}
+  A27: {status: done, evidence: ".github/workflows/pages.yml deploys docs/index.html blueprint portal"}
+  A28: {status: n/a, note: "Research artifact (package: false); pyproject.toml still provided for lockfile/tool pins"}
+  A29: {status: done, evidence: "ROADMAP.md"}
+  A30: {status: done, evidence: ".github/labels.tsv includes all 6 finding classes"}
+  A31: {status: done, evidence: "justfile"}
+  A32: {status: done, evidence: "AGENTS.md canonical + CLAUDE.md + GEMINI.md + .cursor/rules + llms.txt"}
+  A33: {status: done, evidence: ".env.example and docs/configuration.md"}
+  A34: {status: n/a, note: "Not a long-running service"}
+  A35: {status: done, evidence: "docs/operations.md offsite mirror and git bundle backup procedure"}
+  A36: {status: n/a, note: "Not deployed as a live service"}
+  A37: {status: n/a, note: "No runtime performance/latency claims"}
+  A38: {status: n/a, note: "No UI application"}
+  A39: {status: done, evidence: "THIRD_PARTY_NOTICES.md"}
+  A40: {status: n/a, note: "Code does not invoke or ship any runtime AI model"}
+  A41: {status: n/a, note: "Not an installable library/SDK package"}
+  A42: {status: done, evidence: "README.md maintenance status"}
+  A43: {status: n/a, note: "Not a library package; runnable examples live in experiments/ and README.md"}
+  A44: {status: done, evidence: "docs/faq.md and docs/glossary.md"}
+  A45: {status: n/a, note: "Collects or processes zero personal data"}
+  B01: {status: done, evidence: "justfile reproduce recipe and scripts/run_all.ps1 -Task all"}
+  B02: {status: done, evidence: "lean/lean-toolchain, lean/lake-manifest.json, pyproject.toml, requirements.lock.txt"}
+  B03: {status: done, evidence: "Deterministic vector PDFs (CreationDate=None) and exact integer/rational JSON outputs"}
+  B04: {status: done, evidence: "CLAIMS.md tiered ledger"}
+  B05: {status: done, evidence: "tests/test_all.py covers every claim E1-E5 and T1-T4"}
+  B06: {status: done, evidence: "Impossibility theorems T1b/T1c plus negative tests in tests/test_all.py"}
+  B07: {status: done, evidence: "Regression tests in tests/test_all.py and ERRATA.md"}
+  B08: {status: done, evidence: "Exact JSON/axiom snapshots verified against live recomputation and MANIFEST.sha256"}
+  B09: {status: n/a, note: "No external network API or wire protocol"}
+  B10: {status: done, evidence: "Hypothesis property-based tests in tests/test_all.py"}
+  B11: {status: done, evidence: "Lean 4.35 proofs differentially verified by independent Python exact evaluators and 6 kernels"}
+  B12: {status: done, evidence: "Brute-force XAG ground-truth enumerator serves as test oracle for CNF encoder"}
+  B13: {status: done, evidence: "Certificate mutant-killing test suite in tests/test_all.py"}
+  B14: {status: done, evidence: "Metamorphic catalytic shift-invariance tests under Hypothesis in tests/test_all.py"}
+  B15: {status: n/a, note: "No C/C++/asm native code authored in this repo"}
+  B16: {status: n/a, note: "No C/C++/asm native code authored in this repo"}
+  B17: {status: done, evidence: "ruff configured in pyproject.toml, justfile, and .github/workflows/ci.yml"}
+  B18: {status: done, evidence: "mypy configured in pyproject.toml, justfile, and .github/workflows/ci.yml"}
+  B19: {status: n/a, note: "Pure sequential deterministic computation"}
+  B20: {status: n/a, note: "Exact integer/rational/finite-field arithmetic; floats used only for plotting"}
+  B21: {status: n/a, note: "Not a networked service"}
+  B22: {status: done, evidence: "Zero-Mathlib Lean 4.35 formalization in lean/ verified by 6 kernels"}
+  B23: {status: n/a, note: "Pure algebraic theorems proved in Lean 4; no concurrent protocol state machine for TLA+/Alloy"}
+  B24: {status: done, evidence: "All 12 headline theorems + NonVacuity machine-checked directly in Lean 4.35"}
+  B25: {status: n/a, note: "No C/Rust systems implementation for CBMC/Kani bounded model checking"}
+  B26: {status: n/a, note: "No runtime throughput/speedup claims"}
+  B27: {status: n/a, note: "No runtime throughput/speedup claims"}
+  B28: {status: n/a, note: "Deterministic algebra and exact enumeration, not stochastic trials"}
+  B29: {status: n/a, note: "Deterministic algebra and exact enumeration, not statistical hypothesis tests"}
+  B30: {status: n/a, note: "Deterministic algebra and exact enumeration, not statistical estimates"}
+  B31: {status: n/a, note: "Deterministic algebra and exact enumeration, no multiple statistical comparisons"}
+  B32: {status: n/a, note: "Deductive mathematical proofs and exact enumeration; deviations tracked in DEVIATIONS.md"}
+  B33: {status: n/a, note: "No ML model training"}
+  B34: {status: n/a, note: "No runtime AI component"}
+  B35: {status: done, evidence: "CI secret/citation hygiene audit and CycloneDX sbom.cdx.json"}
+  B36: {status: done, evidence: "docs/threat-model.md"}
+  B37: {status: done, evidence: "MANIFEST.sha256 and SHA256SUMS in .github/workflows/release.yml"}
+  B38: {status: done, evidence: "actions/attest-build-provenance@v2 in .github/workflows/ci.yml and release.yml"}
+  B39: {status: n/a, note: "No external dataset corpus; exact generated artifacts hashed in root MANIFEST.sha256"}
+  B40: {status: done, evidence: "docs/run-log.md"}
+  B41: {status: done, evidence: "LIMITATIONS.md"}
+  B42: {status: done, evidence: "CLAIMS.md What Would Prove Us Wrong section"}
+  B43: {status: done, evidence: "REPLICATION.md"}
+  B44: {status: partial, note: "Clean-room self-replication logged in REPLICATION.md; external second-person replication open"}
+  B45: {status: done, evidence: "docs/reviews/01-10-pass-review.md (internal 10-pass red-team); external peer review pending"}

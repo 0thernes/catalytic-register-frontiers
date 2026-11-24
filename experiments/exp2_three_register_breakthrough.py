@@ -225,7 +225,7 @@ def synthesize_and_verify_r3(t: int, shifts: list[int], deg_w: int, target_N: in
     out_scale //= g
 
     # Literal instruction-by-instruction symbolic replay over Z[x, u, v]
-    by_state = {k: [] for k in range(t)}
+    by_state: dict[int, list[tuple[int, int, int]]] = {k: [] for k in range(t)}
     for (k, ju, jv), ci in zip(meta, c_int):
         if ci != 0:
             by_state[k].append((ju, jv, ci))
@@ -239,15 +239,15 @@ def synthesize_and_verify_r3(t: int, shifts: list[int], deg_w: int, target_N: in
             for ju, jv, ci in by_state[k]:
                 O_reg = poly_add(O_reg, poly_mul(poly_pow(u_reg, ju), poly_pow(v_reg, jv)), Fraction(ci))
             basic_ops += 1
-        q_next = Q_int[k + 1] if k + 1 < t else 0
-        if q_next != 0:
-            v_reg = poly_add(v_reg, poly_pow(u_reg, deg_w), Fraction(-q_next))
+        q_next_i = Q_int[k + 1] if k + 1 < t else 0
+        if q_next_i != 0:
+            v_reg = poly_add(v_reg, poly_pow(u_reg, deg_w), Fraction(-q_next_i))
             basic_ops += 1
         alpha = shifts[(k + 1) % t] - shifts[k]
         u_reg = poly_add(u_reg, X, Fraction(alpha))
         accesses += 1
-        if q_next != 0:
-            v_reg = poly_add(v_reg, poly_pow(u_reg, deg_w), Fraction(q_next))
+        if q_next_i != 0:
+            v_reg = poly_add(v_reg, poly_pow(u_reg, deg_w), Fraction(q_next_i))
             basic_ops += 1
 
     assert u_reg == U, "Work register u not restored!"
@@ -270,13 +270,13 @@ def synthesize_and_verify_r3(t: int, shifts: list[int], deg_w: int, target_N: in
             for k in range(t):
                 for ju, jv, ci in by_state[k]:
                     o_val = (o_val + inv_D * ci * pow(u_val, ju, p) * pow(v_val, jv, p)) % p
-                q_next = Q_int[k + 1] if k + 1 < t else 0
-                if q_next != 0:
-                    v_val = (v_val - q_next * pow(u_val, deg_w, p)) % p
+                q_next_m = Q_int[k + 1] if k + 1 < t else 0
+                if q_next_m != 0:
+                    v_val = (v_val - q_next_m * pow(u_val, deg_w, p)) % p
                 alpha = shifts[(k + 1) % t] - shifts[k]
                 u_val = (u_val + alpha * x0) % p
-                if q_next != 0:
-                    v_val = (v_val + q_next * pow(u_val, deg_w, p)) % p
+                if q_next_m != 0:
+                    v_val = (v_val + q_next_m * pow(u_val, deg_w, p)) % p
             assert o_val == (o0 + pow(x0, target_N, p)) % p
             assert u_val == u0 and v_val == v0
         good_primes_tested.append(p)

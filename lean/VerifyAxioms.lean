@@ -5,8 +5,9 @@ import Solution
 /-!
 # Strict Axiom Allowlist Audit
 
-Every exported theorem in `Catalytic.Solution` must depend ONLY on a subset of the three
-standard Lean 4 axioms `[propext, Classical.choice, Quot.sound]`.
+Every exported theorem in `Catalytic.Solution` (and every non-vacuity witness in
+`Catalytic.NonVacuity`) must depend ONLY on a subset of the three standard Lean 4 axioms
+`[propext, Classical.choice, Quot.sound]`.
 No unproven placeholders, no compiler-trusted reduction, and no custom axioms are permitted.
 -/
 
@@ -23,3 +24,4 @@ No unproven placeholders, no compiler-trusted reduction, and no custom axioms ar
 #print axioms Catalytic.Solution.t3e_exponent_chain
 #print axioms Catalytic.Solution.t4_balanced_multilinear_product
 #print axioms Catalytic.Solution.prove_all_catalytic_theorems
+#print axioms Catalytic.NonVacuity.nonvac_all_hypotheses

@@ -15,10 +15,10 @@ This document explicitly states what `catalytic-register-frontiers` **does not**
    While `prog5_x7` ($\epsilon = 0.827087$) avoids only $\{2, 3\}$ (matching Vinciguerra's $t = 4$ characteristic requirement!), `prog6_x9` avoids $\{2, 3, 5, 17\}$, and `prog7_x11` / `prog8_x13` avoid two larger primes arising from clearing denominators (`538423, 2512452073` and `137, 1602207194491`). Alternative non-uniform shift sets can shift these bad primes, and all programs hold unconditionally in characteristic $0$.
 5. **No $r = 4$ exponent improvement:**
    Our exploratory exact modular search over $r = 4$ triangular closed loops (`deg_v = 2, 3, 4`, `wt(w) = 3..9`, unrestricted monomials) reached $N = 7$ ($t=4$), $N = 9$ ($t=5$, $\epsilon = 0.73249$), and $N = 11$ ($t=6$, $\epsilon = 0.74722$). Because degree grew as $2t - 1$ rather than faster, this family did **not** beat Vinciguerra's $r = 4$ exponent $\log_7 4 \approx 0.71241$.
-6. **Boyar–Find conjecture remains open:**
-   `exp4_boolean_mc_companion.py` provides supporting SAT-certified evidence (0 counterexamples across sampled degree-3 cancellations and hard $n = 4$ maps) and does **not** prove or refute Boyar–Find (TCS 2018) or Morse's $n = 5$ conjecture (`arXiv:2608.30238`).
-7. **Peer-review & external submission status:**
-   This manuscript has **not** undergone external peer review or journal acceptance. Correctness of all Tier-1 theorems is certified independently by six Lean 4.35 verification kernels.
+6. **Boyar–Find conjecture & SAT certificate boundary:**
+   `exp4_boolean_mc_companion.py` provides supporting SAT-certified evidence (0 counterexamples across sampled degree-3 cancellations and hard $n = 4$ maps) and does **not** prove or refute Boyar–Find (TCS 720, 2018) or Morse's $n = 5$ conjecture (`arXiv:2608.30238`). While our CNF encoder is verified against an independent exhaustive brute-force enumerator on all 16 $n=2$ functions ($k=0, 1$) and canonical $n=3$ benchmarks in `tests/test_all.py`, the CaDiCaL 2.1.2 UNSAT certificates have **not** yet been replayed through CakeML's `cake_lpr` (external tool not installed locally — classified as `problem`; no Tier-1 Lean theorem depends on SAT).
+7. **Peer-review & external provenance status:**
+   This manuscript has **not** undergone external peer review or external second-machine human reproduction (`REPLICATION.md`). Post-push external steps (live GitHub Actions CI/SLSA attestations, Zenodo/OSF DOI minting, Software Heritage SWHID, Palomar 40-char SHA registration, OpenTimestamps `.ots` proof) remain pending publication (`ROADMAP.md`). Correctness of all Tier-1 theorems is certified independently by six Lean 4.35 verification kernels.
 
 ## 2. Classified Engineering & Discovery Log
 

@@ -79,7 +79,7 @@ def verify_prime_fields() -> dict:
         feasible_checked = 0
         impossible_checked = 0
         lower_bound_checked = 0
-        phase_records = []
+        phase_records: list[dict[str, int | bool | None]] = []
 
         for d in range(2, max_d + 1):
             s = digit_sum(p, d)

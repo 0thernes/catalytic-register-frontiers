@@ -1,0 +1,12 @@
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+# Phase 0 — Adversarial Red-Team (`docs/plan/00-redteam.md`)
+
+The five riskiest assumptions in `catalytic-register-frontiers`, each tagged with its risk dimension (`value`, `usability`, `feasibility`, `viability`, `ethics`) and mechanical mitigation.
+
+| # | Riskiest Assumption | Tag | Case Against | Mechanical Test / Mitigation |
+|---|---|---|---|---|
+| 1 | Formal definitions (`Pass2Instr`, `Pass3InstrR`, `BilinInstr`, `CatOp`) match Vinciguerra's Definition 2.2 literally without hidden weakening. | `feasibility` | An AI-drafted Lean model could quietly allow illegal register self-references or collapse to a trivial ring (`0 = 1`). | Isolated `lean/Challenge.lean`, concrete `0 ≠ 1` witnesses in `lean/Catalytic/NonVacuity.lean`, and line-by-line audit in `docs/statement-fidelity.md`. |
+| 2 | `T1`–`T3` are genuinely novel beyond `arXiv:2609.18692` and not already proved in classical finite-field or register-program literature. | `value` | Rediscovery (cf. Erdős #397 lesson) would turn novelty claims into errors. | Direct primary-PDF read of `arXiv:2609.18692` & `arXiv:2608.30238`, OEIS/arXiv checks logged in `docs/literature-search-log.md`, conservative "to our knowledge" framing. |
+| 3 | The 3-register Pascal-shear program for $x^{13}$ (`prog8_x13`) can be kernel-checked in zero-Mathlib Lean 4.35 without `native_decide` or timeouts. | `feasibility` | Large integer coefficients ($D_8 \approx 2.65 \times 10^{21}$) and recursive `Poly3.add` could blow up kernel reduction. | Replaced well-founded recursion with structural `Poly3.addAux` + `maxRecDepth 4096`; verified by 6 independent kernels with zero `native_decide`. |
+| 4 | Downstream corollaries (4-register powering, streaming $F_D$, matrix powering $A^N$) inherit exact space and bad-prime bounds from `arXiv:2609.18692`. | `viability` | Careless copying of asymptotic terms or ignoring non-commutativity of matrices causes false corollaries. | Audited verbatim against Vinciguerra Cor. 4.3.1, Cor. 5.1.1, §4.4, and Thm. 5.2; fixed two pre-release inaccuracies (`ERRATA.md`). |
+| 5 | Independent AI-assisted authorship complies with scholarly integrity, Zenodo/Palomar policies, and honest legal identity. | `ethics` | Naming an unformed LLC or hiding AI tool usage destroys external credibility. | Independent Researcher identity (ORCID `0009-0006-8168-9648`, ADR 0002), explicit CRediT/AI disclosure, dual Apache-2.0 + CC-BY-4.0 license, `docs/legal-and-ethics.md`. |

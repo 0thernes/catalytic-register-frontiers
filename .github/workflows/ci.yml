@@ -1,13 +1,19 @@
 # SPDX-License-Identifier: Apache-2.0
-name: Verify Lean 4.35, Exact Arithmetic, and AMS-LaTeX
+# Informational CI: reports results on every push, never blocks commits (Build Standard R1, R3).
+name: Verify Lean 4.35, Exact Arithmetic, Linters, and AMS-LaTeX
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
 jobs:
-  verify:
+  lean-and-paper-linux:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -27,17 +33,22 @@ jobs:
           fi
           echo "Forbidden-token scan clean (0 matches)."
 
-      - name: Build Lean 4.35 proofs and audit axioms + external kernels
+      - name: Build Lean 4.35 proofs, regenerate axioms, and replay external kernels
         run: |
           cd lean
           lake build
           lake env lean VerifyAxioms.lean | tee /tmp/axioms.txt
+          diff -u ../results/lean_axioms.txt /tmp/axioms.txt || true
           if grep -qE 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' /tmp/axioms.txt; then
             echo "UNPERMITTED AXIOM DETECTED!" >&2
             exit 1
           fi
           lake env leanchecker Solution
           lake env leanchecker-paranoid Solution
+          lake env leanexport Solution -- Catalytic.Solution.prove_all_catalytic_theorems > /tmp/catalytic_solution.ndjson
+          con-leche --verified /tmp/catalytic_solution.ndjson
+          con-ron --verified /tmp/catalytic_solution.ndjson
+          lake check --paranoid || true
 
       - name: Setup Python 3.13 and run exact verification suite + pytest
         uses: actions/setup-python@v5
@@ -52,6 +63,18 @@ jobs:
           fi
           pytest -v tests/test_all.py
 
+      - name: Report-only static analysis (ruff) and strict type check (mypy)
+        continue-on-error: true
+        run: |
+          ruff check experiments scripts tests
+          mypy experiments scripts tests
+
+      - name: Report-only security & citation hygiene audit
+        continue-on-error: true
+        run: |
+          python scripts/check_citations.py --offline
+          grep -rnE 'AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|ghp_[A-Za-z0-9]{36}' . --exclude-dir=.git && exit 1 || echo "Secret scan clean"
+
       - name: Generate vector figures and compile AMS-LaTeX manuscript with Tectonic
         run: |
           python scripts/make_figures.py
@@ -62,3 +85,28 @@ jobs:
       - name: Verify SHA-256 provenance manifest
         run: |
           sha256sum -c MANIFEST.sha256
+
+      - name: Attest axiom report and frozen white paper (Sigstore SLSA)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            results/lean_axioms.txt
+            results/six_kernel_audit.txt
+            dist/Donahue_2026_catalytic_register_frontiers.pdf
+
+  cross-platform-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Run pytest and Build Standard audit on Windows
+        run: |
+          python -m pip install -r requirements.lock.txt
+          pytest -v tests/test_all.py
+          pwsh -NoProfile -File scripts/Audit-Repo.ps1 -Path .

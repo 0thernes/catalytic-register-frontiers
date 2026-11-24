@@ -1,0 +1,36 @@
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="100%" stop-color="#132238"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <rect x="48" y="48" width="1184" height="544" rx="20" fill="#0f172a" stroke="#1e3a5f" stroke-width="2"/>
+  <rect x="88" y="88" width="286" height="36" rx="18" fill="#064e3b"/>
+  <text x="108" y="112" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" font-weight="600" fill="#34d399">LEAN 4.35 &middot; 6 KERNELS &middot; ZERO MATHLIB</text>
+  <text x="88" y="196" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="52" font-weight="700" fill="#f8fafc">catalytic-register-frontiers</text>
+  <text x="88" y="252" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="28" fill="#94a3b8">Positive-Characteristic Dichotomy &amp; Optimal 3-Register Exponents</text>
+  <rect x="88" y="300" width="260" height="145" rx="12" fill="#111f35" stroke="#1e3a5f"/>
+  <text x="110" y="338" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#38bdf8">T1 · Digit-Sum IFF</text>
+  <text x="110" y="376" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="20" fill="#e2e8f0">s_p(d) &le; min(p-1, t-1)</text>
+  <text x="110" y="414" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" fill="#94a3b8">x^(p^m) in 2 calls over F_p</text>
+
+  <rect x="372" y="300" width="260" height="145" rx="12" fill="#111f35" stroke="#1e3a5f"/>
+  <text x="394" y="338" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#38bdf8">T2 · Bilinear Char 2</text>
+  <text x="394" y="376" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="20" fill="#e2e8f0">x^(2^k) in 2 accesses</text>
+  <text x="394" y="414" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" fill="#94a3b8">k+1 regs · 4k-2 bilinear ops</text>
+
+  <rect x="656" y="300" width="260" height="145" rx="12" fill="#111f35" stroke="#1e3a5f"/>
+  <text x="678" y="338" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#34d399">T3 · 3-Reg Optimal</text>
+  <text x="678" y="376" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="20" fill="#e2e8f0">log_13(8) = 0.81071</text>
+  <text x="678" y="414" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" fill="#94a3b8">Beats log_5(4) = 0.86135</text>
+
+  <rect x="940" y="300" width="252" height="145" rx="12" fill="#111f35" stroke="#1e3a5f"/>
+  <text x="962" y="338" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#38bdf8">T4 · Balanced Prod</text>
+  <text x="962" y="376" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="20" fill="#e2e8f0">(7d^2 - 4) / 3 ops</text>
+  <text x="962" y="414" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" fill="#94a3b8">0 workspace · log_2 d + 2 regs</text>
+
+  <text x="88" y="534" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="22" fill="#cbd5e1">Alexander S. Donahue (ORCID 0009-0006-8168-9648) &middot; github.com/0thernes/catalytic-register-frontiers</text>
+</svg>

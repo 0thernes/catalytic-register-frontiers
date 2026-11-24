@@ -1,0 +1,26 @@
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+# Statement-Fidelity Audit Table (`docs/statement-fidelity.md`)
+
+Line-by-line mapping between every formal Lean 4.35 definition and theorem in `lean/Challenge.lean` / `lean/Catalytic/*.lean`, the informal mathematical claims in `paper/main.tex`, the primary literature anchors, and the machine-checked non-vacuity witnesses in `lean/Catalytic/NonVacuity.lean` (Playbook Checklist #10).
+
+## 1. Core Definitions
+
+| Lean Declaration | File | Literature Anchor | Non-Vacuity Witness | Fidelity Notes & Edge Cases | Status |
+|---|---|---|---|---|---|
+| `CRing R`, `Char2CRing R` | `Catalytic/CommRing.lean` | Standard commutative unital ring; characteristic-2 ring ($a + a = 0$) | `ModP p hp` ($0 \neq 1$), `F2` ($0 \neq 1$), `Int` ($0 \neq 1$) | Minimal zero-Mathlib axiomatization; `CRing.intCast` and `CRing.pow` proven homomorphic/standard. | **Match** |
+| `IsPrime p`, `digitSum p d` | `Catalytic/PrimeFieldTools.lean` | Standard prime integer ($p \ge 2$, only trivial divisors); base-$p$ digit sum $s_p(d)$ | `nonvac_T1_witnesses` (`IsPrime 2, 3, 5, 7`) | Lucas's Theorem proved from scratch (`choose_mod_prime_mul`) for all primes $p$. | **Match** |
+| `Pass2Instr`, `InRPPass2 p t f` | `Catalytic/DigitSumDichotomy.lean` | Vinciguerra (`arXiv:2609.18692`), Def. 2.2, §3.3 ($r = 2$, passive output $O$, work register $U$, over $\mathbb{F}_p$) | `nonvac_T1_witnesses` (`x^4 ∈ RP_{F_2}(2,2)`, `x^3 ∉ RP_{F_2}(2,10)`, `x^2 ∈ RP_{F_5}(2,3)`, `x^2 ∉ RP_{F_5}(2,2)`) | Every basic op on $U$ adds a constant; every basic op on $O$ adds $P(U)$; every input access adds $\lambda x$ to $U$ or $O$. Polynomial equality is formal coefficient equality in $\mathbb{F}_p[x, \tau]$ (matching Vinciguerra's polynomial-ring semantics, not merely function evaluation on $\mathbb{F}_p$). | **Match** |
+| `BilinInstr n`, `BilinInstr.isValidPassive` | `Catalytic/BilinearFrobenius.lean` | Strictly bilinear restriction of Vinciguerra Def. 2.2 ($R_i \leftarrow R_i + R_j R_\ell$ with $j, \ell \neq i$, passive $R_0$) | `nonvac_T2_witness` (`F2`, $0 \neq 1$, $k = 2$, $x = 1$) | Strictly stronger restriction than general polynomials $p(R_{\neq i})$, so upper bound transfers immediately to Definition 2.2. | **Match** |
+| `Pass3InstrR R`, `Pass3Prog.exec` | `Catalytic/ThreeRegisterBreakthrough.lean` | Vinciguerra (`arXiv:2609.18692`), Def. 2.2 ($r = 3$: passive $O$, work registers $u, v$) | `nonvac_T3_witnesses` (`ModP 5`, `ModP 7`, `ModP 11` with $0 \neq 1$) | Constructors: `addX_u c` ($u \leftarrow u + c x$), `addPoly_v q` ($v \leftarrow v + q(u)$), `addPoly_o p` ($O \leftarrow O + p(u, v)$). Every constructor is literally an instance of Def. 2.2 with passive $O$. | **Match** |
+| `CatOp`, `CatOp.isStrictValid` | `Catalytic/BalancedProduct.lean` | Zero-workspace strictly bilinear register programs ($R_i \leftarrow R_i \pm x_\ell$, $R_i \leftarrow R_i \pm R_a R_b$, $i, a, b$ pairwise distinct) | `nonvac_T4_witness` (`Int`, $d = 4$, `2*3*5*7 = 210`, 36 ops) | Pairwise distinct indices (`dst ≠ a ∧ dst ≠ b ∧ a ≠ b`) enforced by `isStrictValid` and proved for every generated op. | **Match** |
+
+## 2. Headline Theorems
+
+| ID | Lean Declaration (`Solution.lean`) | Informal Claim (`paper/main.tex`) | Axioms | Explicitly NOT Claimed | Sign-Off |
+|---|---|---|---|---|---|
+| `T1` | `t1_digit_sum_dichotomy` | $f \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t) \iff \forall d \ge 2,\, \alpha_d \neq 0 \to s_p(d) \le \min(p-1, t-1)$ | `propext`, `Classical.choice`, `Quot.sound` | Non-prime extension fields $\mathbb{F}_{p^e}$ ($e \ge 2$), $r \ge 3$, or non-passive outputs | **Verified (Alexander S. Donahue)** |
+| `T1a`–`T1d` | `t1a`–`t1d` | Frobenius collapse $x^{p^m} \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2,2)$; $x^3 \notin \mathrm{RP}_{\mathbb{F}_2}^{\mathrm{pass}}(2,t)$; $s_p(d) \ge p$ impossible; recovery of Vinciguerra Thm. 3.5 for $d < p$ | `propext`, `Classical.choice`, `Quot.sound` | Function-table equivalence modulo $x^p - x$ (formal polynomial ring semantics used throughout) | **Verified (Alexander S. Donahue)** |
+| `T2` | `t2_bilinear_frobenius_collapse` | $x^{2^k}$ cleanly computed over any `Char2CRing` in $k+1$ regs, $4k-2$ bilinear ops, 2 input accesses | `propext`, `Classical.choice`, `Quot.sound` | Odd characteristics or distinct-operand variant without self-squares $R_j^2$ | **Verified (Alexander S. Donahue)** |
+| `T3a`–`T3d` | `t3a`–`t3d` | $x^7 \in \mathrm{RP}(3,5)$, $x^9 \in \mathrm{RP}(3,6)$, $x^{11} \in \mathrm{RP}(3,7)$, $x^{13} \in \mathrm{RP}(3,8)$ whenever $D_t$ invertible | `propext`, `Classical.choice`, `Quot.sound` | Characteristics dividing $D_t$; general $t \ge 10$; upper bounds on $D_{3,\mathbb{Q}}^{\mathrm{pass}}(t)$ | **Verified (Alexander S. Donahue)** |
+| `T3e` | `t3e_exponent_chain` | Exact `Nat` inequalities certifying $\log_{13} 8 < \log_{11} 7 < \log_9 6 < \log_7 5 < \log_5 4$ and $< \log_{15} 9$ | *(zero axioms)* | Optimality across $r \ge 4$ | **Verified (Alexander S. Donahue)** |
+| `T4` | `t4_balanced_multilinear_product` | Zero-workspace $x_0 \cdots x_{d-1}$ ($d = 2^k$) in $k+2$ regs, $(7d^2-4)/3$ strictly distinct bilinear ops | `propext`, `Quot.sound` | Non-power-of-two $d$ without padding; optimality of constant $7/3$ | **Verified (Alexander S. Donahue)** |

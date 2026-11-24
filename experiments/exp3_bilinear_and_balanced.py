@@ -49,19 +49,27 @@ def verify_t2_bilinear_frobenius() -> list[dict]:
         bilin_ops = 0
 
         # Access 1
-        R[1] = f2_add(R[1], X); accesses += 1
+        R[1] = f2_add(R[1], X)
+        accesses += 1
         for j in range(1, k):
-            R[j + 1] = f2_add(R[j + 1], f2_mul(R[j], R[j])); bilin_ops += 1
-        R[0] = f2_add(R[0], f2_mul(R[k], R[k])); bilin_ops += 1
+            R[j + 1] = f2_add(R[j + 1], f2_mul(R[j], R[j]))
+            bilin_ops += 1
+        R[0] = f2_add(R[0], f2_mul(R[k], R[k]))
+        bilin_ops += 1
         for j in range(k - 1, 0, -1):
-            R[j + 1] = f2_add(R[j + 1], f2_mul(R[j], R[j])); bilin_ops += 1
+            R[j + 1] = f2_add(R[j + 1], f2_mul(R[j], R[j]))
+            bilin_ops += 1
         # Access 2
-        R[1] = f2_add(R[1], X); accesses += 1
+        R[1] = f2_add(R[1], X)
+        accesses += 1
         for j in range(1, k):
-            R[j + 1] = f2_add(R[j + 1], f2_mul(R[j], R[j])); bilin_ops += 1
-        R[0] = f2_add(R[0], f2_mul(R[k], R[k])); bilin_ops += 1
+            R[j + 1] = f2_add(R[j + 1], f2_mul(R[j], R[j]))
+            bilin_ops += 1
+        R[0] = f2_add(R[0], f2_mul(R[k], R[k]))
+        bilin_ops += 1
         for j in range(k - 1, 0, -1):
-            R[j + 1] = f2_add(R[j + 1], f2_mul(R[j], R[j])); bilin_ops += 1
+            R[j + 1] = f2_add(R[j + 1], f2_mul(R[j], R[j]))
+            bilin_ops += 1
 
         x_mon = tuple(deg if i == 0 else 0 for i in range(nvars))
         assert R[0] == (init_R[0] ^ {x_mon}), f"T2 output mismatch at k={k}"
@@ -93,13 +101,17 @@ def exec_balanced(xs: list[int], regs: list[int], target: int, sign: int, pool: 
     ra, rb, rest = pool[0], pool[1], pool[2:]
     assert target != ra and target != rb and ra != rb
     ops = 0
-    regs[target] += sign * (regs[ra] * regs[rb]); ops += 1
+    regs[target] += sign * (regs[ra] * regs[rb])
+    ops += 1
     ops += exec_balanced(xs[:mid], regs, ra, +1, [rb] + rest)
-    regs[target] -= sign * (regs[ra] * regs[rb]); ops += 1
+    regs[target] -= sign * (regs[ra] * regs[rb])
+    ops += 1
     ops += exec_balanced(xs[mid:], regs, rb, +1, [ra] + rest)
-    regs[target] += sign * (regs[ra] * regs[rb]); ops += 1
+    regs[target] += sign * (regs[ra] * regs[rb])
+    ops += 1
     ops += exec_balanced(xs[:mid], regs, ra, -1, [rb] + rest)
-    regs[target] -= sign * (regs[ra] * regs[rb]); ops += 1
+    regs[target] -= sign * (regs[ra] * regs[rb])
+    ops += 1
     ops += exec_balanced(xs[mid:], regs, rb, -1, [ra] + rest)
     return ops
 

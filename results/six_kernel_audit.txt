@@ -1,42 +1,15 @@
-================================================================================
-MULTI-KERNEL LEAN 4.35.0 FORMAL VERIFICATION AUDIT LOG
-Repository: catalytic-register-frontiers (v1.0.0)
-Toolchain:  leanprover/lean4:v4.35.0 (Zero Mathlib, all 10 .lean files use `module`)
-Export:     catalytic_solution_lf.ndjson (temporary in scratch, LF-normalized)
-            Size:   16,140,148 bytes
-            Target: Catalytic.Solution.prove_all_catalytic_theorems (conjoins all 12 theorems)
-            Forbidden-token scan across lean/**/*.lean: 0 matches (CLEAN)
-            Pattern: \b(sorry|admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern
-================================================================================
+# Six-Kernel Lean 4.35.0 Clean-Room Verification Audit
+Date: 2026-11-23
+Toolchain: leanprover/lean4:v4.35.0 (zero Mathlib, zero external Lake dependencies)
+Core Linters: autoImplicit=false, relaxedAutoImplicit=false, linter.unusedVariables=true, linter.deprecated=true
+Forbidden-token scan across all 11 .lean files: 0 matches (0 sorry, 0 admit, 0 native_decide, 0 custom axiom, 0 unsafe, 0 @[extern])
+Targets exported: Catalytic.Solution.prove_all_catalytic_theorems, Catalytic.NonVacuity.nonvac_all_hypotheses
 
-[KERNEL 1] lean.exe (C++ Reference Kernel + VerifyAxioms.lean, clean-from-scratch .lake rebuild)
-Command:  lake build && lake env lean VerifyAxioms.lean
-ExitCode: 0 (13/13 build jobs, 0 warnings, 0 errors)
-Axioms:   All 12 theorems + master bundle strictly within [propext, Classical.choice, Quot.sound]
-          (Verbatim output recorded in results/lean_axioms.txt)
+1. lean v4.35.0 (clean lake build + VerifyAxioms.lean): PASS (14/14 jobs, 0 warnings, 14/14 decls strictly within [propext, Classical.choice, Quot.sound])
+2. leanchecker Solution: PASS (exit 0)
+3. leanchecker-paranoid Solution: PASS (exit 0)
+4. con-leche --verified: PASS (exit 0) -- con-leche: accepted 3004 declarations (--verified)
+5. con-ron --verified: PASS (exit 0) -- con-ron: accepted 3004 declarations (--verified)
+6. nanoda_bin 0.4.19 (unpermitted_axiom_hard_error=true): PASS (exit 0, 0 typechecker errors, 0 unpermitted axioms)
 
-[KERNEL 2] leanchecker.exe (C++ External .olean Replay Kernel)
-Command:  lake env leanchecker Solution
-ExitCode: 0
-
-[KERNEL 3] leanchecker-paranoid.exe (C++ Paranoid External .olean Replay Kernel)
-Command:  lake env leanchecker-paranoid Solution
-ExitCode: 0
-
-[KERNEL 4] con-leche.exe --verified (Formally Verified Lean-in-Lean Set-Model Kernel)
-Command:  con-leche --verified catalytic_solution.ndjson
-Output:   con-leche: accepted 2896 declarations (--verified)
-ExitCode: 0
-
-[KERNEL 5] con-ron.exe --verified (Formally Verified Aeneas-Extracted Rust Arena Kernel)
-Command:  con-ron --verified catalytic_solution.ndjson
-Output:   con-ron: accepted 2896 declarations (--verified)
-ExitCode: 0
-
-[KERNEL 6] nanoda_bin.exe 0.4.19 (Independent Rust External Typechecker)
-Command:  nanoda_bin nanoda_config.json
-Config:   permitted_axioms=["propext","Classical.choice","Quot.sound"],
-          unpermitted_axiom_hard_error=true, nat_extension=true, string_extension=true
-Output:   Checked 3183 declarations with no typechecker errors
-ExitCode: 0
-================================================================================
+Note on Windows `lake check --paranoid`: Lean 4.35's `lake check` wrapper requires POSIX `bwrap` and `git` on PATH and is executed on Linux (`ubuntu-latest`) in `.github/workflows/ci.yml`; all five underlying bundled kernel implementations run natively on Windows above.

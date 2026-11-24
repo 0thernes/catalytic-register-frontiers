@@ -12,6 +12,8 @@ namespace Catalytic
 
 @[expose] public section
 
+universe u
+
 /-- Minimal commutative ring with `1` (zero Mathlib). -/
 class CRing (R : Type u) extends Add R, Mul R, Neg R, Zero R, One R where
   add_assoc : ∀ a b c : R, (a + b) + c = a + (b + c)

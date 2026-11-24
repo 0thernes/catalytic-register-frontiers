@@ -6,14 +6,13 @@ Produces 3 vector PDFs in paper/figures/ with CreationDate=None for byte-level r
 
 from __future__ import annotations
 
-import json
-import math
 import pathlib
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import numpy as np
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 FIG_DIR = REPO / "paper" / "figures"

@@ -1,24 +1,28 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Clean-Room Replication Guide (`REPLICATION.md`)
 
-Every Lean 4.35 formal proof, exact-arithmetic experiment, `pytest` assertion, deterministic vector PDF figure, and frozen AMS-LaTeX manuscript in `catalytic-register-frontiers` reproduces end-to-end from scratch.
+Every Lean 4.35 formal proof, non-vacuity witness, exact-arithmetic experiment, `pytest` / Hypothesis / mutant / SAT-equivalence test, deterministic vector PDF figure, and frozen AMS-LaTeX manuscript in `catalytic-register-frontiers` reproduces end-to-end from scratch.
 
 ## Prerequisites
 
 - **Lean 4.35.0** via `elan` (`leanprover/lean4:v4.35.0`, pinned in `lean/lean-toolchain`). Zero Mathlib dependency; builds fully offline once the toolchain is installed.
-- **Python 3.13** with pinned packages in `requirements.lock.txt` (`matplotlib==3.11.2`, `numpy==2.5.5`, `pytest==9.2.0`, `scipy==1.18.1`).
+- **Python 3.13** with pinned packages in `requirements.lock.txt` (`pytest==9.2.0`, `hypothesis==6.170.17`, `matplotlib==3.11.2`, `numpy==2.5.5`, `scipy==1.18.1`, `ruff==0.17.6`, `mypy==2.4.1`).
 - **CaDiCaL 2.1.2** (bundled with Lean 4.35.0 at `<toolchain>/bin/cadical[.exe]`, or set `CADICAL_BIN`).
 - **Tectonic** (`tectonic -X compile`) for compiling `paper/main.tex`.
 
-## 1. One-Command Verification (Windows PowerShell)
+## 1. One-Command Verification (Windows PowerShell or `just`)
 
 > **Bracket-Path Safety Note:** On Windows paths containing `[...]`, always pass `-LiteralPath` to PowerShell file cmdlets and run `pytest` repo-relative (`tests/test_all.py`).
 
 ```powershell
-pwsh -File scripts/run_all.ps1 -Task all
+# Windows PowerShell
+pwsh -NoProfile -File scripts/run_all.ps1 -Task all
+
+# Cross-platform via justfile
+just reproduce
 ```
 
-Individual stages: `-Task lean`, `-Task experiments`, `-Task tests`, `-Task figures`, `-Task paper`, `-Task audit`.
+Individual PowerShell stages: `-Task lean`, `-Task experiments`, `-Task tests`, `-Task figures`, `-Task paper`, `-Task audit`.
 
 ## 2. Step-by-Step Verification (Linux / macOS / CI)
 
@@ -33,12 +37,17 @@ lake env leanchecker Solution
 lake env leanchecker-paranoid Solution
 
 # Export self-contained LF NDJSON stream for external verified kernels
-lake env leanexport Solution -- Catalytic.Solution.prove_all_catalytic_theorems > /tmp/catalytic_solution.ndjson
+lake env leanexport Solution -- \
+  Catalytic.Solution.prove_all_catalytic_theorems \
+  Catalytic.NonVacuity.nonvac_all_hypotheses > /tmp/catalytic_solution.ndjson
 con-leche --verified /tmp/catalytic_solution.ndjson
 con-ron --verified /tmp/catalytic_solution.ndjson
+
+# On Linux (with bwrap installed), run Lean 4.35's bundled sandboxed multi-kernel checker:
+lake check --paranoid
 ```
 
-### B. Exact-Arithmetic Experiments & Pytest Suite
+### B. Exact-Arithmetic Experiments, Pytest, Hypothesis, & Linters
 
 ```bash
 python3 -m venv .venv
@@ -51,6 +60,9 @@ python experiments/exp3_bilinear_and_balanced.py
 python experiments/exp4_boolean_mc_companion.py
 
 pytest -v tests/test_all.py
+ruff check experiments scripts tests
+mypy experiments scripts tests
+python scripts/check_citations.py --offline
 ```
 
 ### C. Deterministic Vector Figures & AMS-LaTeX Manuscript
@@ -71,8 +83,17 @@ cd /tmp/arxiv_check
 tectonic -X compile main.tex --outdir out
 ```
 
-### E. Cryptographic Provenance Check
+### E. Cryptographic Provenance & Build Standard Audit
 
 ```bash
 sha256sum -c MANIFEST.sha256
+pwsh -NoProfile -File scripts/Audit-Repo.ps1 -Path .
 ```
+
+## 3. Replication Log (Build Standard B44)
+
+Independent external human replications (pass or fail) are welcome via `.github/ISSUE_TEMPLATE/question.yml` (label: `replication`). Self-replications are explicitly marked as such and do not substitute for external replication.
+
+| Date | Replicator | Scope | Environment | Outcome | Notes |
+|---|---|---|---|---|---|
+| 2026-11-23 | Alexander S. Donahue (author — clean-room self-replication) | Clean `.lake` + 6 kernels + `exp1`–`exp4` + `pytest`/Hypothesis/mutant/SAT + Tectonic + standalone `arxiv_submission.tar.gz` + `MANIFEST.sha256` | Windows 11 x64, Lean 4.35.0, Python 3.13.12, CaDiCaL 2.1.2, Tectonic | **PASS (self)** | Zero warnings, 6/6 kernels PASS, 100% SHA-256 match. External second-person replication still open. |

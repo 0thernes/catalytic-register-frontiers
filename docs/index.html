@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>catalytic-register-frontiers — Verification Portal &amp; Formal Blueprint</title>
+  <style>
+    :root { --bg:#0b1220; --card:#111a2e; --ink:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --ok:#34d399; --border:#1e293b; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--ink); margin:0; padding:2rem 1rem; line-height:1.6; }
+    main { max-width:960px; margin:0 auto; }
+    h1, h2 { color:#f8fafc; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.25rem 1.5rem; margin:1.25rem 0; }
+    .pill { display:inline-block; padding:0.2rem 0.6rem; border-radius:999px; font-size:0.85rem; background:#064e3b; color:var(--ok); margin-right:0.4rem; }
+    a { color:var(--accent); }
+    table { width:100%; border-collapse:collapse; margin-top:0.75rem; font-size:0.95rem; }
+    th, td { border-bottom:1px solid var(--border); text-align:left; padding:0.55rem 0.6rem; vertical-align:top; }
+    code { background:#0f172a; padding:0.15rem 0.35rem; border-radius:4px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs</h1>
+  <p><strong>Author:</strong> Alexander S. Donahue (Independent Researcher, Spokane, WA, USA &middot; ORCID <a href="https://orcid.org/0009-0006-8168-9648">0009-0006-8168-9648</a>)</p>
+  <p>
+    <span class="pill">Lean 4.35.0 &middot; Zero Mathlib</span>
+    <span class="pill">6 / 6 Independent Kernels</span>
+    <span class="pill">0 sorry &middot; 3 Standard Axioms</span>
+    <span class="pill">Preprint &middot; Not Peer-Reviewed</span>
+  </p>
+
+  <div class="card">
+    <h2>Formal Dependency Blueprint (Module Graph)</h2>
+    <p>Every theorem in <code>paper/main.tex</code> maps to a zero-Mathlib Lean 4.35.0 module audited across <code>lean</code>, <code>leanchecker</code>, <code>leanchecker-paranoid</code>, <code>con-leche --verified</code>, <code>con-ron --verified</code>, and <code>nanoda_bin</code>.</p>
+    <pre><code>Catalytic.CommRing
+ ├── Catalytic.BilinearFrobenius        ──▶ T2  (2-access bilinear x^(2^k), char 2)
+ ├── Catalytic.BalancedProduct          ──▶ T4  ((7d^2-4)/3 zero-workspace product)
+ └── Catalytic.ThreeRegisterBreakthrough ──▶ T3a–T3e (x^7, x^9, x^11, x^13; log_13 8 = 0.81071)
+Catalytic.PrimeFieldTools
+ └── Catalytic.DigitSumDichotomy        ──▶ T1, T1a–T1d (s_p(d) ≤ min(p-1, t-1) IFF)
+Catalytic.NonVacuity                    ──▶ Concrete 0 ≠ 1 witnesses for T1–T4
+ └── Challenge.lean ──▶ Solution.lean ──▶ VerifyAxioms.lean</code></pre>
+    <p>Raw verification artifacts:
+      <a href="blueprint/lean_axioms.txt">lean_axioms.txt</a> &middot;
+      <a href="blueprint/six_kernel_audit.txt">six_kernel_audit.txt</a> &middot;
+      <a href="blueprint/statement-fidelity.md">statement-fidelity.md</a>
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Tier-1 Machine-Checked Theorems</h2>
+    <table>
+      <thead><tr><th>ID</th><th>Lean Declaration</th><th>Key Result</th><th>Axioms</th></tr></thead>
+      <tbody>
+        <tr><td><code>T1</code></td><td><code>t1_digit_sum_dichotomy</code></td><td>Unconditional IFF for RP<sup>pass</sup><sub>F<sub>p</sub></sub>(2, t) via base-p digit sum s<sub>p</sub>(d) &le; min(p&minus;1, t&minus;1)</td><td>3 standard</td></tr>
+        <tr><td><code>T2</code></td><td><code>t2_bilinear_frobenius_collapse</code></td><td>Strictly bilinear passive 2-access x<sup>2<sup>k</sup></sup> in k+1 regs, 4k&minus;2 ops over any char-2 ring</td><td>3 standard</td></tr>
+        <tr><td><code>T3a–e</code></td><td><code>t3a</code>–<code>t3e</code></td><td>Explicit 3-register programs for x<sup>7</sup>, x<sup>9</sup>, x<sup>11</sup>, x<sup>13</sup>; optimal log<sub>13</sub> 8 &approx; 0.81071 &lt; log<sub>5</sub> 4</td><td>3 standard (0 for T3e)</td></tr>
+        <tr><td><code>T4</code></td><td><code>t4_balanced_multilinear_product</code></td><td>Zero-workspace balanced product x<sub>0</sub>&cdots;x<sub>d&minus;1</sub> in log<sub>2</sub> d + 2 regs, (7d<sup>2</sup>&minus;4)/3 ops</td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
+        <tr><td><code>NONVAC</code></td><td><code>nonvac_all_hypotheses</code></td><td>Concrete <code>0 &ne; 1</code> witnesses (<code>ModP 2, 5, 7, 11</code>, <code>Int</code>) ruling out vacuous hypotheses</td><td>3 standard</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

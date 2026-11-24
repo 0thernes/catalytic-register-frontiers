@@ -1,0 +1,38 @@
+{
+  "challenge_module": "Challenge",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "Catalytic.Solution.t1_digit_sum_dichotomy",
+    "Catalytic.Solution.t1a_two_access_frobenius_collapse",
+    "Catalytic.Solution.t1b_f2_saturation",
+    "Catalytic.Solution.t1c_impossibility_threshold",
+    "Catalytic.Solution.t1d_vinciguerra_recovery",
+    "Catalytic.Solution.t2_bilinear_frobenius_collapse",
+    "Catalytic.Solution.t3a_three_reg_5call_x7",
+    "Catalytic.Solution.t3b_three_reg_6call_x9",
+    "Catalytic.Solution.t3c_three_reg_7call_x11",
+    "Catalytic.Solution.t3d_three_reg_8call_x13",
+    "Catalytic.Solution.t3e_exponent_chain",
+    "Catalytic.Solution.t4_balanced_multilinear_product",
+    "Catalytic.Solution.prove_all_catalytic_theorems"
+  ],
+  "definition_names": [
+    "Catalytic.Challenge.T1_DigitSumDichotomy",
+    "Catalytic.Challenge.T1a_TwoAccessFrobeniusCollapse",
+    "Catalytic.Challenge.T1b_F2Saturation",
+    "Catalytic.Challenge.T1c_ImpossibilityThreshold",
+    "Catalytic.Challenge.T1d_VinciguerraRecovery",
+    "Catalytic.Challenge.T2_BilinearFrobeniusCollapse",
+    "Catalytic.Challenge.T3a_ThreeReg5CallX7",
+    "Catalytic.Challenge.T3b_ThreeReg6CallX9",
+    "Catalytic.Challenge.T3c_ThreeReg7CallX11",
+    "Catalytic.Challenge.T3d_ThreeReg8CallX13",
+    "Catalytic.Challenge.T3e_ExponentChain",
+    "Catalytic.Challenge.T4_BalancedMultilinearProduct"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ]
+}

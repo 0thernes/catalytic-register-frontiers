@@ -1,31 +1,434 @@
-# catalytic-register-frontiers — Full Machine-Readable Context (`llms-full.txt`)
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+<!-- Generated from canonical repository documents; do not hand-edit. -->
 
-- **Repository:** `catalytic-register-frontiers` v1.0.0 (2026-11-23)
-- **Author:** Alexander S. Donahue (Independent Researcher, Spokane, WA, USA; ORCID 0009-0006-8168-9648; `0_0@0thernes.art`)
-- **Licenses:** Apache-2.0 (code & Lean) + CC-BY-4.0 (prose, docs, figures)
-- **Toolchain:** `leanprover/lean4:v4.35.0` (zero Mathlib, all 10 `.lean` files use `module`), Python 3.13.12, CaDiCaL 2.1.2, Tectonic
+---
+# FILE: AGENTS.md
+---
 
-## Formalized Theorems (All 12 Certified Across 6 Kernels)
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+# Agent & Contributor Instructions — `catalytic-register-frontiers`
 
-1. **`T1` (`Catalytic.Solution.t1_digit_sum_dichotomy`)**:
-   For every prime `p`, `t >= 1`, and `f in F_p[x]`, `f in RP^{pass}_{F_p}(2, t)` iff for every `d >= 2` with `[x^d]f != 0 (mod p)`, `s_p(d) <= min(p - 1, t - 1)`.
-   - `T1a`: `x^(p^m) in RP^{pass}_{F_p}(2, 2)` for all primes `p` and `m : Nat` (`D^{pass}_{2, F_p}(2) = +infinity`).
-   - `T1b`: `x^3 not in RP^{pass}_{F_2}(2, t)` for all `t`.
-   - `T1c`: `s_p(d) >= p -> x^d not in RP^{pass}_{F_p}(2, t)` for all `t >= 1`.
-   - `T1d`: `2 <= d < p -> (x^d in RP^{pass}_{F_p}(2, t) <-> d + 1 <= t)` (recovers Vinciguerra Thm. 3.5).
-2. **`T2` (`Catalytic.Solution.t2_bilinear_frobenius_collapse`)**:
-   For all `k >= 1` and any commutative characteristic-2 ring `R`, `frobBilinProg` cleanly computes `x^(2^k)` in `k + 1` registers, `4*k - 2` strictly bilinear basic ops (`R_i += R_j * R_l`), passive output, and **exactly 2 input accesses**.
-3. **`T3a`–`T3e` (`Catalytic.Solution.t3a_*`..`t3e_*`)**:
-   Explicit passive-output 3-register programs cleanly computing:
-   - `x^7` in 5 accesses (`D_5 = 576`, bad primes `{2, 3}`, `log_7 5 = 0.827087`),
-   - `x^9` in 6 accesses (`D_6 = 382500000`, bad primes `{2, 3, 5, 17}`, `log_9 6 = 0.815465`),
-   - `x^11` in 7 accesses (`D_7 = 68724637549388656012800`, `log_11 7 = 0.811508`),
-   - `x^13` in 8 accesses (`D_8 = 2656207148788801777680`, `log_13 8 = 0.810714`, unique integer minimizer of `log_{2t-3} t`),
-   - Exact `Nat` separation chain (`T3e`, 0 axioms!): `log_13 8 < 30/37 < log_11 7 < 13/16 < log_9 6 < 9/11 < log_7 5 < 5/6 < log_5 4` and `< log_15 9`.
-   - Downstream asymptotic corollaries (Tier-3): sharpens Vinciguerra `arXiv:2609.18692` Corollary 4.3.1 (4-register powering), Corollary 5.1.1 (catalytic streaming `F_D`), and Theorem 5.2 (3-register matrix powering) from exponent `0.86135` to `0.81071`.
-4. **`T4` (`Catalytic.Solution.t4_balanced_multilinear_product`)**:
-   Balanced binary-tree zero-workspace bilinear commutator computing `x_0 * ... * x_{d-1}` (`d = 2^k`) over any commutative ring in `k + 2` registers, strictly distinct indices, and exact op count `(7*d^2 - 4)/3`.
+**Current Build Pipeline Phase:** `P7–P9` (Verified locally, release-ready for GitHub/Palomar/archival; see `docs/plan/decision-log.md`).  
+**Governing Standards:** Build Standard for LLMs v1.1.0 (`repo.yaml`, `scripts/Audit-Repo.ps1`) and Defensible Independent AI Research Playbook v1.1 (`docs/reviews/01-10-pass-review.md`).
 
-## Verification Evidence
-- **6 Lean 4.35 Kernels:** `lean v4.35.0` (13/13 jobs, 0 warnings), `leanchecker` (exit 0), `leanchecker-paranoid` (exit 0), `con-leche --verified` (2,896 decls), `con-ron --verified` (2,896 decls), `nanoda_bin 0.4.19` (3,183 decls, strict 3-axiom hard error).
-- **Exact Python & SAT Suite:** 4 exact experiments (`exp1`–`exp4`), 8/8 `pytest` passing, 3 deterministic vector PDFs, 13-page AMS-LaTeX PDF (zero warnings), clean-room verified `dist/arxiv_submission.tar.gz`.
+Follow these repository invariants on every edit:
+
+1. **Workspace & Shell Safety:** This repository lives on a bracketed Windows path (`Z:\[Vibe Coded (AI)]\ANTIGRAVITY\catalytic-register-frontiers`). Always use `-LiteralPath` in PowerShell file cmdlets, use `os.walk` instead of `glob.glob` in Python over bracketed paths, and run `pytest` repo-relative (`tests/test_all.py`).
+2. **Zero-Mathlib Lean 4.35 Bar:** Every `.lean` file begins with `module` (all 11 files, each < 1,500 lines) and builds with zero warnings under `autoImplicit=false`, `linter.unusedVariables=true`, `linter.deprecated=true`. Zero `sorry`, zero `admit`, zero `native_decide`, zero custom `axiom`, zero `unsafe`, zero `@[extern]`. Every exported theorem in `Challenge.lean` / `Solution.lean` plus `Catalytic.NonVacuity.nonvac_all_hypotheses` must pass `VerifyAxioms.lean` strictly within `[propext, Classical.choice, Quot.sound]` and replay across `lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, and `nanoda_bin`.
+3. **Exact Arithmetic, Testing & Linters:** All computational checks in `experiments/` and `tests/` use exact integer/rational/finite-field arithmetic (`int`, `fractions.Fraction`) with no floating-point proof steps. Maintain passing Hypothesis property/metamorphic tests, mutant-killing checks, brute-force SAT encoder equivalence tests, `scripts/check_citations.py`, `ruff`, and `mypy`. Vector PDF figures must set `metadata={"CreationDate": None}`.
+4. **Epistemic Integrity & Identity:** Clearly separate Tier-1..4 claims (`CLAIMS.md`, `docs/statement-fidelity.md`, `LIMITATIONS.md`). Cite primary literature (`arXiv:2609.18692`, `arXiv:2608.30238`, `doi:10.4230/LIPIcs.MFCS.2025.6`, `doi:10.1016/j.tcs.2018.02.023`) accurately without redistributing third-party PDFs. Author is `Alexander S. Donahue` (Independent Researcher, Spokane, WA, USA; ORCID `0009-0006-8168-9648`; no unformed LLC claim); dual license is `Apache-2.0` (code) + `CC-BY-4.0` (prose/docs/figures).
+5. **Lean Git & CI Rules (R1–R8):** Commit directly to `main`; never add git hooks, branch protection, PR templates, Dependabot, or `.github/copilot-instructions.md`. Keep CI informational-only. Classify every finding as exactly one of `{bug, error, issue, problem, dilemma, conflict}`. Regenerate LF-clean `MANIFEST.sha256` after any artifact change.
+
+---
+# FILE: README.md
+---
+
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+# Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs
+
+[![Version 1.0.0](https://img.shields.io/badge/version-1.0.0-blue.svg)](VERSION)
+[![Lean 4.35.0 Zero-Mathlib](https://img.shields.io/badge/Lean-4.35.0%20(zero--Mathlib)-brightgreen.svg)](lean/lean-toolchain)
+[![6 Kernels Verified](https://img.shields.io/badge/kernels-6%2F6%20PASS-brightgreen.svg)](results/six_kernel_audit.txt)
+[![Code License: Apache-2.0](https://img.shields.io/badge/code%20license-Apache--2.0-blue.svg)](LICENSE)
+[![Docs License: CC-BY-4.0](https://img.shields.io/badge/docs%20license-CC--BY--4.0-lightgrey.svg)](LICENSE)
+[![Status: Preprint — Not Peer Reviewed](https://img.shields.io/badge/status-preprint%20(not%20peer%20reviewed)-yellow.svg)](LIMITATIONS.md)
+
+A zero-Mathlib Lean 4.35.0 formalization, exact-arithmetic verification suite, and AMS-LaTeX preprint settling the exact two-register prime-field frontier and strictly improving the three-register catalytic powering exponent of Vinciguerra (`arXiv:2609.18692`).
+
+**Author:** Alexander S. Donahue (Independent Researcher, Spokane, WA, USA · ORCID [`0009-0006-8168-9648`](https://orcid.org/0009-0006-8168-9648) · `0_0@0thernes.art`)  
+**Maintenance status:** active independent research artifact (`v1.0.0`, 2026-11-23) · **Frozen White Paper:** [`dist/Donahue_2026_catalytic_register_frontiers.pdf`](dist/Donahue_2026_catalytic_register_frontiers.pdf)
+
+> **Epistemic Status:** All 12 headline theorems (`T1`, `T1a`–`T1d`, `T2`, `T3a`–`T3e`, `T4`) and concrete `0 ≠ 1` non-vacuity witnesses (`NonVacuity`) are machine-checked from first principles in **zero-Mathlib Lean 4.35.0** across **6 kernel runs / 5 independent implementations** (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin 0.4.19`) with 0 forbidden tokens and 0 linter warnings. This preprint has **not** undergone external peer review; see [`CLAIMS.md`](CLAIMS.md) (including explicit falsification criteria) and [`LIMITATIONS.md`](LIMITATIONS.md).
+
+---
+
+## 5-Second Formal Verification Proof (Verbatim `#print axioms`)
+
+Exact output of `cd lean && lake env lean VerifyAxioms.lean` (archived in [`results/lean_axioms.txt`](results/lean_axioms.txt), cross-checked in CI; `results/six_kernel_audit.txt` records all 6 passing kernel runs including `con-leche --verified` and `con-ron --verified` accepting 3,004 declarations and `nanoda_bin 0.4.19` with `unpermitted_axiom_hard_error=true`):
+
+```text
+'Catalytic.Solution.t1_digit_sum_dichotomy' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1a_two_access_frobenius_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1b_f2_saturation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1c_impossibility_threshold' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1d_vinciguerra_recovery' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t2_bilinear_frobenius_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3a_three_reg_5call_x7' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3b_three_reg_6call_x9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3c_three_reg_7call_x11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3d_three_reg_8call_x13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3e_exponent_chain' does not depend on any axioms
+'Catalytic.Solution.t4_balanced_multilinear_product' depends on axioms: [propext, Quot.sound]
+'Catalytic.Solution.prove_all_catalytic_theorems' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.NonVacuity.nonvac_all_hypotheses' depends on axioms: [propext, Classical.choice, Quot.sound]
+```
+
+## Statement-Fidelity Summary (Full Table: [`docs/statement-fidelity.md`](docs/statement-fidelity.md))
+
+| Lean Declaration (`lean/Challenge.lean`) | Literature Anchor | Non-Vacuity Witness (`NonVacuity.lean`) | Explicitly NOT Claimed |
+|---|---|---|---|
+| `T1_DigitSumDichotomy` (`InRPPass2 p t f`) | Vinciguerra (`arXiv:2609.18692`), Def. 2.2, Thm. 3.5 | `IsPrime 2,3,5,7`; $x^4 \in \mathrm{RP}_{\mathbb{F}_2}(2,2)$, $x^3 \notin \mathrm{RP}_{\mathbb{F}_2}(2,10)$ | Non-prime $\mathbb{F}_{p^e}$ ($e \ge 2$), $r \ge 3$ |
+| `T2_BilinearFrobeniusCollapse` (`BilinInstr`) | Strictly bilinear restriction of Def. 2.2 | `F2 = ModP 2` ($0 \neq 1$), $k = 2$, $x = 1$ | Odd characteristics; non-self-square variant |
+| `T3a`–`T3e` (`Pass3InstrR`, `prog5_x7`..`prog8_x13`) | Vinciguerra (`arXiv:2609.18692`), Def. 2.2, §4–5 | `ModP 5, 7, 11` ($0 \neq 1$) with explicit $D_t^{-1}$ | Bad primes dividing $D_t$; uniform $t \ge 10$; upper bounds |
+| `T4_BalancedMultilinearProduct` (`CatOp`) | Zero-workspace strictly distinct bilinear ops | `Int` ($0 \neq 1$), $d = 4$, 36 ops, clean restoration | Non-power-of-two $d$ without padding; lower-bound optimality |
+
+---
+
+## Core Mathematical Results
+
+1. **Theorem T1 — Complete Base-$p$ Digit-Sum Dichotomy for $\mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t)$** ([`DigitSumDichotomy.lean`](lean/Catalytic/DigitSumDichotomy.lean)):
+   For every prime $p$, every budget $t \ge 1$, and every univariate polynomial $f(x) = \sum_{d \ge 0} \alpha_d x^d \in \mathbb{F}_p[x]$:
+   $$f \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t) \quad \Longleftrightarrow \quad \forall\, d \ge 2 \text{ with } \alpha_d \neq 0,\;\; s_p(d) \le \min(p - 1,\; t - 1).$$
+   - **T1a:** $x^{p^m} \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, 2)$ for all $m \ge 0$ ($D_{2,\mathbb{F}_p}^{\mathrm{pass}}(2) = +\infty$).
+   - **T1b:** Exact $\mathbb{F}_2$ saturation: $x^3 \notin \mathrm{RP}_{\mathbb{F}_2}^{\mathrm{pass}}(2, t)$ for **all** $t \ge 0$.
+   - **T1c:** Universal impossibility threshold: whenever $s_p(d) \ge p$, $x^d \notin \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t)$ for all $t \ge 1$.
+   - **T1d:** Characteristic-0 recovery: whenever $2 \le d < p$, $x^d \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t) \iff t \ge d + 1$.
+
+2. **Theorem T2 — Strictly Bilinear 2-Access Frobenius Collapse over Characteristic 2** ([`BilinearFrobenius.lean`](lean/Catalytic/BilinearFrobenius.lean)):
+   Under strictly bilinear updates $R_i \leftarrow R_i + R_j R_\ell$ ($j, \ell \neq i$, passive $R_0$), for every $k \ge 1$ and every `Char2CRing` $R$, $x^{2^k}$ is cleanly computed in $k + 1$ registers, $4k - 2$ bilinear ops, and **2 input accesses**.
+
+3. **Theorem T3 — Strict Improvement Over Vinciguerra's 3-Register Powering, Streaming, and Matrix-Powering Exponent** ([`ThreeRegisterBreakthrough.lean`](lean/Catalytic/ThreeRegisterBreakthrough.lean)):
+   Explicit Definition 2.2 Pascal-row shear loops give $x^7 \in \mathrm{RP}(3, 5)$ ($D_5 = 576$, $\log_7 5 \approx 0.82709$), $x^9 \in \mathrm{RP}(3, 6)$ ($D_6 = 382{,}500{,}000$, $\log_9 6 \approx 0.81546$), $x^{11} \in \mathrm{RP}(3, 7)$ ($\log_{11} 7 \approx 0.81151$), and $x^{13} \in \mathrm{RP}(3, 8)$ ($\mathbf{\log_{13} 8 \approx 0.81071}$ — unique integer minimizer of $\log_{2t-3} t$, strictly improving Vinciguerra's $\log_5 4 \approx 0.86135$ across Cor. 4.3.1, Cor. 5.1.1, and Thm. 5.2).
+
+4. **Theorem T4 — Balanced Zero-Workspace Bilinear Multilinear Product** ([`BalancedProduct.lean`](lean/Catalytic/BalancedProduct.lean)):
+   Over any commutative ring $R$, for $d = 2^k$, cleanly computes $x_0 \cdots x_{d-1}$ with zero clean workspace, $\log_2 d + 2$ registers, strictly pairwise-distinct indices, and exact primitive op count $(7d^2 - 4)/3$.
+
+---
+
+## Quickstart
+
+Prerequisites: **Lean 4.35.0** (`elan`), **Python 3.13**, **Tectonic** (CaDiCaL 2.1.2 is bundled with Lean 4.35.0).
+
+```bash
+# 1. Install pinned Python dependencies
+python -m venv .venv
+# Windows: .venv\Scripts\activate   |   Linux/macOS: source .venv/bin/activate
+pip install -r requirements.lock.txt
+
+# 2. Run the full end-to-end verification pipeline (Lean + experiments + tests + figures + PDF + SHA-256)
+just reproduce
+# Or on Windows PowerShell without `just`:
+pwsh -NoProfile -File scripts/run_all.ps1 -Task all
+```
+
+Expected result: 14/14 Lean jobs built with 0 warnings, `leanchecker` & `leanchecker-paranoid` exit 0, all `pytest` / Hypothesis / mutant / SAT-equivalence tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, and 100% `MANIFEST.sha256` verification.
+
+## Usage and Examples
+
+### Common Path — Verify Lean Proofs & Run Exact Test Suite
+```bash
+cd lean && lake build && lake env lean VerifyAxioms.lean && lake env leanchecker-paranoid Solution
+cd .. && pytest -v tests/test_all.py
+```
+
+### Advanced Path — Export Proof Stream to External Kernels & Audit Repository
+```bash
+cd lean
+lake env leanexport Solution -- Catalytic.Solution.prove_all_catalytic_theorems Catalytic.NonVacuity.nonvac_all_hypotheses > /tmp/sol.ndjson
+con-leche --verified /tmp/sol.ndjson
+con-ron --verified /tmp/sol.ndjson
+cd ..
+python scripts/check_citations.py --offline
+pwsh -NoProfile -File scripts/Audit-Repo.ps1 -Path .
+```
+
+### Negative / Failure Path — Verifying Impossibility & Mutant Rejection
+```bash
+# Run the dedicated negative & mutant-killing tests (confirms x^3 over F_2 fails and corrupted certificates are rejected)
+pytest -v tests/test_all.py -k "mutant or negative or bruteforce"
+```
+
+## Architecture, Governance & Limitations
+
+- **Architecture & Threat Model:** [`docs/architecture.md`](docs/architecture.md), [`docs/threat-model.md`](docs/threat-model.md), [`docs/adr/`](docs/adr/)
+- **Verification, Claims & Limitations:** [`CLAIMS.md`](CLAIMS.md), [`LIMITATIONS.md`](LIMITATIONS.md), [`docs/verification.md`](docs/verification.md), [`REPLICATION.md`](REPLICATION.md), [`ERRATA.md`](ERRATA.md)
+- **Legal, AI Disclosure & Ethics:** [`docs/legal-and-ethics.md`](docs/legal-and-ethics.md), [`LICENSE`](LICENSE), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)
+
+## Attribution & Primary Literature
+
+- A. Vinciguerra, *An Operator Approach to Register Programs for Catalytic Computing*, [`arXiv:2609.18692`](https://arxiv.org/abs/2609.18692) (Sep 2026).
+- G. Morse, *Unrestricted Boolean Multiplicative Complexity of Four-Term Binary Polynomial Multiplication: Rational Places, Hasse Jets, and the Failure of Nonlinear Feedback*, [`arXiv:2608.30238`](https://arxiv.org/abs/2608.30238) (Aug 2026).
+- Y. Alekseev, Y. Filmus, I. Mertz, A. Smal, and A. Vinciguerra, *Catalytic Computing and Register Programs Beyond Log-Depth*, MFCS 2025, LIPIcs 345, pp. 6:1–6:18, [`doi:10.4230/LIPIcs.MFCS.2025.6`](https://doi.org/10.4230/LIPIcs.MFCS.2025.6) ([`arXiv:2504.17412`](https://arxiv.org/abs/2504.17412)).
+- J. Boyar and M. G. Find, *Multiplicative complexity of vector valued Boolean functions*, Theoretical Computer Science 720 (2018), pp. 36–46, [`doi:10.1016/j.tcs.2018.02.023`](https://doi.org/10.1016/j.tcs.2018.02.023).
+
+No third-party copyrighted PDFs are redistributed in this repository.
+
+---
+# FILE: CLAIMS.md
+---
+
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+# Machine-Auditable Claims Ledger (`CLAIMS.md`)
+
+Every scientific claim in `catalytic-register-frontiers` is assigned an explicit epistemic tier and an explicit refutation condition (Build Standard B04, B42):
+
+- **`TIER-1 (Lean 4.35 Multi-Kernel)`**: Formally verified from first principles in `lean/Solution.lean` + `lean/Catalytic/NonVacuity.lean` (zero Mathlib, zero forbidden tokens, strict core linters clean, axioms $\subseteq \{\text{propext}, \text{Classical.choice}, \text{Quot.sound}\}$, 6 passing kernel runs across 5 implementations).
+- **`TIER-2 (Exact-Arithmetic / SAT-Certified)`**: 100% exact integer, rational (`fractions.Fraction`), finite-field ($\mathbb{F}_p$, $\mathbb{F}_4$), or CaDiCaL 2.1.2 SAT/UNSAT computation verified by `pytest`, Hypothesis property tests, mutant checks, and brute-force SAT encoder equivalence tests.
+- **`TIER-3 (Paper-Level Reduction)`**: Standard mathematical deduction combining our Tier-1 theorems with published composition theorems in Vinciguerra (`arXiv:2609.18692`, Lemma 2.2, Corollaries 4.3.1, 5.1.1, §4.4, and Theorem 5.2).
+- **`TIER-4 (Open Frontier)`**: Explicitly unresolved conjecture or research question.
+
+## Tier-1 Machine-Checked Lean 4.35 Theorems
+
+| ID | Statement (`lean/Challenge.lean`) | Proof (`lean/Solution.lean`) | Exact `#print axioms` | Verification |
+|---|---|---|---|---|
+| `T1` | `T1_DigitSumDichotomy` ($f \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t) \iff \forall d \ge 2,\, \alpha_d \neq 0 \to s_p(d) \le \min(p-1, t-1)$) | `t1_digit_sum_dichotomy` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels (`results/six_kernel_audit.txt`) |
+| `T1a` | `T1a_TwoAccessFrobeniusCollapse` ($\forall p\text{ prime},\, m,\, x^{p^m} \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, 2)$) | `t1a_two_access_frobenius_collapse` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `T1b` | `T1b_F2Saturation` ($\forall t,\, x^3 \notin \mathrm{RP}_{\mathbb{F}_2}^{\mathrm{pass}}(2, t)$) | `t1b_f2_saturation` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `T1c` | `T1c_ImpossibilityThreshold` ($s_p(d) \ge p \implies \forall t,\, x^d \notin \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t)$) | `t1c_impossibility_threshold` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `T1d` | `T1d_VinciguerraRecovery` ($2 \le d < p \implies (x^d \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t) \iff d + 1 \le t)$) | `t1d_vinciguerra_recovery` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `T2` | `T2_BilinearFrobeniusCollapse` ($\forall k \ge 1$, $x^{2^k}$ cleanly in $k+1$ regs, $4k-2$ bilinear ops, **2** input accesses over any `Char2CRing`) | `t2_bilinear_frobenius_collapse` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `T3a` | `T3a_ThreeReg5CallX7` ($x^7 \in \mathrm{RP}_R^{\mathrm{pass}}(3, 5)$ whenever $576$ invertible, i.e., $\mathrm{char} \neq 2, 3$) | `t3a_three_reg_5call_x7` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `T3b` | `T3b_ThreeReg6CallX9` ($x^9 \in \mathrm{RP}_R^{\mathrm{pass}}(3, 6)$ whenever $382{,}500{,}000$ invertible, i.e., $\mathrm{char} \notin \{2,3,5,17\}$) | `t3b_three_reg_6call_x9` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `T3c` | `T3c_ThreeReg7CallX11` ($x^{11} \in \mathrm{RP}_R^{\mathrm{pass}}(3, 7)$ over $\mathbb{Q}$ and good prime fields) | `t3c_three_reg_7call_x11` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `T3d` | `T3d_ThreeReg8CallX13` ($x^{13} \in \mathrm{RP}_R^{\mathrm{pass}}(3, 8)$, optimal exponent $\log_{13} 8 \approx 0.810714$) | `t3d_three_reg_8call_x13` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `T3e` | `T3e_ExponentChain` (exact `Nat` proof of $\log_{13} 8 < \frac{30}{37} < \log_{11} 7 < \frac{13}{16} < \log_9 6 < \frac{9}{11} < \log_7 5 < \frac{5}{6} < \log_5 4$ and $< \log_{15} 9$) | `t3e_exponent_chain` | *(none — zero axioms)* | 6 kernels |
+| `T4` | `T4_BalancedMultilinearProduct` ($\forall k$, $d=2^k$, clean $x_0\cdots x_{d-1}$ with $0$ workspace, $k+2$ regs, $(7d^2-4)/3$ ops) | `t4_balanced_multilinear_product` | `propext`, `Quot.sound` | 6 kernels |
+| `ALL` | Conjunction of all 12 theorems above | `prove_all_catalytic_theorems` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels |
+| `NONVAC` | Concrete $0 \neq 1$ ring/prime/evaluation witnesses for `T1`–`T4` | `Catalytic.NonVacuity.nonvac_all_hypotheses` | `propext`, `Classical.choice`, `Quot.sound` | 6 kernels (`con-leche`, `con-ron`, `nanoda_bin`) |
+
+## Tier-2 Exact-Arithmetic & SAT-Certified Claims
+
+| ID | Summary | Artifact | Pytest Guard |
+|---|---|---|---|
+| `E1` | Exhaustive $\mathbb{F}_2, \mathbb{F}_3, \mathbb{F}_5, \mathbb{F}_7$ verification ($d=2..120$/$100$): 107 feasible degrees ($s_p+1$), 82 exhaustive subset lower-bound audits, 349 impossible degrees ($s_p \ge p$). | `results/exp1_digit_sum.json` | `test_t1_prime_field_dichotomy_exact` |
+| `E2` | Exact $\mathbb{F}_4$ extension-field spectrum ($d=1..16$): $x^5, x^{10} \to 3$ calls; $x^3, x^6, x^9, x^{12} \to 4$ calls; $x^7, x^{11}, x^{13}, x^{14}, x^{15}$ impossible $\forall t$. | `results/exp1_digit_sum.json` | `test_t1_extension_field_f4_spectrum` |
+| `E3` | Exact $\mathbb{Z}[x, u, v]$ and $\mathbb{F}_p$ replay of $r=3$, $t=4..9$ ($x^5, x^7, x^9, x^{11}, x^{13}, x^{15}$), full prime factorizations of $D_t$, and all 9 integer exponent-chain inequalities. | `results/exp2_three_register.json` | `test_t3_three_register_breakthrough_exact` |
+| `E4` | Exact $\mathbb{F}_2[x, c_0..c_k]$ symbolic verification of `T2` ($k=1..6$, $x^2..x^{64}$) and exact integer verification of `T4` ($d=2..32$, up to 2,388 ops). | `results/exp3_bilinear_balanced.json` | `test_t2_bilinear_frobenius_exact`, `test_t4_balanced_multilinear_product_exact` |
+| `E5` | Exact CaDiCaL 2.1.2 SAT companion audit + brute-force $n=2, 3$ encoder equivalence audit: $\mathbb{F}_4$ mul $\mathrm{MC}_\wedge = 3$, orthogonal bent pair $\mathrm{MC}_\wedge = 3$, 182 degree-3 cancellations, 6/6 hard $(n=4, m=3)$ quadratic maps certified $k=2$ UNSAT, 0 Boyar–Find counterexamples. | `results/exp4_boolean_mc.json` | `test_exp4_boolean_mc_companion_sat`, `test_sat_encoder_bruteforce_equivalence` |
+
+## Tier-3 Paper-Level Reductions
+
+- **`R1` (Powering with 4 registers):** Composing `T3d` with Vinciguerra (`arXiv:2609.18692`, Lemma 2.2 & Corollary 4.3.1) gives $x^N \in \mathrm{RP}_K^{\mathrm{pass}}(4, \frac{8}{3} \cdot 13 \cdot N^{\log_{13} 8}) = \mathrm{RP}_K^{\mathrm{pass}}(4, O(N^{0.81072}))$ (vs. $O(N^{0.86136})$).
+- **`R2` (Catalytic streaming frequency moments $F_D(\sigma)$):** Reduces pass complexity at the $r=3$ base space tier from $O(D^{0.86136})$ to $O(D^{0.81072})$ using $O(n D \log(m+1))$ catalytic bits and $O(D \log(m+1) + \log n + \log D)$ regular workspace bits (matching Corollary 5.1.1 of `arXiv:2609.18692`).
+- **`R3` (Matrix powering $A^N$):** Lifting `T3d` via Vinciguerra §4.4's $\ell_A(z)$ symmetric-tensor lift computes $A^N$ for arbitrary non-commutative $A \in M_m(\mathbb{F}_p)$ using $O(N^{0.81072})$ recursive matrix-input calls and the exact $r=3$ scalar register count $2m^2 + \binom{m^2+2}{2} - 1$ (Theorem 5.2 of `arXiv:2609.18692`, for primes $p$ exceeding $\max(\ell+1)$ and avoiding the bad primes of $D_8$).
+
+## What Would Prove Us Wrong (Refutation & Falsification Criteria — Build Standard B42)
+
+Every claim in this repository is explicitly falsifiable:
+
+1. **Refuting Formal Correctness (`T1`–`T4`, `NONVAC`):** Any of: (a) a clean rebuild of `lean/` failing or emitting any axiom outside `{propext, Classical.choice, Quot.sound}`; (b) any of the 6 kernels (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche`, `con-ron`, `nanoda_bin`) rejecting the exported proof stream; or (c) any mismatch between `lean/Challenge.lean` definitions and Vinciguerra (`arXiv:2609.18692`, Def. 2.2) documented in `docs/statement-fidelity.md`.
+2. **Refuting `T1` (Digit-Sum Dichotomy):** Exhibiting a single prime $p$, budget $t \ge 1$, and passive 2-register program over $\mathbb{F}_p[x]$ cleanly computing a monomial $x^d$ ($d \ge 2$) with $s_p(d) > \min(p-1, t-1)$ — e.g., any clean 2-register program computing $x^3$ over $\mathbb{F}_2[x]$ in any number of calls $t$.
+3. **Refuting `T2` or `T4`:** Exhibiting an input/catalytic state where `frobBilinProg` (over a `Char2CRing`) or `balancedProdProg` (over a `CRing`) fails to restore a single catalytic register or violates passive/strictly-distinct operand rules, or fails Hypothesis randomized testing in `tests/test_all.py`.
+4. **Refuting `T3` (3-Register Exponent Improvement):** Finding a single input/catalyst triple $(x, u, v)$ where `prog5_x7`..`prog8_x13` fails to compute $O + D_t x^{2t-3}$ cleanly, or finding a good prime $p \nmid D_t$ where reduction modulo $p$ fails.
+5. **Refuting `E5` (SAT Companion Audit):** Exhibiting a valid 2-AND unrestricted XAG circuit over $\mathbb{F}_2$ computing $\mathbb{F}_4$ multiplication, the orthogonal bent pair, or any of the 6 UNSAT $(n=4, m=3)$ maps — or finding a single input where our CNF encoder disagrees with brute-force ground truth.
+6. **Refuting Novelty:** Citing any peer-reviewed paper or preprint predating 2026-11-23 that already proved Theorem `T1` (exact base-$p$ digit-sum IFF for $\mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t)$) or `T3d` ($x^{13} \in \mathrm{RP}_K^{\mathrm{pass}}(3, 8)$ achieving $\log_{13} 8$). If found, we will immediately log it in `ERRATA.md` and reframe to formalization/rediscovery.
+
+## Tier-4 Open Frontiers (Explicitly Unresolved)
+
+- **`O1`**: Uniform proof of $D_{3,\mathbb{Q}}^{\mathrm{pass}}(t) = 2t - 3$ for all $t \ge 4$ (and matching upper bounds for $r \ge 3$).
+- **`O2`**: Whether non-triangular or multi-stage $r = 4$ loops can reach $N \ge 10$ at $t=5$ or $N \ge 13$ at $t=6$ to beat Vinciguerra's $r=4$ exponent $\log_7 4 \approx 0.71241$.
+- **`O3`**: General closed-form combinatorial characterization of $\mathrm{RP}_{\mathbb{F}_{p^e}}^{\mathrm{pass}}(2, t)$ over non-prime extension fields ($e \ge 2$).
+- **`O4`**: Boyar–Find conjecture (TCS 720, 2018) and Morse's $n = 5$ binary polynomial multiplication program (`arXiv:2608.30238`).
+
+---
+# FILE: LIMITATIONS.md
+---
+
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+# Limitations, Epistemic Scope, and Negative Findings (`LIMITATIONS.md`)
+
+This document explicitly states what `catalytic-register-frontiers` **does not** prove, documents negative computational findings, and classifies discovered defects using the taxonomy `{bug, error, issue, problem, dilemma, conflict}`.
+
+## 1. Explicit Scope Boundaries
+
+1. **Prime fields vs. extension fields (Theorem T1):**
+   Theorem `T1` (`rp_pass_two_iff`) holds unconditionally for every **prime field** $\mathbb{F}_p$. It does **not** hold verbatim for non-prime finite fields $\mathbb{F}_{p^e}$ ($e \ge 2$): as verified in `exp1_digit_sum_dichotomy.py`, over $\mathbb{F}_4$, $x^5$ is computable in $3$ accesses and $x^3$ in $4$ accesses, while $x^7$ is impossible for all $t$.
+2. **Formal polynomial cleanliness vs. functional evaluation:**
+   Cleanliness in Definition 2.2 is formal polynomial identity in $R[O, R_1, \dots, R_{r-1}, x]$ (equivalently, clean evaluation over every commutative $R$-algebra). If one only required pointwise agreement as functions $\mathbb{F}_p \to \mathbb{F}_p$, then $x^p \equiv x$ functionally and degree $> p - 1$ would collapse.
+3. **Finite family ($t \in \{5, 6, 7, 8, 9\}$) vs. all $t \ge 4$ (Theorem T3):**
+   Our Lean 4.35 proofs establish $x^7 \in \mathrm{RP}_K^{\mathrm{pass}}(3, 5)$, $x^9 \in \mathrm{RP}_K^{\mathrm{pass}}(3, 6)$, $x^{11} \in \mathrm{RP}_K^{\mathrm{pass}}(3, 7)$, and $x^{13} \in \mathrm{RP}_K^{\mathrm{pass}}(3, 8)$ (and exact Python verifies $x^{15}$ at $t = 9$). While $t = 8$ is already the unique integer global minimizer of $\log_{2t-3} t$, proving $D_{3,\mathbb{Q}}^{\mathrm{pass}}(t) = 2t - 3$ for all $t \ge 4$ (including matching upper bounds) remains open.
+4. **Bad-prime restrictions for $t = 6, 7, 8$:**
+   While `prog5_x7` ($\epsilon = 0.827087$) avoids only $\{2, 3\}$ (matching Vinciguerra's $t = 4$ characteristic requirement!), `prog6_x9` avoids $\{2, 3, 5, 17\}$, and `prog7_x11` / `prog8_x13` avoid two larger primes arising from clearing denominators (`538423, 2512452073` and `137, 1602207194491`). Alternative non-uniform shift sets can shift these bad primes, and all programs hold unconditionally in characteristic $0$.
+5. **No $r = 4$ exponent improvement:**
+   Our exploratory exact modular search over $r = 4$ triangular closed loops (`deg_v = 2, 3, 4`, `wt(w) = 3..9`, unrestricted monomials) reached $N = 7$ ($t=4$), $N = 9$ ($t=5$, $\epsilon = 0.73249$), and $N = 11$ ($t=6$, $\epsilon = 0.74722$). Because degree grew as $2t - 1$ rather than faster, this family did **not** beat Vinciguerra's $r = 4$ exponent $\log_7 4 \approx 0.71241$.
+6. **Boyar–Find conjecture & SAT certificate boundary:**
+   `exp4_boolean_mc_companion.py` provides supporting SAT-certified evidence (0 counterexamples across sampled degree-3 cancellations and hard $n = 4$ maps) and does **not** prove or refute Boyar–Find (TCS 720, 2018) or Morse's $n = 5$ conjecture (`arXiv:2608.30238`). While our CNF encoder is verified against an independent exhaustive brute-force enumerator on all 16 $n=2$ functions ($k=0, 1$) and canonical $n=3$ benchmarks in `tests/test_all.py`, the CaDiCaL 2.1.2 UNSAT certificates have **not** yet been replayed through CakeML's `cake_lpr` (external tool not installed locally — classified as `problem`; no Tier-1 Lean theorem depends on SAT).
+7. **Peer-review & external provenance status:**
+   This manuscript has **not** undergone external peer review or external second-machine human reproduction (`REPLICATION.md`). Post-push external steps (live GitHub Actions CI/SLSA attestations, Zenodo/OSF DOI minting, Software Heritage SWHID, Palomar 40-char SHA registration, OpenTimestamps `.ots` proof) remain pending publication (`ROADMAP.md`). Correctness of all Tier-1 theorems is certified independently by six Lean 4.35 verification kernels.
+
+## 2. Classified Engineering & Discovery Log
+
+| Type | Observation | Resolution |
+|---|---|---|
+| `conflict` | Legacy notes cited `0thernes LLC` and MIT vs. Nov 2026 Playbook audit (no LLC legally formed; Apache-2.0 + CC-BY-4.0). | Resolved in `docs/adr/0002-epistemic-scope-and-identity.md`: author `Alexander S. Donahue` (independent researcher), Apache-2.0 + CC-BY-4.0. |
+| `bug` | `Poly3.add` initially used well-founded recursion, preventing Lean kernel `rfl` reduction on `exec3Poly`. | Rewrote `Poly3.add` via nested structural recursion (`Poly3.addAux`), enabling pure kernel `rfl` across all 6 kernels. |
+| `bug` | PowerShell `Out-File -Encoding ascii` wrapped/CRLF-encoded `leanexport` lines, causing `nanoda_bin` parser panic. | Wrote raw LF binary stream via Python `subprocess`; `nanoda_bin` then checked 3,183 declarations cleanly (exit 0). |
+| `issue` | Trial-division prime factoring stalled on $t=9$'s 15-digit cofactor (`638970634117961`). | Upgraded `factor_primes` in `exp2` to Miller–Rabin + Pollard-Rho; runtime dropped to < 1 s. |
+| `problem` | $t=5$ with `deg_w = 3` failed to reach $N = 7$, initially looking like an anomaly. | Discovered `deg_w = 2` unlocks $x^7$ at $t=5$ with tiny `D = 576` and bad primes ONLY `{2, 3}`! |
+| `dilemma` | Balancing Lean `prog8_x13` kernel reduction depth (`maxRecDepth 4096`) against external checker performance. | Verified all 6 kernels (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche`, `con-ron`, `nanoda_bin`) accept `prog8_x13` in seconds with zero `native_decide`. |
+
+---
+# FILE: REPLICATION.md
+---
+
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+# Clean-Room Replication Guide (`REPLICATION.md`)
+
+Every Lean 4.35 formal proof, non-vacuity witness, exact-arithmetic experiment, `pytest` / Hypothesis / mutant / SAT-equivalence test, deterministic vector PDF figure, and frozen AMS-LaTeX manuscript in `catalytic-register-frontiers` reproduces end-to-end from scratch.
+
+## Prerequisites
+
+- **Lean 4.35.0** via `elan` (`leanprover/lean4:v4.35.0`, pinned in `lean/lean-toolchain`). Zero Mathlib dependency; builds fully offline once the toolchain is installed.
+- **Python 3.13** with pinned packages in `requirements.lock.txt` (`pytest==9.2.0`, `hypothesis==6.170.17`, `matplotlib==3.11.2`, `numpy==2.5.5`, `scipy==1.18.1`, `ruff==0.17.6`, `mypy==2.4.1`).
+- **CaDiCaL 2.1.2** (bundled with Lean 4.35.0 at `<toolchain>/bin/cadical[.exe]`, or set `CADICAL_BIN`).
+- **Tectonic** (`tectonic -X compile`) for compiling `paper/main.tex`.
+
+## 1. One-Command Verification (Windows PowerShell or `just`)
+
+> **Bracket-Path Safety Note:** On Windows paths containing `[...]`, always pass `-LiteralPath` to PowerShell file cmdlets and run `pytest` repo-relative (`tests/test_all.py`).
+
+```powershell
+# Windows PowerShell
+pwsh -NoProfile -File scripts/run_all.ps1 -Task all
+
+# Cross-platform via justfile
+just reproduce
+```
+
+Individual PowerShell stages: `-Task lean`, `-Task experiments`, `-Task tests`, `-Task figures`, `-Task paper`, `-Task audit`.
+
+## 2. Step-by-Step Verification (Linux / macOS / CI)
+
+### A. Clean-from-Scratch Lean 4.35 Multi-Kernel Audit
+
+```bash
+cd lean
+rm -rf .lake
+lake build
+lake env lean VerifyAxioms.lean
+lake env leanchecker Solution
+lake env leanchecker-paranoid Solution
+
+# Export self-contained LF NDJSON stream for external verified kernels
+lake env leanexport Solution -- \
+  Catalytic.Solution.prove_all_catalytic_theorems \
+  Catalytic.NonVacuity.nonvac_all_hypotheses > /tmp/catalytic_solution.ndjson
+con-leche --verified /tmp/catalytic_solution.ndjson
+con-ron --verified /tmp/catalytic_solution.ndjson
+
+# On Linux (with bwrap installed), run Lean 4.35's bundled sandboxed multi-kernel checker:
+lake check --paranoid
+```
+
+### B. Exact-Arithmetic Experiments, Pytest, Hypothesis, & Linters
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.lock.txt
+
+python experiments/exp1_digit_sum_dichotomy.py
+python experiments/exp2_three_register_breakthrough.py
+python experiments/exp3_bilinear_and_balanced.py
+python experiments/exp4_boolean_mc_companion.py
+
+pytest -v tests/test_all.py
+ruff check experiments scripts tests
+mypy experiments scripts tests
+python scripts/check_citations.py --offline
+```
+
+### C. Deterministic Vector Figures & AMS-LaTeX Manuscript
+
+```bash
+python scripts/make_figures.py
+cd paper
+mkdir -p build
+tectonic -X compile main.tex --outdir build --keep-intermediates
+```
+
+### D. Standalone arXiv Tarball Clean-Room Compilation Test
+
+```bash
+mkdir -p /tmp/arxiv_check
+tar -xzf dist/arxiv_submission.tar.gz -C /tmp/arxiv_check
+cd /tmp/arxiv_check
+tectonic -X compile main.tex --outdir out
+```
+
+### E. Cryptographic Provenance & Build Standard Audit
+
+```bash
+sha256sum -c MANIFEST.sha256
+pwsh -NoProfile -File scripts/Audit-Repo.ps1 -Path .
+```
+
+## 3. Replication Log (Build Standard B44)
+
+Independent external human replications (pass or fail) are welcome via `.github/ISSUE_TEMPLATE/question.yml` (label: `replication`). Self-replications are explicitly marked as such and do not substitute for external replication.
+
+| Date | Replicator | Scope | Environment | Outcome | Notes |
+|---|---|---|---|---|---|
+| 2026-11-23 | Alexander S. Donahue (author — clean-room self-replication) | Clean `.lake` + 6 kernels + `exp1`–`exp4` + `pytest`/Hypothesis/mutant/SAT + Tectonic + standalone `arxiv_submission.tar.gz` + `MANIFEST.sha256` | Windows 11 x64, Lean 4.35.0, Python 3.13.12, CaDiCaL 2.1.2, Tectonic | **PASS (self)** | Zero warnings, 6/6 kernels PASS, 100% SHA-256 match. External second-person replication still open. |
+
+---
+# FILE: docs/statement-fidelity.md
+---
+
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+# Statement-Fidelity Audit Table (`docs/statement-fidelity.md`)
+
+Line-by-line mapping between every formal Lean 4.35 definition and theorem in `lean/Challenge.lean` / `lean/Catalytic/*.lean`, the informal mathematical claims in `paper/main.tex`, the primary literature anchors, and the machine-checked non-vacuity witnesses in `lean/Catalytic/NonVacuity.lean` (Playbook Checklist #10).
+
+## 1. Core Definitions
+
+| Lean Declaration | File | Literature Anchor | Non-Vacuity Witness | Fidelity Notes & Edge Cases | Status |
+|---|---|---|---|---|---|
+| `CRing R`, `Char2CRing R` | `Catalytic/CommRing.lean` | Standard commutative unital ring; characteristic-2 ring ($a + a = 0$) | `ModP p hp` ($0 \neq 1$), `F2` ($0 \neq 1$), `Int` ($0 \neq 1$) | Minimal zero-Mathlib axiomatization; `CRing.intCast` and `CRing.pow` proven homomorphic/standard. | **Match** |
+| `IsPrime p`, `digitSum p d` | `Catalytic/PrimeFieldTools.lean` | Standard prime integer ($p \ge 2$, only trivial divisors); base-$p$ digit sum $s_p(d)$ | `nonvac_T1_witnesses` (`IsPrime 2, 3, 5, 7`) | Lucas's Theorem proved from scratch (`choose_mod_prime_mul`) for all primes $p$. | **Match** |
+| `Pass2Instr`, `InRPPass2 p t f` | `Catalytic/DigitSumDichotomy.lean` | Vinciguerra (`arXiv:2609.18692`), Def. 2.2, §3.3 ($r = 2$, passive output $O$, work register $U$, over $\mathbb{F}_p$) | `nonvac_T1_witnesses` (`x^4 ∈ RP_{F_2}(2,2)`, `x^3 ∉ RP_{F_2}(2,10)`, `x^2 ∈ RP_{F_5}(2,3)`, `x^2 ∉ RP_{F_5}(2,2)`) | Every basic op on $U$ adds a constant; every basic op on $O$ adds $P(U)$; every input access adds $\lambda x$ to $U$ or $O$. Polynomial equality is formal coefficient equality in $\mathbb{F}_p[x, \tau]$ (matching Vinciguerra's polynomial-ring semantics, not merely function evaluation on $\mathbb{F}_p$). | **Match** |
+| `BilinInstr n`, `BilinInstr.isValidPassive` | `Catalytic/BilinearFrobenius.lean` | Strictly bilinear restriction of Vinciguerra Def. 2.2 ($R_i \leftarrow R_i + R_j R_\ell$ with $j, \ell \neq i$, passive $R_0$) | `nonvac_T2_witness` (`F2`, $0 \neq 1$, $k = 2$, $x = 1$) | Strictly stronger restriction than general polynomials $p(R_{\neq i})$, so upper bound transfers immediately to Definition 2.2. | **Match** |
+| `Pass3InstrR R`, `Pass3Prog.exec` | `Catalytic/ThreeRegisterBreakthrough.lean` | Vinciguerra (`arXiv:2609.18692`), Def. 2.2 ($r = 3$: passive $O$, work registers $u, v$) | `nonvac_T3_witnesses` (`ModP 5`, `ModP 7`, `ModP 11` with $0 \neq 1$) | Constructors: `addX_u c` ($u \leftarrow u + c x$), `addPoly_v q` ($v \leftarrow v + q(u)$), `addPoly_o p` ($O \leftarrow O + p(u, v)$). Every constructor is literally an instance of Def. 2.2 with passive $O$. | **Match** |
+| `CatOp`, `CatOp.isStrictValid` | `Catalytic/BalancedProduct.lean` | Zero-workspace strictly bilinear register programs ($R_i \leftarrow R_i \pm x_\ell$, $R_i \leftarrow R_i \pm R_a R_b$, $i, a, b$ pairwise distinct) | `nonvac_T4_witness` (`Int`, $d = 4$, `2*3*5*7 = 210`, 36 ops) | Pairwise distinct indices (`dst ≠ a ∧ dst ≠ b ∧ a ≠ b`) enforced by `isStrictValid` and proved for every generated op. | **Match** |
+
+## 2. Headline Theorems
+
+| ID | Lean Declaration (`Solution.lean`) | Informal Claim (`paper/main.tex`) | Axioms | Explicitly NOT Claimed | Sign-Off |
+|---|---|---|---|---|---|
+| `T1` | `t1_digit_sum_dichotomy` | $f \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t) \iff \forall d \ge 2,\, \alpha_d \neq 0 \to s_p(d) \le \min(p-1, t-1)$ | `propext`, `Classical.choice`, `Quot.sound` | Non-prime extension fields $\mathbb{F}_{p^e}$ ($e \ge 2$), $r \ge 3$, or non-passive outputs | **Verified (Alexander S. Donahue)** |
+| `T1a`–`T1d` | `t1a`–`t1d` | Frobenius collapse $x^{p^m} \in \mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2,2)$; $x^3 \notin \mathrm{RP}_{\mathbb{F}_2}^{\mathrm{pass}}(2,t)$; $s_p(d) \ge p$ impossible; recovery of Vinciguerra Thm. 3.5 for $d < p$ | `propext`, `Classical.choice`, `Quot.sound` | Function-table equivalence modulo $x^p - x$ (formal polynomial ring semantics used throughout) | **Verified (Alexander S. Donahue)** |
+| `T2` | `t2_bilinear_frobenius_collapse` | $x^{2^k}$ cleanly computed over any `Char2CRing` in $k+1$ regs, $4k-2$ bilinear ops, 2 input accesses | `propext`, `Classical.choice`, `Quot.sound` | Odd characteristics or distinct-operand variant without self-squares $R_j^2$ | **Verified (Alexander S. Donahue)** |
+| `T3a`–`T3d` | `t3a`–`t3d` | $x^7 \in \mathrm{RP}(3,5)$, $x^9 \in \mathrm{RP}(3,6)$, $x^{11} \in \mathrm{RP}(3,7)$, $x^{13} \in \mathrm{RP}(3,8)$ whenever $D_t$ invertible | `propext`, `Classical.choice`, `Quot.sound` | Characteristics dividing $D_t$; general $t \ge 10$; upper bounds on $D_{3,\mathbb{Q}}^{\mathrm{pass}}(t)$ | **Verified (Alexander S. Donahue)** |
+| `T3e` | `t3e_exponent_chain` | Exact `Nat` inequalities certifying $\log_{13} 8 < \log_{11} 7 < \log_9 6 < \log_7 5 < \log_5 4$ and $< \log_{15} 9$ | *(zero axioms)* | Optimality across $r \ge 4$ | **Verified (Alexander S. Donahue)** |
+| `T4` | `t4_balanced_multilinear_product` | Zero-workspace $x_0 \cdots x_{d-1}$ ($d = 2^k$) in $k+2$ regs, $(7d^2-4)/3$ strictly distinct bilinear ops | `propext`, `Quot.sound` | Non-power-of-two $d$ without padding; optimality of constant $7/3$ | **Verified (Alexander S. Donahue)** |
+
+---
+# FILE: docs/legal-and-ethics.md
+---
+
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+# Legal, Ethics, AI Disclosure & Export-Control Self-Screen (`docs/legal-and-ethics.md`)
+
+Records compliance with Sections 4, 5, 8 (#31–#37), and 10 of the *Defensible Independent AI Research Playbook* (v1.1).
+
+## 1. Author Identity & Conflict of Interest (COI)
+
+- **Author:** Alexander S. Donahue (`ORCID 0009-0006-8168-9648`)
+- **Affiliation:** Independent Researcher, Spokane, WA, USA (`0_0@0thernes.art`)
+- **Entity / Commercial Disclosure:** No LLC or corporate entity is claimed as author, affiliation, or copyright holder (see [`docs/adr/0002-epistemic-scope-and-identity.md`](adr/0002-epistemic-scope-and-identity.md)).
+- **Funding & COI:** Self-funded independent research. No external grants, no institutional employer, no commercial conflicts of interest.
+
+## 2. AI-Contribution & CRediT Statement
+
+- **Human contributions (CRediT):** Conceptualization; Methodology; Formal analysis (definition design, statement-fidelity audit, primary-literature cross-check); Validation; Writing – review & editing; Supervision.
+- **AI tools used:** Antigravity / Gemini (2026-11-23) assisted in exploratory exact-arithmetic probing, Lean 4.35 proof engineering, Python verification/figure scripting, and AMS-LaTeX manuscript drafting.
+- **Not delegated to AI:** Choice of research questions, acceptance of theorem statements, statement-fidelity sign-off (`docs/statement-fidelity.md`), and epistemic scope boundaries (`CLAIMS.md`, `LIMITATIONS.md`).
+- **Authorship & Accountability:** No AI system is listed as an author. Alexander S. Donahue takes full responsibility for all claims, proofs, code, and references. Mathematical soundness of all Tier-1 theorems is certified mechanically by six independent Lean 4.35 kernel runs (`results/six_kernel_audit.txt`).
+- **Zenodo Generative-AI Policy Notice (April 27, 2026):** Before minting a Zenodo DOI via `.zenodo.json`, the author must verify depositor eligibility under Zenodo's generative-AI policy (human-conducted research with AI used as a tool, no AI listed in creators/contributors). Palomar Registry explicitly accepts AI-assisted Lean formalizations when disclosed in `lean/formalization.yaml`.
+
+## 3. Licensing & SPDX Attribution
+
+- **Code, Lean 4.35 formalization, scripts, workflows:** `Apache-2.0` (compatible with Mathlib upstreaming and OSI/JOSS requirements).
+- **White paper (`paper/`), documentation (`docs/`, `*.md`), figures (`paper/figures/*.pdf`):** `CC-BY-4.0`.
+- **SPDX Headers:** Declared across source, script, workflow, and documentation files (`LICENSE`, `THIRD_PARTY_NOTICES.md`).
+- **Copyright note on AI-assisted output:** Legal copyrightability of AI-generated portions varies by jurisdiction (see US Copyright Office AI reports); open permissive licensing (`Apache-2.0` / `CC-BY-4.0`) avoids restrictive "All rights reserved" claims.
+
+## 4. Export-Control Self-Screen (Playbook Checklist #37)
+
+- **Subject matter:** Pure algebraic complexity theory and finite-field combinatorics (polynomial degree bounds for passive catalytic register programs, Lucas's theorem, bilinear circuits, and small-instance Boolean multiplicative complexity).
+- **Screening outcome:** Publicly available fundamental mathematical research (cf. 15 CFR 734.8). Contains zero cryptographic primitives, zero offensive-cyber code, zero dual-use biological/chemical/nuclear/defense material, and zero ITAR-controlled technical data (22 CFR 120). No export-control restriction identified. (Not formal legal advice; consult counsel if future extensions enter dual-use domains.)
+
+## 5. Recorded Standard Conflict & Precedence Resolution (Build Standard R8)
+
+- **Conflict (`I:\All GH Repos` R1 vs. `I:\White Papers` Checklist #27):** Build Standard Rule R1 prohibits mandatory commit/tag signing gates or local git hooks; White Paper Playbook Checklist #27 recommends SSH/GPG-signed commits and release tags.
+- **Resolution under R8:** Local commits on `main` have zero hooks or forced signing gates (satisfying R1). When cutting a public archival tag for Zenodo/Palomar (`v1.0.0`), the author may optionally sign the release tag manually (`git tag -s v1.0.0`) to satisfy Playbook #27 without gating development.
