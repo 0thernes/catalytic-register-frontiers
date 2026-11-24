@@ -346,7 +346,7 @@ def main() -> None:
     cert_dir = repo / "results" / "sat_certs"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     data = run_companion_audit(cert_dir=cert_dir)
-    out_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    out_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"Wrote {out_path}")
 
 

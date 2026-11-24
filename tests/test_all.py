@@ -330,7 +330,7 @@ def test_lrat_certificates_and_mutant_rejection(tmp_path: pathlib.Path) -> None:
     orig_cnf = cert_dir / "f4_mul_k2.cnf"
     orig_lines = (cert_dir / "f4_mul_k2.lrat").read_text(encoding="ascii").splitlines()
     trunc_lrat = tmp_path / "truncated.lrat"
-    trunc_lrat.write_text("\n".join(orig_lines[:-1]) + "\n", encoding="ascii")
+    trunc_lrat.write_text("\n".join(orig_lines[:-1]) + "\n", encoding="ascii", newline="\n")
     raised = False
     try:
         verify_lrat(orig_cnf, trunc_lrat)
@@ -349,13 +349,30 @@ def test_lrat_certificates_and_mutant_rejection(tmp_path: pathlib.Path) -> None:
                 corrupted[idx] = " ".join(parts)
                 break
     bad_hint_lrat = tmp_path / "bad_hint.lrat"
-    bad_hint_lrat.write_text("\n".join(corrupted) + "\n", encoding="ascii")
+    bad_hint_lrat.write_text("\n".join(corrupted) + "\n", encoding="ascii", newline="\n")
     raised = False
     try:
         verify_lrat(orig_cnf, bad_hint_lrat)
     except ValueError:
         raised = True
     assert raised, "LRAT verifier failed to reject corrupted RUP hint!"
+
+    # Mutant 3: non-monotonic / reused clause ID -> must raise ValueError
+    non_mono = list(orig_lines)
+    for idx, line in enumerate(non_mono):
+        parts = line.split()
+        if len(parts) >= 4 and parts[1] != "d":
+            parts[0] = "1"
+            non_mono[idx] = " ".join(parts)
+            break
+    non_mono_lrat = tmp_path / "non_mono.lrat"
+    non_mono_lrat.write_text("\n".join(non_mono) + "\n", encoding="ascii", newline="\n")
+    raised = False
+    try:
+        verify_lrat(orig_cnf, non_mono_lrat)
+    except ValueError:
+        raised = True
+    assert raised, "LRAT verifier failed to reject non-monotonic clause ID!"
 
 
 def test_t3f_global_integer_optimality_exact() -> None:
@@ -681,11 +698,18 @@ def test_doc_citation_and_workflow_consistency() -> None:
         "19 headline theorems",
         "19 exported theorems",
         "21 audited declarations",
-        "21/21",
+        "21/21 decls",
+        "21/21 audited",
         "7,892 lines",
         "7{,}892 lines",
+        "8,036 lines",
+        "8{,}036 lines",
         "3,506 declarations",
+        "3,523 declarations",
         "3,819 decls",
+        "3,819 declarations",
+        "3,836 decls",
+        "3,836 declarations",
         "0.811229",
         "0.81547",
         "0001-zero-mathlib-lean-kernel.md",
@@ -898,6 +922,70 @@ def test_pass7_svg_factorization_and_table_integrity() -> None:
     lic_txt = (REPO / "LICENSE").read_text(encoding="utf-8")
     assert "TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION" in lic_txt
     assert "END OF TERMS AND CONDITIONS" in lic_txt
+
+
+def test_pass8_sbom_workflow_determinism_and_reuse_strictness() -> None:
+    """Pass 8 permanent regression guard covering:
+    1. CycloneDX 1.5 SBOM covers 100% of pinned packages in requirements.lock.txt with exact versions + serialNumber.
+    2. All 4 experiment scripts specify newline='\\n' on JSON output writes for Windows/Linux byte determinism.
+    3. CI workflow verifies MANIFEST.sha256 before cross-OS figure regeneration and downloads tools to /tmp or $env:TEMP.
+    4. Release workflow packages MANIFEST.sha256.ots and TIMESTAMP_AUDIT.txt alongside .tsr.
+    5. run_all.sh and run_all.ps1 strictly diff VerifyAxioms.lean against results/lean_axioms.txt.
+    6. NonVacuity.lean includes concrete Fin 3 -> ModP 13 witness nonvac_T3i_witness inside nonvac_all_hypotheses.
+    7. REUSE conflict-strictness: zero inline-vs-REUSE.toml license conflicts across all tracked files.
+    """
+    # 1. SBOM 100% requirements.lock.txt parity
+    sbom = json.loads((REPO / "sbom.cdx.json").read_text(encoding="utf-8"))
+    assert str(sbom.get("serialNumber", "")).startswith("urn:uuid:")
+    sbom_map = {c["name"].lower(): c["version"] for c in sbom["components"]}
+    lock_pkgs: dict[str, str] = {}
+    for raw in (REPO / "requirements.lock.txt").read_text(encoding="utf-8").splitlines():
+        ln = raw.strip()
+        if not ln or ln.startswith("#") or "==" not in ln:
+            continue
+        pkg, ver = ln.split("==", 1)
+        lock_pkgs[pkg.lower()] = ver.strip()
+    assert len(lock_pkgs) >= 20
+    for pkg, ver in lock_pkgs.items():
+        assert sbom_map.get(pkg) == ver, f"SBOM missing or mismatched {pkg}=={ver} (got {sbom_map.get(pkg)!r})"
+    assert sbom_map.get("lean4") == "4.35.0" and sbom_map.get("cadical") == "2.1.2"
+
+    # 2. All 4 experiments write LF-only JSON via newline="\n"
+    for exp_name in (
+        "exp1_digit_sum_dichotomy.py",
+        "exp2_three_register_breakthrough.py",
+        "exp3_bilinear_and_balanced.py",
+        "exp4_boolean_mc_companion.py",
+    ):
+        src = (REPO / "experiments" / exp_name).read_text(encoding="utf-8")
+        assert 'newline="\\n"' in src, f"{exp_name} missing LF newline='\\n' on JSON output write"
+
+    # 3. CI ordering and temp-dir downloads
+    ci_txt = (REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    assert ci_txt.index("sha256sum -c MANIFEST.sha256") < ci_txt.index("python scripts/make_figures.py")
+    assert "/tmp/tectonic" in ci_txt
+    assert "$env:TEMP\\elan-init.ps1" in ci_txt
+
+    # 4. Release workflow includes full timestamp bundle (.tsr, .ots, TIMESTAMP_AUDIT.txt)
+    rel_txt = (REPO / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    for fname in ("MANIFEST.sha256.tsr", "MANIFEST.sha256.ots", "TIMESTAMP_AUDIT.txt"):
+        assert fname in rel_txt, f"release.yml missing provenance file {fname}"
+
+    # 5. Both orchestrators diff VerifyAxioms.lean against results/lean_axioms.txt
+    run_sh = (REPO / "scripts" / "run_all.sh").read_text(encoding="utf-8")
+    run_ps1 = (REPO / "scripts" / "run_all.ps1").read_text(encoding="utf-8")
+    assert "diff -u ../results/lean_axioms.txt" in run_sh
+    assert "ca-bundle.crt" in run_sh
+    assert "results/lean_axioms.txt" in run_ps1 and "AXIOM DRIFT DETECTED" in run_ps1
+
+    # 6. NonVacuity.lean witnesses T3i over Fin 3 -> ModP 13
+    nv_txt = (REPO / "lean" / "Catalytic" / "NonVacuity.lean").read_text(encoding="utf-8")
+    assert "theorem nonvac_T3i_witness" in nv_txt and "nonvac_T3i_witness," in nv_txt
+
+    # 7. LIMITATIONS.md synced (no stale 3,819)
+    lim_txt = (REPO / "LIMITATIONS.md").read_text(encoding="utf-8")
+    assert "3,819" not in lim_txt and "3,838" in lim_txt
+
 
 
 

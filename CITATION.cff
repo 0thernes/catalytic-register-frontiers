@@ -35,6 +35,30 @@ references:
     authors:
       - family-names: Morse
         given-names: Gregory
-    title: "Unrestricted Boolean Multiplicative Complexity of Four-Term Binary Polynomial Multiplication"
+    title: "Unrestricted Boolean Multiplicative Complexity of Four-Term Binary Polynomial Multiplication: Rational Places, Hasse Jets, and the Failure of Nonlinear Feedback"
     year: 2026
     url: "https://arxiv.org/abs/2608.30238"
+  - type: conference-paper
+    authors:
+      - family-names: Alekseev
+        given-names: Yaroslav
+      - family-names: Filmus
+        given-names: Yuval
+      - family-names: Mertz
+        given-names: Ian
+      - family-names: Smal
+        given-names: Alexander
+      - family-names: Vinciguerra
+        given-names: Antoine
+    title: "Catalytic Computing and Register Programs Beyond Log-Depth"
+    year: 2025
+    doi: "10.4230/LIPIcs.MFCS.2025.6"
+  - type: article
+    authors:
+      - family-names: Boyar
+        given-names: Joan
+      - family-names: Find
+        given-names: Magnus Gausdal
+    title: "Multiplicative Complexity of Vector Valued Boolean Functions"
+    year: 2018
+    doi: "10.1016/j.tcs.2018.02.023"

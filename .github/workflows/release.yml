@@ -39,6 +39,8 @@ jobs:
           cp sbom.cdx.json dist/sbom.cdx.json
           cp MANIFEST.sha256 dist/MANIFEST.sha256
           cp provenance/MANIFEST.sha256.tsr dist/MANIFEST.sha256.tsr
+          cp provenance/MANIFEST.sha256.ots dist/MANIFEST.sha256.ots
+          cp provenance/TIMESTAMP_AUDIT.txt dist/TIMESTAMP_AUDIT.txt
 
       - name: Generate SHA256SUMS
         working-directory: dist

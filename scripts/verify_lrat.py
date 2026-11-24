@@ -105,6 +105,7 @@ def verify_lrat(cnf_path: pathlib.Path, lrat_path: pathlib.Path) -> tuple[int, i
     on any invalid proof step or if the empty clause is never derived.
     """
     _, clauses = parse_dimacs_cnf(cnf_path)
+    max_clause_id = max(clauses.keys(), default=0)
     derived_steps = 0
     deleted_clauses = 0
     derived_empty = False
@@ -142,8 +143,10 @@ def verify_lrat(cnf_path: pathlib.Path, lrat_path: pathlib.Path) -> tuple[int, i
             raise ValueError(f"Line {line_no}: missing hint terminator 0")
         hints = rest[:-1]
 
-        if step_id in clauses:
-            raise ValueError(f"Line {line_no}: duplicate clause id {step_id}")
+        if step_id <= max_clause_id or step_id in clauses:
+            raise ValueError(
+                f"Line {line_no}: non-monotonic or duplicate clause id {step_id} (max_id={max_clause_id})"
+            )
 
         # Split hints into initial positive RUP chain and optional RAT blocks (negative IDs)
         neg_positions = [i for i, h in enumerate(hints) if h < 0]
@@ -163,6 +166,8 @@ def verify_lrat(cnf_path: pathlib.Path, lrat_path: pathlib.Path) -> tuple[int, i
             rup_false = set(base_false)
             prefix_conflict = False
             for hid in rup_prefix:
+                if hid <= 0:
+                    raise ValueError(f"Step {step_id}: expected positive RUP-prefix hint, got {hid}")
                 if hid not in clauses:
                     raise ValueError(f"Step {step_id}: unknown RUP-prefix hint {hid}")
                 cl = clauses[hid]
@@ -217,6 +222,7 @@ def verify_lrat(cnf_path: pathlib.Path, lrat_path: pathlib.Path) -> tuple[int, i
                         )
 
         clauses[step_id] = new_clause
+        max_clause_id = step_id
         derived_steps += 1
         if not new_clause:
             derived_empty = True

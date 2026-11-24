@@ -587,8 +587,8 @@ This sharp empirical contrast highlights a structural asymmetry: whereas Boolean
 \section{Lean~4.35.0 Formalization, Statement Fidelity, and Open Problems}
 \label{sec:lean}
 
-Every theorem in Tier~1 (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3i}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}), using the Lean~4.35 \texttt{module} system and strict zero-dependency core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unusedVariables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across all $14$ source files ($8{,}036$ lines total; longest file \texttt{FourRegisterPowering.\allowbreak lean}, $1{,}361$ lines).
-To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.\allowbreak lean} exhibits concrete non-trivial ($0 \neq 1$) witnesses (\texttt{ModP 2}, \texttt{ModP 5}, \texttt{ModP 7}, \texttt{ModP 11}, \texttt{ModP 13}, \texttt{GF4} with \texttt{GF4Hom.\allowbreak id}, and \texttt{Int}) satisfying every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}, Corollaries~\ref{cor:powering}--\ref{cor:streaming} (\texttt{T3h}, \texttt{T3i}), and their soundness bridges (including inverses for all five scaling integers $D_5, \dots, D_9$ and factorial denominators).
+Every theorem in Tier~1 (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3i}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}), using the Lean~4.35 \texttt{module} system and strict zero-dependency core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unusedVariables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across all $14$ source files ($8{,}069$ lines total; longest file \texttt{FourRegisterPowering.\allowbreak lean}, $1{,}361$ lines).
+To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.\allowbreak lean} exhibits concrete non-trivial ($0 \neq 1$) witnesses (\texttt{ModP 2}, \texttt{ModP 5}, \texttt{ModP 7}, \texttt{ModP 11}, \texttt{ModP 13}, product ring $\mathrm{Fin}\,3 \to \texttt{ModP 13}$, \texttt{GF4} with \texttt{GF4Hom.\allowbreak id}, and \texttt{Int}) satisfying every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}, Corollaries~\ref{cor:powering}--\ref{cor:streaming} (\texttt{T3h}, \texttt{T3i}), and their soundness bridges (including inverses for all five scaling integers $D_5, \dots, D_9$ and factorial denominators).
 A repository-wide scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_\allowbreak decide}, \texttt{implemented\_\allowbreak by}, \texttt{unsafe}, custom \texttt{axiom}, or \texttt{@[extern]}.
 Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay and statement-fidelity audit.
 
@@ -605,9 +605,9 @@ Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay 
 1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ reference kernel & 17/17 jobs, 0 warnings; axioms $\subseteq \{\text{propext}, \text{choice}, \text{Quot.sound}\}$ \\
 2 & \texttt{leanchecker} & C++ external \texttt{.olean} replayer & Exit 0 (PASS) \\
 3 & \texttt{leanchecker-paranoid} & C++ paranoid \texttt{.olean} replayer & Exit 0 (PASS) \\
-4 & \texttt{con-leche --verified} & Verified Lean-in-Lean kernel & Accepted 3,523 declarations (Exit 0) \\
-5 & \texttt{con-ron --verified} & Verified Aeneas Rust kernel & Accepted 3,523 declarations (Exit 0) \\
-6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & 3,836 decls, 0 errors, strict 3-axiom check (Exit 0) \\
+4 & \texttt{con-leche --verified} & Verified Lean-in-Lean kernel & Accepted 3,525 declarations (Exit 0) \\
+5 & \texttt{con-ron --verified} & Verified Aeneas Rust kernel & Accepted 3,525 declarations (Exit 0) \\
+6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & 3,838 decls, 0 errors, strict 3-axiom check (Exit 0) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -624,7 +624,7 @@ Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay 
 \midrule
 \texttt{T1} & \texttt{InRPPass2}, \texttt{GF4}, \texttt{execRing}, \texttt{execAlg} (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Thm.~3.5 & \texttt{IsPrime 2,3,5,7}; \texttt{ModP 5} ($\mathrm{char}=5$); \texttt{GF4} (\texttt{GF4Hom.id}) \\
 \texttt{T2} & \texttt{BilinInstr}, \texttt{DistinctBilinInstr} (\texttt{T2}, \texttt{T2b}) & Bilinear \& distinct-operand Def.~2.2 & \texttt{F2 = ModP 2}, $k=2$, $x=1$ cleanly evaluated \\
-\texttt{T3} & \texttt{Pass3InstrR}, \texttt{Pass4Instr}, \texttt{sumFin} (\texttt{T3a}--\texttt{T3i}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Cor.~4.3.1, 5.1.1; \cite[Lem.~8]{AFM2025} & \texttt{ModP 5,7,11,13} ($D_5^{-1}\!\dots D_9^{-1}$, $12!^{-1}$, $6!^{-1}$); global $t \ge 4$ opt \\
+\texttt{T3} & \texttt{Pass3InstrR}, \texttt{Pass4Instr}, \texttt{sumFin} (\texttt{T3a}--\texttt{T3i}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Cor.~4.3.1, 5.1.1; \cite[Lem.~8]{AFM2025} & \texttt{ModP 5,7,11,13} ($D_5^{-1}\!\dots D_9^{-1}$, $12!^{-1}$, $6!^{-1}$); $\mathrm{Fin}\,3\!\to\!\texttt{ModP 13}$ (\texttt{T3i}) \\
 \texttt{T4} & \texttt{CatOp}, \texttt{balancedProdProg} (\texttt{T4}) & Zero-workspace distinct-index bilinear ops & \texttt{Int} ($d=4$, $36$ ops, clean restoration) \\
 \bottomrule
 \end{tabular}

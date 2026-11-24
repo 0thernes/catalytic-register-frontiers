@@ -115,6 +115,12 @@ def verify_reuse(repo: pathlib.Path) -> tuple[int, int, list[str]]:
         ]
         if inline_lic is None and not toml_lics:
             errors.append(f"{rel}: missing both inline SPDX header and REUSE.toml annotation")
+        elif len(set(toml_lics)) > 1:
+            errors.append(f"{rel}: conflicting REUSE.toml annotations {sorted(set(toml_lics))}")
+        elif inline_lic is not None and toml_lics and inline_lic not in toml_lics:
+            errors.append(
+                f"{rel}: inline SPDX '{inline_lic}' conflicts with REUSE.toml {sorted(set(toml_lics))}"
+            )
 
     return len(files), inline_count, errors
 

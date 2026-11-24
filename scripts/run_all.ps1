@@ -43,7 +43,19 @@ function Invoke-Lean {
         try {
             & lake build
             if ($LASTEXITCODE -ne 0) { return }
-            & lake env lean VerifyAxioms.lean
+            & $Py -c @"
+import pathlib, subprocess, sys
+r = subprocess.run(['lake', 'env', 'lean', 'VerifyAxioms.lean'], capture_output=True, text=True)
+if r.returncode != 0:
+    print(r.stdout, r.stderr, file=sys.stderr)
+    sys.exit(r.returncode)
+actual = r.stdout.replace('\r\n', '\n').strip()
+print(actual)
+expected = pathlib.Path('../results/lean_axioms.txt').read_text(encoding='utf-8').replace('\r\n', '\n').strip()
+if actual != expected:
+    print('AXIOM DRIFT DETECTED vs results/lean_axioms.txt!', file=sys.stderr)
+    sys.exit(1)
+"@
             if ($LASTEXITCODE -ne 0) { return }
             & lake env leanchecker Solution
             if ($LASTEXITCODE -ne 0) { return }

@@ -161,7 +161,7 @@ def main() -> None:
         "T2_bilinear_frobenius": verify_t2_bilinear_frobenius(),
         "T4_balanced_multilinear_product": verify_t4_balanced_product(),
     }
-    out_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    out_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"Wrote {out_path}")
 
 

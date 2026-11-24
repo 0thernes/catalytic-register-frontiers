@@ -1,7 +1,8 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "version": 1,
+  "serialNumber": "urn:uuid:7c64d8f1-9a21-4e65-9e08-347f5d2b1c90",
+  "version": 2,
   "metadata": {
     "timestamp": "2026-11-24T00:00:00Z",
     "component": {
@@ -19,12 +20,31 @@
     { "type": "application", "name": "lean4", "version": "4.35.0", "licenses": [{ "license": { "id": "Apache-2.0" } }], "description": "Pinned Lean 4 toolchain (zero external Lake packages); includes leanchecker, leanchecker-paranoid, con-leche, con-ron, nanoda_bin 0.4.19" },
     { "type": "application", "name": "cadical", "version": "2.1.2", "licenses": [{ "license": { "id": "MIT" } }], "description": "SAT solver bundled with Lean 4.35.0 toolchain" },
     { "type": "application", "name": "tectonic", "version": "0.17.0", "licenses": [{ "license": { "id": "MIT" } }], "description": "Reproducible AMS-LaTeX compiler" },
+    { "type": "library", "name": "ast-serialize", "version": "0.13.1", "purl": "pkg:pypi/ast-serialize@0.13.1", "licenses": [{ "license": { "id": "MIT" } }] },
+    { "type": "library", "name": "colorama", "version": "0.4.6", "purl": "pkg:pypi/colorama@0.4.6", "licenses": [{ "license": { "id": "BSD-3-Clause" } }] },
+    { "type": "library", "name": "contourpy", "version": "1.4.0", "purl": "pkg:pypi/contourpy@1.4.0", "licenses": [{ "license": { "id": "BSD-3-Clause" } }] },
+    { "type": "library", "name": "cycler", "version": "0.12.1", "purl": "pkg:pypi/cycler@0.12.1", "licenses": [{ "license": { "id": "BSD-3-Clause" } }] },
+    { "type": "library", "name": "fonttools", "version": "4.68.0", "purl": "pkg:pypi/fonttools@4.68.0", "licenses": [{ "license": { "id": "MIT" } }] },
     { "type": "library", "name": "hypothesis", "version": "6.170.17", "purl": "pkg:pypi/hypothesis@6.170.17", "licenses": [{ "license": { "id": "MPL-2.0" } }] },
+    { "type": "library", "name": "iniconfig", "version": "2.3.1", "purl": "pkg:pypi/iniconfig@2.3.1", "licenses": [{ "license": { "id": "MIT" } }] },
+    { "type": "library", "name": "kiwisolver", "version": "1.5.1", "purl": "pkg:pypi/kiwisolver@1.5.1", "licenses": [{ "license": { "id": "BSD-3-Clause" } }] },
+    { "type": "library", "name": "librt", "version": "0.17.0", "purl": "pkg:pypi/librt@0.17.0", "licenses": [{ "license": { "id": "MIT" } }] },
     { "type": "library", "name": "matplotlib", "version": "3.11.2", "purl": "pkg:pypi/matplotlib@3.11.2", "licenses": [{ "license": { "id": "PSF-2.0" } }] },
     { "type": "library", "name": "mypy", "version": "2.4.1", "purl": "pkg:pypi/mypy@2.4.1", "licenses": [{ "license": { "id": "MIT" } }] },
-    { "type": "library", "name": "numpy", "version": "2.5.5", "purl": "pkg:pypi/numpy@2.5.5", "licenses": [{ "license": { "id": "BSD-3-Clause" } }] },
+    { "type": "library", "name": "mypy-extensions", "version": "1.2.0", "purl": "pkg:pypi/mypy-extensions@1.2.0", "licenses": [{ "license": { "id": "MIT" } }] },
+    { "type": "library", "name": "numpy", "version": "2.5.5", "purl": "pkg:pypi/numpy@2.5.5", "licenses": [{ "expression": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0" }] },
+    { "type": "library", "name": "packaging", "version": "26.4", "purl": "pkg:pypi/packaging@26.4", "licenses": [{ "expression": "Apache-2.0 OR BSD-2-Clause" }] },
+    { "type": "library", "name": "pathspec", "version": "1.1.1", "purl": "pkg:pypi/pathspec@1.1.1", "licenses": [{ "license": { "id": "MPL-2.0" } }] },
+    { "type": "library", "name": "pillow", "version": "13.0.0", "purl": "pkg:pypi/pillow@13.0.0", "licenses": [{ "license": { "id": "MIT-CMU" } }] },
+    { "type": "library", "name": "pluggy", "version": "1.7.0", "purl": "pkg:pypi/pluggy@1.7.0", "licenses": [{ "license": { "id": "MIT" } }] },
+    { "type": "library", "name": "pygments", "version": "2.21.0", "purl": "pkg:pypi/pygments@2.21.0", "licenses": [{ "license": { "id": "BSD-2-Clause" } }] },
+    { "type": "library", "name": "pyparsing", "version": "3.3.3", "purl": "pkg:pypi/pyparsing@3.3.3", "licenses": [{ "license": { "id": "MIT" } }] },
     { "type": "library", "name": "pytest", "version": "9.2.0", "purl": "pkg:pypi/pytest@9.2.0", "licenses": [{ "license": { "id": "MIT" } }] },
+    { "type": "library", "name": "python-dateutil", "version": "4.0.0", "purl": "pkg:pypi/python-dateutil@4.0.0", "licenses": [{ "license": { "id": "BSD-3-Clause" } }] },
     { "type": "library", "name": "ruff", "version": "0.17.6", "purl": "pkg:pypi/ruff@0.17.6", "licenses": [{ "license": { "id": "MIT" } }] },
-    { "type": "library", "name": "scipy", "version": "1.18.1", "purl": "pkg:pypi/scipy@1.18.1", "licenses": [{ "license": { "id": "BSD-3-Clause" } }] }
+    { "type": "library", "name": "scipy", "version": "1.18.1", "purl": "pkg:pypi/scipy@1.18.1", "licenses": [{ "license": { "id": "BSD-3-Clause" } }] },
+    { "type": "library", "name": "sortedcontainers", "version": "2.4.0", "purl": "pkg:pypi/sortedcontainers@2.4.0", "licenses": [{ "license": { "id": "Apache-2.0" } }] },
+    { "type": "library", "name": "typing-extensions", "version": "4.16.0", "purl": "pkg:pypi/typing-extensions@4.16.0", "licenses": [{ "license": { "id": "PSF-2.0" } }] },
+    { "type": "library", "name": "tzdata", "version": "2026.6", "purl": "pkg:pypi/tzdata@2026.6", "licenses": [{ "license": { "id": "Apache-2.0" } }] }
   ]
 }

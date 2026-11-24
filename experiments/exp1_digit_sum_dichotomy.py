@@ -210,7 +210,7 @@ def main() -> None:
         "prime_fields": verify_prime_fields(),
         "extension_field_F4": verify_extension_field_f4(),
     }
-    out_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    out_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"Wrote {out_path}")
 
 

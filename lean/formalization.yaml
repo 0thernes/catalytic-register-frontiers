@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: CC-BY-4.0
+# SPDX-License-Identifier: Apache-2.0
 schema_version: 1
 title: "Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs"
 project: catalytic-register-frontiers
@@ -32,7 +32,7 @@ origin: "Original formalization of newly proved theorems T1–T4 answering open 
 sources:
   - citation: "A. Vinciguerra, An Operator Approach to Register Programs for Catalytic Computing, arXiv:2609.18692 [cs.CC], Sep 2026."
     url: "https://arxiv.org/abs/2609.18692"
-  - citation: "G. Morse, Unrestricted Boolean Multiplicative Complexity of Four-Term Binary Polynomial Multiplication, arXiv:2608.30238 [cs.CC], Aug 2026."
+  - citation: "G. Morse, Unrestricted Boolean Multiplicative Complexity of Four-Term Binary Polynomial Multiplication: Rational Places, Hasse Jets, and the Failure of Nonlinear Feedback, arXiv:2608.30238 [cs.CC], Aug 2026."
     url: "https://arxiv.org/abs/2608.30238"
   - citation: "Y. Alekseev, Y. Filmus, I. Mertz, A. Smal, and A. Vinciguerra, Catalytic Computing and Register Programs Beyond Log-Depth, MFCS 2025, LIPIcs 345, pp. 6:1–6:18."
     url: "https://doi.org/10.4230/LIPIcs.MFCS.2025.6"
@@ -47,7 +47,7 @@ automation:
     - "Writing – review & editing"
   verification_stack: "Lean 4.35.0 reference kernel + leanchecker + leanchecker-paranoid + con-leche --verified + con-ron --verified + nanoda_bin 0.4.19"
 review_status: "Preprint; not externally peer-reviewed"
-limitations: "Uniform proof of D_{3,Q}^{pass}(t) = 2t-3 for all t >= 4, general non-prime extension fields F_{p^e} (e >= 2), r=4 beyond log_7(4), and Boyar-Find / Mul_5 remain open (Tier-4). T3a-T3d exclude explicitly factored bad prime denominators."
+limitations: "Uniform proof of D_{3,Q}^{pass}(t) = 2t-3 for all t >= 4, general non-prime extension fields F_{p^e} (e >= 2), r=4 beyond log_7(4), and Boyar-Find / Mul_5 remain open (Tier-4). T3a-T3d and T3g-T3i exclude explicitly factored bad prime / factorial denominators."
 axiom_allowlist:
   - propext
   - Classical.choice

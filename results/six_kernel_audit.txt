@@ -2,15 +2,15 @@
 Date: 2026-11-24
 Toolchain: leanprover/lean4:v4.35.0 (zero Mathlib, zero external Lake dependencies)
 Core Linters: autoImplicit=false, relaxedAutoImplicit=false, linter.unusedVariables=true, linter.deprecated=true
-Forbidden-token scan across all 14 .lean files (8,036 lines total, max 1,361 lines): 0 matches (0 sorry, 0 admit, 0 native_decide, 0 custom axiom, 0 unsafe, 0 @[extern])
-Targets exported: Catalytic.Solution.prove_all_catalytic_theorems (20 theorems: T1, T1a-T1e, T1s, T1es, T2, T2b, T3a-T3i, T4), Catalytic.NonVacuity.nonvac_all_hypotheses
+Forbidden-token scan across all 14 .lean files (8,069 lines total, max 1,361 lines): 0 matches (0 sorry, 0 admit, 0 native_decide, 0 custom axiom, 0 unsafe, 0 @[extern])
+Targets exported: Catalytic.Solution.prove_all_catalytic_theorems (20 theorems: T1, T1a-T1e, T1s, T1es, T2, T2b, T3a-T3i, T4), Catalytic.NonVacuity.nonvac_all_hypotheses (incl. Fin 3 -> ModP 13 nonvac_T3i_witness)
 
 1. lean v4.35.0 (clean lake build + VerifyAxioms.lean): PASS (17/17 jobs, 0 warnings, 22/22 decls strictly within [propext, Classical.choice, Quot.sound])
 2. leanchecker Solution: PASS (exit 0)
 3. leanchecker-paranoid Solution: PASS (exit 0)
-4. con-leche --verified: PASS (exit 0) -- con-leche: accepted 3523 declarations (--verified)
-5. con-ron --verified: PASS (exit 0) -- con-ron: accepted 3523 declarations (--verified)
-6. nanoda_bin 0.4.19 (unpermitted_axiom_hard_error=true): PASS (exit 0, 3836 declarations, 0 typechecker errors, 0 unpermitted axioms)
+4. con-leche --verified: PASS (exit 0) -- con-leche: accepted 3525 declarations (--verified)
+5. con-ron --verified: PASS (exit 0) -- con-ron: accepted 3525 declarations (--verified)
+6. nanoda_bin 0.4.19 (unpermitted_axiom_hard_error=true): PASS (exit 0, 3838 declarations, 0 typechecker errors, 0 unpermitted axioms)
 
 Upstream Windows tooling notes (honest boundary):
 - `lake check --paranoid`: Lean 4.35's `lake check` wrapper requires POSIX `bwrap` and `git` on PATH and is executed on Linux (`ubuntu-latest`) in `.github/workflows/ci.yml`; all five underlying bundled kernel implementations above run natively on Windows.

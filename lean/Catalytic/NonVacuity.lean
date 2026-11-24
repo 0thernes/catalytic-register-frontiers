@@ -288,7 +288,31 @@ theorem nonvac_T3h_witnesses :
   · rw [hlen7]
     exact ModP.mul_natCast_eq_one ⟨4, by decide⟩ (fact 2) (by decide)
 
-/-- Master non-vacuity witness bundling all theorem families (`T1`–`T4`, including `Pass2Soundness` char-`p`/`GF4` hom witnesses, `GF4` for `T1e`, `D9` for `T3g`, and 4-register powering for `T3h`). -/
+/-- **Non-Vacuity Witness for T3i (Streaming Frequency Moments over `R^n`):**
+Over the non-trivial product ring `Fin 3 → 𝔽_13` (`0 ≠ 1`), `four_reg_streaming_moment_x13`
+instantiates cleanly at `n = 3, D = 20` (`ℓ = 1`), yielding a literal passive 4-vector-register
+program with `3 * accesses < 104 * 8^1` whose coordinate sum computes `F_20(f) = ∑_{i<3} f_i^20`. -/
+theorem nonvac_T3i_witness :
+    ((0 : Fin 3 → ModP 13 (by decide)) ≠ (1 : Fin 3 → ModP 13 (by decide))) ∧
+    ∃ prog : List (Pass4Instr (Fin 3 → ModP 13 (by decide))),
+      3 * Pass4Prog.accesses prog < 104 * 8 ^ 1 ∧
+      ∀ f o u r1 r2 : Fin 3 → ModP 13 (by decide),
+        let res := Pass4Prog.exec f prog (o, u, r1, r2)
+        (∀ i : Fin 3, res.1 i = o i + CRing.pow (f i) 20) ∧
+        res.2 = (u, r1, r2) ∧
+        sumFin res.1 = sumFin o + sumFin (fun i => CRing.pow (f i) 20) := by
+  refine ⟨fun h => ModP.zero_ne_one 13 (by decide) (congrFun h ⟨0, by decide⟩), ?_⟩
+  rcases nonvac_T3h_witnesses.1 with ⟨iD8, i12, i2, _, hD8, h12, h2⟩
+  have hlen13 : (baseDigits 13 (by decide) 20).length = 2 := by
+    unfold baseDigits; simp; unfold baseDigits; simp
+  rcases four_reg_streaming_moment_x13 (R := ModP 13 (by decide)) 3 20 (by omega)
+      iD8 i12 i2 hD8 h12 h2 with ⟨prog, _, hacc, hclean⟩
+  rw [hlen13] at hacc
+  exact ⟨prog, hacc, hclean⟩
+
+/-- Master non-vacuity witness bundling all theorem families (`T1`–`T4`, including `Pass2Soundness`
+char-`p`/`GF4` hom witnesses, `GF4` for `T1e`, `D9` for `T3g`, 4-register powering for `T3h`, and
+concrete product-ring `Fin 3 → 𝔽_13` streaming frequency moments for `T3i`). -/
 theorem nonvac_all_hypotheses :
     (IsPrime 2 ∧ IsPrime 3 ∧ IsPrime 5 ∧ IsPrime 7 ∧
       InRPPass2 2 2 (monomial 4) ∧ ¬ InRPPass2 2 10 (monomial 3) ∧
@@ -306,11 +330,20 @@ theorem nonvac_all_hypotheses :
       invD8 * CRing.intCast 2656207148788801777680 = 1 ∧
       inv12 * CRing.natCast (fact 12) = 1 ∧
       inv2 * CRing.natCast (fact (baseDigits 13 (by decide) 20).length) = 1) ∧
+    ((0 : Fin 3 → ModP 13 (by decide)) ≠ (1 : Fin 3 → ModP 13 (by decide)) ∧
+      ∃ prog : List (Pass4Instr (Fin 3 → ModP 13 (by decide))),
+        3 * Pass4Prog.accesses prog < 104 * 8 ^ 1 ∧
+        ∀ f o u r1 r2 : Fin 3 → ModP 13 (by decide),
+          let res := Pass4Prog.exec f prog (o, u, r1, r2)
+          (∀ i : Fin 3, res.1 i = o i + CRing.pow (f i) 20) ∧
+          res.2 = (u, r1, r2) ∧
+          sumFin res.1 = sumFin o + sumFin (fun i => CRing.pow (f i) 20)) ∧
     ((0 : Int) ≠ (1 : Int)) := by
   rcases nonvac_T3_witnesses with ⟨⟨i5, _, h5⟩, ⟨i6, _, h6⟩, ⟨i7, _, h7⟩, ⟨i8, _, h8⟩, ⟨i9, _, h9⟩⟩
   rcases nonvac_T3h_witnesses.1 with ⟨iD8, i12, i2, _, hD8, h12, h2⟩
   exact ⟨nonvac_T1_witnesses, ModP.natCast_p_eq_zero 5 (by decide), GF4.one_ne_zero, nonvac_T2_witness.1,
-    ⟨i5, h5⟩, ⟨i6, h6⟩, ⟨i7, h7⟩, ⟨i8, h8⟩, ⟨i9, h9⟩, ⟨iD8, i12, i2, hD8, h12, h2⟩, nonvac_T4_witness.1⟩
+    ⟨i5, h5⟩, ⟨i6, h6⟩, ⟨i7, h7⟩, ⟨i8, h8⟩, ⟨i9, h9⟩, ⟨iD8, i12, i2, hD8, h12, h2⟩,
+    nonvac_T3i_witness, nonvac_T4_witness.1⟩
 
 end
 

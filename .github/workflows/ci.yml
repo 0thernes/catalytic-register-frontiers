@@ -57,7 +57,10 @@ jobs:
       - run: |
           python -m pip install --upgrade pip
           pip install -r requirements.lock.txt
-          CADICAL_PATH="$(dirname "$(which lean)")/../toolchains/leanprover--lean4---v4.35.0/bin/cadical"
+          CADICAL_PATH="$(cd lean && lake env which cadical 2>/dev/null || true)"
+          if [ -z "$CADICAL_PATH" ]; then
+            CADICAL_PATH="$(dirname "$(which lean)")/../toolchains/leanprover--lean4---v4.35.0/bin/cadical"
+          fi
           if [ -x "$CADICAL_PATH" ]; then
             echo "CADICAL_BIN=$CADICAL_PATH" >> "$GITHUB_ENV"
           fi
@@ -77,17 +80,21 @@ jobs:
           python scripts/check_citations.py --offline
           grep -rnE 'AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|ghp_[A-Za-z0-9]{36}' . --exclude-dir=.git && exit 1 || echo "Secret scan clean"
 
-      - name: Generate vector figures and compile AMS-LaTeX manuscript with Tectonic
-        run: |
-          python scripts/make_figures.py
-          curl --proto '=https' --tlsv1.2 -fsSL https://drop-sh.fullyjustified.net | sh
-          mkdir -p paper/build
-          (cd paper && ../tectonic -X compile main.tex --outdir build --keep-intermediates)
-
       - name: Verify SHA-256 provenance manifest and DigiCert RFC 3161 timestamp
         run: |
           sha256sum -c MANIFEST.sha256
-          openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CApath /etc/ssl/certs
+          if [ -f /etc/ssl/certs/ca-certificates.crt ]; then
+            openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CAfile /etc/ssl/certs/ca-certificates.crt
+          else
+            openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CApath /etc/ssl/certs
+          fi
+
+      - name: Generate vector figures and compile AMS-LaTeX manuscript with Tectonic
+        run: |
+          python scripts/make_figures.py
+          (cd /tmp && curl --proto '=https' --tlsv1.2 -fsSL https://drop-sh.fullyjustified.net | sh)
+          mkdir -p paper/build
+          (cd paper && /tmp/tectonic -X compile main.tex --outdir build --keep-intermediates)
 
       - name: Attest axiom report and frozen white paper (Sigstore SLSA)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -107,8 +114,8 @@ jobs:
       - name: Install elan and pinned Lean 4.35.0 (provides cadical.exe)
         shell: pwsh
         run: |
-          Invoke-WebRequest -Uri https://raw.githubusercontent.com/leanprover/elan/master/elan-init.ps1 -OutFile elan-init.ps1
-          .\elan-init.ps1 -y --default-toolchain none
+          Invoke-WebRequest -Uri https://raw.githubusercontent.com/leanprover/elan/master/elan-init.ps1 -OutFile "$env:TEMP\elan-init.ps1"
+          & "$env:TEMP\elan-init.ps1" -y --default-toolchain none
           "$env:USERPROFILE\.elan\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           "$env:USERPROFILE\.elan\toolchains\leanprover--lean4---v4.35.0\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           Set-Location lean

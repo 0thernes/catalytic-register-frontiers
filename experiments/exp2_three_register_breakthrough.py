@@ -340,7 +340,7 @@ def main() -> None:
         "programs": programs,
         "exponent_chain_exact_nat_checks": chain_checks,
     }
-    out_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    out_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"Wrote {out_path}")
 
 

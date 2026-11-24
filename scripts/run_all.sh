@@ -19,12 +19,16 @@ run_lean() {
   (
     cd "$REPO/lean"
     lake build
-    lake env lean VerifyAxioms.lean
+    TMP_AX="$(mktemp)"
+    trap 'rm -f "$TMP_AX"' EXIT
+    lake env lean VerifyAxioms.lean | tr -d '\r' > "$TMP_AX"
+    cat "$TMP_AX"
+    diff -u ../results/lean_axioms.txt "$TMP_AX"
     lake env leanchecker Solution
     lake env leanchecker-paranoid Solution
     if lake env sh -c 'command -v con-leche >/dev/null 2>&1 && command -v con-ron >/dev/null 2>&1'; then
       TMP_EXP="$(mktemp)"
-      trap 'rm -f "$TMP_EXP"' EXIT
+      trap 'rm -f "$TMP_AX" "$TMP_EXP"' EXIT
       lake env leanexport Solution -- \
         Catalytic.Solution.prove_all_catalytic_theorems \
         Catalytic.NonVacuity.nonvac_all_hypotheses > "$TMP_EXP"
@@ -79,8 +83,12 @@ run_audit() {
     "$PYTHON" scripts/check_citations.py --offline
     sha256sum -c MANIFEST.sha256 --quiet && echo "MANIFEST_SHA256_VERIFIED: all checksums match."
     if command -v openssl >/dev/null 2>&1 && [ -f provenance/MANIFEST.sha256.tsr ]; then
-      if [ -d /etc/ssl/certs ]; then
+      if [ -f /etc/ssl/certs/ca-certificates.crt ]; then
+        openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CAfile /etc/ssl/certs/ca-certificates.crt
+      elif [ -d /etc/ssl/certs ]; then
         openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CApath /etc/ssl/certs
+      elif [ -f /usr/ssl/certs/ca-bundle.crt ]; then
+        openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CAfile /usr/ssl/certs/ca-bundle.crt
       else
         openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr
       fi

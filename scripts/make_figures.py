@@ -148,7 +148,7 @@ def make_fig1() -> None:
 
 
 def make_fig2() -> None:
-    """Fig 2: 3-Register Powering Frontier & Composition Exponent Breakthrough (Theorem T3)."""
+    """Fig 2: 3-Register Powering Frontier & Composition Exponent Improvement (Theorem T3)."""
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.2, 3.65), dpi=300)
 
     # Panel A: Degree frontier vs t
