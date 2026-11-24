@@ -275,7 +275,7 @@ def test_lean_formalization_and_governance_hygiene() -> None:
         if f.name == "PalomarChallenge.lean":
             assert not pat_no_sorry.search(text), f"Forbidden token found in {f}"
             assert not re.search(r"^\s*(?:public\s+)?import\b", text, re.M), "PalomarChallenge.lean must have zero imports"
-            assert len(text.splitlines()) <= 1000, "PalomarChallenge.lean exceeds Palomar 1000-line cap"
+            assert len(text.splitlines()) <= 300, "PalomarChallenge.lean exceeds Palomar 300-line preferred cap"
         else:
             assert not pat.search(text), f"Forbidden token found in {f}"
             assert "PalomarChallenge" not in text, f"Proof module {f} must never reference PalomarChallenge"

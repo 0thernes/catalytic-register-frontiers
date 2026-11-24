@@ -31,7 +31,7 @@ jobs:
             echo "FORBIDDEN TOKEN FOUND IN PROOF MODULES!" >&2
             exit 1
           fi
-          if grep -rnE '\b(admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern|\bimport\b' lean/PalomarChallenge.lean; then
+          if grep -rnE '\b(admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern|^\s*(public\s+|meta\s+)?import\b' lean/PalomarChallenge.lean; then
             echo "FORBIDDEN TOKEN OR IMPORT IN PALOMAR CHALLENGE STUB!" >&2
             exit 1
           fi
