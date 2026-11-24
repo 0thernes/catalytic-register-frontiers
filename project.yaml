@@ -87,7 +87,7 @@ steps:
   P9.03: {status: todo, note: "Awaiting owner push to GitHub, Zenodo/OSF DOI minting, and Palomar submission"}
   P9.04: {status: done, note: "docs/launch/announcement.md + docs/media/social-preview.svg"}
   P9.05: {status: done, note: "docs/launch/channels.md (ordered 6-step Playbook release sequence)"}
-  P9.06: {status: todo, note: "Pending owner GitHub push, signed release tag v1.0.0, and remote About/Topics (A19)"}
+  P9.06: {status: done, note: "Pushed main to 0thernes/catalytic-register-frontiers, set A19 About/Topics & A30 labels (100% Build Standard), deployed Pages, verified 7-kernel Ubuntu + Windows CI (45500957443, Rekor 4087684280), published v1.0.0/v1.0.1 releases (SLSA), archived on Software Heritage (swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085), and enabled Zenodo GitHub DOI integration"}
   P9.07: {status: todo, note: "Pending post-push CI green run and external reproduction"}
   P10.01: {status: n/a, note: "Static research repository; no live backend service telemetry"}
   P10.02: {status: n/a, note: "No live service SLOs"}

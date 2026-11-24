@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs
 
-[![Version 1.0.0](https://img.shields.io/badge/version-1.0.0-blue.svg)](VERSION)
+[![Version 1.0.1](https://img.shields.io/badge/version-1.0.1-blue.svg)](VERSION)
 [![Lean 4.35.0 Zero-Mathlib](https://img.shields.io/badge/Lean-4.35.0%20(zero--Mathlib)-brightgreen.svg)](lean/lean-toolchain)
 [![6 Kernels Verified](https://img.shields.io/badge/kernels-6%2F6%20PASS-brightgreen.svg)](results/six_kernel_audit.txt)
 [![Code License: Apache-2.0](https://img.shields.io/badge/code%20license-Apache--2.0-blue.svg)](LICENSE)
@@ -11,7 +11,7 @@
 A zero-Mathlib Lean 4.35.0 formalization, exact-arithmetic verification suite, and AMS-LaTeX preprint settling the exact two-register prime-field frontier and strictly improving the three-register catalytic powering exponent of Vinciguerra (`arXiv:2609.18692`).
 
 **Author:** Alexander S. Donahue (Independent Researcher, Spokane, WA, USA · ORCID [`0009-0006-8168-9648`](https://orcid.org/0009-0006-8168-9648) · `0_0@0thernes.art`)  
-**Maintenance status:** active independent research artifact (`v1.0.0`, 2026-11-24) · **Frozen White Paper:** [`dist/Donahue_2026_catalytic_register_frontiers.pdf`](dist/Donahue_2026_catalytic_register_frontiers.pdf) · **Live Blueprint:** [`0thernes.github.io/catalytic-register-frontiers`](https://0thernes.github.io/catalytic-register-frontiers/)
+**Maintenance status:** active independent research artifact (`v1.0.1`, 2026-11-24) · **Frozen White Paper:** [`dist/Donahue_2026_catalytic_register_frontiers.pdf`](dist/Donahue_2026_catalytic_register_frontiers.pdf) · **Live Blueprint:** [`0thernes.github.io/catalytic-register-frontiers`](https://0thernes.github.io/catalytic-register-frontiers/) · **SWHID:** [`swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085`](https://archive.softwareheritage.org/api/1/snapshot/f960eeda6f145e54c0ac52538ace866a16e24085/)
 
 > **Epistemic Status:** All 20 headline theorems, corollaries, and literal commutative-ring soundness bridges (`T1`, `T1a`–`T1e`, `T1s`, `T1es`, `T2`, `T2b`, `T3a`–`T3i` — including complete 4-register passive powering for all $N \ge 1$ and algebraic vector streaming frequency moments $F_D(\mathbf{f})$, `T4`) plus concrete `0 ≠ 1` non-vacuity witnesses (`NonVacuity`, including product ring `Fin 3 → ModP 13` for `T3i`) are machine-checked from first principles in **zero-Mathlib Lean 4.35.0** across **14 module files** (8,069 lines, max 1,361 lines) and **6 kernel runs / 5 independent implementations** (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin 0.4.19`) with 0 forbidden tokens and 0 linter warnings. All 8/8 companion SAT UNSAT proofs are archived as ASCII LRAT certificates (`results/sat_certs/`), independently verified (`scripts/verify_lrat.py`), and cross-checked against both brute-force enumeration and a second independent CNF encoder (`tests/test_all.py`). This preprint has **not** undergone external peer review; see [`CLAIMS.md`](CLAIMS.md) (including explicit falsification criteria) and [`LIMITATIONS.md`](LIMITATIONS.md).
 

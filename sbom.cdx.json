@@ -8,7 +8,7 @@
     "component": {
       "type": "application",
       "name": "catalytic-register-frontiers",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "licenses": [
         { "license": { "id": "Apache-2.0" } },
         { "license": { "id": "CC-BY-4.0" } }

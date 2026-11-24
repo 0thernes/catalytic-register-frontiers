@@ -34,7 +34,7 @@ items:
   A05: {status: n/a, note: "Research proof repository with vector figures in paper/figures/, no interactive UI"}
   A06: {status: done, evidence: "LICENSE (Apache-2.0 code + CC-BY-4.0 prose/figures)"}
   A07: {status: done, evidence: "CHANGELOG.md"}
-  A08: {status: done, evidence: "VERSION 1.0.0 matches CHANGELOG.md and CITATION.cff"}
+  A08: {status: done, evidence: "VERSION 1.0.1 matches CHANGELOG.md and CITATION.cff"}
   A09: {status: done, evidence: "tests/test_all.py"}
   A10: {status: done, evidence: ".github/workflows/ci.yml runs on push (informational)"}
   A11: {status: done, evidence: ".github/workflows/release.yml triggered on v* tags"}

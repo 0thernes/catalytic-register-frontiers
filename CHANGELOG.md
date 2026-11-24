@@ -5,7 +5,12 @@ All notable changes to `catalytic-register-frontiers` are documented here follow
 
 ## [Unreleased]
 
-- Pending post-`v1.0.0` external milestones: Zenodo/OSF DOI minting, Palomar Registry submission, Lean Zulip announcement, HAL/OSF/arXiv preprint submission, and independent external second-person reproduction (`ROADMAP.md`).
+- Pending external specialist review & discovery milestones (`ROADMAP.md`).
+
+## [1.0.1] - 2026-11-24
+
+### Added
+- **Zenodo GitHub Integration & Archival Preservation:** Enabled Zenodo GitHub repository preservation for automatic Concept + Version DOI minting on release `v1.0.1`, recorded permanent Software Heritage snapshot SWHID `swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085`, recorded live 7-kernel Ubuntu `lake check --paranoid` + Windows CI run (`45500957443`, Sigstore Rekor `4087684280`) and `v1.0.0` SLSA release attestation (Rekor `4087690760`), and registered frozen release `0TH-2026-010` in `0thernes/0thernes-research-archive`.
 
 ## [1.0.0] - 2026-11-24
 

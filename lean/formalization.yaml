@@ -2,7 +2,7 @@
 schema_version: 1
 title: "Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs"
 project: catalytic-register-frontiers
-version: "1.0.0"
+version: "1.0.1"
 license: "Apache-2.0"
 authors:
   - name: "Alexander S. Donahue"
