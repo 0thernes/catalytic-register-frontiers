@@ -17,7 +17,7 @@ git bundle verify ../catalytic-register-frontiers-$(date +%Y%m%d).bundle
 
 - **Local canonical workspace:** `Z:\[Vibe Coded (AI)]\ANTIGRAVITY\catalytic-register-frontiers` (dedicated ReFS Dev Drive).
 - **Planned archival mirrors:** GitHub (`0thernes/catalytic-register-frontiers`), Software Heritage (`archive.softwareheritage.org/save`, ISO/IEC 18670 SWHID), and master research archive (`0thernes-research-archive`).
-- **Last local bundle/audit refresh:** 2026-11-23.
+- **Last local bundle/audit refresh:** 2026-11-24.
 
 ## Deployment & Rollback
 

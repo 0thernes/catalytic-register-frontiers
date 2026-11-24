@@ -38,7 +38,7 @@ steps:
   P3.05: {status: n/a, note: "Zero runtime infrastructure cost (local/GitHub Free + GitHub Pages)"}
   P3.06: {status: n/a, note: "Static mathematical artifact; no multi-tenant traffic scaling"}
   P3.07: {status: done, note: "docs/failure-modes.md"}
-  P3.08: {status: done, note: "docs/adr/0001-zero-mathlib-lean-kernel.md and 0002-epistemic-scope-and-identity.md"}
+  P3.08: {status: done, note: "docs/adr/0001-zero-mathlib-six-kernel-lean.md and docs/adr/0002-epistemic-scope-and-identity.md"}
   P3.09: {status: done, note: "results/six_kernel_audit.txt, results/lean_axioms.txt, docs/run-log.md"}
   P4.01: {status: done, note: "docs/stack-matrix.md"}
   P4.02: {status: done, note: "docs/stack-matrix.md"}

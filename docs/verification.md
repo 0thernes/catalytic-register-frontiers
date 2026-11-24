@@ -8,7 +8,7 @@ Maps every applicable rung of Part B of the Build Standard for LLMs (v1.1.0) and
 | B01–B02 | Clean-clone reproducible build & pinned toolchains/lockfiles | `just reproduce`, `lean/lean-toolchain`, `lean/lake-manifest.json`, `pyproject.toml`, `requirements.lock.txt` | **PASS** |
 | B03 | Determinism checks | Deterministic vector PDFs (`CreationDate=None`), exact integer/rational JSON outputs verified in `tests/test_all.py` | **PASS** |
 | B04–B05 | Claims ledger & falsifiable tests per claim | `CLAIMS.md` (with explicit refutation criteria) + `tests/test_all.py` | **PASS** |
-| B06–B07 | Negative tests & regression tests per fixed bug | `T1b`/`T1c` impossibility proofs, `test_negative_and_regression_guards` in `tests/test_all.py` | **PASS** |
+| B06–B07 | Negative tests & regression tests per fixed bug | `T1b`/`T1c`/`T1e` impossibility proofs, `test_lean_formalization_and_governance_hygiene` & `test_doc_citation_and_workflow_consistency` in `tests/test_all.py` | **PASS** |
 | B08 | Golden / snapshot verification | `results/exp1..4.json` + `results/lean_axioms.txt` verified against live recomputation & `MANIFEST.sha256` | **PASS** |
 | B10 | Property-based tests | `hypothesis` randomized tests across `T1`–`T4` in `tests/test_all.py` | **PASS** |
 | B11–B12 | Differential testing & independent reference oracle | Lean kernel proofs independently cross-checked by Python exact polynomial / finite-field evaluators + brute-force SAT encoder oracle | **PASS** |

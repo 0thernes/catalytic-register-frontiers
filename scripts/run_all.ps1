@@ -16,9 +16,14 @@ $ErrorActionPreference = "Stop"
 $Repo = Split-Path -Parent $PSScriptRoot
 $Py   = Join-Path $Repo ".venv\Scripts\python.exe"
 $Pytest = Join-Path $Repo ".venv\Scripts\pytest.exe"
-$Tectonic = "C:\Users\Alexa\.local\bin\tectonic.exe"
-$ElanBin  = "C:\Users\Alexa\.elan\bin"
-$LeanBin  = "C:\Users\Alexa\.elan\toolchains\leanprover--lean4---v4.35.0\bin"
+$TectonicCmd = Get-Command tectonic -ErrorAction SilentlyContinue
+if ($TectonicCmd) {
+    $Tectonic = $TectonicCmd.Source
+} else {
+    $Tectonic = Join-Path $env:USERPROFILE ".local\bin\tectonic.exe"
+}
+$ElanBin  = Join-Path $env:USERPROFILE ".elan\bin"
+$LeanBin  = Join-Path $env:USERPROFILE ".elan\toolchains\leanprover--lean4---v4.35.0\bin"
 
 if (Test-Path -LiteralPath $ElanBin) {
     $env:PATH = "$ElanBin;$LeanBin;$env:PATH"
@@ -33,7 +38,7 @@ function Run-Step([string]$Label, [scriptblock]$Body) {
 }
 
 function Invoke-Lean {
-    Run-Step "Lean 4.35 lake build + VerifyAxioms + leanchecker-paranoid" {
+    Run-Step "Lean 4.35 lake build + VerifyAxioms + leanchecker-paranoid + con-leche/con-ron" {
         Push-Location -LiteralPath (Join-Path $Repo "lean")
         try {
             & lake build
@@ -43,6 +48,22 @@ function Invoke-Lean {
             & lake env leanchecker Solution
             if ($LASTEXITCODE -ne 0) { return }
             & lake env leanchecker-paranoid Solution
+            if ($LASTEXITCODE -ne 0) { return }
+            # Export raw UTF-8 stream via Python (avoiding PowerShell Out-File Unicode mangling)
+            & $Py -c @"
+import pathlib, subprocess, sys
+exp = pathlib.Path('.lake/build/catalytic_export.txt')
+with exp.open('wb') as f:
+    p = subprocess.run(['lake', 'env', 'leanexport', 'Solution', '--',
+        'Catalytic.Solution.prove_all_catalytic_theorems',
+        'Catalytic.NonVacuity.nonvac_all_hypotheses'], stdout=f)
+if p.returncode != 0:
+    sys.exit(p.returncode)
+for tool in ('con-leche', 'con-ron'):
+    r = subprocess.run(['lake', 'env', tool, '--verified', str(exp)])
+    if r.returncode != 0:
+        sys.exit(r.returncode)
+"@
         } finally {
             Pop-Location
         }
@@ -93,7 +114,7 @@ function Invoke-Paper {
         $paperDir = Join-Path $Repo "paper"
         $buildDir = Join-Path $paperDir "build"
         if (-not (Test-Path -LiteralPath $buildDir)) {
-            New-Item -ItemType Directory -Path $buildDir -Force | Out-Null
+            [System.IO.Directory]::CreateDirectory($buildDir) | Out-Null
         }
         Push-Location -LiteralPath $paperDir
         try {

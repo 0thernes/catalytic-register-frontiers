@@ -15,6 +15,7 @@
 'Catalytic.Solution.t3e_exponent_chain' does not depend on any axioms
 'Catalytic.Solution.t3f_global_integer_optimality' depends on axioms: [propext, Quot.sound]
 'Catalytic.Solution.t3g_three_reg_9call_x15' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3h_four_reg_powering' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t4_balanced_multilinear_product' depends on axioms: [propext, Quot.sound]
 'Catalytic.Solution.prove_all_catalytic_theorems' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.NonVacuity.nonvac_all_hypotheses' depends on axioms: [propext, Classical.choice, Quot.sound]

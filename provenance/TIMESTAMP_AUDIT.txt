@@ -1,9 +1,9 @@
 # Cryptographic Trusted Timestamp Audit (provenance/TIMESTAMP_AUDIT.txt)
-Date (UTC): 2026-11-24T06:42:03Z
+Date (UTC): 2026-11-24T15:21:43Z
 Target: MANIFEST.sha256
-MANIFEST.sha256 SHA-256: 37698cb50912e96c11cfe26751a01ec6a3ef168161d801877b6e4230ec86e89b
-MANIFEST.sha256.tsr SHA-256: 08c9e0bc36e0d129a82d371ac7715f324b5083d266372e66d0ad7fd0d08ac1e6
-MANIFEST.sha256.ots SHA-256: 6b241f9868d39a84de7b084ff91fd04c61e0e51eb060bd5ecab232f5657eddac
+MANIFEST.sha256 SHA-256: 0ca3e718fec1878ba5e212983465af52f8ce1d9821bab8b5d20dd49ed2b41b83
+MANIFEST.sha256.tsr SHA-256: 06097d7ccb9f81b0f9eae78cd4d468feb78f9c5ee6fe821e51896521fe62c8f3
+MANIFEST.sha256.ots SHA-256: abb369fd26dd326b112e61a8d9c0af9a0483e93b5cf8586dded3ae5bc5c03a6f
 
 ## 1. DigiCert RFC 3161 Trusted Timestamp (TSA: http://timestamp.digicert.com)
 Verification Command (POSIX / Git Bash):
@@ -20,10 +20,10 @@ Version: 1
 Policy OID: 2.16.840.1.114412.7.1
 Hash Algorithm: sha256
 Message data:
-    0000 - 37 69 8c b5 09 12 e9 6c-11 cf e2 67 51 a0 1e c6   7i.....l...gQ...
-    0010 - a3 ef 16 81 61 d8 01 87-7b 6e 42 30 ec 86 e8 9b   ....a...{nB0....
-Serial number: 0xF8F67D07E6C446D99AD9C8EFB18826A3
-Time stamp: Nov 24 14:49:56 2026 GMT
+    0000 - 0c a3 e7 18 fe c1 87 8b-a5 e2 12 98 34 65 af 52   ............4e.R
+    0010 - f8 ce 1d 98 21 ba b8 b5-d2 0d d4 9e d2 b4 1b 83   ....!...........
+Serial number: 0x542596CC228FCD64F81E186FB21FF1A1
+Time stamp: Nov 24 15:29:37 2026 GMT
 Accuracy: unspecified
 Ordering: no
 Nonce: unspecified
@@ -32,4 +32,4 @@ Extensions:
 
 ## 2. OpenTimestamps Bitcoin Calendar Submission
 Calendar: https://a.pool.opentimestamps.org/digest
-Artifact: provenance/MANIFEST.sha256.ots (pending Bitcoin block attestation; upgradeable later via `ots upgrade`)
+Artifact: provenance/MANIFEST.sha256.ots (pending Bitcoin block attestation; upgradeable later via ots upgrade)

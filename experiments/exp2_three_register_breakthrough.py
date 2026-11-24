@@ -10,7 +10,7 @@ and Q[x, u, v] the passive-output 3-register catalytic programs for:
   * t = 6 -> x^9  (NEW, deg_w=4, D=382500000, bad primes {2,3,5,17}, eps = log_9(6) = 0.815465)
   * t = 7 -> x^11 (NEW, deg_w=5, shifts=[0,1,2,3,4,5,7], eps = log_11(7) = 0.811508)
   * t = 8 -> x^13 (NEW, deg_w=6, shifts=[0..7], eps = log_13(8) = 0.810714 — OPTIMAL!)
-  * t = 9 -> x^15 (NEW, deg_w=7, shifts=[0..7,9], eps = log_15(9) = 0.811229)
+  * t = 9 -> x^15 (NEW, deg_w=7, shifts=[0..7,9], eps = log_15(9) = 0.811368)
 
 Also verifies exact modular execution over good prime fields F_p (p = 5, 7, 11, 13, 19)
 and exact integer rational-separator inequalities for the exponent chain.

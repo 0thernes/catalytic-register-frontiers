@@ -4,7 +4,7 @@ Experiment 1: Independent Exact Verification of Theorem T1 (Base-p Digit-Sum Dic
 and Extension-Field Behavior over F_4.
 
 Verifies over exact finite-field arithmetic (no floating point):
-  1. For primes p in {2, 3, 5, 7} and degrees d = 1..150:
+  1. For primes p in {2, 3, 5, 7} and degrees d = 2..120 (d = 2..100 for p = 7):
      - Whenever s_p(d) < p, the forward finite-difference weights on A = {0..s_p(d)}
        satisfy sum_{a=0}^{s} h_a (R + a*x)^d == x^d identically in F_p[R, x].
      - Exact linear-algebra rank / solvability checks confirm that:

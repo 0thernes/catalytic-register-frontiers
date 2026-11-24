@@ -8,6 +8,7 @@ public import Catalytic.ExtensionFieldSeparation
 public import Catalytic.Pass2Soundness
 public import Catalytic.BilinearFrobenius
 public import Catalytic.ThreeRegisterBreakthrough
+public import Catalytic.FourRegisterPowering
 public import Catalytic.BalancedProduct
 
 /-!
@@ -107,6 +108,14 @@ theorem mul_intCast_lit_eq_one {p : Nat} {hp : 1 < p} (u : ModP p hp) (k : Nat)
     (z : Int) (hz : z = Int.ofNat k) (h : (u.val * (k % p)) % p = 1) :
     u * CRing.intCast z = (1 : ModP p hp) := by
   subst hz
+  apply ext
+  change (u.val * (CRing.natCast k : ModP p hp).val) % p = 1
+  rw [natCast_val]
+  exact h
+
+theorem mul_natCast_eq_one {p : Nat} {hp : 1 < p} (u : ModP p hp) (k : Nat)
+    (h : (u.val * (k % p)) % p = 1) :
+    u * CRing.natCast k = (1 : ModP p hp) := by
   apply ext
   change (u.val * (CRing.natCast k : ModP p hp).val) % p = 1
   rw [natCast_val]
@@ -251,7 +260,35 @@ theorem nonvac_T4_witness :
   · have h3 := congrFun hclean 3
     simpa using h3
 
-/-- Master non-vacuity witness bundling all theorem families (`T1`–`T4`, including `Pass2Soundness` char-`p`/`GF4` hom witnesses, `GF4` for `T1e`, and `D9` for `T3g`). -/
+/-- **Non-Vacuity Witness for T3h (4-Register Powering):** concrete non-trivial finite fields
+`𝔽_13` (`N = 20`, `ℓ = 1`, `D_8`, `12!`, `2!` all invertible) and `𝔽_7` (`N = 20`, `ℓ = 1`,
+`6!`, `2!` invertible) satisfy every hypothesis of `four_reg_powering_x13` and `four_reg_powering_x7`. -/
+theorem nonvac_T3h_witnesses :
+    (∃ (invD8 inv12 inv2 : ModP 13 (by decide)),
+      (0 : ModP 13 (by decide)) ≠ 1 ∧
+      invD8 * CRing.intCast 2656207148788801777680 = 1 ∧
+      inv12 * CRing.natCast (fact 12) = 1 ∧
+      inv2 * CRing.natCast (fact (baseDigits 13 (by decide) 20).length) = 1) ∧
+    (∃ (inv6 inv2 : ModP 7 (by decide)),
+      (0 : ModP 7 (by decide)) ≠ 1 ∧
+      inv6 * CRing.natCast (fact 6) = 1 ∧
+      inv2 * CRing.natCast (fact (baseDigits 7 (by decide) 20).length) = 1) := by
+  have hlen13 : (baseDigits 13 (by decide) 20).length = 2 := by
+    unfold baseDigits; simp; unfold baseDigits; simp
+  have hlen7 : (baseDigits 7 (by decide) 20).length = 2 := by
+    unfold baseDigits; simp; unfold baseDigits; simp
+  refine ⟨⟨⟨10, by decide⟩, ⟨12, by decide⟩, ⟨7, by decide⟩, ModP.zero_ne_one 13 (by decide), ?_, ?_, ?_⟩,
+          ⟨⟨6, by decide⟩, ⟨4, by decide⟩, ModP.zero_ne_one 7 (by decide), ?_, ?_⟩⟩
+  · exact ModP.mul_intCast_lit_eq_one ⟨10, by decide⟩
+      2656207148788801777680 2656207148788801777680 rfl (by decide)
+  · exact ModP.mul_natCast_eq_one ⟨12, by decide⟩ (fact 12) (by decide)
+  · rw [hlen13]
+    exact ModP.mul_natCast_eq_one ⟨7, by decide⟩ (fact 2) (by decide)
+  · exact ModP.mul_natCast_eq_one ⟨6, by decide⟩ (fact 6) (by decide)
+  · rw [hlen7]
+    exact ModP.mul_natCast_eq_one ⟨4, by decide⟩ (fact 2) (by decide)
+
+/-- Master non-vacuity witness bundling all theorem families (`T1`–`T4`, including `Pass2Soundness` char-`p`/`GF4` hom witnesses, `GF4` for `T1e`, `D9` for `T3g`, and 4-register powering for `T3h`). -/
 theorem nonvac_all_hypotheses :
     (IsPrime 2 ∧ IsPrime 3 ∧ IsPrime 5 ∧ IsPrime 7 ∧
       InRPPass2 2 2 (monomial 4) ∧ ¬ InRPPass2 2 10 (monomial 3) ∧
@@ -265,10 +302,15 @@ theorem nonvac_all_hypotheses :
     (∃ inv8 : ModP 11 (by decide), inv8 * CRing.intCast 2656207148788801777680 = 1) ∧
     (∃ inv9 : ModP 11 (by decide),
       inv9 * CRing.intCast 876702103804656272895371895753963647960420947968000 = 1) ∧
+    (∃ (invD8 inv12 inv2 : ModP 13 (by decide)),
+      invD8 * CRing.intCast 2656207148788801777680 = 1 ∧
+      inv12 * CRing.natCast (fact 12) = 1 ∧
+      inv2 * CRing.natCast (fact (baseDigits 13 (by decide) 20).length) = 1) ∧
     ((0 : Int) ≠ (1 : Int)) := by
   rcases nonvac_T3_witnesses with ⟨⟨i5, _, h5⟩, ⟨i6, _, h6⟩, ⟨i7, _, h7⟩, ⟨i8, _, h8⟩, ⟨i9, _, h9⟩⟩
+  rcases nonvac_T3h_witnesses.1 with ⟨iD8, i12, i2, _, hD8, h12, h2⟩
   exact ⟨nonvac_T1_witnesses, ModP.natCast_p_eq_zero 5 (by decide), GF4.one_ne_zero, nonvac_T2_witness.1,
-    ⟨i5, h5⟩, ⟨i6, h6⟩, ⟨i7, h7⟩, ⟨i8, h8⟩, ⟨i9, h9⟩, nonvac_T4_witness.1⟩
+    ⟨i5, h5⟩, ⟨i6, h6⟩, ⟨i7, h7⟩, ⟨i8, h8⟩, ⟨i9, h9⟩, ⟨iD8, i12, i2, hD8, h12, h2⟩, nonvac_T4_witness.1⟩
 
 end
 

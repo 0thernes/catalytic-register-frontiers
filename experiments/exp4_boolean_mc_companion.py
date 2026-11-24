@@ -27,7 +27,8 @@ def find_cadical() -> str:
     env = os.environ.get("CADICAL_BIN")
     if env and pathlib.Path(env).exists():
         return env
-    cand = pathlib.Path(r"C:\Users\Alexa\.elan\toolchains\leanprover--lean4---v4.35.0\bin\cadical.exe")
+    exe = "cadical.exe" if os.name == "nt" else "cadical"
+    cand = pathlib.Path.home() / ".elan" / "toolchains" / "leanprover--lean4---v4.35.0" / "bin" / exe
     if cand.exists():
         return str(cand)
     found = shutil.which("cadical")
@@ -198,15 +199,6 @@ def synthesize_multi_output_mc(
         pathlib.Path(cnf_path).unlink(missing_ok=True)
 
 
-def quadratic_mc_bound_n4(outputs: list[list[int]]) -> int:
-    """
-    Exact minimum rank over quadratic-only XAGs for small n=4 quadratic maps:
-    check via SAT restricting sel_L[j][n:] = 0 and sel_R[j][n:] = 0, OR simply compare
-    against known tight quadratic benchmarks (F_4 mul has MC_<=2 = 3, etc.).
-    """
-    return -1
-
-
 def run_companion_audit(cert_dir: pathlib.Path | None = None) -> dict:
     cadical = find_cadical()
     benchmarks = []
@@ -253,9 +245,9 @@ def run_companion_audit(cert_dir: pathlib.Path | None = None) -> dict:
     print(f"[VERIFIED SAT] Orthogonal bent pair (n=4, m=2): k=2 {r_q_2}, k=3 {r_q_3} -> exact MC = 3.")
 
     # 3. Deterministic Boyar-Find forward cancellation test (n=4, k=3 nonlinear-feedback circuits):
-    #    Generate 100 random k=3 nonlinear-feedback circuits whose output cancels all degree >= 3
-    #    terms to a purely quadratic map; verify EVERY genuine cancellation still has exact MC <= 3
-    #    and check whether ANY quadratic output beats quadratic-only rank!
+    #    Sample 300 deterministic k=3 nonlinear-feedback circuits whose output cancels all degree >= 3
+    #    terms to a purely quadratic map (yielding 182 genuine degree-3 cancellations); verify EVERY
+    #    genuine cancellation still has exact MC <= 3 and never beats quadratic-only rank.
     rng = random.Random(20261123)
     genuine_cancellations = 0
     tested_cancellations = 0

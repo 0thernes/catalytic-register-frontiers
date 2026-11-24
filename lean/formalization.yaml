@@ -128,6 +128,10 @@ theorems:
     name: Catalytic.Solution.t3g_three_reg_9call_x15
     module: Catalytic.ThreeRegisterBreakthrough
     summary: "Explicit 3-register passive program for x^15 in 9 input accesses (post-minimum ascent point log_15(9) = 0.811368)."
+  - id: T3h
+    name: Catalytic.Solution.t3h_four_reg_powering
+    module: Catalytic.FourRegisterPowering
+    summary: "Complete 4-register passive powering for ALL N >= 1 via non-passive 3-register composition + Cook-Mertz finite differences: < (104/3)*N^{log_13 8} (prog8_x13) and < (70/3)*N^{log_7 5} (prog5_x7)."
   - id: T4
     name: Catalytic.Solution.t4_balanced_multilinear_product
     module: Catalytic.BalancedProduct

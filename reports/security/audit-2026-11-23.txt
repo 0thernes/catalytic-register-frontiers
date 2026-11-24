@@ -1,17 +1,17 @@
 # Security, Supply-Chain, and Integrity Scan Report
-Date: 2026-11-23 (updated 2026-11-24 after Pass 5 hardening)
+Date: 2026-11-23 (updated 2026-11-24 after Pass 6 full 148-file audit & T3h formalization)
 Repository: catalytic-register-frontiers (v1.0.0)
 Pipeline Artifact: P7.F3
 
 ## 1. Secret & Credential Scan
 - Checked all tracked files and `.env.example` for private keys, API tokens, bearer strings, AWS/GCP/GitHub tokens, or committed `.env` files.
-- Result: PASS (0 secrets found; `.env.example` documents optional local binary path overrides only; zero runtime network credentials required).
+- Result: PASS (0 secrets found; `.env.example` documents optional local binary path overrides only; zero runtime network credentials required; hardcoded user paths removed from `scripts/run_all.ps1` and `experiments/exp4_boolean_mc_companion.py`).
 
 ## 2. Lean 4.35 Trust-Base & Forbidden-Token Scan
-- Scope: All 13 `.lean` files under `lean/` (6,564 lines total, longest 1,300 lines).
+- Scope: All 14 `.lean` files under `lean/` (7,892 lines total, longest 1,300 lines).
 - Forbidden tokens (`sorry`, `admit`, `native_decide`, `implemented_by`, `unsafe`, custom `axiom`, `@[extern]`): 0 matches (PASS).
-- Axioms (`VerifyAxioms.lean`): 20/20 declarations strictly within `[propext, Classical.choice, Quot.sound]` (PASS).
-- Multi-kernel replay (`results/six_kernel_audit.txt`): 6/6 native Windows runs PASS (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified` [3,307 decls], `con-ron --verified` [3,307 decls], `nanoda_bin 0.4.19` [3,614 decls]). Upstream Windows `lean4lean.exe` `.olean` header mismatch recorded as external `problem`.
+- Axioms (`VerifyAxioms.lean`): 21/21 declarations strictly within `[propext, Classical.choice, Quot.sound]` (PASS).
+- Multi-kernel replay (`results/six_kernel_audit.txt`): 6/6 native Windows runs PASS (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified` [3,506 decls], `con-ron --verified` [3,506 decls], `nanoda_bin 0.4.19` [3,819 decls]). Upstream Windows `lean4lean.exe` `.olean` header mismatch recorded as external `problem`.
 
 ## 3. Supply-Chain & Licensing Inventory
 - Lean external packages: 0 (`lean/lake-manifest.json` empty; zero Mathlib dependency).

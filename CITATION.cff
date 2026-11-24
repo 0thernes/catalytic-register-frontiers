@@ -4,7 +4,7 @@ message: "If you use this formalization, computational suite, or white paper, pl
 type: software
 title: "Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs"
 version: 1.0.0
-date-released: 2026-11-23
+date-released: 2026-11-24
 repository-code: "https://github.com/0thernes/catalytic-register-frontiers"
 authors:
   - family-names: Donahue

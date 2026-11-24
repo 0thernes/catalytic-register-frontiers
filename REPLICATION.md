@@ -43,8 +43,8 @@ lake env leanchecker-paranoid Solution
 lake env leanexport Solution -- \
   Catalytic.Solution.prove_all_catalytic_theorems \
   Catalytic.NonVacuity.nonvac_all_hypotheses > /tmp/catalytic_solution.ndjson
-con-leche --verified /tmp/catalytic_solution.ndjson
-con-ron --verified /tmp/catalytic_solution.ndjson
+lake env con-leche --verified /tmp/catalytic_solution.ndjson
+lake env con-ron --verified /tmp/catalytic_solution.ndjson
 
 # On Linux (with bwrap installed), run Lean 4.35's bundled sandboxed multi-kernel checker:
 lake check --paranoid
@@ -100,3 +100,4 @@ Independent external human replications (pass or fail) are welcome via `.github/
 | Date | Replicator | Scope | Environment | Outcome | Notes |
 |---|---|---|---|---|---|
 | 2026-11-23 | Alexander S. Donahue (author — clean-room self-replication) | Clean `.lake` + 6 kernels + `exp1`–`exp4` + `pytest`/Hypothesis/mutant/SAT + Tectonic + standalone `arxiv_submission.tar.gz` + `MANIFEST.sha256` | Windows 11 x64, Lean 4.35.0, Python 3.13.12, CaDiCaL 2.1.2, Tectonic | **PASS (self)** | Zero warnings, 6/6 kernels PASS, 100% SHA-256 match. External second-person replication still open. |
+| 2026-11-24 | Alexander S. Donahue (author — Pass 6 full self-replication) | 14 Lean modules (19 theorems + NonVacuity = 21 decls, incl. `T3h` 4-register powering) across 6 kernels (`con-*` 3,506 decls, `nanoda_bin` 3,819 decls) + 8/8 LRAT + `pytest` + `ruff`/`mypy` + 0-warning PDF & clean-room arXiv tarball + `MANIFEST.sha256` + DigiCert RFC 3161 TSA | Windows 11 x64 + Git Bash POSIX audit, Lean 4.35.0, Python 3.13.12, CaDiCaL 2.1.2, Tectonic, OpenSSL | **PASS (self)** | All 6/6 kernels PASS, 0 warnings, 100% REUSE & SHA-256, DigiCert `Verification: OK`, `Audit-Repo.ps1` & `audit-repo.sh` parity 98.4%. External second-person replication still open. |

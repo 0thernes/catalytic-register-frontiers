@@ -196,8 +196,8 @@ def make_fig2() -> None:
     ax2.scatter(ti[6:], ei[6:], color=C_GREY, s=22, alpha=0.65, zorder=4,
                 label=r"$t \geq 10$ (curve rises; Lean T3f $\forall t \neq 8$)")
 
-    ax2.axhline(9.0 / 11.0, color=C_PURPLE, linestyle=":", lw=1.1,
-                label=r"Lean exact separator $9/11 \approx 0.81818$")
+    ax2.axhline(30.0 / 37.0, color=C_PURPLE, linestyle=":", lw=1.1,
+                label=r"Lean T3f global separator $30/37 \approx 0.81081$")
     ax2.annotate(r"$\mathbf{-0.0506}$ exponent drop!" + "\n" + r"($0.86135 \to 0.81071$)",
                  xy=(8, ei[4]), xytext=(8.6, 0.836),
                  fontsize=8.0, color=C_GREEN, fontweight="bold",

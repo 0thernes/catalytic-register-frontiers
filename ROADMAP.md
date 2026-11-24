@@ -3,14 +3,14 @@
 
 ## Shipped (`v1.0.0`)
 
-- Zero-Mathlib Lean 4.35.0 formalization of Theorems `T1` (`T1a`–`T1d`), `T2`, `T3` (`T3a`–`T3e`), `T4`, and `NonVacuity` witnesses, passing 6 kernel runs across 5 implementations (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin`).
-- Exact-arithmetic computational suite (`exp1`–`exp4`), `pytest` + Hypothesis property tests + mutant-killing tests + brute-force SAT encoder equivalence audit.
-- Deterministic vector PDF figures and frozen AMS-LaTeX white paper + clean-room `dist/arxiv_submission.tar.gz`.
+- Zero-Mathlib Lean 4.35.0 formalization of all 19 theorems & soundness bridges (`T1`, `T1a`–`T1e`, `T1s`, `T1es`, `T2`, `T2b`, `T3a`–`T3h`, `T4`) plus concrete `0 ≠ 1` `NonVacuity` witnesses (14 modules, 21 audited declarations), passing 6 kernel runs across 5 implementations (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin`).
+- Exact-arithmetic computational suite (`exp1`–`exp4`), `pytest` + Hypothesis property/metamorphic tests + mutant-killing tests + brute-force & second-encoder differential SAT audits + 8/8 archived & verified CaDiCaL 2.1.2 LRAT UNSAT proofs (`18,932` steps).
+- Deterministic vector PDF figures, frozen AMS-LaTeX white paper + clean-room `dist/arxiv_submission.tar.gz`, 100% REUSE 3.3 SPDX coverage, and cryptographically verified DigiCert RFC 3161 + OpenTimestamps provenance (`provenance/`).
 
 ## Next Release & External Credibility Steps (Ordered per Independent Research Playbook)
 
 1. **Public GitHub Push & CI Verification:** Push `main` to `https://github.com/0thernes/catalytic-register-frontiers` and verify green Linux (`lake check --paranoid` + `pytest` + Tectonic) and Windows CI runs.
-2. **Cryptographic Release & Archival:** Cut a release tag `v1.0.0` triggering `.github/workflows/release.yml` (`SHA256SUMS` + Sigstore SLSA attestations), evaluate Zenodo April 2026 AI eligibility honestly (or deposit via OSF/HAL), request a Software Heritage SWHID (`archive.softwareheritage.org/save`), and generate OpenTimestamps / RFC 3161 proof for `MANIFEST.sha256`.
+2. **Cryptographic Release & Archival:** Cut a signed release tag `v1.0.0` triggering `.github/workflows/release.yml` (`SHA256SUMS` + Sigstore SLSA attestations), evaluate Zenodo April 2026 AI eligibility honestly (or deposit via OSF/HAL), and request a Software Heritage SWHID (`archive.softwareheritage.org/save`).
 3. **Palomar Registry Submission:** Submit the pinned 40-character commit SHA with `lean/Challenge.lean`, `lean/Solution.lean`, `lean/comparator.json`, and `lean/formalization.yaml` at `submit.palomar-registry.org`.
 4. **Community & Peer Scrutiny:** Request independent reproduction on a second clean machine (updating [`REPLICATION.md`](REPLICATION.md)), post hand-written outreach on Lean Zulip (`#new members` → `#maths`), seek domain arXiv (`cs.CC`) endorsement from an active complexity author, and consider formal journal submission.
 

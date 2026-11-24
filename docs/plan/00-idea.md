@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Phase 0 — Idea & One-Page Bet (`docs/plan/00-idea.md`)
 
-**One-liner:** Give complexity theorists and formal-verification researchers a 100% machine-checked, zero-Mathlib Lean 4.35 resolution of two concrete open frontiers in passive catalytic register programs (`arXiv:2609.18692`) that strictly improves the 3-register powering, streaming, and matrix-powering exponent from $\log_5 4 \approx 0.86135$ to $\log_{13} 8 \approx 0.81071$.
+**One-liner:** Give complexity theorists and formal-verification researchers a 100% machine-checked, zero-Mathlib Lean 4.35 resolution of two concrete open frontiers in passive catalytic register programs (`arXiv:2609.18692`) that strictly improves the 3-register powering and catalytic streaming exponent from $\log_5 4 \approx 0.86135$ to $\log_{13} 8 \approx 0.81071$ (and tightens non-commutative matrix powering to $\log_7 5 \approx 0.82709$ at the exact $r = 3$ scalar register tier).
 
 ## Remarkable Angles Evaluated (Chosen: #1 + #3 Unified)
 

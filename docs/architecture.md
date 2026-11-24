@@ -19,24 +19,28 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-  subgraph Formal["1. Formal Core (Zero-Mathlib Lean 4.35.0)"]
-    CR["Catalytic/CommRing.lean"] --> BF["BilinearFrobenius.lean (T2)"]
+  subgraph Formal["1. Formal Core (Zero-Mathlib Lean 4.35.0 — 14 Modules, 19 Theorems)"]
+    CR["Catalytic/CommRing.lean"] --> BF["BilinearFrobenius.lean (T2, T2b)"]
     CR --> BP["BalancedProduct.lean (T4)"]
-    CR --> TR["ThreeRegisterBreakthrough.lean (T3a-T3e)"]
+    CR --> TR["ThreeRegisterBreakthrough.lean (T3a-T3g)"]
+    TR --> FP["FourRegisterPowering.lean (T3h)"]
     PF["PrimeFieldTools.lean"] --> DS["DigitSumDichotomy.lean (T1, T1a-T1d)"]
-    BF & BP & TR & DS --> NV["NonVacuity.lean"]
+    CR --> EF["ExtensionFieldSeparation.lean (T1e)"]
+    DS & EF --> PS["Pass2Soundness.lean (T1s, T1es)"]
+    PS --> FP
+    BF & BP & TR & FP & DS & EF & PS --> NV["NonVacuity.lean"]
     NV --> CH["Challenge.lean"] --> SOL["Solution.lean"] --> VA["VerifyAxioms.lean"]
   end
   subgraph Comp["2. Independent Computation & Tests"]
-    EXP["experiments/exp1..exp4.py"] --> RES["results/*.json"]
-    RES --> TST["tests/test_all.py (exact, Hypothesis, mutant, SAT brute-force)"]
+    EXP["experiments/exp1..exp4.py"] --> RES["results/*.json + results/sat_certs/*"]
+    RES --> TST["tests/test_all.py (exact, Hypothesis, mutant, brute-force & diff SAT, LRAT, REUSE)"]
   end
   subgraph Pub["3. Deterministic Publication Pipeline"]
     RES --> FIG["scripts/make_figures.py -> paper/figures/*.pdf"]
     FIG --> TEX["paper/main.tex + references.bib -> Tectonic"]
     TEX --> OUT["dist/Donahue_2026_*.pdf & arxiv_submission.tar.gz"]
   end
-  VA --> SHA["MANIFEST.sha256 + sbom.cdx.json"]
+  VA --> SHA["MANIFEST.sha256 + RFC 3161 TSA + sbom.cdx.json"]
   TST --> SHA
   OUT --> SHA
 ```
@@ -49,5 +53,5 @@ flowchart TD
 
 ## Scaling & Observability
 
-- **Build scaling:** All 14 Lean targets compile cleanly from scratch in under 60 s on standard consumer hardware with < 2 GB RAM (zero Mathlib cache required).
+- **Build scaling:** All 17 Lean build jobs across 14 modules compile cleanly from scratch in under 60 s on standard consumer hardware with < 2 GB RAM (zero Mathlib cache required).
 - **Observability:** Every verification stage produces plain-text or JSON evidence artifacts (`results/lean_axioms.txt`, `results/six_kernel_audit.txt`, `results/exp*.json`, `docs/run-log.md`, `MANIFEST.sha256`). Health check: `just reproduce` or `pwsh -NoProfile -File scripts/run_all.ps1 -Task all`.

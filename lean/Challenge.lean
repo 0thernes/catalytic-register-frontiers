@@ -170,6 +170,35 @@ def T3g_ThreeReg9CallX15 : Prop :=
     ∀ x o u v : R,
       Pass3Prog.exec x (Pass3Prog.scaleOut invD prog9_x15) (o, u, v) = (o + CRing.pow x 15, u, v)
 
+/-- **T3h (Four-Register Passive Powering for EVERY `N ≥ 1` via Non-Passive 3-Register Composition + Cook–Mertz):**
+For EVERY commutative ring `R` and EVERY `N ≥ 1`:
+  1. Using `prog8_x13`, whenever `D_8`, `12!`, and `(ℓ + 1)!` (`ℓ = ⌊log_13 N⌋`) are invertible in `R`,
+     there is a literal 4-register passive program computing `O ← O + x^N` cleanly in
+     `3 * accesses < 104 * 8^ℓ` (`< (104/3) * N^{log_13 8} = O(N^{0.81072})`).
+  2. Using `prog5_x7`, whenever `6!` and `(ℓ + 1)!` (`ℓ = ⌊log_7 N⌋`) are invertible in `R`,
+     there is a literal 4-register passive program computing `O ← O + x^N` cleanly in
+     `3 * accesses < 70 * 5^ℓ` (`< (70/3) * N^{log_7 5} = O(N^{0.82709})`). -/
+def T3h_FourRegPowering : Prop :=
+  (∀ (R : Type) [CRing R] (N : Nat) (_ : 1 ≤ N) (invD8 invFact12 invFactLen : R),
+    invD8 * CRing.intCast 2656207148788801777680 = 1 →
+    invFact12 * CRing.natCast (fact 12) = 1 →
+    invFactLen * CRing.natCast (fact (baseDigits 13 (by decide) N).length) = 1 →
+    ∃ prog : List (Pass4Instr R),
+      let ℓ := (baseDigits 13 (by decide) N).length - 1
+      13 ^ ℓ ≤ N ∧
+      3 * Pass4Prog.accesses prog < 104 * 8 ^ ℓ ∧
+      ∀ x o u r1 r2 : R,
+        Pass4Prog.exec x prog (o, u, r1, r2) = (o + CRing.pow x N, u, r1, r2)) ∧
+  (∀ (R : Type) [CRing R] (N : Nat) (_ : 1 ≤ N) (invFact6 invFactLen : R),
+    invFact6 * CRing.natCast (fact 6) = 1 →
+    invFactLen * CRing.natCast (fact (baseDigits 7 (by decide) N).length) = 1 →
+    ∃ prog : List (Pass4Instr R),
+      let ℓ := (baseDigits 7 (by decide) N).length - 1
+      7 ^ ℓ ≤ N ∧
+      3 * Pass4Prog.accesses prog < 70 * 5 ^ ℓ ∧
+      ∀ x o u r1 r2 : R,
+        Pass4Prog.exec x prog (o, u, r1, r2) = (o + CRing.pow x N, u, r1, r2))
+
 /-- **T4 (Balanced Zero-Workspace Bilinear Multilinear Product):**
 For every `k : Nat`, arbitrary commutative ring `R`, inputs `xs`, arbitrary catalytic state `st`,
 and distinct register list `target :: pool` (`pool.length ≥ k + 1` for `k ≥ 1`),

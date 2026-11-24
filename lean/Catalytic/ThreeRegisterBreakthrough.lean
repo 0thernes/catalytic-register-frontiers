@@ -10,12 +10,13 @@ Vinciguerra (`arXiv:2609.18692`, Theorem 2.3) proved `x^5 ∈ RP^{pass}_K(3, 4)`
 the recursive composition exponent `log_5 4 ≈ 0.861353` for 4-register powering, catalytic
 streaming frequency moments (Corollary 5.1.1), and matrix powering (Theorem 5.2).
 
-We construct four explicit passive-output 3-register catalytic programs (in Vinciguerra's
+We construct five explicit passive-output 3-register catalytic programs (in Vinciguerra's
 literal Definition 2.2 instruction set) with exact integer coefficients:
   * `prog5_x7`:  5 input accesses, computing `576 * x^7`                  (bad primes `{2, 3}`)
   * `prog6_x9`:  6 input accesses, computing `382500000 * x^9`            (bad primes `{2, 3, 5, 17}`)
   * `prog7_x11`: 7 input accesses, computing `68724637549388656012800 * x^11`
   * `prog8_x13`: 8 input accesses, computing `2656207148788801777680 * x^13`
+  * `prog9_x15`: 9 input accesses, computing `876702103804656272895371895753963647960420947968000 * x^15`
 
 Each integer program executes cleanly over **EVERY commutative ring `R`**, restoring work
 registers `(u, v)` identically and adding `D * x^N` to the passive output register `O`.

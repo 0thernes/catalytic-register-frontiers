@@ -256,7 +256,7 @@ def test_sat_encoder_bruteforce_equivalence() -> None:
 
 
 def test_lean_formalization_and_governance_hygiene() -> None:
-    """Negative & regression guard (B06, B07): zero forbidden tokens, all 13 Lean files use
+    """Negative & regression guard (B06, B07): zero forbidden tokens, all 14 Lean files use
     `module`, axioms strictly within the 3 standard Lean axioms, and citations verified."""
     lean_dir = REPO / "lean"
     pat = re.compile(r"\b(sorry|admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern", re.M)
@@ -266,22 +266,23 @@ def test_lean_formalization_and_governance_hygiene() -> None:
         for fn in sorted(fnames):
             if fn.endswith(".lean"):
                 lean_files.append(pathlib.Path(root) / fn)
-    assert len(lean_files) == 13
+    assert len(lean_files) == 14
     for f in lean_files:
         text = f.read_text(encoding="utf-8")
         assert text.lstrip().startswith("module"), f"Missing Lean 4.35 `module` header in {f}"
         assert not pat.search(text), f"Forbidden token found in {f}"
 
-    # Verify Palomar, comparator, soundness bridge, and extension-field separation artifacts exist
+    # Verify Palomar, comparator, soundness bridge, extension-field, and 4-register powering artifacts exist
     assert (lean_dir / "comparator.json").exists()
     assert (lean_dir / "formalization.yaml").exists()
     assert (lean_dir / "Catalytic" / "NonVacuity.lean").exists()
     assert (lean_dir / "Catalytic" / "ExtensionFieldSeparation.lean").exists()
     assert (lean_dir / "Catalytic" / "Pass2Soundness.lean").exists()
+    assert (lean_dir / "Catalytic" / "FourRegisterPowering.lean").exists()
 
-    # Verify results/lean_axioms.txt covers all 20 declarations with zero unpermitted axioms
+    # Verify results/lean_axioms.txt covers all 21 declarations with zero unpermitted axioms
     ax_lines = (REPO / "results" / "lean_axioms.txt").read_text(encoding="utf-8").strip().splitlines()
-    assert len(ax_lines) == 20
+    assert len(ax_lines) == 21
     for line in ax_lines:
         assert "sorryAx" not in line and "ofReduceBool" not in line and "trustCompiler" not in line
 
@@ -365,6 +366,64 @@ def test_t3f_global_integer_optimality_exact() -> None:
             assert (2 * t - 3) ** 30 > t**37
         else:
             assert (2 * t - 3) ** 30 < t**37
+
+
+def test_t3h_four_reg_powering_exact() -> None:
+    """Independent exact verification of T3h (Corollary 5.2) 4-register passive powering
+    recurrence, exact base-delta finite-difference accumulation, and modular witnesses."""
+    from fractions import Fraction
+
+    def base_digits(delta: int, n: int) -> list[int]:
+        ds: list[int] = []
+        while n >= delta:
+            ds.append(n % delta)
+            n //= delta
+        ds.append(n)
+        return ds
+
+    def exact_accesses(delta: int, t: int, n: int) -> int:
+        # Mirrors FourRegisterPowering.fourRegPowerProg exactly:
+        # C_i uses (0 if b_i == 0 else b_i + 1) * t^i accesses, accumulated MSB-first via T(L) = 2*C + 2*T(rest)
+        ds = base_digits(delta, n)
+        cs = [(0 if b == 0 else b + 1) * (t**i) for i, b in enumerate(ds)]
+        acc = 0
+        for c_i in cs:  # LSB-first corresponds to folding MSB-first list from the right
+            acc = 2 * c_i + 2 * acc
+        return acc
+
+    for n in (1, 2, 7, 13, 20, 35, 168, 169, 1000, 12345):
+        ds13 = base_digits(13, n)
+        ell13 = len(ds13) - 1
+        assert 13**ell13 <= n < 13 ** (ell13 + 1)
+        acc13 = exact_accesses(13, 8, n)
+        assert 3 * acc13 < 104 * (8**ell13), f"T3h prog8_x13 bound violated at N={n}"
+
+        ds7 = base_digits(7, n)
+        ell7 = len(ds7) - 1
+        assert 7**ell7 <= n < 7 ** (ell7 + 1)
+        acc7 = exact_accesses(7, 5, n)
+        assert 3 * acc7 < 70 * (5**ell7), f"T3h prog5_x7 bound violated at N={n}"
+
+    # Verify multivariate Cook-Mertz finite difference recovers exact x^N over Q on random catalytic u
+    for delta, n in ((13, 20), (13, 175), (7, 20), (7, 58)):
+        ds = base_digits(delta, n)
+        ys = [Fraction(3) ** (b * (delta**i)) for i, b in enumerate(ds)]
+        u0 = Fraction(5, 7)
+        m = len(ys)
+
+        def mdiff(vals: list[Fraction], u: Fraction) -> Fraction:
+            if not vals:
+                return u**m
+            return mdiff(vals[1:], u + vals[0]) - mdiff(vals[1:], u)
+
+        got = mdiff(ys, u0) / math.factorial(m)
+        assert got == Fraction(3) ** n
+
+    # Verify concrete NonVacuity modular witnesses for T3h over F_13 and F_7 at N = 20
+    D8 = 2656207148788801777680
+    assert (10 * D8) % 13 == 1 and (12 * math.factorial(12)) % 13 == 1 and (7 * 2) % 13 == 1
+    assert (6 * math.factorial(6)) % 7 == 1 and (4 * 2) % 7 == 1
+    assert 720 * 720 == 576 * 900
 
 
 def test_manifest_and_reuse_hygiene() -> None:
@@ -533,6 +592,10 @@ def test_all_metadata_schemas_valid() -> None:
 
     comp = json.loads((REPO / "lean" / "comparator.json").read_text(encoding="utf-8"))
     assert comp.get("challenge_module") == "Challenge" and comp.get("solution_module") == "Solution"
+    assert len(comp.get("definition_names", [])) == 19
+    assert len(comp.get("theorem_names", [])) == 20
+    assert "Catalytic.Solution.t3h_four_reg_powering" in comp["theorem_names"]
+    assert "Catalytic.Challenge.T3h_FourRegPowering" in comp["definition_names"]
 
     for schema_name in ("repo-standard.schema.json", "project.schema.json"):
         sch = json.loads((REPO / schema_name).read_text(encoding="utf-8"))
@@ -549,13 +612,18 @@ def test_all_metadata_schemas_valid() -> None:
 
 
 def test_doc_citation_and_workflow_consistency() -> None:
-    """Pass 5 anti-staleness and cross-artifact consistency guard:
+    """Pass 5–6 anti-staleness, encoding, link-integrity, and cross-artifact consistency guard:
     - All BibTeX entries are cited in paper/main.tex, zero undefined refs, all 3 figures cited.
     - arXiv metadata abstract obeys the 1,920-character arXiv submission limit.
-    - No stale theorem/module/line counts in active canonical docs.
+    - No stale theorem/module/line/kernel counts in active canonical docs.
     - All local blueprint links in docs/index.html match files deployed by pages.yml.
-    - CI and POSIX runner invoke con-leche/con-ron inside `lake env`.
+    - CI, POSIX runner, Windows runner, and REPLICATION.md invoke con-leche/con-ron inside `lake env`.
+    - Zero UTF-8 BOMs, zero CRLF line endings across git-tracked text files.
+    - Zero broken relative Markdown links across all tracked .md files and project.yaml.
+    - Social preview SVG header pill is wide enough to prevent text clipping.
     """
+    import subprocess
+
     tex = (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
     bib = BIB_PATH.read_text(encoding="utf-8")
     bib_keys = set(re.findall(r"@\w+\{([^,]+),", bib))
@@ -577,7 +645,22 @@ def test_doc_citation_and_workflow_consistency() -> None:
     assert len(abstract_part) <= 1920, f"arXiv abstract too long: {len(abstract_part)} > 1920"
 
     # Verify active docs contain no stale counts from earlier passes
-    stale_tokens = ("longest file 1{,}026", "12 headline theorems", "12 exported theorems", "14/14 decls")
+    stale_tokens = (
+        "longest file 1{,}026",
+        "12 headline theorems",
+        "12 exported theorems",
+        "14/14 decls",
+        "18 headline theorems",
+        "20 audited declarations",
+        "13 zero-Mathlib",
+        "6,564 lines",
+        "6{,}564 lines",
+        "3,307 declarations",
+        "3,614 decls",
+        "0.811229",
+        "0001-zero-mathlib-lean-kernel.md",
+        "test_negative_and_regression_guards",
+    )
     for rel in (
         "paper/main.tex",
         "paper/arxiv_metadata.txt",
@@ -585,9 +668,18 @@ def test_doc_citation_and_workflow_consistency() -> None:
         "AGENTS.md",
         "llms.txt",
         "repo.yaml",
+        "project.yaml",
         "docs/index.html",
+        "docs/verification.md",
+        "docs/faq.md",
+        "docs/architecture.md",
+        "docs/stack-matrix.md",
         "docs/plan/02-requirements.md",
+        "docs/plan/02-metrics.md",
         "docs/plan/slices.md",
+        "docs/launch/announcement.md",
+        "docs/launch/release-checklist.md",
+        "experiments/exp2_three_register_breakthrough.py",
     ):
         txt = (REPO / rel).read_text(encoding="utf-8")
         for tok in stale_tokens:
@@ -599,11 +691,42 @@ def test_doc_citation_and_workflow_consistency() -> None:
     for href in re.findall(r'href="(blueprint/[^"]+)"', html):
         assert f"_site/{href}" in pages, f"Broken Pages blueprint link {href} not copied in pages.yml"
 
-    # Verify CI and POSIX runner invoke con-leche/con-ron via `lake env`
+    # Verify CI, POSIX runner, and REPLICATION.md invoke con-leche/con-ron via `lake env`
     ci_yml = (REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     run_sh = (REPO / "scripts" / "run_all.sh").read_text(encoding="utf-8")
+    repl_md = (REPO / "REPLICATION.md").read_text(encoding="utf-8")
     assert "lake env con-leche --verified" in ci_yml and "lake env con-ron --verified" in ci_yml
     assert "lake env con-leche --verified" in run_sh and "lake env con-ron --verified" in run_sh
+    assert "lake env con-leche --verified" in repl_md and "lake env con-ron --verified" in repl_md
+
+    # Verify social-preview.svg header pill is wide enough (>= 420px) for 36-char uppercase badge
+    svg_txt = (REPO / "docs" / "media" / "social-preview.svg").read_text(encoding="utf-8")
+    pill_m = re.search(r'<rect x="88" y="88" width="(\d+)"', svg_txt)
+    assert pill_m is not None and int(pill_m.group(1)) >= 420, "social-preview.svg header pill clips text"
+
+    # Verify ZERO UTF-8 BOMs, ZERO CRLF in tracked text files, and ZERO broken relative Markdown links
+    binary_exts = {".pdf", ".gz", ".png", ".jpg", ".tsq", ".tsr", ".ots"}
+    if (REPO / ".git").exists():
+        tracked = subprocess.check_output(
+            ["git", "-C", str(REPO), "ls-files"], text=True, encoding="utf-8"
+        ).splitlines()
+        for rel in tracked:
+            p = REPO / rel
+            if not p.exists() or p.suffix.lower() in binary_exts:
+                continue
+            raw = p.read_bytes()
+            assert not raw.startswith(b"\xef\xbb\xbf"), f"UTF-8 BOM detected in {rel}"
+            assert b"\r\n" not in raw, f"CRLF line endings detected in {rel}"
+            if p.suffix.lower() == ".md":
+                md_text = raw.decode("utf-8")
+                for link in re.findall(r"\[[^\]]+\]\(([^)]+)\)", md_text):
+                    if link.startswith(("http://", "https://", "mailto:", "#")):
+                        continue
+                    target = link.split("#", 1)[0]
+                    if not target:
+                        continue
+                    resolved = (p.parent / target).resolve()
+                    assert resolved.exists(), f"Broken relative Markdown link in {rel}: {link}"
 
 
 

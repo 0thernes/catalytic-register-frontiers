@@ -13,13 +13,13 @@ A zero-Mathlib Lean 4.35.0 formalization, exact-arithmetic verification suite, a
 **Author:** Alexander S. Donahue (Independent Researcher, Spokane, WA, USA · ORCID [`0009-0006-8168-9648`](https://orcid.org/0009-0006-8168-9648) · `0_0@0thernes.art`)  
 **Maintenance status:** active independent research artifact (`v1.0.0`, 2026-11-24) · **Frozen White Paper:** [`dist/Donahue_2026_catalytic_register_frontiers.pdf`](dist/Donahue_2026_catalytic_register_frontiers.pdf)
 
-> **Epistemic Status:** All 18 headline theorems, corollaries, and literal commutative-ring soundness bridges (`T1`, `T1a`–`T1e`, `T1s`, `T1es`, `T2`, `T2b`, `T3a`–`T3g`, `T4`) plus concrete `0 ≠ 1` non-vacuity witnesses (`NonVacuity`) are machine-checked from first principles in **zero-Mathlib Lean 4.35.0** across **13 module files** and **6 kernel runs / 5 independent implementations** (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin 0.4.19`) with 0 forbidden tokens and 0 linter warnings. All 8/8 companion SAT UNSAT proofs are archived as ASCII LRAT certificates (`results/sat_certs/`), independently verified (`scripts/verify_lrat.py`), and cross-checked against both brute-force enumeration and a second independent CNF encoder (`tests/test_all.py`). This preprint has **not** undergone external peer review; see [`CLAIMS.md`](CLAIMS.md) (including explicit falsification criteria) and [`LIMITATIONS.md`](LIMITATIONS.md).
+> **Epistemic Status:** All 19 headline theorems, corollaries, and literal commutative-ring soundness bridges (`T1`, `T1a`–`T1e`, `T1s`, `T1es`, `T2`, `T2b`, `T3a`–`T3h` — including complete 4-register passive powering for all $N \ge 1$, `T4`) plus concrete `0 ≠ 1` non-vacuity witnesses (`NonVacuity`) are machine-checked from first principles in **zero-Mathlib Lean 4.35.0** across **14 module files** (7,892 lines, max 1,300 lines) and **6 kernel runs / 5 independent implementations** (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin 0.4.19`) with 0 forbidden tokens and 0 linter warnings. All 8/8 companion SAT UNSAT proofs are archived as ASCII LRAT certificates (`results/sat_certs/`), independently verified (`scripts/verify_lrat.py`), and cross-checked against both brute-force enumeration and a second independent CNF encoder (`tests/test_all.py`). This preprint has **not** undergone external peer review; see [`CLAIMS.md`](CLAIMS.md) (including explicit falsification criteria) and [`LIMITATIONS.md`](LIMITATIONS.md).
 
 ---
 
 ## 5-Second Formal Verification Proof (Verbatim `#print axioms`)
 
-Exact output of `cd lean && lake env lean VerifyAxioms.lean` (20/20 audited declarations, archived in [`results/lean_axioms.txt`](results/lean_axioms.txt), cross-checked in CI; [`results/six_kernel_audit.txt`](results/six_kernel_audit.txt) records all 6 passing kernel runs including `con-leche --verified` and `con-ron --verified` accepting 3,307 declarations and `nanoda_bin 0.4.19` checking 3,614 declarations with `unpermitted_axiom_hard_error=true`):
+Exact output of `cd lean && lake env lean VerifyAxioms.lean` (21/21 audited declarations, archived in [`results/lean_axioms.txt`](results/lean_axioms.txt), cross-checked in CI; [`results/six_kernel_audit.txt`](results/six_kernel_audit.txt) records all 6 passing kernel runs including `con-leche --verified` and `con-ron --verified` accepting 3,506 declarations and `nanoda_bin 0.4.19` checking 3,819 declarations with `unpermitted_axiom_hard_error=true`):
 
 ```text
 'Catalytic.Solution.t1_digit_sum_dichotomy' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -39,6 +39,7 @@ Exact output of `cd lean && lake env lean VerifyAxioms.lean` (20/20 audited decl
 'Catalytic.Solution.t3e_exponent_chain' does not depend on any axioms
 'Catalytic.Solution.t3f_global_integer_optimality' depends on axioms: [propext, Quot.sound]
 'Catalytic.Solution.t3g_three_reg_9call_x15' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t3h_four_reg_powering' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t4_balanced_multilinear_product' depends on axioms: [propext, Quot.sound]
 'Catalytic.Solution.prove_all_catalytic_theorems' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.NonVacuity.nonvac_all_hypotheses' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -50,7 +51,7 @@ Exact output of `cd lean && lake env lean VerifyAxioms.lean` (20/20 audited decl
 |---|---|---|---|
 | `T1`, `T1a`–`T1e`, `T1s`, `T1es` (`InRPPass2`, `GF4`, `execRing`, `execAlg`) | Vinciguerra (`arXiv:2609.18692`), Def. 2.2, Thm. 3.5 | `IsPrime 2,3,5,7`; `ModP 5` ($\mathrm{char}=5$); `GF4` (`GF4Hom.id`, $0 \neq 1$) | General $\mathbb{F}_{p^e}$ ($e \ge 2$) closed form; $r \ge 3$ |
 | `T2`, `T2b` (`BilinInstr`, `DistinctBilinInstr`) | Strictly bilinear & distinct-operand Def. 2.2 | `F2 = ModP 2` ($0 \neq 1$), $k = 2$, $x = 1$ | Odd characteristics |
-| `T3a`–`T3g` (`Pass3InstrR`, `prog5_x7`..`prog9_x15`, global $t=8$ opt) | Vinciguerra (`arXiv:2609.18692`), Def. 2.2, §4–5 | `ModP 5, 7, 11` ($0 \neq 1$) with explicit $D_5^{-1}\!\dots D_9^{-1}$ | Bad primes dividing $D_t$; uniform $t \ge 10$; upper bounds |
+| `T3a`–`T3h` (`Pass3InstrR`, `Pass4Instr`, `prog5_x7`..`prog9_x15`, global $t=8$ opt, 4-reg powering $\forall N \ge 1$) | Vinciguerra (`arXiv:2609.18692`), Def. 2.2, Cor. 4.3.1; Alekseev et al. (MFCS 2025, Lem. 8) | `ModP 5, 7, 11, 13` ($0 \neq 1$) with explicit $D_5^{-1}\!\dots D_9^{-1}$, $12!^{-1}$, $6!^{-1}$ | Bad primes dividing $D_t$ or $(\ell+1)!$; uniform $t \ge 10$; upper bounds |
 | `T4_BalancedMultilinearProduct` (`CatOp`) | Zero-workspace strictly distinct bilinear ops | `Int` ($0 \neq 1$), $d = 4$, 36 ops, clean restoration | Non-power-of-two $d$ without padding; lower-bound optimality |
 
 ---
@@ -94,7 +95,7 @@ pwsh -NoProfile -File scripts/run_all.ps1 -Task all
 bash scripts/run_all.sh all
 ```
 
-Expected result: 16/16 Lean jobs built with 0 warnings, `leanchecker` & `leanchecker-paranoid` exit 0, all 18 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / schema / consistency tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, 100% `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK`.
+Expected result: 17/17 Lean jobs built with 0 warnings, `leanchecker`, `leanchecker-paranoid`, `con-leche`, and `con-ron` exit 0, all 19 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / schema / consistency tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, 100% `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK`.
 
 ## Usage and Examples
 
@@ -117,8 +118,8 @@ pwsh -NoProfile -File scripts/Audit-Repo.ps1 -Path .
 
 ### Negative / Failure Path — Verifying Impossibility & Mutant Rejection
 ```bash
-# Run the dedicated negative & mutant-killing tests (confirms x^3 over F_2 fails and corrupted certificates are rejected)
-pytest -v tests/test_all.py -k "mutant or negative or bruteforce"
+# Run the dedicated negative, hygiene, & mutant-killing tests (confirms x^3 over F_2 fails and corrupted certificates are rejected)
+pytest -v tests/test_all.py -k "mutant or hygiene or bruteforce"
 ```
 
 ## Architecture, Governance & Limitations

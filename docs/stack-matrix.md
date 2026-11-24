@@ -23,5 +23,5 @@
 | Layer | Selected Tool | Rejected Alternative | Rationale |
 |---|---|---|---|
 | **LaTeX Compiler** | **Tectonic** (single binary, deterministic bundle) | Full 4 GB TeX Live install | Self-contained, fast, 0-warning compilation; clean-room arXiv tarball verified separately. |
-| **Theorem Blueprint** | **Static zero-dependency HTML (`docs/index.html`)** | `leanblueprint` (plasTeX + Graphviz + Mathlib hooks) | For 11 zero-Mathlib `.lean` modules, a static HTML/SVG dependency graph and declaration map has zero build fragility and deploys cleanly on GitHub Pages (recorded per Playbook #11). |
+| **Theorem Blueprint** | **Static zero-dependency HTML (`docs/index.html`)** | `leanblueprint` (plasTeX + Graphviz + Mathlib hooks) | For 14 zero-Mathlib `.lean` modules, a static HTML/SVG dependency graph and declaration map has zero build fragility and deploys cleanly on GitHub Pages (recorded per Playbook #11). |
 | **Python Computational Suite** | **Exact stdlib (`int`, `fractions.Fraction`) + `pytest`/`hypothesis`/`ruff`/`mypy`** | NumPy/SciPy floating-point solvers for proofs | Zero rounding error in mathematical verification; floats confined strictly to matplotlib visualization (`scripts/make_figures.py`). |

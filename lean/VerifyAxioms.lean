@@ -29,6 +29,7 @@ No unproven placeholders, no compiler-trusted reduction, and no custom axioms ar
 #print axioms Catalytic.Solution.t3e_exponent_chain
 #print axioms Catalytic.Solution.t3f_global_integer_optimality
 #print axioms Catalytic.Solution.t3g_three_reg_9call_x15
+#print axioms Catalytic.Solution.t3h_four_reg_powering
 #print axioms Catalytic.Solution.t4_balanced_multilinear_product
 #print axioms Catalytic.Solution.prove_all_catalytic_theorems
 #print axioms Catalytic.NonVacuity.nonvac_all_hypotheses
