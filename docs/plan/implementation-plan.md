@@ -4,7 +4,7 @@
 
 ## Objective
 
-Prove, formally verify in zero-Mathlib Lean 4.35.0 (6 kernel runs), independently verify in exact Python arithmetic, visualize in deterministic vector PDFs, and publish an AMS-LaTeX white paper covering our four convergent theorems on catalytic register programs and nonlinear cancellation:
+Prove, formally verify in zero-Mathlib Lean 4.35.0 (5 distinct kernel implementations / 6 runs), independently verify in exact Python & JS `BigInt` arithmetic, visualize in deterministic vector PDFs, and publish an AMS-LaTeX white paper covering our four convergent theorems on catalytic register programs and nonlinear cancellation:
 
 1. **Theorem T1 (Base-$p$ Digit-Sum Dichotomy for $\mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t)$ & Soundness/Extension Bridges `T1a`–`T1e`, `T1s`, `T1es`):**
    Unconditional IFF characterization for every prime $p$, $t \ge 1$, and $f \in \mathbb{F}_p[x]$:

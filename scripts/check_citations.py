@@ -57,7 +57,9 @@ def check_offline(bib_path: Path) -> tuple[list[dict[str, str]], list[str]]:
 
 def check_online(entries: list[dict[str, str]]) -> list[str]:
     errors: list[str] = []
-    headers = {"User-Agent": "catalytic-register-frontiers/1.0 (mailto:0_0@0thernes.art)"}
+    ver_file = ROOT / "VERSION"
+    ver = ver_file.read_text(encoding="utf-8").strip() if ver_file.exists() else "1.0.1"
+    headers = {"User-Agent": f"catalytic-register-frontiers/{ver} (mailto:0_0@0thernes.art)"}
     for e in entries:
         key = e["key"]
         doi = e.get("doi")

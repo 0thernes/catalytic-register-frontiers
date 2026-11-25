@@ -48,7 +48,7 @@ steps:
   P4.06: {status: done, note: "D01 GitHub Pages + GitHub Releases (.github/workflows/pages.yml, release.yml)"}
   P4.07: {status: done, note: "sbom.cdx.json, THIRD_PARTY_NOTICES.md, REUSE.toml"}
   P5.01: {status: done, note: "Local git repo on main; remote push tracked in P9.06"}
-  P5.02: {status: done, note: "scripts/Audit-Repo.ps1 (61/62 = 98.4% overall; 27/28 = 96.4% core; only A19 remote)"}
+  P5.02: {status: done, note: "scripts/Audit-Repo.ps1 (62/62 = 100.0% overall; 28/28 = 100.0% core)"}
   P5.03: {status: done, note: "lean/lean-toolchain (v4.35.0), requirements.lock.txt, pyproject.toml"}
   P5.04: {status: done, note: "scripts/run_all.ps1 and justfile"}
   P5.05: {status: done, note: ".env.example and docs/configuration.md"}
@@ -62,10 +62,10 @@ steps:
   P6.06: {status: n/a, note: "No runtime feature flags; static formal proof repository"}
   P6.07: {status: done, note: "Trunk-based commits directly on main (R2)"}
   P6.08: {status: done, note: "README.md, CHANGELOG.md, ERRATA.md, docs/*"}
-  P7.01: {status: done, note: "docs/verification.md (6 Lean kernels + exact/property/mutant/LRAT tests)"}
+  P7.01: {status: done, note: "docs/verification.md (5 distinct Lean 4.35 kernels / 6 runs + exact/property/mutant/LRAT/JS differential tests)"}
   P7.02: {status: done, note: "CLAIMS.md + docs/statement-fidelity.md"}
   P7.03: {status: done, note: "tests/test_all.py + scripts/run_all.ps1 -Task all"}
-  P7.04: {status: done, note: "Cold-start clean Lean build 56.6 s (< 60 s from empty .lake); all 6 external kernels verified in seconds"}
+  P7.04: {status: done, note: "Cold-start clean Lean build 56.6 s (< 60 s from empty .lake); all 5 distinct local kernels (6 runs) verified in seconds"}
   P7.05: {status: done, note: "reports/security/audit-2026-11-23.txt + sbom.cdx.json"}
   P7.06: {status: done, note: "Windows bracket-path safety verified + Linux ubuntu-latest CI defined"}
   P7.07: {status: n/a, note: "No ML model evaluation; mathematical proof & exact SAT companion"}
@@ -87,7 +87,7 @@ steps:
   P9.03: {status: done, note: "Published GitHub v1.0.0/v1.0.1, Zenodo Concept DOI 10.5281/zenodo.24517198 (v1.0.1: 10.5281/zenodo.24517199), SWHID swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085, and ORCID link; Palomar/arXiv/HAL IDs not yet assigned"}
   P9.04: {status: done, note: "docs/launch/announcement.md + docs/media/social-preview.svg"}
   P9.05: {status: done, note: "docs/launch/channels.md (ordered 6-step Playbook release sequence)"}
-  P9.06: {status: done, note: "Pushed main to 0thernes/catalytic-register-frontiers, set A19 About/Topics & A30 labels (100% Build Standard), deployed Pages, verified Linux + Windows CI (45500957443, 45504696131, 45513206857; Rekor 4087684280), published v1.0.0/v1.0.1 releases (SLSA), archived on Software Heritage (swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085), minted Zenodo Concept DOI 10.5281/zenodo.24517198, and registered 0TH-2026-010"}
+  P9.06: {status: done, note: "Pushed main to 0thernes/catalytic-register-frontiers, set A19/A30 (100% Build Standard), deployed Pages, verified Linux + Windows CI (45521466618, Rekor 4087684280), published v1.0.0/v1.0.1 SLSA releases, archived SWHID swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085, minted Zenodo Concept DOI 10.5281/zenodo.24517198, passed Palomar 69gqxo2kucrf verification (45522052052) + spotless editorial review (registration_consent=true), posted Lean Zulip #maths outreach, and registered 0TH-2026-010"}
   P9.07: {status: doing, note: "Post-push Linux & Windows CI green; external human second-machine reproduction pending"}
   P10.01: {status: n/a, note: "Static research repository; no live backend service telemetry"}
   P10.02: {status: n/a, note: "No live service SLOs"}

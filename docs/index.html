@@ -3,8 +3,16 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>catalytic-register-frontiers — Formal Verification Blueprint &amp; Provenance Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1120">
+  <meta name="description" content="Zero-Mathlib Lean 4.35 formalization, 5-kernel (6-run) verification blueprint, and universal offline Adaptive Forking exact BigInt workbench for passive catalytic register programs.">
+  <meta property="og:title" content="Catalytic Register Frontiers — Adaptive Forking Workbench &amp; Formal Blueprint">
+  <meta property="og:description" content="Optimal 3-register catalytic powering (0.86135 -> 0.81071), prime-field digit-sum dichotomy, and live exact BigInt Adaptive Forking engine running offline on any device.">
+  <meta property="og:image" content="./social-preview.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <title>catalytic-register-frontiers — Adaptive Forking Workbench &amp; Formal Blueprint</title>
   <style>
     :root {
       --bg: #0b1120;
@@ -13,29 +21,35 @@
       --ink: #e2e8f0;
       --muted: #94a3b8;
       --accent: #38bdf8;
+      --accent-strong: #0284c7;
       --ok: #34d399;
       --warn: #fbbf24;
+      --err: #fb7185;
       --border: #23314d;
+      --radius: 12px;
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--ink);
       margin: 0;
-      padding: 2rem 1rem 4rem;
-      line-height: 1.6;
+      padding: clamp(0.75rem, 2.5vw, 2rem) clamp(0.6rem, 2.2vw, 1.2rem) 4rem;
+      line-height: 1.58;
+      -webkit-text-size-adjust: 100%;
     }
-    main { max-width: 1060px; margin: 0 auto; }
-    h1 { font-size: 1.85rem; line-height: 1.25; margin: 0 0 0.5rem; color: #f8fafc; }
-    h2 { font-size: 1.25rem; margin: 0 0 0.75rem; color: #f8fafc; }
-    p.meta { color: var(--muted); margin: 0.25rem 0 1rem; }
-    .pills { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.75rem 0 1.25rem; }
+    main { max-width: 1120px; margin: 0 auto; }
+    h1 { font-size: clamp(1.18rem, 3.2vw, 1.9rem); line-height: 1.24; margin: 0 0 0.5rem; color: #f8fafc; }
+    h2 { font-size: clamp(1.02rem, 2.2vw, 1.28rem); margin: 0 0 0.65rem; color: #f8fafc; }
+    h3 { font-size: 0.98rem; margin: 0.9rem 0 0.4rem; color: #f1f5f9; }
+    p.meta { color: var(--muted); margin: 0.25rem 0 0.9rem; font-size: clamp(0.78rem, 1.6vw, 0.92rem); }
+    .pills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.65rem 0 1.1rem; }
     .pill {
       display: inline-block;
-      padding: 0.22rem 0.7rem;
+      padding: 0.22rem 0.68rem;
       border-radius: 999px;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 600;
       background: #064e3b;
       color: var(--ok);
@@ -43,61 +57,137 @@
     }
     .pill.warn { background: #451a03; color: var(--warn); border-color: #78350f; }
     .pill.info { background: #0c4a6e; color: var(--accent); border-color: #0369a1; }
+    .pill.err { background: #4c0519; color: var(--err); border-color: #9f1239; }
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.35rem 1.5rem;
-      margin: 1.25rem 0;
+      border-radius: var(--radius);
+      padding: clamp(0.85rem, 2.4vw, 1.4rem);
+      margin: 1.1rem 0;
     }
+    .card.highlight { border-color: #0369a1; box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.16); }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 0.9rem;
-      margin-top: 0.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+      gap: 0.75rem;
+      margin-top: 0.7rem;
     }
     .stat {
       background: var(--surface-alt);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 0.85rem 1rem;
+      padding: 0.8rem 0.95rem;
     }
-    .stat .k { font-size: 1.35rem; font-weight: 700; color: #f8fafc; }
-    .stat .l { font-size: 0.82rem; color: var(--muted); }
+    .stat .k { font-size: clamp(1.1rem, 2.4vw, 1.38rem); font-weight: 700; color: #f8fafc; word-break: break-word; }
+    .stat .l { font-size: 0.8rem; color: var(--muted); }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    table { width: 100%; border-collapse: collapse; margin-top: 0.65rem; font-size: 0.92rem; }
-    th, td { border-bottom: 1px solid var(--border); text-align: left; padding: 0.55rem 0.6rem; vertical-align: top; }
-    th { color: var(--muted); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; margin-top: 0.55rem; font-size: 0.88rem; }
+    th, td { border-bottom: 1px solid var(--border); text-align: left; padding: 0.5rem 0.55rem; vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
     code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       background: #0f172a;
-      padding: 0.12rem 0.35rem;
+      padding: 0.1rem 0.32rem;
       border-radius: 4px;
-      font-size: 0.86em;
+      font-size: 0.85em;
     }
     pre {
       background: #0a101d;
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 0.9rem 1rem;
+      padding: 0.85rem 0.95rem;
       overflow-x: auto;
-      font-size: 0.82rem;
-      line-height: 1.48;
+      font-size: 0.8rem;
+      line-height: 1.46;
+      max-height: 420px;
     }
-    .svg-wrap { width: 100%; overflow-x: auto; margin-top: 0.75rem; }
-    .filter-bar { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0 0.75rem; }
-    .filter-btn {
+    .svg-wrap { width: 100%; overflow-x: auto; margin-top: 0.7rem; }
+    .filter-bar, .tab-bar { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0 0.8rem; }
+    .filter-btn, .tab-btn, .action-btn {
       background: var(--surface-alt);
       color: var(--ink);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.3rem 0.7rem;
+      border-radius: 8px;
+      padding: 0.42rem 0.78rem;
       cursor: pointer;
-      font-size: 0.83rem;
+      font-size: 0.84rem;
+      font-weight: 600;
+      min-height: 38px;
+      transition: background 0.12s ease, border-color 0.12s ease;
     }
-    .filter-btn.active { background: #0c4a6e; border-color: var(--accent); color: #f8fafc; }
+    .filter-btn.active, .tab-btn.active { background: #0c4a6e; border-color: var(--accent); color: #f8fafc; }
+    .action-btn.primary { background: var(--accent-strong); border-color: var(--accent); color: #ffffff; }
+    .action-btn.primary:hover { background: #0369a1; }
+    .action-btn.danger { background: #4c0519; border-color: var(--err); color: #fecdd3; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .device-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: #0d1629;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.55rem 0.85rem;
+      margin-bottom: 0.9rem;
+      font-size: 0.82rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+      gap: 0.75rem;
+      margin: 0.65rem 0 0.85rem;
+    }
+    .field { display: flex; flex-direction: column; gap: 0.25rem; }
+    .field label { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+    .field input, .field select, .field textarea {
+      background: #0a101d;
+      color: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 0.45rem 0.6rem;
+      font-family: inherit;
+      font-size: 0.88rem;
+      min-height: 38px;
+      width: 100%;
+    }
+    .field textarea { min-height: 68px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.82rem; }
+    .bar-row { margin: 0.48rem 0; }
+    .bar-head { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.82rem; margin-bottom: 0.18rem; }
+    .bar-track { background: #0a101d; border: 1px solid var(--border); border-radius: 999px; height: 14px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; transition: width 0.2s ease; }
+    .bar-base { background: #f97316; }
+    .bar-p5 { background: #38bdf8; }
+    .bar-p8 { background: #818cf8; }
+    .bar-adapt { background: #34d399; }
+    .status-box {
+      border-radius: 10px;
+      padding: 0.75rem 0.95rem;
+      margin: 0.75rem 0;
+      border: 1px solid var(--border);
+      background: #0d1629;
+      font-size: 0.86rem;
+    }
+    .status-box.ok { border-color: #059669; background: rgba(6, 78, 59, 0.35); }
+    .status-box.bad { border-color: #e11d48; background: rgba(76, 5, 25, 0.45); }
+    .status-box.note { border-color: #b45309; background: rgba(69, 26, 3, 0.35); }
+    .mat-grid { display: inline-grid; grid-template-columns: repeat(2, 72px); gap: 0.4rem; margin-top: 0.25rem; }
+    .inline-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin: 0.65rem 0; }
+    .toggle-lbl { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.84rem; cursor: pointer; user-select: none; }
     details summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+
+    /* Smartwatch & Ultra-Compact Viewport Adaptation (<= 320px) */
+    @media (max-width: 340px) {
+      body { padding: 0.4rem 0.35rem 2.2rem; font-size: 13px; }
+      .card { padding: 0.65rem; margin: 0.65rem 0; border-radius: 10px; }
+      .pills .pill:nth-child(n+4) { display: none; }
+      .tab-btn, .action-btn { width: 100%; text-align: center; padding: 0.5rem; }
+      .device-bar { flex-direction: column; align-items: flex-start; }
+    }
   </style>
 </head>
 <body>
@@ -112,10 +202,10 @@
   </p>
   <div class="pills">
     <span class="pill">Lean 4.35.0 &middot; Zero Mathlib</span>
-    <span class="pill">14 Modules &middot; 20 Theorems + Non-Vacuity</span>
-    <span class="pill">6 / 6 Independent Kernels</span>
+    <span class="pill">14 Core Modules &middot; 20 Theorems + Non-Vacuity</span>
+    <span class="pill">5 Kernels (6 Runs) PASS</span>
     <span class="pill">8 / 8 LRAT UNSAT Proofs Verified</span>
-    <span class="pill info">DigiCert RFC 3161 Verified</span>
+    <span class="pill info">Adaptive Forking Offline PWA</span>
     <span class="pill warn">Preprint &middot; Not Peer-Reviewed</span>
   </div>
 
@@ -126,6 +216,210 @@
     <div class="stat"><div class="k">100% REUSE</div><div class="l">All tracked files covered by inline SPDX + REUSE.toml</div></div>
   </div>
 
+  <!-- =================================================================== -->
+  <!-- LIVE ADAPTIVE FORKING UNIVERSAL CROSS-DEVICE WORKBENCH              -->
+  <!-- =================================================================== -->
+  <section class="card highlight" id="adaptive-workbench" aria-label="Live Adaptive Catalytic Forking Workbench">
+    <h2>Live Adaptive Catalytic Forking Workbench (100% Exact <code>BigInt</code> &middot; Any Device Offline PWA)</h2>
+    <div class="device-bar" id="device-telemetry">
+      <span id="device-badge">Detecting device profile...</span>
+      <span id="pwa-status">Offline Engine: Ready (Zero external calls, 100% client-side)</span>
+    </div>
+    <p style="margin-top:0; font-size:0.9rem;">
+      Runs the <strong>exact verbatim integer coefficients</strong> certified in <code>lean/Catalytic/</code> directly in arbitrary-precision JavaScript <code>BigInt</code> on smartwatches, phones, tablets, laptops, and desktops. Dynamically <strong>predicts and forks</strong> across Frobenius collapse (<code>T1</code>/<code>T2</code>), compact quadratic-shear <code>prog5_x7</code> (<code>T3a</code>), optimal <code>prog8_x13</code> (<code>T3d</code>/<code>T3h</code>/<code>T3i</code>), Gray-code Cook&ndash;Mertz splits, and non-passive composition while verifying <strong>bit-for-bit restoration</strong> of arbitrary dirty catalytic RAM.
+    </p>
+
+    <div class="tab-bar" role="tablist" aria-label="Workbench engines">
+      <button class="tab-btn active" role="tab" aria-selected="true" onclick="switchTab('tab-adaptive', this)">1. Adaptive Fork &amp; Live Powering</button>
+      <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('tab-stream', this)">2. Streaming Moments F<sub>D</sub> (T3i)</button>
+      <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('tab-matrix', this)">3. Matrix Lift A<sup>7</sup> (Cor. 5.4)</button>
+      <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('tab-charp', this)">4. Char-p Oracle &amp; T2 Frobenius</button>
+      <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('tab-t4fuzz', this)">5. T4 Product &amp; Device Fuzzer</button>
+    </div>
+
+    <!-- TAB 1: ADAPTIVE FORK PREDICTOR & LIVE RUNNER -->
+    <div id="tab-adaptive" class="tab-panel active">
+      <div class="form-grid">
+        <div class="field">
+          <label for="af-workload">Workload Regime</label>
+          <select id="af-workload" onchange="updateAdaptivePredictor()">
+            <option value="scalar">Scalar Powering x^N (T3h)</option>
+            <option value="streaming">Streaming Moment F_D (T3i)</option>
+            <option value="matrix">Non-Commutative Matrix A^N (R3)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="af-n">Exponent N (or Moment D; 1 .. 10^12)</label>
+          <input id="af-n" type="text" value="91" oninput="updateAdaptivePredictor()">
+        </div>
+        <div class="field">
+          <label for="af-p">Modulus p (0 = Exact Z/Q, or Prime)</label>
+          <input id="af-p" type="text" value="1009" oninput="updateAdaptivePredictor()">
+        </div>
+        <div class="field">
+          <label for="af-x">Input x (for Live Execution)</label>
+          <input id="af-x" type="text" value="7">
+        </div>
+        <div class="field">
+          <label for="af-m">Matrix Dim m (Matrix Mode)</label>
+          <input id="af-m" type="number" min="1" max="64" value="4" oninput="updateAdaptivePredictor()">
+        </div>
+        <div class="field">
+          <label for="af-payload">Dirty Borrowed RAM Payload (Restored Bit-for-Bit)</label>
+          <input id="af-payload" type="text" value="SensorBuffer:98.6F|Battery:84%">
+        </div>
+      </div>
+
+      <div class="inline-controls">
+        <button class="action-btn primary" type="button" onclick="runAdaptiveLive()">Run Live Adaptive Fork Proof</button>
+        <button class="action-btn" type="button" onclick="runPass3Trace(8)">Trace Optimal prog8_x13 (x^13)</button>
+        <button class="action-btn" type="button" onclick="runPass3Trace(5)">Trace Compact prog5_x7 (x^7)</button>
+        <label class="toggle-lbl"><input id="af-fault" type="checkbox"> Inject 1-Bit Fault (Test Integrity Catch)</label>
+      </div>
+
+      <div class="inline-controls" style="font-size:0.8rem;">
+        <span style="color:var(--muted);">Quick Presets:</span>
+        <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','20','1009','7')">N=20 (T1/Gray Win)</button>
+        <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','91','1009','7')">N=91 (7&times;13 Compose)</button>
+        <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','169','1009','7')">N=169 (13&sup2; Compose)</button>
+        <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','1000000','0','3')">N=10^6 (Asymptotic)</button>
+        <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','256','2','1')">N=256, F_2 (2-Access!)</button>
+        <button class="action-btn" type="button" onclick="setAdaptivePreset('matrix','1000000','0','3')">Matrix 4&times;4, N=10^6</button>
+      </div>
+
+      <div id="af-predict-box" class="status-box"></div>
+      <div id="af-bars"></div>
+      <div id="af-live-result"></div>
+    </div>
+
+    <!-- TAB 2: STREAMING FREQUENCY MOMENTS F_D (T3i) -->
+    <div id="tab-stream" class="tab-panel">
+      <div class="form-grid">
+        <div class="field" style="grid-column: span 2;">
+          <label for="st-input">Live Event Stream (comma/space-separated tokens or sensor events)</label>
+          <textarea id="st-input">req_api req_api req_auth req_api req_db req_auth req_api req_edge req_db req_api req_auth req_db req_edge req_api req_telemetry req_auth</textarea>
+        </div>
+        <div class="field">
+          <label for="st-d">Moment Order D</label>
+          <input id="st-d" type="number" min="1" max="500" value="20">
+        </div>
+        <div class="field">
+          <label for="st-p">Prime Modulus p</label>
+          <input id="st-p" type="text" value="1009">
+        </div>
+        <div class="field">
+          <label for="st-engine">Catalytic Schedule</label>
+          <select id="st-engine">
+            <option value="adaptive">Adaptive Fork DP (Recommended)</option>
+            <option value="prog8_x13">Static prog8_x13 (Base 13)</option>
+            <option value="prog5_x7">Static prog5_x7 (Base 7)</option>
+            <option value="prog4_x5">Vinciguerra Baseline (Base 5)</option>
+          </select>
+        </div>
+      </div>
+      <div class="inline-controls">
+        <button class="action-btn primary" type="button" onclick="runStreamingLive()">Run Zero-Write-Wear Catalytic Stream</button>
+        <button class="action-btn" type="button" onclick="generateZipfStream()">Generate Live Zipf Telemetry Burst</button>
+        <label class="toggle-lbl"><input id="st-fault" type="checkbox"> Inject 1-Bit Catalyst Fault</label>
+      </div>
+      <div id="st-output"></div>
+    </div>
+
+    <!-- TAB 3: NON-COMMUTATIVE MATRIX LIFT A^7 (Cor. 5.4) -->
+    <div id="tab-matrix" class="tab-panel">
+      <p style="font-size:0.86rem; color:var(--muted); margin-top:0;">
+        Executes the literal homogeneous degree-2 lift <code>&mu;_7(prog5_x7)</code> over non-commuting <code>M_2(F_p)</code> with 14 dirty polynomial catalyst entries (4 linear + 10 quadratic = exact 22 scalar registers, zero overhead vs. Vinciguerra's r=3 tier).
+      </p>
+      <div class="form-grid">
+        <div class="field">
+          <label>Matrix A (2&times;2 entries mod p)</label>
+          <div class="mat-grid">
+            <input id="m-a00" type="number" value="1" aria-label="A 0 0">
+            <input id="m-a01" type="number" value="2" aria-label="A 0 1">
+            <input id="m-a10" type="number" value="3" aria-label="A 1 0">
+            <input id="m-a11" type="number" value="5" aria-label="A 1 1">
+          </div>
+        </div>
+        <div class="field">
+          <label for="m-p">Prime Modulus p (&ge; 11)</label>
+          <input id="m-p" type="number" min="11" value="11">
+        </div>
+      </div>
+      <div class="inline-controls">
+        <button class="action-btn primary" type="button" onclick="runMatrixLive()">Execute &mu;_7(prog5_x7) on M_2(F_p)</button>
+        <button class="action-btn" type="button" onclick="randomizeMatrix()">Random Non-Commuting Matrix</button>
+        <label class="toggle-lbl"><input id="m-fault" type="checkbox"> Inject 1-Bit Polynomial Catalyst Fault</label>
+      </div>
+      <div id="m-output"></div>
+    </div>
+
+    <!-- TAB 4: CHAR-P DIGIT-SUM ORACLE (T1) & BILINEAR FROBENIUS (T2) -->
+    <div id="tab-charp" class="tab-panel">
+      <div class="form-grid">
+        <div class="field">
+          <label for="t1-p">Prime Field F_p</label>
+          <input id="t1-p" type="number" min="2" value="5" oninput="runT1OracleUI()">
+        </div>
+        <div class="field">
+          <label for="t1-d">Monomial Degree d</label>
+          <input id="t1-d" type="number" min="1" value="25" oninput="runT1OracleUI()">
+        </div>
+        <div class="field">
+          <label for="t1-t">Access Budget t</label>
+          <input id="t1-t" type="number" min="1" value="2" oninput="runT1OracleUI()">
+        </div>
+        <div class="field">
+          <label for="t2-k">T2 Tower Depth k (x^(2^k) over GF(2^8))</label>
+          <input id="t2-k" type="number" min="1" max="12" value="8">
+        </div>
+        <div class="field">
+          <label for="t2-x">GF(2^8) Byte Input x (0..255)</label>
+          <input id="t2-x" type="number" min="0" max="255" value="87">
+        </div>
+      </div>
+      <div class="inline-controls">
+        <button class="action-btn primary" type="button" onclick="runT2Live()">Execute T2 2-Access Bilinear Frobenius</button>
+        <label class="toggle-lbl"><input id="t2-fault" type="checkbox"> Inject 1-Bit Fault</label>
+      </div>
+      <div id="t1-output"></div>
+      <div id="t2-output"></div>
+    </div>
+
+    <!-- TAB 5: T4 BALANCED PRODUCT & LIVE DEVICE FUZZER -->
+    <div id="tab-t4fuzz" class="tab-panel">
+      <div class="form-grid">
+        <div class="field">
+          <label for="t4-d">Multilinear Product Arity d = 2^k</label>
+          <select id="t4-d">
+            <option value="2">d = 2 (k=1, 3 regs, 8 ops)</option>
+            <option value="4" selected>d = 4 (k=2, 4 regs, 36 ops)</option>
+            <option value="8">d = 8 (k=3, 5 regs, 148 ops vs 49,150 linear)</option>
+            <option value="16">d = 16 (k=4, 6 regs, 596 ops vs 3.2&times;10^9 linear)</option>
+            <option value="32">d = 32 (k=5, 7 regs, 2,388 ops vs 1.4&times;10^19 linear)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="fuzz-n">Adversarial Dirty-Catalyst Fuzz Trials</label>
+          <input id="fuzz-n" type="number" min="25" max="3000" value="500">
+        </div>
+      </div>
+      <div class="inline-controls">
+        <button class="action-btn primary" type="button" onclick="runT4Live()">Run T4 Zero-Workspace Product</button>
+        <button class="action-btn primary" type="button" onclick="runFuzzerLive()">Run Live Adversarial Fuzzer</button>
+        <label class="toggle-lbl"><input id="t4-fault" type="checkbox"> Inject 1-Bit T4 Fault</label>
+      </div>
+      <div id="t4-output"></div>
+      <div id="fuzz-output"></div>
+    </div>
+
+    <div class="status-box note" style="margin-bottom:0;">
+      <strong>Honest Scientific Scope:</strong> This live engine executes exact modular/integer/finite-field catalytic arithmetic and Adaptive Fork scheduling natively on any device. Catalytic algorithms excel when <strong>free empty RAM is scarce</strong> and occupied memory must be borrowed and restored bit-for-bit (exact streaming sketches, zero-write-wear telemetry audits, verifiable exact powering). When abundant clean empty RAM is already available, standard $O(\log N)$ repeated squaring uses fewer operations, and lossy FP16/FP8 neural-network arithmetic cannot cancel catalytically bit-for-bit.
+    </div>
+  </section>
+
+  <!-- =================================================================== -->
+  <!-- FORMAL DEPENDENCY BLUEPRINT (LEAN 4.35 MODULE DAG)                  -->
+  <!-- =================================================================== -->
   <div class="card">
     <h2>Interactive Formal Dependency Blueprint (Lean 4.35.0 Module DAG)</h2>
     <p>Every Tier-1 theorem in <code>paper/main.tex</code> maps to a self-contained zero-Mathlib Lean 4.35.0 <code>module</code> audited across 5 distinct locally reproducible kernel implementations in 6 runs: <code>lean</code>, <code>leanchecker</code>, <code>leanchecker-paranoid</code>, <code>con-leche --verified</code> (3,544 decls), <code>con-ron --verified</code> (3,544 decls), and <code>nanoda_bin 0.4.19</code> (3,544 decls).</p>
@@ -175,7 +469,7 @@
 
           <rect x="246" y="80" width="264" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
           <text x="378" y="101" text-anchor="middle" fill="#f8fafc" font-weight="700">BalancedProduct.lean</text>
-          <text x="378" y="118" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T4: (7d^2-4)/3 zero-workspace</text>
+          <text x="378" y="118" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T4: (7d^2-4)/3 usesOnly &lt;= k+2</text>
 
           <rect x="246" y="138" width="264" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
           <text x="378" y="159" text-anchor="middle" fill="#f8fafc" font-weight="700">ThreeRegisterBreakthrough.lean</text>
@@ -216,18 +510,22 @@
           <text x="948" y="230" text-anchor="middle" fill="#a7f3d0" font-size="10.5">prove_all_catalytic_theorems</text>
 
           <rect x="836" y="288" width="224" height="56" rx="8" fill="#312e81" stroke="#a5b4fc" stroke-width="1.5"/>
-          <text x="948" y="312" text-anchor="middle" fill="#e0e7ff" font-weight="700">VerifyAxioms + 6 Kernels</text>
-          <text x="948" y="330" text-anchor="middle" fill="#c7d2fe" font-size="10.5">lean, paranoid, con-*, nanoda</text>
+          <text x="948" y="312" text-anchor="middle" fill="#e0e7ff" font-weight="700">VerifyAxioms + 5 Kernels</text>
+          <text x="948" y="330" text-anchor="middle" fill="#c7d2fe" font-size="10.5">6 runs: lean, con-*, nanoda</text>
         </g>
       </svg>
     </div>
     <p style="margin-top:0.85rem;">Raw verification artifacts:
       <a href="blueprint/lean_axioms.txt">lean_axioms.txt</a> &middot;
       <a href="blueprint/six_kernel_audit.txt">six_kernel_audit.txt</a> &middot;
-      <a href="blueprint/statement-fidelity.md">statement-fidelity.md</a>
+      <a href="blueprint/statement-fidelity.md">statement-fidelity.md</a> &middot;
+      <a href="catalytic-engine.js">catalytic-engine.js (Apache-2.0)</a>
     </p>
   </div>
 
+  <!-- =================================================================== -->
+  <!-- TIER-1 MACHINE-CHECKED THEOREMS TABLE                               -->
+  <!-- =================================================================== -->
   <div class="card">
     <h2>Tier-1 Machine-Checked Theorems &amp; Witnesses</h2>
     <div class="filter-bar" role="group" aria-label="Filter theorems by family">
@@ -238,34 +536,39 @@
       <button class="filter-btn" aria-pressed="false" onclick="filterRows('T4', this)">T4 Balanced Product</button>
       <button class="filter-btn" aria-pressed="false" onclick="filterRows('NV', this)">Non-Vacuity</button>
     </div>
-    <table id="thm-table">
-      <thead><tr><th>ID</th><th>Lean Declaration</th><th>Result Summary</th><th>Axioms</th></tr></thead>
-      <tbody>
-        <tr data-fam="T1"><td><code>T1</code></td><td><code>t1_digit_sum_dichotomy</code></td><td>Unconditional IFF for RP<sup>pass</sup><sub>F<sub>p</sub></sub>(2, t) via base-p digit sum s<sub>p</sub>(d) &le; min(p&minus;1, t&minus;1)</td><td>3 standard</td></tr>
-        <tr data-fam="T1"><td><code>T1a</code></td><td><code>t1a_two_access_frobenius_collapse</code></td><td>Unbounded-degree 2-access Frobenius collapse x<sup>p<sup>m</sup></sup> &in; RP<sup>pass</sup><sub>F<sub>p</sub></sub>(2, 2)</td><td>3 standard</td></tr>
-        <tr data-fam="T1"><td><code>T1b</code></td><td><code>t1b_f2_saturation</code></td><td>Exact F<sub>2</sub> saturation: x<sup>3</sup> &notin; RP<sup>pass</sup><sub>F<sub>2</sub></sub>(2, t) for all t</td><td>3 standard</td></tr>
-        <tr data-fam="T1"><td><code>T1c</code></td><td><code>t1c_impossibility_threshold</code></td><td>Impossibility threshold: s<sub>p</sub>(d) &ge; p implies x<sup>d</sup> impossible for all t</td><td>3 standard</td></tr>
-        <tr data-fam="T1"><td><code>T1d</code></td><td><code>t1d_vinciguerra_recovery</code></td><td>Large-char recovery of Vinciguerra Thm. 3.5: 2 &le; d &lt; p &rArr; (x<sup>d</sup> &in; RP(2,t) &hArr; d+1 &le; t)</td><td>3 standard</td></tr>
-        <tr data-fam="T1"><td><code>T1e</code></td><td><code>t1e_extension_field_separation</code></td><td>Exact sharp F<sub>4</sub> separation: x<sup>5</sup> &in; RP(2,3)\RP(2,2), x<sup>3</sup> &in; RP(2,4)\RP(2,3), &forall;t x<sup>7</sup> &notin; RP(2,t)</td><td>3 standard</td></tr>
-        <tr data-fam="T1"><td><code>T1s</code></td><td><code>t1s_pass2_ring_soundness</code></td><td>Literal CRing soundness bridge: direct ring execution matches symbolic Pass2Prog.exec over every char-p ring R</td><td>3 standard</td></tr>
-        <tr data-fam="T1"><td><code>T1es</code></td><td><code>t1es_pass2_gf4_soundness</code></td><td>Literal GF4-algebra soundness bridge: direct algebra execution matches symbolic Pass2GF4Prog.exec over every (R, &phi;)</td><td>3 standard</td></tr>
-        <tr data-fam="T2"><td><code>T2</code></td><td><code>t2_bilinear_frobenius_collapse</code></td><td>Strictly bilinear passive 2-access x<sup>2<sup>k</sup></sup> in k+1 regs, 4k&minus;2 ops over every char-2 ring</td><td>3 standard</td></tr>
-        <tr data-fam="T2"><td><code>T2b</code></td><td><code>t2b_distinct_operand_frobenius</code></td><td>Strictly distinct-operand 2-access x<sup>2<sup>k</sup></sup> in k+2 regs (zero self-squares R<sub>a</sub>R<sub>a</sub>)</td><td>3 standard</td></tr>
-        <tr data-fam="T3"><td><code>T3a</code></td><td><code>t3a_three_reg_5call_x7</code></td><td>x<sup>7</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 5) whenever 576 is invertible (char &ne; 2, 3); log<sub>7</sub> 5 &approx; 0.82709</td><td>3 standard</td></tr>
-        <tr data-fam="T3"><td><code>T3b</code></td><td><code>t3b_three_reg_6call_x9</code></td><td>x<sup>9</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 6) avoiding {2,3,5,17}; log<sub>9</sub> 6 &approx; 0.81546</td><td>3 standard</td></tr>
-        <tr data-fam="T3"><td><code>T3c</code></td><td><code>t3c_three_reg_7call_x11</code></td><td>x<sup>11</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 7) over Q and good primes; log<sub>11</sub> 7 &approx; 0.81151</td><td>3 standard</td></tr>
-        <tr data-fam="T3"><td><code>T3d</code></td><td><code>t3d_three_reg_8call_x13</code></td><td>x<sup>13</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 8) achieving optimal log<sub>13</sub> 8 &approx; 0.81071</td><td>3 standard</td></tr>
-        <tr data-fam="T3"><td><code>T3e</code></td><td><code>t3e_exponent_chain</code></td><td>Exact Nat power chain separating log<sub>13</sub> 8 &lt; log<sub>11</sub> 7 &lt; log<sub>9</sub> 6 &lt; log<sub>7</sub> 5 &lt; log<sub>5</sub> 4 and &lt; log<sub>15</sub> 9</td><td><strong>0 axioms</strong></td></tr>
-        <tr data-fam="T3"><td><code>T3f</code></td><td><code>t3f_global_integer_optimality</code></td><td>Universal global optimality for ALL t &ge; 4, t &ne; 8: 8<sup>37</sup> &lt; 13<sup>30</sup> &and; (2t&minus;3)<sup>30</sup> &lt; t<sup>37</sup></td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
-        <tr data-fam="T3"><td><code>T3g</code></td><td><code>t3g_three_reg_9call_x15</code></td><td>x<sup>15</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 9) post-minimum ascent point (log<sub>15</sub> 9 &approx; 0.81137)</td><td>3 standard</td></tr>
-        <tr data-fam="T3"><td><code>T3h</code></td><td><code>t3h_four_reg_powering</code></td><td>Complete 4-register passive powering for ALL N &ge; 1: &lt; (104/3)N<sup>log<sub>13</sub> 8</sup> (prog8_x13) and &lt; (70/3)N<sup>log<sub>7</sub> 5</sup> (prog5_x7)</td><td>3 standard</td></tr>
-        <tr data-fam="T3"><td><code>T3i</code></td><td><code>t3i_streaming_frequency_moment</code></td><td>Pointwise product-ring (Fin n &rarr; R) catalytic streaming frequency moment F<sub>D</sub>(f) = &sum; f<sub>i</sub><sup>D</sup> in &lt; (104/3)D<sup>log<sub>13</sub> 8</sup> passes</td><td>3 standard</td></tr>
-        <tr data-fam="T4"><td><code>T4</code></td><td><code>t4_balanced_multilinear_product</code></td><td>Zero-workspace balanced product x<sub>0</sub>&cdots;x<sub>d&minus;1</sub> in log<sub>2</sub> d + 2 regs, (7d<sup>2</sup>&minus;4)/3 ops</td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
-        <tr data-fam="NV"><td><code>NONVAC</code></td><td><code>nonvac_all_hypotheses</code></td><td>Concrete <code>0 &ne; 1</code> witnesses (<code>ModP 2..13</code>, <code>Fin 3 &rarr; ModP 13</code> for <code>T3i</code>, <code>GF4</code>, <code>Int</code>; all D<sub>5</sub>..D<sub>9</sub> &amp; factorials)</td><td>3 standard</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table id="thm-table">
+        <thead><tr><th>ID</th><th>Lean Declaration</th><th>Result Summary</th><th>Axioms</th></tr></thead>
+        <tbody>
+          <tr data-fam="T1"><td><code>T1</code></td><td><code>t1_digit_sum_dichotomy</code></td><td>Unconditional IFF for RP<sup>pass</sup><sub>F<sub>p</sub></sub>(2, t) via base-p digit sum s<sub>p</sub>(d) &le; min(p&minus;1, t&minus;1)</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1a</code></td><td><code>t1a_two_access_frobenius_collapse</code></td><td>Unbounded-degree 2-access Frobenius collapse x<sup>p<sup>m</sup></sup> &in; RP<sup>pass</sup><sub>F<sub>p</sub></sub>(2, 2)</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1b</code></td><td><code>t1b_f2_saturation</code></td><td>Exact F<sub>2</sub> saturation: x<sup>3</sup> &notin; RP<sup>pass</sup><sub>F<sub>2</sub></sub>(2, t) for all t</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1c</code></td><td><code>t1c_impossibility_threshold</code></td><td>Impossibility threshold: s<sub>p</sub>(d) &ge; p implies x<sup>d</sup> impossible for all t</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1d</code></td><td><code>t1d_vinciguerra_recovery</code></td><td>Large-char recovery of Vinciguerra Thm. 3.5: 2 &le; d &lt; p &rArr; (x<sup>d</sup> &in; RP(2,t) &hArr; d+1 &le; t)</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1e</code></td><td><code>t1e_extension_field_separation</code></td><td>Exact sharp F<sub>4</sub> separation: x<sup>5</sup> &in; RP(2,3)\RP(2,2), x<sup>3</sup> &in; RP(2,4)\RP(2,3), &forall;t x<sup>7</sup> &notin; RP(2,t)</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1s</code></td><td><code>t1s_pass2_ring_soundness</code></td><td>Literal CRing soundness bridge: direct ring execution matches symbolic Pass2Prog.exec over every char-p ring R</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1es</code></td><td><code>t1es_pass2_gf4_soundness</code></td><td>Literal GF4-algebra soundness bridge: direct algebra execution matches symbolic Pass2GF4Prog.exec over every (R, &phi;)</td><td>3 standard</td></tr>
+          <tr data-fam="T2"><td><code>T2</code></td><td><code>t2_bilinear_frobenius_collapse</code></td><td>Strictly bilinear passive 2-access x<sup>2<sup>k</sup></sup> in k+1 regs, 4k&minus;2 ops over every char-2 ring</td><td>3 standard</td></tr>
+          <tr data-fam="T2"><td><code>T2b</code></td><td><code>t2b_distinct_operand_frobenius</code></td><td>Strictly distinct-operand 2-access x<sup>2<sup>k</sup></sup> in k+2 regs (zero self-squares R<sub>a</sub>R<sub>a</sub>)</td><td>3 standard</td></tr>
+          <tr data-fam="T3"><td><code>T3a</code></td><td><code>t3a_three_reg_5call_x7</code></td><td>x<sup>7</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 5) whenever 576 is invertible (char &ne; 2, 3); log<sub>7</sub> 5 &approx; 0.82709</td><td>3 standard</td></tr>
+          <tr data-fam="T3"><td><code>T3b</code></td><td><code>t3b_three_reg_6call_x9</code></td><td>x<sup>9</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 6) avoiding {2,3,5,17}; log<sub>9</sub> 6 &approx; 0.81546</td><td>3 standard</td></tr>
+          <tr data-fam="T3"><td><code>T3c</code></td><td><code>t3c_three_reg_7call_x11</code></td><td>x<sup>11</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 7) over Q and good primes; log<sub>11</sub> 7 &approx; 0.81151</td><td>3 standard</td></tr>
+          <tr data-fam="T3"><td><code>T3d</code></td><td><code>t3d_three_reg_8call_x13</code></td><td>x<sup>13</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 8) achieving optimal log<sub>13</sub> 8 &approx; 0.81071</td><td>3 standard</td></tr>
+          <tr data-fam="T3"><td><code>T3e</code></td><td><code>t3e_exponent_chain</code></td><td>Exact Nat power chain separating log<sub>13</sub> 8 &lt; log<sub>11</sub> 7 &lt; log<sub>9</sub> 6 &lt; log<sub>7</sub> 5 &lt; log<sub>5</sub> 4 and &lt; log<sub>15</sub> 9</td><td><strong>0 axioms</strong></td></tr>
+          <tr data-fam="T3"><td><code>T3f</code></td><td><code>t3f_global_integer_optimality</code></td><td>Universal global optimality for ALL t &ge; 4, t &ne; 8: 8<sup>37</sup> &lt; 13<sup>30</sup> &and; (2t&minus;3)<sup>30</sup> &lt; t<sup>37</sup></td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
+          <tr data-fam="T3"><td><code>T3g</code></td><td><code>t3g_three_reg_9call_x15</code></td><td>x<sup>15</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 9) post-minimum ascent point (log<sub>15</sub> 9 &approx; 0.81137)</td><td>3 standard</td></tr>
+          <tr data-fam="T3"><td><code>T3h</code></td><td><code>t3h_four_reg_powering</code></td><td>Complete 4-register passive powering for ALL N &ge; 1: &lt; (104/3)N<sup>log<sub>13</sub> 8</sup> (prog8_x13) and &lt; (70/3)N<sup>log<sub>7</sub> 5</sup> (prog5_x7)</td><td>3 standard</td></tr>
+          <tr data-fam="T3"><td><code>T3i</code></td><td><code>t3i_streaming_frequency_moment</code></td><td>Pointwise product-ring (Fin n &rarr; R) catalytic streaming frequency moment F<sub>D</sub>(f) = &sum; f<sub>i</sub><sup>D</sup> in &lt; (104/3)D<sup>log<sub>13</sub> 8</sup> passes</td><td>3 standard</td></tr>
+          <tr data-fam="T4"><td><code>T4</code></td><td><code>t4_balanced_multilinear_product</code></td><td>Zero-workspace balanced product x<sub>0</sub>&cdots;x<sub>d&minus;1</sub> with explicit <code>CatOp.usesOnly</code> &le; k+2 designated regs, (7d<sup>2</sup>&minus;4)/3 ops</td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
+          <tr data-fam="NV"><td><code>NONVAC</code></td><td><code>nonvac_all_hypotheses</code></td><td>Concrete <code>0 &ne; 1</code> witnesses (<code>ModP 2..13</code>, <code>Fin 3 &rarr; ModP 13</code> for <code>T3i</code>, <code>GF4</code>, <code>Int</code>; all D<sub>5</sub>..D<sub>9</sub> &amp; factorials)</td><td>3 standard</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
+  <!-- =================================================================== -->
+  <!-- 5-SECOND AXIOM & PROVENANCE VERIFICATION                            -->
+  <!-- =================================================================== -->
   <div class="card">
     <h2>5-Second Axiom &amp; Provenance Verification</h2>
     <details open>
@@ -296,18 +599,376 @@
     <p>Independent SAT Companion: <strong>8 / 8</strong> CaDiCaL 2.1.2 DIMACS <code>.cnf</code> + ASCII <code>.lrat</code> UNSAT certificates archived in <code>results/sat_certs/</code> and re-checked by <code>scripts/verify_lrat.py</code>. Provenance manifest <code>MANIFEST.sha256</code> carries a cryptographically verified DigiCert RFC 3161 timestamp (<code>provenance/MANIFEST.sha256.tsr</code>) and OpenTimestamps Bitcoin calendar submission (<code>provenance/MANIFEST.sha256.ots</code>).</p>
   </div>
 </main>
+
+<script src="./catalytic-engine.js"></script>
 <script>
-function filterRows(fam, btn) {
-  document.querySelectorAll('.filter-btn').forEach(b => {
-    b.classList.remove('active');
-    b.setAttribute('aria-pressed', 'false');
-  });
-  btn.classList.add('active');
-  btn.setAttribute('aria-pressed', 'true');
-  document.querySelectorAll('#thm-table tbody tr').forEach(tr => {
-    tr.style.display = (fam === 'all' || tr.dataset.fam === fam) ? '' : 'none';
-  });
-}
+(function () {
+  'use strict';
+
+  function esc(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function detectDeviceClass() {
+    const w = window.innerWidth || 1024;
+    if (w <= 340) return 'watch';
+    if (w <= 640) return 'phone';
+    if (w <= 1024) return 'tablet';
+    if (w <= 1500) return 'laptop';
+    return 'desktop';
+  }
+
+  function refreshDeviceBar() {
+    const cls = detectDeviceClass();
+    const cores = navigator.hardwareConcurrency || '?';
+    const mem = navigator.deviceMemory ? `${navigator.deviceMemory} GB RAM hint` : 'sandboxed RAM';
+    const online = navigator.onLine ? 'Online' : 'Offline (PWA Local Mode)';
+    const badge = document.getElementById('device-badge');
+    if (badge) {
+      badge.textContent = `Active Profile: ${cls.toUpperCase()} (${window.innerWidth}px) · ${cores} logical cores · ${mem} · ${online}`;
+    }
+    const fuzzInput = document.getElementById('fuzz-n');
+    if (fuzzInput && !fuzzInput.dataset.touched) {
+      const defaults = { watch: 100, phone: 250, tablet: 500, laptop: 750, desktop: 1000 };
+      fuzzInput.value = String(defaults[cls] || 500);
+    }
+  }
+
+  window.filterRows = function (fam, btn) {
+    document.querySelectorAll('.filter-btn').forEach((b) => {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
+    btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
+    document.querySelectorAll('#thm-table tbody tr').forEach((tr) => {
+      tr.style.display = (fam === 'all' || tr.dataset.fam === fam) ? '' : 'none';
+    });
+  };
+
+  window.switchTab = function (tabId, btn) {
+    document.querySelectorAll('.tab-btn').forEach((b) => {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
+    });
+    document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+    const target = document.getElementById(tabId);
+    if (target) target.classList.add('active');
+  };
+
+  window.setAdaptivePreset = function (wl, n, p, x) {
+    document.getElementById('af-workload').value = wl;
+    document.getElementById('af-n').value = n;
+    document.getElementById('af-p').value = p;
+    document.getElementById('af-x').value = x;
+    updateAdaptivePredictor();
+    if (BigInt(n) <= 2000n && BigInt(p) >= 2n && wl !== 'matrix') {
+      runAdaptiveLive();
+    } else {
+      document.getElementById('af-live-result').innerHTML = '';
+    }
+  };
+
+  window.updateAdaptivePredictor = function () {
+    const E = window.CatalyticEngine;
+    const box = document.getElementById('af-predict-box');
+    const barsEl = document.getElementById('af-bars');
+    if (!E || !box || !barsEl) return;
+    try {
+      const workload = document.getElementById('af-workload').value;
+      const N = BigInt(document.getElementById('af-n').value.trim() || '1');
+      const p = BigInt(document.getElementById('af-p').value.trim() || '0');
+      const matrixDim = parseInt(document.getElementById('af-m').value || '2', 10);
+      if (N < 1n || N > 10n ** 15n) throw new Error('Enter N between 1 and 10^15');
+      if (p < 0n) throw new Error('Modulus p must be >= 0');
+
+      const res = E.planAdaptiveFork({ workload, N, p, matrixDim, deviceClass: detectDeviceClass() });
+      const c = res.comparison;
+      const baseAcc = Number(c.vinciguerra_r3_x5.accesses);
+      const p5Acc = Number(c.prog5_x7_T3a.accesses);
+      const p8Acc = Number(c.prog8_x13_T3d.accesses);
+      const adAcc = Number(c.adaptive_fork.accesses);
+      const maxVal = Math.max(baseAcc, p5Acc, p8Acc, adAcc, 1);
+
+      box.className = 'status-box ' + (c.adaptive_fork.feasible ? 'ok' : 'bad');
+      box.innerHTML =
+        `<strong>Predicted Adaptive Fork Winner:</strong> ${esc(c.adaptive_fork.label)}<br>` +
+        `<strong>Execution Plan:</strong> <code>${esc(c.adaptive_fork.tree)}</code><br>` +
+        `<strong>Memory Budget:</strong> ${esc(c.adaptive_fork.registers)} &middot; ` +
+        `<strong>Savings vs. Vinciguerra r=3 Baseline:</strong> <strong>${res.speedupFactor.toFixed(2)}&times; fewer reads</strong> (${res.reductionPct.toFixed(1)}% cut) &middot; ` +
+        `<em>${esc(res.device.hint)}</em>`;
+
+      const rows = [
+        { name: 'Vinciguerra r=3 Baseline (log_5 4 = 0.8614)', val: baseAcc, cls: 'bar-base', extra: '' },
+        { name: 'Static prog5_x7 — Lean T3a (log_7 5 = 0.8271)', val: p5Acc, cls: 'bar-p5', extra: ` (~${c.prog5_x7_T3a.asympGainVsBase.toFixed(2)}&times; asymp)` },
+        { name: 'Static prog8_x13 — Lean T3d (log_13 8 = 0.8107)', val: p8Acc, cls: 'bar-p8', extra: ` (~${c.prog8_x13_T3d.asympGainVsBase.toFixed(2)}&times; asymp)` },
+        { name: 'Adaptive Fork DP Schedule (Selected)', val: adAcc, cls: 'bar-adapt', extra: ` (${res.speedupFactor.toFixed(2)}&times; vs baseline)` }
+      ];
+      barsEl.innerHTML = rows.map((r) => {
+        const pct = Math.max(2, Math.min(100, (r.val / maxVal) * 100));
+        return `<div class="bar-row"><div class="bar-head"><span>${r.name}</span><span><strong>${r.val.toLocaleString()}</strong> reads${r.extra}</span></div>` +
+               `<div class="bar-track"><div class="bar-fill ${r.cls}" style="width:${pct.toFixed(1)}%"></div></div></div>`;
+      }).join('');
+    } catch (err) {
+      box.className = 'status-box bad';
+      box.textContent = 'Predictor input notice: ' + err.message;
+      barsEl.innerHTML = '';
+    }
+  };
+
+  window.runAdaptiveLive = function () {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('af-live-result');
+    try {
+      const workload = document.getElementById('af-workload').value;
+      const N = BigInt(document.getElementById('af-n').value.trim() || '20');
+      const p = BigInt(document.getElementById('af-p').value.trim() || '1009');
+      const x = BigInt(document.getElementById('af-x').value.trim() || '7');
+      const payload = document.getElementById('af-payload').value || 'CatalyticRAM';
+      const faultBit = document.getElementById('af-fault').checked;
+
+      if (workload === 'matrix') {
+        const res = E.execMatrixLiftProg5([[1, 2], [3, 5]], p >= 11n && E.isPrimeBig(p) ? p : 11n, { faultBit });
+        out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
+          `<strong>Live Matrix Lift &mu;_7(prog5_x7) over M_2(F_${esc(res.p)}):</strong> ${res.verified ? 'PASS — Exact A^7 + 100% catalyst restoration' : 'INTEGRITY ALERT — Fault detected!'}<br>` +
+          `A^7 = <code>${esc(JSON.stringify(res.A7))}</code> &middot; Scalar regs: ${res.scalarRegisters} (zero overhead vs Vinciguerra r=3)</div>`;
+        return;
+      }
+
+      if (p === 0n) {
+        // Exact Z demo via prog8_x13 or prog5_x7 directly
+        const t = N === 7n ? 5 : 8;
+        runPass3Trace(t);
+        return;
+      }
+      if (!E.isPrimeBig(p)) throw new Error(`Modulus p=${p} must be prime for modular 4-register execution (or set p=0 for exact Z trace).`);
+      if (N > 2000n) {
+        throw new Error(`N=${N} is great for the predictor above! For instant literal step-by-step BigInt execution on mobile/watch, set N <= 2000 (try N=20, 91, or 169).`);
+      }
+
+      const O0 = E.textToBigInt(payload + '|O', p);
+      const u0 = E.textToBigInt(payload + '|U', p);
+      const r10 = E.textToBigInt(payload + '|R1', p);
+      const r20 = E.textToBigInt(payload + '|R2', p);
+      const t0 = performance.now();
+      const res = E.execFourRegPowering(N, x, p, { engine: 'adaptive', O0, u0, r10, r20, faultBit });
+      const ms = (performance.now() - t0).toFixed(2);
+
+      out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
+        `<strong>${res.verified ? 'VERIFIED BIT-FOR-BIT LIVE' : 'CORRUPTION DETECTED (FAULT CAUGHT!)'}</strong> ` +
+        `in ${ms} ms via <code>${esc(res.engineUsed)}</code><br>` +
+        `Literal Input Accesses: <strong>${res.accesses}</strong> (vs. Vinciguerra static baseline: ${res.vinciguerraBaselineAccesses})<br>` +
+        `Output O: <code>${esc(res.final.O)}</code> (expected <code>${esc(res.expectedO)}</code> &rarr; <strong>${res.outputExact ? 'EXACT MATCH' : 'MISMATCH'}</strong>)<br>` +
+        `Borrowed Dirty RAM Restoration (U, R1, R2): <code>(${esc(res.final.u)}, ${esc(res.final.r1)}, ${esc(res.final.r2)})</code> vs initial <code>(${esc(res.initial.u)}, ${esc(res.initial.r1)}, ${esc(res.initial.r2)})</code> &rarr; <strong>${res.catalystsRestored ? '0 BITS CORRUPTED' : 'CATALYST DRIFT CAUGHT!'}</strong></div>`;
+    } catch (err) {
+      out.innerHTML = `<div class="status-box bad"><strong>Execution notice:</strong> ${esc(err.message)}</div>`;
+    }
+  };
+
+  window.runPass3Trace = function (t) {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('af-live-result');
+    try {
+      const p = BigInt(document.getElementById('af-p').value.trim() || '0');
+      const x = BigInt(document.getElementById('af-x').value.trim() || '7');
+      const payload = document.getElementById('af-payload').value || 'CatalyticRAM';
+      const faultBit = document.getElementById('af-fault').checked;
+      const O0 = E.textToBigInt(payload + '|O', p);
+      const u0 = E.textToBigInt(payload + '|U', p);
+      const v0 = E.textToBigInt(payload + '|V', p);
+
+      const t0 = performance.now();
+      const res = E.execPass3(t, x, p, { O0, u0, v0, faultBit });
+      const ms = (performance.now() - t0).toFixed(2);
+      const limit = detectDeviceClass() === 'watch' ? 6 : res.trace.length;
+      const rows = res.trace.slice(0, limit).map((tr) =>
+        `<tr><td><code>${esc(tr.stage)}</code></td><td><code>${esc(tr.op)}</code></td><td><code>${esc(E.formatBig(tr.O, 18))}</code></td><td><code>${esc(E.formatBig(tr.u, 16))}</code></td><td><code>${esc(E.formatBig(tr.v, 16))}</code></td></tr>`
+      ).join('');
+      out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
+        `<strong>${esc(res.spec.label)}</strong> &mdash; ${res.verified ? 'PASS: Bit-for-Bit Clean Restoration' : 'FAULT CAUGHT!'} (${ms} ms, ${res.accesses} input accesses, ${res.basicOps} basic ops, mod ${p === 0n ? 'exact Z' : p})<br>` +
+        `Output exact: <strong>${res.outputExact}</strong> &middot; Borrowed RAM (u, v) restored identically: <strong>${res.catalystsRestored}</strong></div>` +
+        `<details open><summary>Step-by-Step Register Scramble &rarr; Restoration Trace (${res.trace.length} states)</summary>` +
+        `<div class="table-wrap"><table><thead><tr><th>Stage</th><th>Literal Instruction</th><th>O (Passive Output)</th><th>u (Catalyst 1)</th><th>v (Catalyst 2)</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
+    } catch (err) {
+      out.innerHTML = `<div class="status-box bad"><strong>Trace error:</strong> ${esc(err.message)}</div>`;
+    }
+  };
+
+  window.generateZipfStream = function () {
+    const keys = ['sensor_imu', 'net_tls', 'gpu_kv', 'db_read', 'auth_ok', 'edge_ping', 'gps_fix', 'thermal_warn'];
+    const out = [];
+    for (let i = 0; i < 64; i++) {
+      const idx = Math.min(keys.length - 1, Math.floor(Math.pow(Math.random(), 2.2) * keys.length));
+      out.push(keys[idx]);
+    }
+    document.getElementById('st-input').value = out.join(' ');
+    runStreamingLive();
+  };
+
+  window.runStreamingLive = function () {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('st-output');
+    try {
+      const raw = document.getElementById('st-input').value.trim();
+      const tokens = raw.split(/[\s,;]+/).filter(Boolean);
+      if (!tokens.length) throw new Error('Enter at least one stream token');
+      const counts = new Map();
+      for (const tok of tokens) counts.set(tok, (counts.get(tok) || 0) + 1);
+      const keys = Array.from(counts.keys());
+      const freqVec = keys.map((k) => counts.get(k));
+      const D = parseInt(document.getElementById('st-d').value || '20', 10);
+      const p = BigInt(document.getElementById('st-p').value.trim() || '1009');
+      const engine = document.getElementById('st-engine').value;
+      const faultBit = document.getElementById('st-fault').checked;
+
+      const t0 = performance.now();
+      const res = E.execStreamingMoment(freqVec, D, p, { engine, faultBit });
+      const ms = (performance.now() - t0).toFixed(2);
+      const ratio = res.passes > 0 ? (res.vinciguerraBaselinePasses / res.passes).toFixed(2) : '1.00';
+
+      out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
+        `<strong>${res.verified ? 'PASS — Exact Catalytic Frequency Moment F_' + esc(res.D) : 'INTEGRITY ALERT — Fault Caught!'}</strong> (${ms} ms)<br>` +
+        `Stream items: <strong>${tokens.length}</strong> across <strong>${res.universeSize}</strong> distinct keys &middot; Schedule: <code>${esc(res.engineUsed)}</code><br>` +
+        `Read-Only Passes: <strong>${res.passes}</strong> (vs. Vinciguerra baseline: ${res.vinciguerraBaselinePasses} &rarr; <strong>${ratio}&times; fewer passes</strong>, 0 scratch SSD writes)<br>` +
+        `F_${esc(res.D)}(f) mod ${esc(res.p)}: <code>${esc(res.computedFD)}</code> (naive exact check: <code>${esc(res.naiveFD)}</code> &rarr; <strong>${res.sumExact ? 'EXACT' : 'MISMATCH'}</strong>) &middot; ` +
+        `All 3 borrowed vector catalysts restored: <strong>${res.allCatalystsRestored}</strong></div>`;
+    } catch (err) {
+      out.innerHTML = `<div class="status-box bad"><strong>Streaming error:</strong> ${esc(err.message)}</div>`;
+    }
+  };
+
+  window.randomizeMatrix = function () {
+    const p = Math.max(11, parseInt(document.getElementById('m-p').value || '11', 10));
+    const r = () => Math.floor(Math.random() * (p - 1)) + 1;
+    document.getElementById('m-a00').value = String(r());
+    document.getElementById('m-a01').value = String(r());
+    document.getElementById('m-a10').value = String(r());
+    document.getElementById('m-a11').value = String(r());
+    runMatrixLive();
+  };
+
+  window.runMatrixLive = function () {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('m-output');
+    try {
+      const p = BigInt(document.getElementById('m-p').value || '11');
+      const A = [
+        [BigInt(document.getElementById('m-a00').value || '1'), BigInt(document.getElementById('m-a01').value || '2')],
+        [BigInt(document.getElementById('m-a10').value || '3'), BigInt(document.getElementById('m-a11').value || '5')]
+      ];
+      const faultBit = document.getElementById('m-fault').checked;
+      const t0 = performance.now();
+      const res = E.execMatrixLiftProg5(A, p, { faultBit });
+      const ms = (performance.now() - t0).toFixed(2);
+      out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
+        `<strong>${res.verified ? 'PASS — Non-Commutative Matrix Lift Verified' : 'FAULT DETECTED IN POLYNOMIAL CATALYST!'}</strong> (${ms} ms)<br>` +
+        `A &middot; O_0 &ne; O_0 &middot; A (non-commuting): <strong>${res.nonCommuting}</strong> &middot; Matrix accesses: <strong>5</strong> &middot; Scalar regs: <strong>${res.scalarRegisters}</strong> (exact r=3 tier)<br>` +
+        `A^7 mod ${esc(res.p)} = <code>${esc(JSON.stringify(res.A7))}</code> &middot; ` +
+        `Final O_0 + A^7 = <code>${esc(JSON.stringify(res.finalO))}</code> (exact: <strong>${res.outputExact}</strong>) &middot; ` +
+        `All 14 dirty polynomial catalysts restored: <strong>${res.catalystsRestored}</strong></div>`;
+    } catch (err) {
+      out.innerHTML = `<div class="status-box bad"><strong>Matrix error:</strong> ${esc(err.message)}</div>`;
+    }
+  };
+
+  window.runT1OracleUI = function () {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('t1-output');
+    if (!E || !out) return;
+    try {
+      const p = BigInt(document.getElementById('t1-p').value || '5');
+      const d = BigInt(document.getElementById('t1-d').value || '25');
+      const t = parseInt(document.getElementById('t1-t').value || '2', 10);
+      const r = E.evalT1Oracle(p, d, t);
+      if (!r.validPrime) {
+        out.innerHTML = `<div class="status-box note">${esc(r.message)}</div>`;
+        return;
+      }
+      const verdict = r.permanentlyImpossible
+        ? `PERMANENTLY IMPOSSIBLE in 2 passive registers for ALL t >= 1 (s_${r.p}(${r.d}) = ${r.digitSum} >= ${r.p})`
+        : (r.frobenius2Access
+          ? `2-ACCESS FROBENIUS COLLAPSE! x^${r.d} in RP(2, 2) over F_${r.p} (vs. char-0 baseline ${r.char0BaselineT} accesses)`
+          : `FEASIBLE with exact minimum t_min = ${r.minT} (at budget t=${r.t}: ${r.feasibleAtT ? 'IN RP(2, t)' : 'NEEDS MORE ACCESSES'})`);
+      out.innerHTML = `<div class="status-box ${r.permanentlyImpossible ? 'bad' : 'ok'}">` +
+        `<strong>Theorem T1 Digit-Sum Oracle (F_${esc(r.p)}, x^${esc(r.d)}):</strong> ${esc(verdict)}<br>` +
+        `Base-${esc(r.p)} digits (LSB-first): <code>[${r.digitsLSB.join(', ')}]</code> &middot; Digit sum s_${esc(r.p)}(${esc(r.d)}) = <strong>${r.digitSum}</strong></div>`;
+    } catch (err) {
+      out.innerHTML = `<div class="status-box bad">${esc(err.message)}</div>`;
+    }
+  };
+
+  window.runT2Live = function () {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('t2-output');
+    try {
+      const k = parseInt(document.getElementById('t2-k').value || '8', 10);
+      const x = parseInt(document.getElementById('t2-x').value || '87', 10);
+      const faultBit = document.getElementById('t2-fault').checked;
+      const res = E.execT2BilinearFrobenius(k, x, undefined, { faultBit });
+      out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
+        `<strong>Theorem T2 Strictly Bilinear Frobenius (${esc(res.ring)}):</strong> ${res.verified ? 'PASS — 100% Clean!' : 'FAULT DETECTED!'}<br>` +
+        `Computed x^(2^${res.k}) = x^<strong>${esc(res.degree)}</strong> using <strong>${res.registers}</strong> registers, <strong>${res.bilinOps}</strong> bilinear ops, and ONLY <strong>${res.accesses} input accesses</strong>!<br>` +
+        `R_0 = <code>0x${res.final[0].toString(16).padStart(2, '0')}</code> (expected <code>0x${res.expectedR0.toString(16).padStart(2, '0')}</code>) &middot; All ${res.k} catalysts restored: <strong>${res.catalystsRestored}</strong></div>`;
+    } catch (err) {
+      out.innerHTML = `<div class="status-box bad">${esc(err.message)}</div>`;
+    }
+  };
+
+  window.runT4Live = function () {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('t4-output');
+    try {
+      const d = parseInt(document.getElementById('t4-d').value || '4', 10);
+      const faultBit = document.getElementById('t4-fault').checked;
+      const xs = Array.from({ length: d }, (_, i) => ((i * 3 + 2) % 7) - 3 || 2);
+      const t0 = performance.now();
+      const res = E.execT4BalancedProduct(xs, undefined, 1n, { faultBit });
+      const ms = (performance.now() - t0).toFixed(2);
+      const snaps = res.snapshots.map((s) => `<li><strong>op #${s.opIdx}</strong> (${esc(s.label)}): <code>[${s.regs.slice(0, 6).join(', ')}${s.regs.length > 6 ? ', ...' : ''}]</code></li>`).join('');
+      out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
+        `<strong>Theorem T4 Zero-Workspace Product (d=${res.d}):</strong> ${res.verified ? 'PASS — Exact + usesOnly <= k+2!' : 'FAULT DETECTED!'} (${ms} ms)<br>` +
+        `Exact ops: <strong>${res.ops.toLocaleString()}</strong> (vs. linear chain: <code>${esc(E.formatBig(BigInt(res.linearChainOps), 22))}</code>) &middot; ` +
+        `Registers: <strong>${res.registers}</strong> (&le; log_2 d + 2) &middot; ` +
+        `Target R_0: <code>${esc(res.final[0])}</code> (exact: <strong>${res.outputExact}</strong>) &middot; Catalysts restored: <strong>${res.catalystsRestored}</strong>` +
+        `<ul style="margin:0.45rem 0 0 1.1rem; padding:0; font-size:0.82rem;">${snaps}</ul></div>`;
+    } catch (err) {
+      out.innerHTML = `<div class="status-box bad">${esc(err.message)}</div>`;
+    }
+  };
+
+  window.runFuzzerLive = function () {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('fuzz-output');
+    try {
+      const n = Math.max(25, Math.min(3000, parseInt(document.getElementById('fuzz-n').value || '500', 10)));
+      const res = E.runAdversarialFuzz(n, 20261125);
+      out.innerHTML = `<div class="status-box ${res.failed === 0 ? 'ok' : 'bad'}">` +
+        `<strong>Live Adversarial Dirty-Catalyst Stress Test Complete:</strong> ` +
+        `<strong>${res.passed} / ${res.trials} PASS</strong> (${res.failed} failures) across T1, T2, T3a&ndash;T3d, T3h, R3 Matrix Lift, &amp; T4 in <strong>${res.elapsedMs} ms</strong> (${res.trialsPerSec.toLocaleString()} verified trials/sec on this device).</div>`;
+    } catch (err) {
+      out.innerHTML = `<div class="status-box bad">${esc(err.message)}</div>`;
+    }
+  };
+
+  // Initialize on load + adapt on resize / online-offline transitions
+  document.getElementById('fuzz-n').addEventListener('input', function () { this.dataset.touched = '1'; });
+  window.addEventListener('resize', refreshDeviceBar);
+  window.addEventListener('online', refreshDeviceBar);
+  window.addEventListener('offline', refreshDeviceBar);
+
+  refreshDeviceBar();
+  updateAdaptivePredictor();
+  runT1OracleUI();
+
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('./sw.js').then(() => {
+      const el = document.getElementById('pwa-status');
+      if (el) el.textContent = 'Offline PWA Installed & Cached (Works in Airplane Mode)';
+    }).catch(() => {});
+  }
+})();
 </script>
 </body>
 </html>

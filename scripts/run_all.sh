@@ -106,9 +106,9 @@ case "$TASK" in
   all)
     run_lean
     run_tests
+    run_audit
     run_figures
     run_paper
-    run_audit
     ;;
   *)
     echo "Usage: $0 [all|lean|experiments|tests|figures|paper|audit]" >&2

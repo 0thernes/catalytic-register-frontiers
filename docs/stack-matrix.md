@@ -7,7 +7,7 @@
 
 | Candidate | Kernel Trust (35%) | Build Speed (25%) | Stability (25%) | External Checkers (15%) | Weighted Score | Decision |
 |---|---|---|---|---|---|---|
-| **Lean 4.35.0 (Zero-Mathlib)** | 5 | 5 (< 60 s clean, 56.6 s measured) | 5 (0 external pkgs) | 5 (6 kernels incl. `nanoda`, `con-leche`, `con-ron`) | **5.00** | **Selected (ADR 0001)** |
+| **Lean 4.35.0 (Zero-Mathlib)** | 5 | 5 (< 60 s clean, 56.6 s measured) | 5 (0 external pkgs) | 5 (5 kernels / 6 runs incl. `nanoda`, `con-leche`, `con-ron`) | **5.00** | **Selected (ADR 0001)** |
 | Lean 4 + Mathlib4 | 5 | 2 (multi-GB cache) | 3 (frequent API churn) | 4 (huge export graph) | 3.60 | Rejected for core artifact |
 | Coq / Rocq | 5 | 4 | 4 | 3 | 4.20 | Secondary alternative |
 

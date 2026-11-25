@@ -1,0 +1,18 @@
+{
+  "name": "Catalytic Register Frontiers — Adaptive Fork Workbench",
+  "short_name": "Catalytic Fork",
+  "description": "Offline-capable exact BigInt Adaptive Forking engine and Lean 4.35 formal verification blueprint for passive catalytic register programs (works on watches, phones, tablets, laptops, and desktops).",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1120",
+  "theme_color": "#0b1120",
+  "icons": [
+    {
+      "src": "./social-preview.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

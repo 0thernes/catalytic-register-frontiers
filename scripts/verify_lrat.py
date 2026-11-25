@@ -82,7 +82,7 @@ def _check_rup_chain(
             if -lit in false_lits:
                 satisfied = True
                 break
-            if lit not in false_lits:
+            if lit not in false_lits and lit not in unassigned:
                 unassigned.append(lit)
         if satisfied:
             raise ValueError(f"Step {step_id}: hint clause {hid} is already satisfied")
@@ -177,7 +177,7 @@ def verify_lrat(cnf_path: pathlib.Path, lrat_path: pathlib.Path) -> tuple[int, i
                     if -lit in rup_false:
                         sat = True
                         break
-                    if lit not in rup_false:
+                    if lit not in rup_false and lit not in unassigned:
                         unassigned.append(lit)
                 if sat:
                     raise ValueError(f"Step {step_id}: satisfied clause {hid} in RAT prefix")

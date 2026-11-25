@@ -8,7 +8,7 @@
 ```mermaid
 flowchart LR
   Researcher["Researcher / Referee"] --> Repo["catalytic-register-frontiers"]
-  Repo --> Lean["Lean 4.35.0 + 5 External Kernels"]
+  Repo --> Lean["Lean 4.35.0 (5 Kernels / 6 Runs)"]
   Repo --> Py["Python 3.13 Exact Arithmetic + Pytest + Hypothesis"]
   Repo --> SAT["CaDiCaL 2.1.2 SAT Solver"]
   Repo --> TeX["Tectonic AMS-LaTeX Compiler"]
@@ -53,5 +53,5 @@ flowchart TD
 
 ## Scaling & Observability
 
-- **Build scaling:** All 19 default Lean build jobs across 14 core modules (8,145 lines) + `PalomarSolution` compile cleanly from scratch in under 60 s on standard consumer hardware with < 2 GB RAM (zero Mathlib cache required).
+- **Build scaling:** All 19 default Lean build jobs across 14 core modules (8,151 lines) + `PalomarSolution` compile cleanly from scratch in under 60 s on standard consumer hardware with < 2 GB RAM (zero Mathlib cache required).
 - **Observability:** Every verification stage produces plain-text or JSON evidence artifacts (`results/lean_axioms.txt`, `results/six_kernel_audit.txt`, `results/exp*.json`, `docs/run-log.md`, `MANIFEST.sha256`). Health check: `just reproduce` or `pwsh -NoProfile -File scripts/run_all.ps1 -Task all`.

@@ -9,7 +9,7 @@
 - **Non-vacuity witness:** A concrete, non-trivial mathematical object ($0 \neq 1$) proved inside Lean (`lean/Catalytic/NonVacuity.lean`) to satisfy every hypothesis of a theorem so the theorem cannot hold vacuously.
 - **Statement fidelity:** Line-by-line correspondence between a formal Lean declaration and the informal mathematical theorem stated in the paper and primary literature (`docs/statement-fidelity.md`).
 - **Epistemic Tiers (`TIER-1`–`TIER-4`):**
-  - `TIER-1`: Kernel-checked Lean 4.35 theorem verified across 6 independent kernel runs.
+  - `TIER-1`: Kernel-checked Lean 4.35 theorem verified across 5 distinct kernel implementations (6 runs).
   - `TIER-2`: Exact-arithmetic (`int`, `Fraction`, $\mathbb{F}_p$) or SAT-certified computation verified by `pytest`.
   - `TIER-3`: Standard paper-level reduction composing Tier-1 results with published composition lemmas.
   - `TIER-4`: Explicitly unresolved open mathematical problem.

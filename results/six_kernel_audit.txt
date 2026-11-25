@@ -1,8 +1,8 @@
 # Multi-Kernel Lean 4.35.0 Clean-Room Verification Audit (5 Distinct Implementations / 6 Completed Runs)
-Date: 2026-11-24
+Date: 2026-11-25
 Toolchain: leanprover/lean4:v4.35.0 (zero Mathlib, zero external Lake dependencies)
 Core Linters: autoImplicit=false, relaxedAutoImplicit=false, linter.unusedVariables=true, linter.deprecated=true
-Forbidden-token scan: 0 forbidden tokens across all 15 proof/solution .lean modules (14 core modules: 8,145 lines, max 1,361 lines; PalomarSolution.lean: 842 lines; standalone zero-import PalomarChallenge.lean: 283 lines with Comparator placeholder sorries only; 16 files / 9,270 lines total)
+Forbidden-token scan: 0 forbidden tokens across all 15 proof/solution .lean modules (14 core modules: 8,151 lines, max 1,364 lines; PalomarSolution.lean: 842 lines; standalone zero-import PalomarChallenge.lean: 283 lines with Comparator placeholder sorries only; 16 files / 9,276 lines total)
 Targets exported:
 - Solution: Catalytic.Solution.prove_all_catalytic_theorems (20 theorems: T1, T1a-T1e, T1s, T1es, T2, T2b, T3a-T3i, T4 [incl. CatOp.usesOnly <= k + 2 designated register containment]), Catalytic.NonVacuity.nonvac_all_hypotheses (incl. Fin 3 -> ModP 13 nonvac_T3i_witness) -> 3,544 exported declarations
 - PalomarSolution: all 17 standalone Palomar Comparator theorems (Catalytic.Palomar.*) -> 3,502 exported declarations

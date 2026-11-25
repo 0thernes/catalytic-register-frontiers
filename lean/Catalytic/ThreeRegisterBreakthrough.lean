@@ -26,7 +26,8 @@ yields exact monic programs proving:
   * `x^7  ∈ RP^{pass}_K(3, 5)`  (`log_7  5 ≈ 0.827087`),
   * `x^9  ∈ RP^{pass}_K(3, 6)`  (`log_9  6 ≈ 0.815465`),
   * `x^11 ∈ RP^{pass}_K(3, 7)`  (`log_11 7 ≈ 0.811508`),
-  * `x^13 ∈ RP^{pass}_K(3, 8)`  (`log_13 8 ≈ 0.810714`, the unique integer minimum of `log_{2t-3} t`).
+  * `x^13 ∈ RP^{pass}_K(3, 8)`  (`log_13 8 ≈ 0.810714`, the unique integer minimum of `log_{2t-3} t`),
+  * `x^15 ∈ RP^{pass}_K(3, 9)`  (`log_15 9 ≈ 0.811368`, post-minimum ascent point).
 
 We also formally certify the entire strictly decreasing exponent chain via exact `Nat`
 power inequalities with rational separators (`30/37`, `13/16`, `9/11`, `5/6`).
@@ -630,7 +631,7 @@ Certifies via the single rational separator `30 / 37` that
 `log_13 8 < 30 / 37 < log_{2t - 3} t` for EVERY integer `t ≥ 4` with `t ≠ 8`:
   1. `8 ^ 37 < 13 ^ 30`, and
   2. `∀ t : Nat, 4 ≤ t → t ≠ 8 → (2 * t - 3) ^ 30 < t ^ 37`.
-Constructively proved in pure `Nat` arithmetic with zero axioms.
+Proved in pure `Nat` arithmetic using only `[propext, Quot.sound]` (no `Classical.choice`).
 -/
 theorem exponent_global_integer_optimality :
     (8 ^ 37 < 13 ^ 30) ∧

@@ -30,6 +30,8 @@ path = [
     "provenance/**",
     "results/**",
     "reports/**",
+    "docs/*.js",
+    "docs/*.webmanifest",
 ]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Alexander S. Donahue"
@@ -39,7 +41,13 @@ SPDX-License-Identifier = "Apache-2.0"
 path = [
     "paper/**",
     "dist/**",
-    "docs/**",
+    "docs/*.md",
+    "docs/*.html",
+    "docs/adr/**",
+    "docs/launch/**",
+    "docs/media/**",
+    "docs/plan/**",
+    "docs/reviews/**",
     "*.md",
     "CITATION.cff",
     "llms.txt",

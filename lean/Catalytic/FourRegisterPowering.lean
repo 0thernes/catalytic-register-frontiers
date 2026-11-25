@@ -35,6 +35,9 @@ paper-level Tier-3 reduction to a fully machine-checked Tier-1 Lean 4.35.0 theor
        `7^ℓ ≤ N` and `3 * accesses prog < 70 * 5^ℓ` (i.e. `< (10/3) * 7 * N^{log_7 5}`),
        whenever `6!` and `(ℓ + 1)!` are invertible in `R` (since `6! = 720` invertible already
        implies `2` and `3`, hence `576 = 2^6 * 3^2`, are invertible!).
+  6. **Theorem T3i (Algebraic catalytic streaming frequency moments over `R^n`):**
+     Instantiates `T3h` over the pointwise product ring `CRing (Fin n → R)`, cleanly computing
+     `(f_0^D, ..., f_{n-1}^D)` and `F_D(f) = ∑_{i<n} f_i^D` in `< (104/3) * 8^ℓ` passes.
 -/
 
 namespace Catalytic

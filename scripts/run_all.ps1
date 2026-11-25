@@ -14,8 +14,16 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $Repo = Split-Path -Parent $PSScriptRoot
-$Py   = Join-Path $Repo ".venv\Scripts\python.exe"
-$Pytest = Join-Path $Repo ".venv\Scripts\pytest.exe"
+$VenvPy = Join-Path $Repo ".venv\Scripts\python.exe"
+if (Test-Path -LiteralPath $VenvPy) {
+    $Py = $VenvPy
+} else {
+    $PyCmd = Get-Command python,python3,py -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $PyCmd) { throw "Python interpreter not found (.venv\Scripts\python.exe or PATH)." }
+    $Py = $PyCmd.Source
+}
+$VenvPytest = Join-Path $Repo ".venv\Scripts\pytest.exe"
+$Pytest = if (Test-Path -LiteralPath $VenvPytest) { $VenvPytest } else { $null }
 $TectonicCmd = Get-Command tectonic -ErrorAction SilentlyContinue
 if ($TectonicCmd) {
     $Tectonic = $TectonicCmd.Source
@@ -103,7 +111,7 @@ function Invoke-Tests {
     Run-Step "Pytest verification suite (repo-relative for bracket safety)" {
         Push-Location -LiteralPath $Repo
         try {
-            & $Pytest -v tests/test_all.py
+            if ($Pytest) { & $Pytest -v tests/test_all.py } else { & $Py -m pytest -v tests/test_all.py }
         } finally {
             Pop-Location
         }
@@ -207,9 +215,9 @@ switch ($Task) {
     "all"         {
         Invoke-Lean
         Invoke-Tests
+        Invoke-Audit
         Invoke-Figures
         Invoke-Paper
-        Invoke-Audit
     }
 }
 

@@ -82,7 +82,7 @@ items:
   B08: {status: done, evidence: "Exact JSON/axiom snapshots verified against live recomputation and MANIFEST.sha256"}
   B09: {status: n/a, note: "No external network API or wire protocol"}
   B10: {status: done, evidence: "Hypothesis property-based tests in tests/test_all.py"}
-  B11: {status: done, evidence: "Lean 4.35 proofs differentially verified by independent Python exact evaluators and 6 kernels"}
+  B11: {status: done, evidence: "Lean 4.35 proofs differentially verified by independent Python & JS BigInt exact evaluators and 5 distinct kernels (6 runs)"}
   B12: {status: done, evidence: "Brute-force XAG ground-truth enumerator serves as test oracle for CNF encoder"}
   B13: {status: done, evidence: "Certificate mutant-killing test suite in tests/test_all.py"}
   B14: {status: done, evidence: "Metamorphic catalytic shift-invariance tests under Hypothesis in tests/test_all.py"}
@@ -93,7 +93,7 @@ items:
   B19: {status: n/a, note: "Pure sequential deterministic computation"}
   B20: {status: n/a, note: "Exact integer/rational/finite-field arithmetic; floats used only for plotting"}
   B21: {status: n/a, note: "Not a networked service"}
-  B22: {status: done, evidence: "Zero-Mathlib Lean 4.35 formalization in lean/ verified by 6 kernels"}
+  B22: {status: done, evidence: "Zero-Mathlib Lean 4.35 formalization in lean/ verified by 5 distinct kernel implementations (6 runs)"}
   B23: {status: n/a, note: "Pure algebraic theorems proved in Lean 4; no concurrent protocol state machine for TLA+/Alloy"}
   B24: {status: done, evidence: "All 20 headline theorems/soundness bridges + NonVacuity (22 decls across 14 modules) machine-checked in Lean 4.35"}
   B25: {status: n/a, note: "No C/Rust systems implementation for CBMC/Kani bounded model checking"}

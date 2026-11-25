@@ -171,7 +171,7 @@ To enforce transparent verification boundaries, every claim in this manuscript b
 \toprule
 \textbf{Tier} & \textbf{Scope} & \textbf{Certification Mechanism} \\
 \midrule
-Tier-1 & Theorems~\ref{thm:T1}--\ref{thm:T4}, Cor.~\ref{cor:powering} (\texttt{T3h}), algebraic Cor.~\ref{cor:streaming} (\texttt{T3i}), \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2b}, \texttt{T3a}--\texttt{T3g} & Zero-Mathlib Lean~4.35.0; 6 kernels (Table~\ref{tab:kernels}) \\
+Tier-1 & Theorems~\ref{thm:T1}--\ref{thm:T4}, Cor.~\ref{cor:powering} (\texttt{T3h}), algebraic Cor.~\ref{cor:streaming} (\texttt{T3i}), \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2b}, \texttt{T3a}--\texttt{T3g} & Zero-Mathlib Lean~4.35.0; 5 kernels / 6 runs (Table~\ref{tab:kernels}) \\
 Tier-2 & Full $\F_4$ ($d \le 16$) spectrum, $r=4$ loops, Boyar--Find SAT ($8/8$ LRAT) & Exact $\F_p/\Q/\Z$ arithmetic \& CaDiCaL~2.1.2 \\
 Tier-3 & Bit-space accounting of Cor.~\ref{cor:streaming} \& Cor.~\ref{cor:matpow} (matrix powering) & Paper proof via \cite[Cor.~5.1.1, \S4.4, Thm.~5.2]{Vinciguerra2026} \\
 Tier-4 & General $D_{3,\Q}^{\pass}(t)=2t-3$, $r \ge 4$, Boyar--Find & Explicitly open (Section~\ref{sec:open}) \\
@@ -187,9 +187,9 @@ We adopt the algebraic register-program model of Alekseev et~al.~\cite{AFM2025} 
 \begin{definition}[Passive-output register program]
 \label{def:rp}
 Let $R$ be a commutative ring with~$1$.
-An $R$-register program on $r \ge 2$ registers $(O, R_1, \dots, R_{r-1})$ over inputs $x_1, \dots, x_n$ is a finite sequence of instructions of two types:
+An $R$-register program on $r \ge 2$ registers $(R_0, R_1, \dots, R_{r-1})$ (writing $O := R_0$ for the designated output register) over inputs $x_1, \dots, x_n$ is a finite sequence of instructions of two types:
 \begin{align*}
-  R_i &\leftarrow R_i + p(R_1, \dots, R_{i-1}, R_{i+1}, \dots, R_r) && \text{(basic instruction, $0$ accesses)}, \\
+  R_i &\leftarrow R_i + p(R_0, \dots, R_{i-1}, R_{i+1}, \dots, R_{r-1}) && \text{(basic instruction, $0$ accesses)}, \\
   R_i &\leftarrow R_i + \lambda x_j,\quad \lambda \in R && \text{(input access, $1$ access)},
 \end{align*}
 where $p$ is an input-independent polynomial over $R$ not depending on the target register $R_i$.
@@ -542,7 +542,7 @@ Replacing the linear chain by an $8$-operation $3$-register commutator composed 
 
 \begin{proof}[Proof of Theorem~\ref{thm:T4}]
 For $k = 0$ ($d = 1$), the single instruction $R_{\mathrm{target}} \leftarrow R_{\mathrm{target}} + s x_{\mathrm{offset}}$ ($s \in \{+1, -1\}$) uses $T(0) = 1$ op.
-For $k + 1$ ($d = 2^{k+1}$), given distinct registers $\mathrm{target}, r_a, r_b$ and an auxiliary pool $P$ of size $k - 1$ (total $k + 3$ registers), let $A = \prod_{i < 2^k} x_{\mathrm{offset}+i}$ and $B = \prod_{i < 2^k} x_{\mathrm{offset}+2^k+i}$.
+For $k + 1$ ($d = 2^{k+1}$), given distinct registers $\mathrm{target}, r_a, r_b$ and an auxiliary pool $P$ of size $k$ (total $k + 3$ registers), let $A = \prod_{i < 2^k} x_{\mathrm{offset}+i}$ and $B = \prod_{i < 2^k} x_{\mathrm{offset}+2^k+i}$.
 Execute the $8$-stage balanced commutator:
 \begin{align*}
   &\text{(1) } R_{\mathrm{target}} \leftarrow R_{\mathrm{target}} + s R_{r_a} R_{r_b},
@@ -589,7 +589,7 @@ This sharp empirical contrast highlights a structural asymmetry: whereas Boolean
 \section{Lean~4.35.0 Formalization, Statement Fidelity, and Open Problems}
 \label{sec:lean}
 
-Every Tier-1 theorem (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3i}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}) using Lean~4.35 \texttt{module} files and strict core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unused\allowbreak Variables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across $14$ core files ($8{,}145$ lines; longest \texttt{Four\allowbreak Register\allowbreak Powering.\allowbreak lean}, $1{,}361$ lines) plus standalone Palomar files \texttt{Palomar\allowbreak Challenge.\allowbreak lean} ($283$ lines) and \texttt{Palomar\allowbreak Solution.\allowbreak lean}.
+Every Tier-1 theorem (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3i}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}) using Lean~4.35 \texttt{module} files and strict core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unused\allowbreak Variables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across $14$ core files ($8{,}151$ lines; longest \texttt{Four\allowbreak Register\allowbreak Powering.\allowbreak lean}, $1{,}364$ lines) plus standalone Palomar files \texttt{Palomar\allowbreak Challenge.\allowbreak lean} ($283$ lines) and \texttt{Palomar\allowbreak Solution.\allowbreak lean}.
 To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.\allowbreak lean} exhibits concrete $0 \neq 1$ witnesses (\texttt{ModP 2/5/7/11/13}, $\mathrm{Fin}\,3 \to \texttt{ModP 13}$, \texttt{GF4} with \texttt{GF4Hom.\allowbreak id}, and \texttt{Int}) for every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}, Corollaries~\ref{cor:powering}--\ref{cor:streaming}, and their soundness bridges (incl.\ $D_5, \dots, D_9$ and factorial inverses).
 A repository scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_\allowbreak decide}, \texttt{implemented\_\allowbreak by}, \texttt{unsafe}, custom \texttt{axiom}, or \texttt{@[extern]} across all proof and solution modules (Tables~\ref{tab:kernels}--\ref{tab:fidelity}).
 
@@ -666,7 +666,7 @@ No AI tool is listed as an author; mathematical correctness of all Tier-1 theore
 
 \emph{Conflict of Interest \& Export-Control Self-Screen:} Self-funded independent research by Alexander~S.\ Donahue (ORCID \href{https://orcid.org/0009-0006-8168-9648}{0009-0006-8168-9648}); no institutional employer, corporate entity, external grant, or financial conflict of interest. This pure algebraic-complexity research is publicly available fundamental mathematics (15~CFR~734.8) with no dual-use or export-controlled content.
 
-\emph{Data, Code, and Reproducibility Availability:} All Lean~4.35.0 proofs (\texttt{lean/}), Palomar configuration (\texttt{lean/comparator.json}, \texttt{lean/formalization.yaml}), Python exact-arithmetic and Hypothesis/mutant/SAT tests (\texttt{experiments/}, \texttt{tests/test\_all.py}), deterministic figure generator (\texttt{scripts/make\_figures.py}), pinned lockfiles (\texttt{requirements.lock.txt}, \texttt{sbom.cdx.json}), and cryptographic checksums (\texttt{MANIFEST.sha256}) are released openly under Apache-2.0 (code) and CC-BY-4.0 (prose and figures).
+\emph{Data, Code, and Reproducibility Availability:} All Lean~4.35.0 proofs (\texttt{lean/}, including Palomar contract files \texttt{PalomarChallenge.lean}, \texttt{palomar\_\allowbreak comparator.json}, and \texttt{formalization.yaml}), Python exact-arithmetic and Hypothesis/mutant/SAT tests (\texttt{experiments/}, \texttt{tests/\allowbreak test\_\allowbreak all.py}), deterministic figure scripts (\texttt{scripts/\allowbreak make\_\allowbreak figures.py}), offline browser verifier (\texttt{docs/}), pinned lockfiles and SBOM (\texttt{requirements.\allowbreak lock.txt}, \texttt{sbom.\allowbreak cdx.json}), and cryptographic checksums (\texttt{MANIFEST.\allowbreak sha256}) are released openly under Apache-2.0 (code) and CC-BY-4.0 (prose and figures).
 Primary arXiv preprints~\cite{Vinciguerra2026,Morse2026} were consulted via their public records; no third-party PDFs are redistributed.
 
 \bibliographystyle{amsplain}

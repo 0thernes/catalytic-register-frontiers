@@ -723,6 +723,8 @@ def test_doc_citation_and_workflow_consistency() -> None:
         "8{,}036 lines",
         "8,069 lines",
         "8{,}069 lines",
+        "8,145 lines",
+        "8{,}145 lines",
         "3,506 declarations",
         "3,523 declarations",
         "3,525 declarations",
@@ -1336,5 +1338,110 @@ def test_pass10_palomar_t4_and_provenance_integrity() -> None:
         for bad in contradictory:
             assert bad not in txt, f"Contradictory archival provenance {bad!r} found in {rel}"
         assert "10.5281/zenodo.24517198" in txt, f"Confirmed Zenodo Concept DOI missing in {rel}"
+
+
+def test_pass11_cycle3_audit_and_adaptive_fork_engine(tmp_path: pathlib.Path) -> None:
+    """Pass 11 (3-Cycle Deep Audit + Adaptive Forking Universal Workbench) permanent regression guard:
+    1. Paper mathematical typo guards (Definition 2.1 R_0..R_{r-1} indexing; Theorem T4 pool size k;
+       Table 1 5 kernels / 6 runs parity).
+    2. Lean lakefile.toml version matches VERSION (1.0.1) & T3f docstring axiom honesty.
+    3. Zero residual '6 kernels' / '6 independent kernels' / '6 Lean kernels' in active canonical docs.
+    4. LRAT verifier handles duplicate literals inside a unit clause without false rejection.
+    5. Universal Adaptive Forking PWA files exist, manifest.webmanifest is valid JSON, pages.yml
+       deploys them, every Lean prog5_x7..prog9_x15 coefficient matches docs/catalytic-engine.js
+       verbatim, and live Node.js execution verifies all engines + 1-bit fault rejection + fuzzer.
+    """
+    import shutil
+    import subprocess
+
+    # 1. Paper mathematical & table parity guards
+    tex = (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
+    assert r"p(R_0, \dots, R_{i-1}, R_{i+1}, \dots, R_{r-1})" in tex
+    assert r"p(R_1, \dots, R_{i-1}, R_{i+1}, \dots, R_r)" not in tex
+    assert r"auxiliary pool $P$ of size $k$ (total $k + 3$ registers)" in tex
+    assert r"auxiliary pool $P$ of size $k - 1$" not in tex
+    assert r"5 kernels / 6 runs (Table~\ref{tab:kernels})" in tex
+
+    # 2. Lean version & T3f docstring honesty
+    version = (REPO / "VERSION").read_text(encoding="utf-8").strip()
+    assert f'version = "{version}"' in (REPO / "lean" / "lakefile.toml").read_text(encoding="utf-8")
+    lean_t3 = (REPO / "lean" / "Catalytic" / "ThreeRegisterBreakthrough.lean").read_text(encoding="utf-8")
+    assert "with zero axioms" not in lean_t3
+
+    # 3. Zero stale '6 kernels' wording across active canonical docs
+    stale_6k_re = re.compile(
+        r"\b6\s+(?:independent\s+|distinct\s+|Lean\s+)?kernels?\b|6\s*/\s*6\s+(?:Independent\s+)?Kernels",
+        re.I,
+    )
+    for rel in (
+        "CLAIMS.md",
+        "README.md",
+        "paper/main.tex",
+        "docs/index.html",
+        "docs/media/social-preview.svg",
+        "repo.yaml",
+        "project.yaml",
+        "docs/glossary.md",
+        "docs/stack-matrix.md",
+        "docs/verification.md",
+        "docs/plan/slices.md",
+        "llms.txt",
+    ):
+        txt = (REPO / rel).read_text(encoding="utf-8")
+        assert not stale_6k_re.search(txt), f"Stale '6 kernels' wording found in {rel}"
+
+    # 4. LRAT duplicate-literal unit clause regression guard
+    dup_cnf = tmp_path / "dup_unit.cnf"
+    dup_lrat = tmp_path / "dup_unit.lrat"
+    dup_cnf.write_text("p cnf 1 2\n1 1 0\n-1 0\n", encoding="ascii", newline="\n")
+    dup_lrat.write_text("3 0 1 2 0\n", encoding="ascii", newline="\n")
+    steps, dels = verify_lrat(dup_cnf, dup_lrat)
+    assert steps == 1 and dels == 0
+
+    # 5. Adaptive Forking PWA files, Pages deployment, and verbatim Lean-to-JS coefficient parity
+    js_path = REPO / "docs" / "catalytic-engine.js"
+    manifest_path = REPO / "docs" / "manifest.webmanifest"
+    sw_path = REPO / "docs" / "sw.js"
+    assert js_path.exists() and manifest_path.exists() and sw_path.exists()
+    pwa_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert pwa_manifest.get("start_url") == "./index.html" and pwa_manifest.get("display") == "standalone"
+
+    pages_yml = (REPO / ".github" / "workflows" / "pages.yml").read_text(encoding="utf-8")
+    for asset in ("catalytic-engine.js", "manifest.webmanifest", "sw.js"):
+        assert f"_site/{asset}" in pages_yml, f"pages.yml missing deployment copy for {asset}"
+
+    js_txt = js_path.read_text(encoding="utf-8")
+    for prog_name in ("prog5_x7", "prog6_x9", "prog7_x11", "prog8_x13", "prog9_x15"):
+        blk_m = re.search(rf"def {prog_name} : List Pass3Instr :=\n((?:  loopStep .*\n)+)", lean_t3)
+        assert blk_m is not None
+        for du, dv, coeff in re.findall(r"\((\d+),\s*(\d+),\s*(-?\d+)\)", blk_m.group(1)):
+            needle = f"[{du}, {dv}, {coeff}n]"
+            assert needle in js_txt, f"JS engine missing Lean coefficient {needle} from {prog_name}"
+
+    # 6. Live cross-runtime Node.js differential verification (when Node is installed)
+    node_bin = shutil.which("node")
+    if node_bin:
+        node_check = (
+            f"const E = require({json.dumps(str(js_path))});"
+            "for (const t of [4,5,6,7,8,9]) {"
+            "  if (!E.execPass3(t, 7n, 0n, {O0: 19n, u0: -11n, v0: 23n}).verified) process.exit(11);"
+            "  if (!E.execPass3(t, 5n, 11n, {O0: 3n, u0: 7n, v0: 9n}).verified) process.exit(12);"
+            "  if (E.execPass3(t, 5n, 11n, {O0: 3n, u0: 7n, v0: 9n, faultBit: true}).verified) process.exit(13);"
+            "}"
+            "for (const [N,p] of [[7,1009],[13,1009],[20,1009],[91,1009],[169,1009],[25,5]]) {"
+            "  const r = E.execFourRegPowering(N, 7, p, {engine:'adaptive'});"
+            "  if (!r.verified) process.exit(14);"
+            "  if (E.execFourRegPowering(N, 7, p, {engine:'adaptive', faultBit:true}).verified) process.exit(15);"
+            "}"
+            "if (!E.execStreamingMoment([3,1,4,1,5,9], 20, 1009, {engine:'adaptive'}).verified) process.exit(16);"
+            "if (!E.execMatrixLiftProg5([[1,2],[3,5]], 11).verified) process.exit(17);"
+            "if (!E.execT2BilinearFrobenius(8, 0x57).verified) process.exit(18);"
+            "if (!E.execT4BalancedProduct([2,-3,5,7,-1,2,3,-2], undefined, 1n).verified) process.exit(19);"
+            "const f = E.runAdversarialFuzz(200, 20261125);"
+            "if (f.failed !== 0 || f.passed !== 200) process.exit(20);"
+        )
+        proc = subprocess.run([node_bin, "-e", node_check], capture_output=True, text=True, timeout=30, check=False)
+        assert proc.returncode == 0, f"Node.js differential check failed (rc={proc.returncode}): {proc.stderr}"
+
 
 

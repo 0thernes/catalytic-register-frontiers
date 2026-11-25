@@ -15,7 +15,7 @@ Maps every applicable rung of Part B of the Build Standard for LLMs (v1.1.0) and
 | B13 | Mutation testing | `test_mutant_killing_certificates` in `tests/test_all.py` mutating `T1`–`T4` certificates & asserting 100% mutant kill rate | **PASS** |
 | B14 | Metamorphic testing | Catalytic shift-invariance (`st -> st + delta`) and Frobenius scaling invariances verified under Hypothesis in `tests/test_all.py` | **PASS** |
 | B17–B18 | Static analysis & strict type checking (report-only) | `ruff check experiments scripts tests` and `mypy experiments scripts tests` + Lean core linters (`autoImplicit=false`, `linter.unusedVariables=true`) | **PASS** |
-| B22 | Formal specification and proof | Zero-Mathlib `lean/` + 6-kernel audit (`results/six_kernel_audit.txt`) + `lean/Catalytic/NonVacuity.lean` | **PASS** |
+| B22 | Formal specification and proof | Zero-Mathlib `lean/` + 5-kernel (6-run) audit (`results/six_kernel_audit.txt`) + `lean/Catalytic/NonVacuity.lean` | **PASS** |
 | B35–B36 | Security scanning, SBOM, & threat model | CI secret scan, `sbom.cdx.json`, `docs/threat-model.md` | **PASS** |
 | B37–B38 | Release checksums & SLSA attestations | `MANIFEST.sha256` + `.github/workflows/release.yml` (`SHA256SUMS` + `actions/attest-build-provenance@v2`) | **PASS** |
 | B40–B43 | Audit trail, limitations, refutation criteria, replication protocol | `docs/run-log.md`, `LIMITATIONS.md`, `CLAIMS.md`, `REPLICATION.md` | **PASS** |
@@ -26,6 +26,6 @@ Maps every applicable rung of Part B of the Build Standard for LLMs (v1.1.0) and
 
 ```bash
 sha256sum -c MANIFEST.sha256
-# After GitHub release v1.0.0 is published:
+# Verify published GitHub release SLSA attestation:
 gh attestation verify dist/Donahue_2026_catalytic_register_frontiers.pdf --repo 0thernes/catalytic-register-frontiers
 ```
