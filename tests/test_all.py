@@ -1543,7 +1543,7 @@ def test_pass13_v13_cli_animator_and_benchmark() -> None:
         assert unused not in tex, f"Unused LaTeX package {unused!r} still loaded in paper/main.tex"
 
     html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
-    assert "Adaptive Forking Offline PWA v1.3" in html
+    assert re.search(r"Adaptive Forking Offline PWA v1\.[3-9]", html) is not None
     assert 'id="t2-k" type="number" min="1" max="12" value="5"' in html
     assert "toggleTracePlay" in html and "runDeviceBenchUI" in html
 
@@ -1582,6 +1582,88 @@ def test_pass13_v13_cli_animator_and_benchmark() -> None:
             assert check_fn(parsed), f"CLI {cmd_args} failed assertion: {parsed}"
 
 
+def test_pass14_large_n_t1_horizon_and_cert_verifier() -> None:
+    """Pass 14 permanent regression guard:
+    1. Bracket-safe iterdir() in scripts/verify_lrat.py (no glob()) and local-server-safe sw.js (Promise.allSettled).
+    2. Non-clobbering Tab 1 panels (#af-anim-panel, #af-bench-panel, #af-horizon-panel), Tab 2 sparkline,
+       and independent certificate verifier UI in docs/index.html v1.4.
+    3. Large-N T1 optimality (p=5 N=15751 -> 4 accesses; p=1009 N=1018082 -> 3 accesses), large-N base
+       competition (N=50625=15^4 picks prog9_x15), arbitrary-BigInt Frobenius execution (2^16 mod 2, 1009^2 mod 1009),
+       winner preservation in forkCandidates, computeAdaptiveHorizon, verifyCertificate, and dual positional/flag CLI.
+    """
+    import shutil
+    import subprocess
+    import tempfile
 
+    lrat_src = (REPO / "scripts" / "verify_lrat.py").read_text(encoding="utf-8")
+    assert ".glob(" not in lrat_src, "verify_lrat.py should use bracket-safe iterdir() instead of glob()"
 
+    sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
+    assert "catalytic-adaptive-fork-v1.4.0" in sw_src and "Promise.allSettled" in sw_src
+
+    html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    assert "Adaptive Forking Offline PWA v1.4" in html
+    for marker in ("af-anim-panel", "af-bench-panel", "af-horizon-panel", "af-cert-verify", "st-sparkline", "verifyLastCertificateUI"):
+        assert marker in html, f"Missing Pass 14 v1.4 UI hook {marker!r} in docs/index.html"
+
+    node_bin = shutil.which("node")
+    if node_bin:
+        js_path = str(REPO / "docs" / "catalytic-engine.js")
+        node_check = (
+            f"const E = require({json.dumps(js_path)});"
+            "if (E.version !== '1.4.0') process.exit(50);"
+            "const r5 = E.planAdaptiveFork({N:15751, p:5, workload:'scalar'});"
+            "if (!r5.comparison.adaptive_fork.feasible || r5.comparison.adaptive_fork.accesses !== '4') process.exit(51);"
+            "const r1009 = E.planAdaptiveFork({N:1018082, p:1009, workload:'scalar'});"
+            "if (!r1009.comparison.adaptive_fork.feasible || r1009.comparison.adaptive_fork.accesses !== '3') process.exit(52);"
+            "const r15 = E.planAdaptiveFork({N:50625, p:0, workload:'scalar'});"
+            "if (Number(r15.comparison.adaptive_fork.accesses) > Number(E.exactFourRegAccesses(15, 9, 50625))) process.exit(53);"
+            "const e2 = E.execFourRegPowering(65536n, 1n, 2n, {engine:'adaptive'});"
+            "if (!e2.verified || e2.accesses !== 2) process.exit(54);"
+            "const e1009 = E.execFourRegPowering(1018081n, 7n, 1009n, {engine:'adaptive'});"
+            "if (!e1009.verified || e1009.accesses !== 2) process.exit(55);"
+            "const eT1 = E.execFourRegPowering(1018082n, 7n, 1009n, {engine:'adaptive'});"
+            "if (!eT1.verified || eT1.accesses !== 3) process.exit(56);"
+            "for (const N of [20, 91, 169, 1500, 50625]) {"
+            "  const pl = E.planAdaptiveFork({N, p:1009, workload:'scalar'});"
+            "  if (!pl.forkCandidates.some(c => c.status === 'winner')) process.exit(57);"
+            "}"
+            "const h = E.computeAdaptiveHorizon(137, {workload:'scalar'});"
+            "if (!h.points || h.points.length < 10) process.exit(58);"
+            "const f = E.runAdversarialFuzz(210, 20261125);"
+            "if (f.failed !== 0 || f.passed !== 210) process.exit(59);"
+        )
+        proc = subprocess.run([node_bin, "-e", node_check], capture_output=True, text=True, timeout=30, check=False)
+        assert proc.returncode == 0, f"Node.js v1.4 audit failed (rc={proc.returncode}): {proc.stderr}"
+
+        # Test positional CLI arguments + horizon + verify round-trip
+        p_pos = subprocess.run([node_bin, js_path, "plan", "169", "1009", "4", "scalar"], capture_output=True, text=True, timeout=30, check=False)
+        assert p_pos.returncode == 0
+        pos_data = json.loads(p_pos.stdout)
+        assert pos_data["N"] == "169" and pos_data["winner"]["accesses"] == "128"
+
+        p_hor = subprocess.run([node_bin, js_path, "horizon", "137", "scalar"], capture_output=True, text=True, timeout=30, check=False)
+        assert p_hor.returncode == 0 and len(json.loads(p_hor.stdout)["points"]) >= 10
+
+        p_vlt = subprocess.run([node_bin, js_path, "vault", "PositionalVaultCheck", "91", "1009"], capture_output=True, text=True, timeout=30, check=False)
+        assert p_vlt.returncode == 0
+        vlt_data = json.loads(p_vlt.stdout)
+        assert vlt_data["verified"] is True and vlt_data["sha256Identical"] is True
+
+        with tempfile.TemporaryDirectory(prefix="cert_verify_p14_") as td:
+            cert_file = pathlib.Path(td) / "cert.json"
+            cert_payload = {
+                "kind": "catalytic_sha256_byte_vault",
+                "N": "91",
+                "p": "1009",
+                "accessesPerChunk": vlt_data["accessesPerChunk"],
+                "sha256Before": vlt_data["sha256Before"],
+                "sha256After": vlt_data["sha256After"],
+                "sha256Identical": True,
+                "verified": True,
+            }
+            cert_file.write_text(json.dumps(cert_payload), encoding="utf-8", newline="\n")
+            p_ver = subprocess.run([node_bin, js_path, "verify", str(cert_file)], capture_output=True, text=True, timeout=30, check=False)
+            assert p_ver.returncode == 0, f"CLI verify failed: {p_ver.stderr}"
+            assert json.loads(p_ver.stdout)["ok"] is True
 

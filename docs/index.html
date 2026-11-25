@@ -233,7 +233,7 @@
     <span class="pill">14 Core Modules &middot; 20 Theorems + Non-Vacuity</span>
     <span class="pill">5 Kernels (6 Runs) PASS</span>
     <span class="pill">8 / 8 LRAT UNSAT Proofs Verified</span>
-    <span class="pill info">Adaptive Forking Offline PWA v1.3</span>
+    <span class="pill info">Adaptive Forking Offline PWA v1.4</span>
     <span class="pill warn">Preprint &middot; Not Peer-Reviewed</span>
   </div>
 
@@ -318,30 +318,42 @@
         <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','169','137','7')">p=137 (Bad-Prime Dodge!)</button>
         <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','91','1022117','42')">Ring Z/1022117Z (Composite!)</button>
         <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','256','2','1')">N=256, F_2 (2-Access!)</button>
+        <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','1018082','1009','7')">N=1009&sup2;+1 (3-Access T1!)</button>
+        <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','50625','0','3')">N=15&sup4; (Base-15 Win)</button>
         <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','1000000000000','0','3')">N=10^12 (Asymptotic)</button>
         <button class="action-btn" type="button" onclick="setAdaptivePreset('matrix','1000000','0','3')">Matrix 4&times;4</button>
       </div>
 
       <div class="inline-controls" style="font-size:0.8rem;">
-        <label class="toggle-lbl" style="color:var(--muted);">Local file for SHA-256 Byte-Vault (up to 64 KiB, 100% offline, never uploaded):
-          <input id="af-file" type="file" style="max-width:220px; font-size:0.78rem;">
+        <label class="toggle-lbl" style="color:var(--muted);">Local file for SHA-256 Byte-Vault (up to 64 KiB, auto-runs 100% offline, never uploaded):
+          <input id="af-file" type="file" onchange="runByteVaultLive()" style="max-width:220px; font-size:0.78rem;">
         </label>
         <button class="action-btn" type="button" onclick="exportProofCertificate()">Download JSON Proof Certificate</button>
+        <button class="action-btn" type="button" onclick="verifyLastCertificateUI()">Re-Verify Last Certificate</button>
         <button class="action-btn" type="button" onclick="copyShareLink()">Copy Shareable Deep Link</button>
-        <span id="share-feedback" style="color:var(--ok); font-weight:600;"></span>
+        <span id="share-feedback" style="color:var(--ok); font-weight:600;" aria-live="polite"></span>
       </div>
       <details style="margin:0.4rem 0 0.6rem; font-size:0.82rem;">
-        <summary>Universal Zero-Dependency CLI (Run on Any Laptop / Desktop / Server / Termux)</summary>
+        <summary>Universal Zero-Dependency CLI v1.4 (Flags or Positional &middot; Any Laptop / Desktop / Server / Termux)</summary>
         <pre style="margin:0.4rem 0 0; padding:0.65rem;"><code>curl -fsSLO https://0thernes.github.io/catalytic-register-frontiers/catalytic-engine.js
-node catalytic-engine.js plan  --N 91 --p 1009
-node catalytic-engine.js vault "SensorBuffer:98.6F" --N 91 --p 1009
+node catalytic-engine.js plan    169 1009 4 scalar
+node catalytic-engine.js vault   "SensorBuffer:98.6F" 91 1009
+node catalytic-engine.js horizon 137 scalar
+node catalytic-engine.js verify  catalytic-proof-*.json
 node catalytic-engine.js bench</code></pre>
       </details>
 
-      <div id="af-predict-box" class="status-box"></div>
+      <div id="af-predict-box" class="status-box" aria-live="polite"></div>
       <div id="af-dag" class="dag-box" aria-label="Dynamic Adaptive Fork Decision Tree"></div>
       <div id="af-bars"></div>
-      <div id="af-live-result"></div>
+      <details style="margin:0.6rem 0;">
+        <summary>Predictive Adaptive Horizon Curve (Exact Access Savings Across N = 5 .. 2,197 on Current Modulus p)</summary>
+        <div id="af-horizon-panel" class="dag-box" style="margin-top:0.45rem;" aria-label="Predictive Adaptive Horizon SVG Chart"></div>
+      </details>
+      <div id="af-live-result" aria-live="polite"></div>
+      <div id="af-cert-verify" aria-live="polite"></div>
+      <div id="af-anim-panel" aria-live="polite"></div>
+      <div id="af-bench-panel" aria-live="polite"></div>
     </div>
 
     <!-- TAB 2: STREAMING FREQUENCY MOMENTS F_D (T3i) + LIVE TELEMETRY -->
@@ -375,7 +387,8 @@ node catalytic-engine.js bench</code></pre>
         <button class="action-btn" type="button" onclick="generateZipfStream()">Generate Zipf Telemetry Burst</button>
         <label class="toggle-lbl"><input id="st-fault" type="checkbox"> Inject 1-Bit Catalyst Fault</label>
       </div>
-      <div id="st-output"></div>
+      <div id="st-sparkline" class="dag-box" style="display:none;" aria-label="Live Catalytic Telemetry Latency and Integrity Sparkline"></div>
+      <div id="st-output" aria-live="polite"></div>
     </div>
 
     <!-- TAB 3: NON-COMMUTATIVE MATRIX LIFT A^7 (Cor. 5.4) -->
@@ -452,13 +465,13 @@ node catalytic-engine.js bench</code></pre>
           </select>
         </div>
         <div class="field">
-          <label for="fuzz-n">Adversarial Dirty-Catalyst Fuzz Trials (6 engines incl. prog9_x15 &amp; Z/mZ)</label>
+          <label for="fuzz-n">Adversarial Dirty-Catalyst Fuzz Trials (7 engines incl. large-N T1 &amp; Z/mZ)</label>
           <input id="fuzz-n" type="number" min="25" max="3000" value="600">
         </div>
       </div>
       <div class="inline-controls">
         <button class="action-btn primary" type="button" onclick="runT4Live()">Run T4 Zero-Workspace Product</button>
-        <button class="action-btn primary" type="button" onclick="runFuzzerLive()">Run 6-Engine Adversarial Fuzzer</button>
+        <button class="action-btn primary" type="button" onclick="runFuzzerLive()">Run 7-Engine Adversarial Fuzzer</button>
         <label class="toggle-lbl"><input id="t4-fault" type="checkbox"> Inject 1-Bit T4 Fault</label>
       </div>
       <div id="t4-output"></div>
@@ -663,9 +676,85 @@ node catalytic-engine.js bench</code></pre>
   let telemetryTimer = null;
   let telemetryTokens = [];
   let telemetryTicks = 0;
+  let telemetryHistory = [];
 
   function esc(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function renderHorizonSvg(horizon) {
+    const pts = (horizon && horizon.points) || [];
+    if (!pts.length) return '';
+    const w = 780;
+    const h = 190;
+    const padL = 46;
+    const padR = 18;
+    const padT = 24;
+    const padB = 34;
+    const plotW = w - padL - padR;
+    const plotH = h - padT - padB;
+    const logVals = pts.flatMap((pt) => [
+      Math.log10(Math.max(1, Number(pt.baselineAccesses))),
+      Math.log10(Math.max(1, Number(pt.adaptiveAccesses)))
+    ]);
+    const maxLog = Math.max(2, ...logVals);
+    const xAt = (i) => padL + (pts.length > 1 ? (i / (pts.length - 1)) * plotW : plotW / 2);
+    const yAt = (v) => padT + plotH - (Math.log10(Math.max(1, Number(v))) / maxLog) * plotH;
+
+    const basePath = pts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${xAt(i).toFixed(1)} ${yAt(pt.baselineAccesses).toFixed(1)}`).join(' ');
+    const adaptPath = pts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${xAt(i).toFixed(1)} ${yAt(pt.adaptiveAccesses).toFixed(1)}`).join(' ');
+    const grid = [0, 1, 2, 3].filter((g) => g <= Math.ceil(maxLog)).map((g) => {
+      const y = (padT + plotH - (g / maxLog) * plotH).toFixed(1);
+      return `<line x1="${padL}" y1="${y}" x2="${w - padR}" y2="${y}" stroke="#1e293b" stroke-width="1"/>` +
+             `<text x="${padL - 6}" y="${Number(y) + 3}" text-anchor="end" fill="#94a3b8" font-size="9.5">10^${g}</text>`;
+    }).join('');
+    const dots = pts.map((pt, i) => {
+      const cx = xAt(i).toFixed(1);
+      const cyA = yAt(pt.adaptiveAccesses).toFixed(1);
+      const cyB = yAt(pt.baselineAccesses).toFixed(1);
+      const lbl = i % 2 === 0 || i === pts.length - 1
+        ? `<text x="${cx}" y="${h - 10}" text-anchor="middle" fill="#94a3b8" font-size="9">${esc(pt.N)}</text>` : '';
+      return `<circle cx="${cx}" cy="${cyB}" r="2.6" fill="#f97316"/>` +
+             `<circle cx="${cx}" cy="${cyA}" r="3.2" fill="${pt.feasible ? '#34d399' : '#fb7185'}"><title>N=${esc(pt.N)}: Adaptive ${esc(pt.adaptiveAccesses)} vs Baseline ${esc(pt.baselineAccesses)} (${pt.speedupFactor}x)</title></circle>` + lbl;
+    }).join('');
+
+    return `<svg viewBox="0 0 ${w} ${h}" width="100%" style="max-width:${w}px; display:block;" role="img" aria-label="Predictive Adaptive Horizon Log-Scale Access Curve">` +
+      `<g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">` +
+      `<text x="${padL}" y="14" fill="#cbd5e1" font-size="10.5" font-weight="700">Log10 Accesses vs. Exponent N (mod ${esc(horizon.p === '0' ? 'exact Z/Q' : horizon.p)})</text>` +
+      `<text x="${w - padR}" y="14" text-anchor="end" fill="#34d399" font-size="10">&#9679; Adaptive Fork  <tspan fill="#f97316">&#9679; Vinciguerra r=3</tspan></text>` +
+      grid +
+      `<path d="${basePath}" fill="none" stroke="#f97316" stroke-width="1.8" stroke-dasharray="5,4"/>` +
+      `<path d="${adaptPath}" fill="none" stroke="#34d399" stroke-width="2.4"/>` +
+      dots +
+      `</g></svg>`;
+  }
+
+  function renderTelemetrySparkline(history) {
+    if (!history.length) return '';
+    const w = 680;
+    const h = 88;
+    const padL = 36;
+    const padR = 14;
+    const padT = 18;
+    const padB = 16;
+    const plotW = w - padL - padR;
+    const plotH = h - padT - padB;
+    const maxMs = Math.max(1, ...history.map((d) => d.ms));
+    const xAt = (i) => padL + (history.length > 1 ? (i / (history.length - 1)) * plotW : plotW / 2);
+    const yAt = (ms) => padT + plotH - (ms / maxMs) * plotH;
+    const path = history.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xAt(i).toFixed(1)} ${yAt(d.ms).toFixed(1)}`).join(' ');
+    const pts = history.map((d, i) =>
+      `<circle cx="${xAt(i).toFixed(1)}" cy="${yAt(d.ms).toFixed(1)}" r="3.4" fill="${d.verified ? '#34d399' : '#fb7185'}"/>`
+    ).join('');
+    const okCount = history.filter((d) => d.verified).length;
+    return `<svg viewBox="0 0 ${w} ${h}" width="100%" style="max-width:${w}px; display:block;" role="img" aria-label="Live Catalytic Telemetry Verification Sparkline">` +
+      `<g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">` +
+      `<text x="${padL}" y="12" fill="#cbd5e1" font-size="10" font-weight="700">Live Stream Latency (ms) &amp; Zero-Bit-Corruption Integrity (${okCount}/${history.length} clean)</text>` +
+      `<text x="${padL - 4}" y="${padT + 4}" text-anchor="end" fill="#94a3b8" font-size="9">${maxMs.toFixed(1)}</text>` +
+      `<text x="${padL - 4}" y="${padT + plotH + 3}" text-anchor="end" fill="#94a3b8" font-size="9">0</text>` +
+      `<line x1="${padL}" y1="${padT + plotH}" x2="${w - padR}" y2="${padT + plotH}" stroke="#23314d" stroke-width="1"/>` +
+      `<path d="${path}" fill="none" stroke="#38bdf8" stroke-width="1.8"/>` +
+      pts + `</g></svg>`;
   }
 
   function detectDeviceClass() {
@@ -777,7 +866,10 @@ node catalytic-engine.js bench</code></pre>
     document.getElementById('af-p').value = p;
     document.getElementById('af-x').value = x;
     updateAdaptivePredictor();
-    if (BigInt(n) <= 2000n && BigInt(p) >= 2n && wl !== 'matrix') {
+    const nb = BigInt(n);
+    const pb = BigInt(p);
+    const isT1Fast = pb >= 2n && window.CatalyticEngine.isPrimeBig(pb) && window.CatalyticEngine.digitSum(pb, nb) < Number(pb <= 128n ? pb : 128n);
+    if ((nb <= 2000n || isT1Fast) && pb >= 2n && wl !== 'matrix') {
       runAdaptiveLive();
     } else {
       document.getElementById('af-live-result').innerHTML = '';
@@ -789,6 +881,7 @@ node catalytic-engine.js bench</code></pre>
     const box = document.getElementById('af-predict-box');
     const dagEl = document.getElementById('af-dag');
     const barsEl = document.getElementById('af-bars');
+    const horEl = document.getElementById('af-horizon-panel');
     if (!E || !box || !barsEl) return;
     try {
       const workload = document.getElementById('af-workload').value;
@@ -819,6 +912,10 @@ node catalytic-engine.js bench</code></pre>
         `<em>${esc(res.device.hint)}</em>`;
 
       if (dagEl) dagEl.innerHTML = renderForkDagSvg(res);
+      if (horEl && E.computeAdaptiveHorizon) {
+        const horizon = E.computeAdaptiveHorizon(p, { workload, matrixDim });
+        horEl.innerHTML = renderHorizonSvg(horizon);
+      }
 
       const rows = [
         { name: 'Vinciguerra r=3 Baseline (log_5 4 = 0.8614)', val: bBase, cls: 'bar-base', extra: c.vinciguerra_r3_x5.validForP ? '' : ' [invalid mod p]' },
@@ -836,6 +933,7 @@ node catalytic-engine.js bench</code></pre>
       box.className = 'status-box bad';
       box.textContent = 'Predictor input notice: ' + err.message;
       if (dagEl) dagEl.innerHTML = '';
+      if (horEl) horEl.innerHTML = '';
       barsEl.innerHTML = '';
     }
   };
@@ -870,8 +968,11 @@ node catalytic-engine.js bench</code></pre>
         throw new Error(`For exact Z (p=0), direct 3-register literal traces exist for N in {5, 7, 9, 11, 13, 15}. For arbitrary N=${N}, set a modulus p >= 2 (e.g., p=1009 or composite 1022117) or click "Animate Optimal prog8_x13".`);
       }
       if (p < 2n) throw new Error('Modulus p must be 0 (exact Z trace) or >= 2 (prime F_p or valid composite ring Z/mZ).');
-      if (N > 2000n) {
-        throw new Error(`N=${N} is great for the Adaptive Fork predictor above! For instant literal step-by-step BigInt execution on mobile/watch, set N <= 2000 (try N=20, 91, or 169).`);
+      const prePlan = E.planAdaptiveFork({ workload: 'scalar', N, p });
+      const strat = prePlan.comparison.adaptive_fork.strategy;
+      const isFastT1 = strat === 'T1a_FROBENIUS_COLLAPSE' || strat === 'T2_BILINEAR_FROBENIUS' || (strat === 'T1_DIGIT_SUM_DIRECT' && E.digitSum(p, N) <= 128);
+      if (N > 2000n && !isFastT1) {
+        throw new Error(`N=${N} is great for the Adaptive Fork predictor above! For instant literal step-by-step BigInt execution on mobile/watch, set N <= 2000 (or try a huge prime-field collapse like N=1018082, p=1009!).`);
       }
 
       const O0 = E.textToBigInt(payload + '|O', p);
@@ -935,6 +1036,7 @@ node catalytic-engine.js bench</code></pre>
       let sourceDesc;
       if (fileInput && fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
+        if (file.size === 0) throw new Error(`Selected file "${file.name}" is empty (0 bytes). Pick any non-empty file.`);
         const take = Math.min(file.size, maxBytes);
         const buf = await file.slice(0, take).arrayBuffer();
         rawBytes = new Uint8Array(buf);
@@ -986,7 +1088,7 @@ node catalytic-engine.js bench</code></pre>
 
   window.runDeviceBenchUI = function () {
     const E = window.CatalyticEngine;
-    const out = document.getElementById('af-live-result');
+    const out = document.getElementById('af-bench-panel');
     try {
       const cls = detectDeviceClass();
       const iters = cls === 'watch' ? 2 : (cls === 'phone' ? 4 : 6);
@@ -1000,6 +1102,21 @@ node catalytic-engine.js bench</code></pre>
     } catch (err) {
       out.innerHTML = `<div class="status-box bad"><strong>Benchmark error:</strong> ${esc(err.message)}</div>`;
     }
+  };
+
+  window.verifyLastCertificateUI = function () {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('af-cert-verify');
+    if (!out) return;
+    if (!lastCertificate) runAdaptiveLive();
+    if (!lastCertificate) {
+      out.innerHTML = '<div class="status-box note">Run any proof above first to generate a certificate.</div>';
+      return;
+    }
+    const v = E.verifyCertificate(lastCertificate);
+    out.innerHTML = `<div class="status-box ${v.ok ? 'ok' : 'bad'}">` +
+      `<strong>Independent Certificate Audit (${esc(v.kind || lastCertificate.kind)}):</strong> ${v.ok ? 'PASS — Independently Re-Verified!' : 'FAILED AUDIT!'}<br>` +
+      `${esc(v.reason)}</div>`;
   };
 
   window.exportProofCertificate = function () {
@@ -1093,7 +1210,7 @@ node catalytic-engine.js bench</code></pre>
 
   window.runPass3Trace = function (t) {
     const E = window.CatalyticEngine;
-    const out = document.getElementById('af-live-result');
+    const out = document.getElementById('af-anim-panel');
     if (traceAnimTimer) { clearInterval(traceAnimTimer); traceAnimTimer = null; }
     try {
       const p = BigInt(document.getElementById('af-p').value.trim() || '0');
@@ -1156,6 +1273,9 @@ node catalytic-engine.js bench</code></pre>
     const hz = reduced ? 1 : (cls === 'watch' ? 1 : (cls === 'phone' ? 2 : 4));
     telemetryTokens = [];
     telemetryTicks = 0;
+    telemetryHistory = [];
+    const spEl = document.getElementById('st-sparkline');
+    if (spEl) spEl.style.display = 'block';
     if (btn) {
       btn.textContent = `Stop Live Telemetry (${hz} Hz · ${cls})`;
       btn.className = 'action-btn danger';
@@ -1192,9 +1312,16 @@ node catalytic-engine.js bench</code></pre>
 
       const t0 = performance.now();
       const res = E.execStreamingMoment(freqVec, D, p, { engine, faultBit });
-      const ms = (performance.now() - t0).toFixed(2);
+      const msNum = Math.max(0.01, performance.now() - t0);
+      const ms = msNum.toFixed(2);
       const ratio = res.passes > 0 ? (res.vinciguerraBaselinePasses / res.passes).toFixed(2) : '1.00';
       const livePrefix = isLiveTick ? `<span class="pulse-dot"></span>LIVE TICK #${telemetryTicks} &middot; ` : '';
+      if (isLiveTick) {
+        telemetryHistory.push({ ms: msNum, verified: res.verified });
+        if (telemetryHistory.length > 24) telemetryHistory.shift();
+        const spEl = document.getElementById('st-sparkline');
+        if (spEl) spEl.innerHTML = renderTelemetrySparkline(telemetryHistory);
+      }
 
       out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
         `${livePrefix}<strong>${res.verified ? 'PASS — Exact Catalytic Frequency Moment F_' + esc(res.D) : 'INTEGRITY ALERT — Fault Caught!'}</strong> (${ms} ms)<br>` +
@@ -1271,7 +1398,7 @@ node catalytic-engine.js bench</code></pre>
     const E = window.CatalyticEngine;
     const out = document.getElementById('t2-output');
     try {
-      const k = parseInt(document.getElementById('t2-k').value || '8', 10);
+      const k = parseInt(document.getElementById('t2-k').value || '5', 10);
       const x = parseInt(document.getElementById('t2-x').value || '87', 10);
       const faultBit = document.getElementById('t2-fault').checked;
       const res = E.execT2BilinearFrobenius(k, x, undefined, { faultBit });
@@ -1313,23 +1440,42 @@ node catalytic-engine.js bench</code></pre>
       const n = Math.max(25, Math.min(3000, parseInt(document.getElementById('fuzz-n').value || '600', 10)));
       const res = E.runAdversarialFuzz(n, 20261125);
       out.innerHTML = `<div class="status-box ${res.failed === 0 ? 'ok' : 'bad'}">` +
-        `<strong>Live 6-Engine Adversarial Dirty-Catalyst Stress Test Complete:</strong> ` +
-        `<strong>${res.passed} / ${res.trials} PASS</strong> (${res.failed} failures) across T1, T2, T3a&ndash;T3g (incl. prog9_x15), T3h (incl. bad-prime p=137 dodge &amp; composite rings Z/mZ), R3 Matrix Lift, &amp; T4 in <strong>${res.elapsedMs} ms</strong> (${res.trialsPerSec.toLocaleString()} verified trials/sec on this device).</div>`;
+        `<strong>Live 7-Engine Adversarial Dirty-Catalyst Stress Test Complete:</strong> ` +
+        `<strong>${res.passed} / ${res.trials} PASS</strong> (${res.failed} failures) across T1 (incl. large-N Frobenius/digit-sum), T2, T3a&ndash;T3g (incl. prog9_x15), T3h (incl. bad-prime p=137 dodge &amp; composite rings Z/mZ), R3 Matrix Lift, &amp; T4 in <strong>${res.elapsedMs} ms</strong> (${res.trialsPerSec.toLocaleString()} verified trials/sec on this device).</div>`;
     } catch (err) {
       out.innerHTML = `<div class="status-box bad">${esc(err.message)}</div>`;
     }
   };
 
-  // Parse optional shareable deep-link query parameters (?wl=scalar&N=91&p=1009&x=7)
+  // Parse optional shareable deep-link query parameters with strict input sanitization
   try {
     const q = new URLSearchParams(location.search);
     if (q.get('wl') && ['scalar', 'streaming', 'matrix'].includes(q.get('wl'))) {
       document.getElementById('af-workload').value = q.get('wl');
     }
-    if (q.get('N')) document.getElementById('af-n').value = q.get('N');
-    if (q.get('p')) document.getElementById('af-p').value = q.get('p');
-    if (q.get('x')) document.getElementById('af-x').value = q.get('x');
+    if (q.get('N') && /^\d{1,19}$/.test(q.get('N').trim()) && BigInt(q.get('N').trim()) >= 1n) {
+      document.getElementById('af-n').value = q.get('N').trim();
+    }
+    if (q.get('p') && /^\d{1,19}$/.test(q.get('p').trim()) && BigInt(q.get('p').trim()) !== 1n) {
+      document.getElementById('af-p').value = q.get('p').trim();
+    }
+    if (q.get('x') && /^-?\d{1,19}$/.test(q.get('x').trim())) {
+      document.getElementById('af-x').value = q.get('x').trim();
+    }
   } catch (_) {}
+
+  // WAI-ARIA Left/Right arrow keyboard navigation on the tab bar
+  const tabBtns = Array.from(document.querySelectorAll('.tab-bar .tab-btn'));
+  tabBtns.forEach((btn, idx) => {
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const next = tabBtns[(idx + (e.key === 'ArrowRight' ? 1 : -1) + tabBtns.length) % tabBtns.length];
+        next.focus();
+        next.click();
+      }
+    });
+  });
 
   // Capture native PWA install prompt when supported
   window.addEventListener('beforeinstallprompt', (e) => {

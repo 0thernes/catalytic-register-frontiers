@@ -2,13 +2,15 @@
 // Network-first with instant offline cache fallback Service Worker for the
 // Catalytic Register Frontiers Adaptive Forking PWA.
 // Zero telemetry, zero external network requests, 100% client-side computation.
-const CACHE_NAME = 'catalytic-adaptive-fork-v1.3.0';
-const ASSETS = [
+const CACHE_NAME = 'catalytic-adaptive-fork-v1.4.0';
+const CORE_ASSETS = [
   './',
   './index.html',
   './catalytic-engine.js',
   './manifest.webmanifest',
-  './icon.svg',
+  './icon.svg'
+];
+const OPTIONAL_ASSETS = [
   './social-preview.svg',
   './blueprint/lean_axioms.txt',
   './blueprint/six_kernel_audit.txt',
@@ -17,7 +19,11 @@ const ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await cache.addAll(CORE_ASSETS);
+      // Optional Pages-only assets are cached best-effort so local/self-hosted servers still install cleanly
+      await Promise.allSettled(OPTIONAL_ASSETS.map((url) => cache.add(url)));
+    }).then(() => self.skipWaiting())
   );
 });
 

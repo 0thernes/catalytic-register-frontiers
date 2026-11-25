@@ -259,7 +259,7 @@ def main() -> None:
         print(f"No certificate directory found at {cert_dir}", file=sys.stderr)
         sys.exit(1)
 
-    pairs = sorted(cert_dir.glob("*.cnf"))
+    pairs = sorted(p for p in cert_dir.iterdir() if p.is_file() and p.suffix == ".cnf")
     if not pairs:
         print(f"No .cnf certificates found in {cert_dir}", file=sys.stderr)
         sys.exit(1)

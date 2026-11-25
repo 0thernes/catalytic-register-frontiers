@@ -796,17 +796,58 @@
       }
     } else {
       // Large-N Hybrid Top-Down Adaptive Forking (N > 4096, arbitrary BigInt!)
-      let chosenSpec = null;
+      // Evaluate EVERY feasible base-delta Cook-Mertz schedule + compete fairly against T1 prime-field digit-sum!
+      let bestHybrid = null;
       const priority = workload === 'matrix' ? [5, 4] : [8, 9, 7, 6, 5, 4];
+      const matScalars = 3 * matrixDim * matrixDim + (matrixDim * matrixDim * (matrixDim * matrixDim + 1)) / 2;
+
       for (const tCand of priority) {
         const sp = PROGRAMS_R3[tCand];
-        if (isGadgetFeasible(sp, p, workload) && isRadixScheduleValid(sp, N, p)) {
-          chosenSpec = sp;
-          break;
+        if (!isGadgetFeasible(sp, p, workload) || !isRadixScheduleValid(sp, N, p)) continue;
+        const ds = baseDigits(sp.degree, N);
+        let hybridAcc = 0n;
+        let tPow = 1n;
+        let dPow = 1n;
+        for (let i = 0; i < ds.length; i++) {
+          const b = ds[i];
+          const termExp = BigInt(b) * dPow;
+          let ci = b === 0 ? 0n : BigInt(b + 1) * tPow;
+          if (b > 0 && termExp <= BigInt(DP_LIMIT)) {
+            const dpVal = costW3[Number(termExp)];
+            if (Number.isFinite(dpVal) && BigInt(dpVal) < ci) {
+              ci = BigInt(dpVal);
+            }
+          }
+          hybridAcc = 2n * ci + 2n * hybridAcc;
+          tPow *= BigInt(sp.t);
+          dPow *= BigInt(sp.degree);
+        }
+        const candId = `hybrid_${sp.id}`;
+        forkCandidates.push({
+          id: candId,
+          label: `Hybrid ${sp.id} (Base ${sp.degree})`,
+          accesses: hybridAcc.toString(),
+          status: 'candidate',
+          reason: `Base-${sp.degree} (${ds.length} digits, exp ${sp.exponent.toFixed(5)}) + DP leaves`
+        });
+        if (!bestHybrid || hybridAcc < bestHybrid.accesses) {
+          bestHybrid = { spec: sp, ds, accesses: hybridAcc, id: candId };
         }
       }
-      if (!chosenSpec) {
-        const matScalars = 3 * matrixDim * matrixDim + (matrixDim * matrixDim * (matrixDim * matrixDim + 1)) / 2;
+
+      // Compete T1 Prime-Field Digit-Sum directly against all feasible hybrid schedules (fixes large-N T1 optimality!)
+      if (t1DirectCandidate && (!bestHybrid || t1DirectCandidate.accesses < bestHybrid.accesses)) {
+        winningForkId = 't1_direct';
+        adaptiveBest = {
+          strategy: t1DirectCandidate.strategy,
+          label: t1DirectCandidate.label,
+          accesses: t1DirectCandidate.accesses,
+          registers: t1DirectCandidate.registers,
+          tree: t1DirectCandidate.tree,
+          plan: { kind: 't1_direct', n: N },
+          feasible: true
+        };
+      } else if (!bestHybrid) {
         adaptiveBest = {
           strategy: 'MODULUS_CONSTRAINT_WARNING',
           label: `Modulus p=${p} is incompatible with all verified large-N schedules at N=${N} (need gcd(D_t, p)=1 and required factorials invertible mod p)`,
@@ -816,47 +857,45 @@
           feasible: false
         };
       } else {
-        const ds = baseDigits(chosenSpec.degree, N);
-        let hybridAcc = 0n;
-        let tPow = 1n;
-        let dPow = 1n;
-        for (let i = 0; i < ds.length; i++) {
-          const b = ds[i];
-          const termExp = BigInt(b) * dPow;
-          let ci = b === 0 ? 0n : BigInt(b + 1) * tPow;
-          if (b > 0 && termExp <= BigInt(DP_LIMIT) && costW3[Number(termExp)] < Number(ci)) {
-            ci = BigInt(costW3[Number(termExp)]);
-          }
-          hybridAcc = 2n * ci + 2n * hybridAcc;
-          tPow *= BigInt(chosenSpec.t);
-          dPow *= BigInt(chosenSpec.degree);
-        }
-        const matScalars = 3 * matrixDim * matrixDim + (matrixDim * matrixDim * (matrixDim * matrixDim + 1)) / 2;
-        winningForkId = `hybrid_${chosenSpec.id}`;
-        forkCandidates.push({
-          id: winningForkId,
-          label: `Hybrid ${chosenSpec.id} (Base ${chosenSpec.degree})`,
-          accesses: hybridAcc.toString(),
-          status: 'winner',
-          reason: `Optimal feasible exponent ${chosenSpec.exponent.toFixed(5)} + DP leaves`
-        });
+        const chosenSpec = bestHybrid.spec;
+        winningForkId = bestHybrid.id;
         adaptiveBest = {
           strategy: workload === 'matrix' ? 'ADAPTIVE_MATRIX_PROG5' : `ADAPTIVE_HYBRID_${chosenSpec.id.toUpperCase()}`,
           label: workload === 'matrix'
             ? `Adaptive Matrix Fork (${chosenSpec.id}, d=2 shear, zero extra scalar regs) + DP leaves`
             : `Adaptive Hybrid Fork (${chosenSpec.id} top radix + DP-optimal leaves)`,
-          accesses: hybridAcc,
+          accesses: bestHybrid.accesses,
           registers: workload === 'matrix' ? `${matScalars} scalar regs (m=${matrixDim}, exact r=3 tier)` : '4 passive regs',
-          tree: `Top radix ${chosenSpec.degree} (${chosenSpec.id}, ${ds.length} digits) -> DP leaf optimization for sub-exponents <= ${DP_LIMIT}`,
+          tree: `Top radix ${chosenSpec.degree} (${chosenSpec.id}, ${bestHybrid.ds.length} digits) -> DP leaf optimization for sub-exponents <= ${DP_LIMIT}`,
           chosenSpecId: chosenSpec.id,
           feasible: true
         };
       }
     }
 
-    // Mark the single winning fork candidate clearly
+    // Mark the single winning fork candidate clearly AND guarantee the winner is ALWAYS retained in the SVG DAG!
     for (const fc of forkCandidates) {
       if (fc.id === winningForkId) fc.status = 'winner';
+    }
+    const orderedCandidates = [];
+    const winners = forkCandidates.filter((c) => c.status === 'winner');
+    const pruned = forkCandidates.filter((c) => c.status === 'pruned');
+    const alts = forkCandidates
+      .filter((c) => c.status === 'candidate')
+      .sort((a, b) => {
+        const ba = /^\d+$/.test(a.accesses) ? BigInt(a.accesses) : (1n << 200n);
+        const bb = /^\d+$/.test(b.accesses) ? BigInt(b.accesses) : (1n << 200n);
+        return ba < bb ? -1 : (ba > bb ? 1 : 0);
+      });
+    orderedCandidates.push(...winners.slice(0, 1));
+    orderedCandidates.push(...pruned.slice(0, 2));
+    for (const a of alts) {
+      if (orderedCandidates.length >= 7) break;
+      orderedCandidates.push(a);
+    }
+    for (const pr of pruned.slice(2)) {
+      if (orderedCandidates.length >= 7) break;
+      orderedCandidates.push(pr);
     }
 
     // Exact BigInt-safe speedup & percentage calculation (never overflows Number even for N = 10^30!)
@@ -887,7 +926,7 @@
       matrixDim,
       device: deviceBudgets[deviceClass] || deviceBudgets.desktop,
       internalPlan: adaptiveBest.plan || null,
-      forkCandidates: forkCandidates.slice(0, 7),
+      forkCandidates: orderedCandidates,
       comparison: {
         vinciguerra_r3_x5: { accesses: base4Acc.toString(), exponent: '0.861353', validForP: p4Valid },
         prog5_x7_T3a: { accesses: prog5Acc.toString(), exponent: '0.827087', validForP: p5Valid, asympGainVsBase: asympRatio5 },
@@ -1086,133 +1125,12 @@
 
     let forcedRadixSpec = null;
 
-    // If adaptive mode AND N <= 4096, execute the LITERAL DP-optimal Adaptive Fork plan!
-    if (engineChoice === 'adaptive' && N <= 4096n) {
+    // If adaptive mode, ALWAYS check exact Frobenius / T1 prime-field collapse for ANY BigInt N >= 2!
+    if (engineChoice === 'adaptive') {
       const planRes = planAdaptiveFork({ workload: 'scalar', N, p });
-      const plan = planRes.internalPlan;
-      const baseOracle = (st3, dstIdx, _u, _v, alpha) => {
-        const out = [st3[0], st3[1], st3[2]];
-        out[dstIdx] = mod(out[dstIdx] + mod(alpha * x, p), p);
-        return { state: out, accesses: 1 };
-      };
+      const strat = planRes.comparison.adaptive_fork.strategy;
 
-      if (plan && plan.kind === 'direct_x1') {
-        let O = mod(O0 + x, p);
-        let u = u0;
-        if (faultBit) u = mod(u + 1n, p);
-        const expectedO = mod(O0 + x, p);
-        return {
-          engineUsed: 'adaptive:direct_x1 (1-reg, 1 access)',
-          N: '1', p: p.toString(), x: x.toString(), digits: [1],
-          initial: { O: O0, u: u0, r1: r10, r2: r20 },
-          midScramble: { O, u, r1: r10, r2: r20 },
-          final: { O, u, r1: r10, r2: r20 },
-          expectedO, accesses: 1,
-          vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
-          outputExact: O === expectedO, catalystsRestored: u === u0, verified: O === expectedO && u === u0
-        };
-      }
-      if (plan && plan.kind === 'direct_pass3') {
-        const r3 = execPass3(plan.t, x, p, { O0, u0, v0: r10, faultBit });
-        const mid = r3.trace[Math.floor(r3.trace.length / 2)] || r3.final;
-        return {
-          engineUsed: `adaptive:${plan.gadget} (direct 3-reg)`,
-          N: N.toString(), p: p.toString(), x: x.toString(), digits: [Number(N)],
-          initial: { O: O0, u: u0, r1: r10, r2: r20 },
-          midScramble: { O: mid.O, u: mid.u, r1: mid.v, r2: r20 },
-          final: { O: r3.final.O, u: r3.final.u, r1: r3.final.v, r2: r20 },
-          expectedO: r3.expectedO, accesses: r3.accesses,
-          vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
-          outputExact: r3.outputExact, catalystsRestored: r3.catalystsRestored, verified: r3.verified
-        };
-      }
-      if (plan && (plan.kind === 'direct_digit' || plan.kind === 't1_direct')) {
-        const nInt = Number(N);
-        const s = plan.kind === 't1_direct' ? digitSum(p, N) : nInt;
-        const invFact = modInv(factorialMod(s, p), p);
-        let O = O0;
-        let u = u0;
-        let acc = 0;
-        let midScramble = null;
-        for (let a = 0; a <= s; a++) {
-          const sign = ((s - a) & 1) ? -1n : 1n;
-          const w = mod(invFact * sign * mod(binomExact(s, a), p), p);
-          O = mod(O + mod(w * modPow(u, nInt, p), p), p);
-          const step = a < s ? 1n : -BigInt(s);
-          u = mod(u + mod(step * x, p), p);
-          if (faultBit && a === 0) u = mod(u + 1n, p);
-          if (a === Math.floor(s / 2)) midScramble = { O, u, r1: r10, r2: r20 };
-          acc += 1;
-        }
-        const expectedO = mod(O0 + modPow(x, N, p), p);
-        return {
-          engineUsed: `adaptive:${plan.kind} (2-reg passive)`,
-          N: N.toString(), p: p.toString(), x: x.toString(), digits: [nInt],
-          initial: { O: O0, u: u0, r1: r10, r2: r20 },
-          midScramble: midScramble || { O, u, r1: r10, r2: r20 },
-          final: { O, u, r1: r10, r2: r20 },
-          expectedO, accesses: acc,
-          vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
-          outputExact: O === expectedO, catalystsRestored: u === u0, verified: O === expectedO && u === u0
-        };
-      }
-      if (plan && plan.kind === 'wrap1_work3') {
-        let O = mod(O0 - u0, p);
-        let work = [u0, r10, r20];
-        const rPlus = execWork3PlanNode(plan.work3Table, plan.n, p, work, 0, 1, 2, 1n, baseOracle);
-        work = rPlus.state;
-        const midScramble = { O, u: work[0], r1: work[1], r2: work[2] };
-        if (faultBit) work[1] = mod(work[1] + 1n, p);
-        O = mod(O + work[0], p);
-        const rMinus = execWork3PlanNode(plan.work3Table, plan.n, p, work, 0, 1, 2, -1n, baseOracle);
-        work = rMinus.state;
-        const expectedO = mod(O0 + modPow(x, N, p), p);
-        const restored = work[0] === u0 && work[1] === r10 && work[2] === r20;
-        return {
-          engineUsed: `adaptive:wrap1_compose(${plan.work3Plan.gadget}*x^${plan.work3Plan.child})`,
-          N: N.toString(), p: p.toString(), x: x.toString(), digits: [plan.n],
-          initial: { O: O0, u: u0, r1: r10, r2: r20 },
-          midScramble,
-          final: { O, u: work[0], r1: work[1], r2: work[2] },
-          expectedO, accesses: rPlus.accesses + rMinus.accesses,
-          vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
-          outputExact: O === expectedO, catalystsRestored: restored, verified: O === expectedO && restored
-        };
-      }
-      if (plan && plan.kind === 'gray_cm2_fork') {
-        const inv2 = modInv(2n, p);
-        let O = O0;
-        let work = [u0, r10, r20];
-        let acc = 0;
-        O = mod(O + mod(inv2 * modPow(work[0], 2, p), p), p);
-        let sub = execWork3PlanNode(plan.work3Table, plan.a, p, work, 0, 1, 2, 1n, baseOracle);
-        work = sub.state; acc += sub.accesses;
-        if (faultBit) work[1] = mod(work[1] + 1n, p);
-        O = mod(O - mod(inv2 * modPow(work[0], 2, p), p), p);
-        sub = execWork3PlanNode(plan.work3Table, plan.b, p, work, 0, 1, 2, 1n, baseOracle);
-        work = sub.state; acc += sub.accesses;
-        const midScramble = { O, u: work[0], r1: work[1], r2: work[2] };
-        O = mod(O + mod(inv2 * modPow(work[0], 2, p), p), p);
-        sub = execWork3PlanNode(plan.work3Table, plan.a, p, work, 0, 1, 2, -1n, baseOracle);
-        work = sub.state; acc += sub.accesses;
-        O = mod(O - mod(inv2 * modPow(work[0], 2, p), p), p);
-        sub = execWork3PlanNode(plan.work3Table, plan.b, p, work, 0, 1, 2, -1n, baseOracle);
-        work = sub.state; acc += sub.accesses;
-        const expectedO = mod(O0 + modPow(x, N, p), p);
-        const restored = work[0] === u0 && work[1] === r10 && work[2] === r20;
-        return {
-          engineUsed: `adaptive:gray_cm2(x^${plan.a}*x^${plan.b})`,
-          N: N.toString(), p: p.toString(), x: x.toString(), digits: [plan.a, plan.b],
-          initial: { O: O0, u: u0, r1: r10, r2: r20 },
-          midScramble,
-          final: { O, u: work[0], r1: work[1], r2: work[2] },
-          expectedO, accesses: acc,
-          vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
-          outputExact: O === expectedO, catalystsRestored: restored, verified: O === expectedO && restored
-        };
-      }
-      if (planRes.comparison.adaptive_fork.strategy === 'T1a_FROBENIUS_COLLAPSE' ||
-          planRes.comparison.adaptive_fork.strategy === 'T2_BILINEAR_FROBENIUS') {
+      if (strat === 'T1a_FROBENIUS_COLLAPSE' || strat === 'T2_BILINEAR_FROBENIUS') {
         let O = O0;
         let u = u0;
         O = mod(O - modPow(u, N, p), p);
@@ -1224,17 +1142,172 @@
         const expectedO = mod(O0 + modPow(x, N, p), p);
         return {
           engineUsed: 'adaptive:T1a_frobenius_2access',
-          N: N.toString(), p: p.toString(), x: x.toString(), digits: [Number(N)],
+          N: N.toString(), p: p.toString(), x: x.toString(), digits: [1],
           initial: { O: O0, u: u0, r1: r10, r2: r20 },
           midScramble,
           final: { O, u, r1: r10, r2: r20 },
           expectedO, accesses: 2,
-          vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
+          vinciguerraBaselineAccesses: exactFourRegAccesses(5, 4, N).toString(),
           outputExact: O === expectedO, catalystsRestored: u === u0, verified: O === expectedO && u === u0
         };
       }
-      if (plan && plan.kind === 'radix_fork' && PROGRAMS_R3[plan.t]) {
-        forcedRadixSpec = PROGRAMS_R3[plan.t];
+      if (strat === 'T1_DIGIT_SUM_DIRECT') {
+        const s = digitSum(p, N);
+        const invFact = modInv(factorialMod(s, p), p);
+        let O = O0;
+        let u = u0;
+        let acc = 0;
+        let midScramble = null;
+        for (let a = 0; a <= s; a++) {
+          const sign = ((s - a) & 1) ? -1n : 1n;
+          const w = mod(invFact * sign * mod(binomExact(s, a), p), p);
+          // Exact BigInt N exponentiation (never truncates via Number(N)!)
+          O = mod(O + mod(w * modPow(u, N, p), p), p);
+          const step = a < s ? 1n : -BigInt(s);
+          u = mod(u + mod(step * x, p), p);
+          if (faultBit && a === 0) u = mod(u + 1n, p);
+          if (a === Math.floor(s / 2)) midScramble = { O, u, r1: r10, r2: r20 };
+          acc += 1;
+        }
+        const expectedO = mod(O0 + modPow(x, N, p), p);
+        return {
+          engineUsed: 'adaptive:t1_direct (2-reg passive)',
+          N: N.toString(), p: p.toString(), x: x.toString(), digits: baseDigits(p, N),
+          initial: { O: O0, u: u0, r1: r10, r2: r20 },
+          midScramble: midScramble || { O, u, r1: r10, r2: r20 },
+          final: { O, u, r1: r10, r2: r20 },
+          expectedO, accesses: acc,
+          vinciguerraBaselineAccesses: exactFourRegAccesses(5, 4, N).toString(),
+          outputExact: O === expectedO, catalystsRestored: u === u0, verified: O === expectedO && u === u0
+        };
+      }
+
+      if (N <= 4096n) {
+        const plan = planRes.internalPlan;
+        const baseOracle = (st3, dstIdx, _u, _v, alpha) => {
+          const out = [st3[0], st3[1], st3[2]];
+          out[dstIdx] = mod(out[dstIdx] + mod(alpha * x, p), p);
+          return { state: out, accesses: 1 };
+        };
+
+        if (plan && plan.kind === 'direct_x1') {
+          let O = mod(O0 + x, p);
+          let u = u0;
+          if (faultBit) u = mod(u + 1n, p);
+          const expectedO = mod(O0 + x, p);
+          return {
+            engineUsed: 'adaptive:direct_x1 (1-reg, 1 access)',
+            N: '1', p: p.toString(), x: x.toString(), digits: [1],
+            initial: { O: O0, u: u0, r1: r10, r2: r20 },
+            midScramble: { O, u, r1: r10, r2: r20 },
+            final: { O, u, r1: r10, r2: r20 },
+            expectedO, accesses: 1,
+            vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
+            outputExact: O === expectedO, catalystsRestored: u === u0, verified: O === expectedO && u === u0
+          };
+        }
+        if (plan && plan.kind === 'direct_pass3') {
+          const r3 = execPass3(plan.t, x, p, { O0, u0, v0: r10, faultBit });
+          const mid = r3.trace[Math.floor(r3.trace.length / 2)] || r3.final;
+          return {
+            engineUsed: `adaptive:${plan.gadget} (direct 3-reg)`,
+            N: N.toString(), p: p.toString(), x: x.toString(), digits: [Number(N)],
+            initial: { O: O0, u: u0, r1: r10, r2: r20 },
+            midScramble: { O: mid.O, u: mid.u, r1: mid.v, r2: r20 },
+            final: { O: r3.final.O, u: r3.final.u, r1: r3.final.v, r2: r20 },
+            expectedO: r3.expectedO, accesses: r3.accesses,
+            vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
+            outputExact: r3.outputExact, catalystsRestored: r3.catalystsRestored, verified: r3.verified
+          };
+        }
+        if (plan && (plan.kind === 'direct_digit' || plan.kind === 't1_direct')) {
+          const nInt = Number(N);
+          const s = plan.kind === 't1_direct' ? digitSum(p, N) : nInt;
+          const invFact = modInv(factorialMod(s, p), p);
+          let O = O0;
+          let u = u0;
+          let acc = 0;
+          let midScramble = null;
+          for (let a = 0; a <= s; a++) {
+            const sign = ((s - a) & 1) ? -1n : 1n;
+            const w = mod(invFact * sign * mod(binomExact(s, a), p), p);
+            O = mod(O + mod(w * modPow(u, N, p), p), p);
+            const step = a < s ? 1n : -BigInt(s);
+            u = mod(u + mod(step * x, p), p);
+            if (faultBit && a === 0) u = mod(u + 1n, p);
+            if (a === Math.floor(s / 2)) midScramble = { O, u, r1: r10, r2: r20 };
+            acc += 1;
+          }
+          const expectedO = mod(O0 + modPow(x, N, p), p);
+          return {
+            engineUsed: `adaptive:${plan.kind} (2-reg passive)`,
+            N: N.toString(), p: p.toString(), x: x.toString(), digits: [nInt],
+            initial: { O: O0, u: u0, r1: r10, r2: r20 },
+            midScramble: midScramble || { O, u, r1: r10, r2: r20 },
+            final: { O, u, r1: r10, r2: r20 },
+            expectedO, accesses: acc,
+            vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
+            outputExact: O === expectedO, catalystsRestored: u === u0, verified: O === expectedO && u === u0
+          };
+        }
+        if (plan && plan.kind === 'wrap1_work3') {
+          let O = mod(O0 - u0, p);
+          let work = [u0, r10, r20];
+          const rPlus = execWork3PlanNode(plan.work3Table, plan.n, p, work, 0, 1, 2, 1n, baseOracle);
+          work = rPlus.state;
+          const midScramble = { O, u: work[0], r1: work[1], r2: work[2] };
+          if (faultBit) work[1] = mod(work[1] + 1n, p);
+          O = mod(O + work[0], p);
+          const rMinus = execWork3PlanNode(plan.work3Table, plan.n, p, work, 0, 1, 2, -1n, baseOracle);
+          work = rMinus.state;
+          const expectedO = mod(O0 + modPow(x, N, p), p);
+          const restored = work[0] === u0 && work[1] === r10 && work[2] === r20;
+          return {
+            engineUsed: `adaptive:wrap1_compose(${plan.work3Plan.gadget}*x^${plan.work3Plan.child})`,
+            N: N.toString(), p: p.toString(), x: x.toString(), digits: [plan.n],
+            initial: { O: O0, u: u0, r1: r10, r2: r20 },
+            midScramble,
+            final: { O, u: work[0], r1: work[1], r2: work[2] },
+            expectedO, accesses: rPlus.accesses + rMinus.accesses,
+            vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
+            outputExact: O === expectedO, catalystsRestored: restored, verified: O === expectedO && restored
+          };
+        }
+        if (plan && plan.kind === 'gray_cm2_fork') {
+          const inv2 = modInv(2n, p);
+          let O = O0;
+          let work = [u0, r10, r20];
+          let acc = 0;
+          O = mod(O + mod(inv2 * modPow(work[0], 2, p), p), p);
+          let sub = execWork3PlanNode(plan.work3Table, plan.a, p, work, 0, 1, 2, 1n, baseOracle);
+          work = sub.state; acc += sub.accesses;
+          if (faultBit) work[1] = mod(work[1] + 1n, p);
+          O = mod(O - mod(inv2 * modPow(work[0], 2, p), p), p);
+          sub = execWork3PlanNode(plan.work3Table, plan.b, p, work, 0, 1, 2, 1n, baseOracle);
+          work = sub.state; acc += sub.accesses;
+          const midScramble = { O, u: work[0], r1: work[1], r2: work[2] };
+          O = mod(O + mod(inv2 * modPow(work[0], 2, p), p), p);
+          sub = execWork3PlanNode(plan.work3Table, plan.a, p, work, 0, 1, 2, -1n, baseOracle);
+          work = sub.state; acc += sub.accesses;
+          O = mod(O - mod(inv2 * modPow(work[0], 2, p), p), p);
+          sub = execWork3PlanNode(plan.work3Table, plan.b, p, work, 0, 1, 2, -1n, baseOracle);
+          work = sub.state; acc += sub.accesses;
+          const expectedO = mod(O0 + modPow(x, N, p), p);
+          const restored = work[0] === u0 && work[1] === r10 && work[2] === r20;
+          return {
+            engineUsed: `adaptive:gray_cm2(x^${plan.a}*x^${plan.b})`,
+            N: N.toString(), p: p.toString(), x: x.toString(), digits: [plan.a, plan.b],
+            initial: { O: O0, u: u0, r1: r10, r2: r20 },
+            midScramble,
+            final: { O, u: work[0], r1: work[1], r2: work[2] },
+            expectedO, accesses: acc,
+            vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
+            outputExact: O === expectedO, catalystsRestored: restored, verified: O === expectedO && restored
+          };
+        }
+        if (plan && plan.kind === 'radix_fork' && PROGRAMS_R3[plan.t]) {
+          forcedRadixSpec = PROGRAMS_R3[plan.t];
+        }
       }
     }
 
@@ -1868,7 +1941,7 @@
     const gadgets = [4, 5, 6, 7, 8, 9];
 
     for (let i = 0; i < trials; i++) {
-      const mode = i % 6;
+      const mode = i % 7;
       let ok = false;
       if (mode === 0) {
         // Fuzz ALL 3-register engines prog4_x5 .. prog9_x15 over safe primes
@@ -1897,7 +1970,7 @@
       } else if (mode === 3) {
         // Fuzz T3h Adaptive Fork across prime F_1009 AND bad-prime dodging F_137 (137 | D_8!)
         const N = 1 + (nextU32() % 95);
-        const p = (i % 18 === 3) ? 137n : 1009n;
+        const p = (i % 21 === 3) ? 137n : 1009n;
         const res = execFourRegPowering(N, BigInt(nextU32()), p, {
           engine: 'adaptive',
           O0: BigInt(nextU32()),
@@ -1918,12 +1991,29 @@
           r20: BigInt(nextU32())
         });
         ok = res.verified;
-      } else {
+      } else if (mode === 5) {
         // Fuzz R3 non-commutative matrix lift mu_7(prog5_x7) over M_2(F_11 / F_13)
         const p = (nextU32() & 1) ? 11n : 13n;
         const A = [[BigInt(nextU32()), BigInt(nextU32())], [BigInt(nextU32()), BigInt(nextU32())]];
         const O0 = [[BigInt(nextU32()), BigInt(nextU32())], [BigInt(nextU32()), BigInt(nextU32())]];
         ok = execMatrixLiftProg5(A, p, { O0 }).verified;
+      } else {
+        // Fuzz Large-N T1 Prime-Field Frobenius & Digit-Sum Collapse (N up to > 10^6 in 2-4 accesses!)
+        const cases = [
+          { N: 65536n, p: 2n, maxAcc: 2 },
+          { N: 15751n, p: 5n, maxAcc: 4 },
+          { N: 1018081n, p: 1009n, maxAcc: 2 },
+          { N: 1018082n, p: 1009n, maxAcc: 3 }
+        ];
+        const c = cases[nextU32() % cases.length];
+        const res = execFourRegPowering(c.N, BigInt(nextU32()), c.p, {
+          engine: 'adaptive',
+          O0: BigInt(nextU32()),
+          u0: BigInt(nextU32()),
+          r10: BigInt(nextU32()),
+          r20: BigInt(nextU32())
+        });
+        ok = res.verified && res.accesses <= c.maxAcc;
       }
       if (ok) passed += 1;
       else failed += 1;
@@ -2012,8 +2102,96 @@
     };
   }
 
+  // =========================================================================
+  // 10. Predictive Adaptive Horizon Sweep & Independent Certificate Verifier
+  // =========================================================================
+
+  function computeAdaptiveHorizon(pIn, opts = {}) {
+    const p = BigInt(pIn ?? 1009);
+    const workload = opts.workload || 'scalar';
+    const matrixDim = Math.max(1, Number(opts.matrixDim ?? 4));
+    const points = opts.exponents || [5, 7, 9, 13, 15, 20, 25, 49, 64, 91, 121, 169, 256, 500, 1000, 2197];
+    const rows = [];
+    for (const nVal of points) {
+      const r = planAdaptiveFork({ workload, N: BigInt(nVal), p, matrixDim });
+      rows.push({
+        N: String(nVal),
+        baselineAccesses: r.comparison.vinciguerra_r3_x5.accesses,
+        adaptiveAccesses: r.comparison.adaptive_fork.accesses,
+        strategy: r.comparison.adaptive_fork.strategy,
+        feasible: r.comparison.adaptive_fork.feasible,
+        speedupFactor: Number(r.speedupFactor.toFixed(2)),
+        reductionPct: Number(r.reductionPct.toFixed(1))
+      });
+    }
+    return { p: p.toString(), workload, points: rows };
+  }
+
+  function verifyCertificate(cert) {
+    if (!cert || typeof cert !== 'object' || !cert.kind) {
+      return { ok: false, reason: 'Invalid certificate object (missing kind)' };
+    }
+    if (cert.kind === 'adaptive_fork_4reg') {
+      const N = BigInt(cert.N);
+      const p = BigInt(cert.p);
+      const x = BigInt(cert.x);
+      const plan = planAdaptiveFork({ workload: 'scalar', N, p });
+      const reRun = execFourRegPowering(N, x, p, { engine: 'adaptive' });
+      const accessMatch = String(reRun.accesses) === String(cert.accesses);
+      const engineMatch = reRun.engineUsed === cert.engineUsed;
+      const ok = Boolean(cert.verified) && reRun.verified && accessMatch && engineMatch && plan.comparison.adaptive_fork.feasible;
+      return {
+        ok,
+        kind: cert.kind,
+        recomputedAccesses: reRun.accesses,
+        claimedAccesses: cert.accesses,
+        engineMatch,
+        reason: ok ? 'Independent exact re-execution matched claimed engine, access count, and 0-bit catalyst restoration.' : 'Mismatch or failed verification on independent re-execution.'
+      };
+    }
+    if (cert.kind === 'catalytic_sha256_byte_vault') {
+      const N = BigInt(cert.N);
+      const p = BigInt(cert.p);
+      const plan = planAdaptiveFork({ workload: 'scalar', N, p });
+      const shaOk = Boolean(cert.sha256Before) && cert.sha256Before === cert.sha256After && cert.sha256Identical === true;
+      const sample = new Uint8Array([0x53, 0x65, 0x6e, 0x73, 0x6f, 0x72]);
+      const probe = execCatalyticByteVault(sample, N, 7n, p, { maxChunks: 2 });
+      const ok = Boolean(cert.verified) && shaOk && probe.verified && plan.comparison.adaptive_fork.feasible && String(probe.accessesPerChunk) === String(cert.accessesPerChunk);
+      return {
+        ok,
+        kind: cert.kind,
+        sha256Match: shaOk,
+        recomputedAccessesPerChunk: probe.accessesPerChunk,
+        reason: ok ? 'SHA-256 pre/post digest equality and independent chunk re-execution verified.' : 'Certificate SHA-256 or chunk access count mismatch.'
+      };
+    }
+    if (cert.kind === 'matrix_lift_prog5') {
+      const r = cert.result;
+      if (!r || !r.A || !r.p) return { ok: false, reason: 'Missing matrix payload' };
+      const reRun = execMatrixLiftProg5(r.A, BigInt(r.p));
+      const a7Match = JSON.stringify(reRun.A7) === JSON.stringify(r.A7);
+      const ok = Boolean(r.verified) && reRun.verified && a7Match;
+      return {
+        ok,
+        kind: cert.kind,
+        a7Match,
+        reason: ok ? 'Independent non-commutative mu_7(prog5_x7) re-execution matched A^7 identically.' : 'Matrix A^7 mismatch.'
+      };
+    }
+    if (cert.kind === 'device_calibration_benchmark') {
+      const b = cert.benchmark;
+      const ok = Boolean(b && b.verified && b.n91 && b.n91.adaptiveAccesses === 80 && b.n169 && b.n169.adaptiveAccesses === 128);
+      return {
+        ok,
+        kind: cert.kind,
+        reason: ok ? 'Benchmark access counts (80 @ N=91, 128 @ N=169) and exactness flags verified.' : 'Invalid benchmark certificate.'
+      };
+    }
+    return { ok: false, reason: `Unsupported certificate kind: ${cert.kind}` };
+  }
+
   const exportedApi = {
-    version: '1.3.0',
+    version: '1.4.0',
     PROGRAMS_R3,
     mod,
     gcd,
@@ -2039,25 +2217,46 @@
     execT2BilinearFrobenius,
     execT4BalancedProduct,
     runAdversarialFuzz,
-    runDeviceBenchmark
+    runDeviceBenchmark,
+    computeAdaptiveHorizon,
+    verifyCertificate
   };
 
   // Universal zero-dependency Node.js CLI entrypoint (laptops, desktops, servers, Termux, containers)
+  // Supports BOTH named flags (--N 169 --p 1009) AND clean positional arguments (plan 169 1009 4 scalar)!
   if (typeof require === 'function' && typeof module === 'object' && require.main === module) {
     const args = process.argv.slice(2);
     const cmd = args[0] || 'help';
-    const getArg = (flag, def) => {
-      const idx = args.indexOf(flag);
-      return idx >= 0 && idx + 1 < args.length ? args[idx + 1] : def;
+    const pos = [];
+    const flags = new Map();
+    const boolFlags = new Set();
+    for (let i = 1; i < args.length; i++) {
+      const a = args[i];
+      if (a.startsWith('--')) {
+        const next = args[i + 1];
+        if (next !== undefined && !next.startsWith('--')) {
+          flags.set(a, next);
+          i += 1;
+        } else {
+          boolFlags.add(a);
+        }
+      } else {
+        pos.push(a);
+      }
+    }
+    const getArg = (flag, posIdx, def) => {
+      if (flags.has(flag)) return flags.get(flag);
+      if (posIdx !== null && pos[posIdx] !== undefined) return pos[posIdx];
+      return def;
     };
     const bigReplacer = (_k, v) => (typeof v === 'bigint' ? v.toString() : v);
     try {
       if (cmd === 'plan') {
         const res = planAdaptiveFork({
-          N: BigInt(getArg('--N', '91')),
-          p: BigInt(getArg('--p', '1009')),
-          workload: getArg('--workload', 'scalar'),
-          matrixDim: Number(getArg('--m', '4'))
+          N: BigInt(getArg('--N', 0, '91')),
+          p: BigInt(getArg('--p', 1, '1009')),
+          matrixDim: Number(getArg('--m', 2, '4')),
+          workload: getArg('--workload', 3, 'scalar')
         });
         console.log(JSON.stringify({
           version: exportedApi.version,
@@ -2071,23 +2270,23 @@
         }, bigReplacer, 2));
       } else if (cmd === 'run') {
         const res = execFourRegPowering(
-          BigInt(getArg('--N', '91')),
-          BigInt(getArg('--x', '7')),
-          BigInt(getArg('--p', '1009')),
-          { engine: getArg('--engine', 'adaptive'), faultBit: args.includes('--fault') }
+          BigInt(getArg('--N', 0, '91')),
+          BigInt(getArg('--x', 1, '7')),
+          BigInt(getArg('--p', 2, '1009')),
+          { engine: getArg('--engine', 3, 'adaptive'), faultBit: boolFlags.has('--fault') }
         );
         console.log(JSON.stringify(res, bigReplacer, 2));
         if (!res.verified) process.exitCode = 2;
       } else if (cmd === 'vault') {
         const crypto = require('crypto');
-        const payload = args[1] && !args[1].startsWith('--') ? args[1] : 'SensorBuffer:98.6F|Battery:84%|Keys:OK';
+        const payload = getArg('--text', 0, 'SensorBuffer:98.6F|Battery:84%|Keys:OK');
         const raw = Buffer.from(payload, 'utf8');
         const res = execCatalyticByteVault(
           new Uint8Array(raw),
-          BigInt(getArg('--N', '91')),
-          BigInt(getArg('--x', '7')),
-          BigInt(getArg('--p', '1009')),
-          { faultBit: args.includes('--fault') }
+          BigInt(getArg('--N', 1, '91')),
+          BigInt(getArg('--x', 3, '7')),
+          BigInt(getArg('--p', 2, '1009')),
+          { faultBit: boolFlags.has('--fault') }
         );
         const hBefore = crypto.createHash('sha256').update(res.beforeBytes).digest('hex');
         const hMid = crypto.createHash('sha256').update(res.midScrambleBytes).digest('hex');
@@ -2103,22 +2302,36 @@
           verified: res.verified && hBefore === hAfter
         }, null, 2));
         if (!(res.verified && hBefore === hAfter)) process.exitCode = 2;
+      } else if (cmd === 'horizon') {
+        const pVal = BigInt(getArg('--p', 0, '1009'));
+        const wl = getArg('--workload', 1, 'scalar');
+        console.log(JSON.stringify(computeAdaptiveHorizon(pVal, { workload: wl }), null, 2));
+      } else if (cmd === 'verify') {
+        const fs = require('fs');
+        const certPath = getArg('--file', 0, '');
+        if (!certPath) throw new Error('Provide a JSON certificate path: node catalytic-engine.js verify <cert.json>');
+        const cert = JSON.parse(fs.readFileSync(certPath, 'utf8'));
+        const verdict = verifyCertificate(cert);
+        console.log(JSON.stringify(verdict, bigReplacer, 2));
+        if (!verdict.ok) process.exitCode = 2;
       } else if (cmd === 'bench') {
-        console.log(JSON.stringify(runDeviceBenchmark({ iters: Number(getArg('--iters', '6')) }), null, 2));
+        console.log(JSON.stringify(runDeviceBenchmark({ iters: Number(getArg('--iters', 0, '6')) }), null, 2));
       } else if (cmd === 'fuzz') {
-        const n = Number(args[1] && !args[1].startsWith('--') ? args[1] : getArg('--trials', '300'));
+        const n = Number(getArg('--trials', 0, '300'));
         const res = runAdversarialFuzz(n, 20261125);
         console.log(JSON.stringify(res, null, 2));
         if (res.failed > 0) process.exitCode = 2;
       } else {
         console.log([
           `Catalytic Register Frontiers — Adaptive Forking CLI v${exportedApi.version}`,
-          'Usage:',
-          '  node catalytic-engine.js plan  --N 91 --p 1009 [--workload scalar|streaming|matrix]',
-          '  node catalytic-engine.js run   --N 91 --p 1009 --x 7 [--fault]',
-          '  node catalytic-engine.js vault "SecretRAM" --N 91 --p 1009 [--fault]',
-          '  node catalytic-engine.js bench [--iters 6]',
-          '  node catalytic-engine.js fuzz  [300]'
+          'Usage (supports BOTH --flags and positional arguments):',
+          '  node catalytic-engine.js plan    [N=91] [p=1009] [m=4] [workload=scalar]',
+          '  node catalytic-engine.js run     [N=91] [x=7] [p=1009] [--fault]',
+          '  node catalytic-engine.js vault   ["SecretRAM"] [N=91] [p=1009] [x=7] [--fault]',
+          '  node catalytic-engine.js horizon [p=1009] [workload=scalar]',
+          '  node catalytic-engine.js verify  <certificate.json>',
+          '  node catalytic-engine.js bench   [iters=6]',
+          '  node catalytic-engine.js fuzz    [trials=300]'
         ].join('\n'));
       }
     } catch (err) {

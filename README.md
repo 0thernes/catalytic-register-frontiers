@@ -97,12 +97,15 @@ pwsh -NoProfile -File scripts/run_all.ps1 -Task all
 bash scripts/run_all.sh all
 ```
 
-Expected result: 19/19 default Lean jobs built with 0 warnings, `leanchecker`, `leanchecker-paranoid`, `con-leche`, and `con-ron` exit 0, all 26 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / SBOM / workflow / schema / SVG / HTML5 / matrix-lift / factorization / JS Adaptive Forking PWA & CLI differential consistency tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, 100% `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK`.
+Expected result: 19/19 default Lean jobs built with 0 warnings, `leanchecker`, `leanchecker-paranoid`, `con-leche`, and `con-ron` exit 0, all 27 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / SBOM / workflow / schema / SVG / HTML5 / matrix-lift / factorization / JS Adaptive Forking PWA & CLI differential consistency tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, 100% `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK`.
 
 ### Universal Zero-Dependency Adaptive Forking CLI (Any Device with Node.js)
 ```bash
-node docs/catalytic-engine.js plan 169 1009 4 scalar
-node docs/catalytic-engine.js vault "Catalytic zero-waste memory test" 9 1009
+# Accepts BOTH clean positional args and --flag syntax:
+node docs/catalytic-engine.js plan    169 1009 4 scalar
+node docs/catalytic-engine.js vault   "Catalytic zero-waste memory test" 91 1009
+node docs/catalytic-engine.js horizon 137 scalar
+node docs/catalytic-engine.js verify  catalytic-proof-*.json
 node docs/catalytic-engine.js bench
 # Or via just: just adaptive plan 91 1009 4 scalar
 ```
