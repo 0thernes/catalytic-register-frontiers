@@ -1599,10 +1599,10 @@ def test_pass14_large_n_t1_horizon_and_cert_verifier() -> None:
     assert ".glob(" not in lrat_src, "verify_lrat.py should use bracket-safe iterdir() instead of glob()"
 
     sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
-    assert "catalytic-adaptive-fork-v1.4.0" in sw_src and "Promise.allSettled" in sw_src
+    assert re.search(r"catalytic-adaptive-fork-v1\.[4-9]\.0", sw_src) is not None and "Promise.allSettled" in sw_src
 
     html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
-    assert "Adaptive Forking Offline PWA v1.4" in html
+    assert re.search(r"Adaptive Forking Offline PWA v1\.[4-9]", html) is not None
     for marker in ("af-anim-panel", "af-bench-panel", "af-horizon-panel", "af-cert-verify", "st-sparkline", "verifyLastCertificateUI"):
         assert marker in html, f"Missing Pass 14 v1.4 UI hook {marker!r} in docs/index.html"
 
@@ -1611,7 +1611,7 @@ def test_pass14_large_n_t1_horizon_and_cert_verifier() -> None:
         js_path = str(REPO / "docs" / "catalytic-engine.js")
         node_check = (
             f"const E = require({json.dumps(js_path)});"
-            "if (E.version !== '1.4.0') process.exit(50);"
+            "if (!/^1\\.[4-9]\\./.test(E.version)) process.exit(50);"
             "const r5 = E.planAdaptiveFork({N:15751, p:5, workload:'scalar'});"
             "if (!r5.comparison.adaptive_fork.feasible || r5.comparison.adaptive_fork.accesses !== '4') process.exit(51);"
             "const r1009 = E.planAdaptiveFork({N:1018082, p:1009, workload:'scalar'});"
@@ -1666,4 +1666,51 @@ def test_pass14_large_n_t1_horizon_and_cert_verifier() -> None:
             p_ver = subprocess.run([node_bin, js_path, "verify", str(cert_file)], capture_output=True, text=True, timeout=30, check=False)
             assert p_ver.returncode == 0, f"CLI verify failed: {p_ver.stderr}"
             assert json.loads(p_ver.stdout)["ok"] is True
+
+
+def test_pass15_planner_executor_csp_and_autopilot() -> None:
+    """Pass 15 permanent regression guard:
+    1. Strict zero-exfiltration Content-Security-Policy meta tag & Adaptive Auto-Pilot / async Byte-Vault in docs/index.html v1.5.
+    2. Explicit engine='prog9_x15' dispatch, 100% JSON-serializable planAdaptiveFork() (no raw BigInt leaks),
+       large-N composite planner-executor base alignment (N=50625=15^4 -> internalPlan.t=9), strict hex digest
+       tamper rejection in verifyCertificate(), and async chunked execCatalyticByteVaultAsync() parity.
+    """
+    import shutil
+    import subprocess
+
+    html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    assert 'http-equiv="Content-Security-Policy"' in html
+    assert "connect-src 'self'" in html
+    assert "Adaptive Forking Offline PWA v1.5" in html
+    assert "toggleAdaptiveAutopilot" in html and "execCatalyticByteVaultAsync" in html
+
+    sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
+    assert "catalytic-adaptive-fork-v1.5.0" in sw_src
+
+    node_bin = shutil.which("node")
+    if node_bin:
+        js_path = str(REPO / "docs" / "catalytic-engine.js")
+        node_check = (
+            f"const E = require({json.dumps(js_path)});"
+            "(async () => {"
+            "  if (E.version !== '1.5.0') process.exit(60);"
+            "  const r9 = E.execFourRegPowering(15, 7, 1009, {engine:'prog9_x15'});"
+            "  if (!r9.verified || r9.engineUsed !== 'prog9_x15') process.exit(61);"
+            "  for (const [N, p] of [[15751, 5], [1018082, 1009], [50625, 1009], [50625, 1009*1013]]) {"
+            "    const pl = E.planAdaptiveFork({N, p, workload:'scalar'});"
+            "    JSON.stringify(pl);"
+            "  }"
+            "  const plComp = E.planAdaptiveFork({N:50625n, p:1009n*1013n, workload:'scalar'});"
+            "  if (!plComp.internalPlan || plComp.internalPlan.t !== 9) process.exit(62);"
+            "  const bad = E.verifyCertificate({kind:'catalytic_sha256_byte_vault', N:'91', p:'1009', accessesPerChunk:80, sha256Before:'not-hex', sha256After:'not-hex', sha256Identical:true, verified:true});"
+            "  if (bad.ok !== false) process.exit(63);"
+            "  const raw = new TextEncoder().encode('AsyncNonBlockingCatalyticVaultTestBuffer_64B_Exact!');"
+            "  let lastPct = 0;"
+            "  const aRes = await E.execCatalyticByteVaultAsync(raw, 91, 7, 1009, {onProgress: (p) => { lastPct = p.pct; }});"
+            "  if (!aRes.verified || !aRes.bytesEqual || lastPct !== 100) process.exit(64);"
+            "})().catch((e) => { console.error(e); process.exit(65); });"
+        )
+        proc = subprocess.run([node_bin, "-e", node_check], capture_output=True, text=True, timeout=30, check=False)
+        assert proc.returncode == 0, f"Node.js v1.5 audit failed (rc={proc.returncode}): {proc.stderr}"
+
 

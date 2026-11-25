@@ -844,7 +844,7 @@
           accesses: t1DirectCandidate.accesses,
           registers: t1DirectCandidate.registers,
           tree: t1DirectCandidate.tree,
-          plan: { kind: 't1_direct', n: N },
+          plan: { kind: 't1_direct', n: N.toString() },
           feasible: true
         };
       } else if (!bestHybrid) {
@@ -868,6 +868,7 @@
           registers: workload === 'matrix' ? `${matScalars} scalar regs (m=${matrixDim}, exact r=3 tier)` : '4 passive regs',
           tree: `Top radix ${chosenSpec.degree} (${chosenSpec.id}, ${bestHybrid.ds.length} digits) -> DP leaf optimization for sub-exponents <= ${DP_LIMIT}`,
           chosenSpecId: chosenSpec.id,
+          plan: { kind: 'radix_fork', base: chosenSpec.degree, t: chosenSpec.t, gadget: chosenSpec.id, digits: bestHybrid.ds },
           feasible: true
         };
       }
@@ -1308,6 +1309,8 @@
         if (plan && plan.kind === 'radix_fork' && PROGRAMS_R3[plan.t]) {
           forcedRadixSpec = PROGRAMS_R3[plan.t];
         }
+      } else if (planRes.internalPlan && planRes.internalPlan.kind === 'radix_fork' && PROGRAMS_R3[planRes.internalPlan.t]) {
+        forcedRadixSpec = PROGRAMS_R3[planRes.internalPlan.t];
       }
     }
 
@@ -1318,6 +1321,7 @@
       else if (engineChoice === 'prog6_x9') spec = PROGRAMS_R3[6];
       else if (engineChoice === 'prog7_x11') spec = PROGRAMS_R3[7];
       else if (engineChoice === 'prog8_x13') spec = PROGRAMS_R3[8];
+      else if (engineChoice === 'prog9_x15') spec = PROGRAMS_R3[9];
       else {
         for (const tCand of [8, 9, 7, 6, 5, 4]) {
           const cand = PROGRAMS_R3[tCand];
@@ -2127,10 +2131,104 @@
     return { p: p.toString(), workload, points: rows };
   }
 
+  // Non-blocking chunked async Catalytic Byte-Vault for 60fps UI responsiveness on watches/phones/desktops
+  async function execCatalyticByteVaultAsync(rawBytes, NIn, xIn, pIn, opts = {}) {
+    const bytes = rawBytes instanceof Uint8Array ? rawBytes : new Uint8Array(rawBytes);
+    if (bytes.length === 0) throw new Error('Byte vault payload cannot be empty');
+    const p = BigInt(pIn);
+    if (p < 257n) throw new Error('Byte vault requires modulus p >= 257 so every byte (0..255) fits injectively in a catalytic register');
+    const N = BigInt(NIn);
+    const x = mod(BigInt(xIn), p);
+    const faultBit = Boolean(opts.faultBit);
+    const maxChunks = Math.max(1, Math.min(21845, Number(opts.maxChunks ?? 256)));
+    const cappedLen = Math.min(bytes.length, maxChunks * 3);
+    const slice = bytes.slice(0, cappedLen);
+    const onProgress = typeof opts.onProgress === 'function' ? opts.onProgress : null;
+    const isAborted = typeof opts.isAborted === 'function' ? opts.isAborted : null;
+    const yieldEveryMs = Math.max(4, Number(opts.yieldEveryMs ?? 12));
+    const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+
+    const restored = new Uint8Array(slice.length);
+    const midBytes = new Uint8Array(slice.length);
+    let totalAccesses = 0;
+    let allExact = true;
+    let engineUsed = '';
+    let sampleOutput = 0n;
+    let sampleExpected = 0n;
+    let lastYield = now();
+
+    for (let offset = 0; offset < slice.length; offset += 3) {
+      if (isAborted && isAborted()) throw new Error('Byte-Vault execution cancelled by user');
+      const u0 = BigInt(slice[offset]);
+      const r10 = offset + 1 < slice.length ? BigInt(slice[offset + 1]) : 0n;
+      const r20 = offset + 2 < slice.length ? BigInt(slice[offset + 2]) : 0n;
+      const O0 = mod(BigInt(17 + offset * 31), p);
+      const res = execFourRegPowering(N, x, p, {
+        engine: 'adaptive',
+        O0,
+        u0,
+        r10,
+        r20,
+        faultBit: faultBit && offset === 0
+      });
+      engineUsed = res.engineUsed;
+      totalAccesses = res.accesses;
+      sampleOutput = res.final.O;
+      sampleExpected = res.expectedO;
+      if (!res.verified) allExact = false;
+
+      midBytes[offset] = Number(res.midScramble.u & 0xffn);
+      if (offset + 1 < slice.length) midBytes[offset + 1] = Number(res.midScramble.r1 & 0xffn);
+      if (offset + 2 < slice.length) midBytes[offset + 2] = Number(res.midScramble.r2 & 0xffn);
+
+      restored[offset] = Number(res.final.u & 0xffn);
+      if (offset + 1 < slice.length) restored[offset + 1] = Number(res.final.r1 & 0xffn);
+      if (offset + 2 < slice.length) restored[offset + 2] = Number(res.final.r2 & 0xffn);
+
+      if (now() - lastYield >= yieldEveryMs && offset + 3 < slice.length) {
+        if (onProgress) {
+          const doneBytes = Math.min(slice.length, offset + 3);
+          onProgress({ doneBytes, totalBytes: slice.length, pct: Math.round((doneBytes / slice.length) * 100) });
+        }
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        lastYield = now();
+      }
+    }
+    if (onProgress) onProgress({ doneBytes: slice.length, totalBytes: slice.length, pct: 100 });
+
+    let bytesEqual = true;
+    let corruptedByteCount = 0;
+    for (let i = 0; i < slice.length; i++) {
+      if (slice[i] !== restored[i]) {
+        bytesEqual = false;
+        corruptedByteCount += 1;
+      }
+    }
+    const toHex = (arr) => Array.from(arr.slice(0, 16)).map((b) => b.toString(16).padStart(2, '0')).join(' ');
+    return {
+      engineUsed,
+      borrowedBytes: slice.length,
+      chunks: Math.ceil(slice.length / 3),
+      accessesPerChunk: totalAccesses,
+      beforeBytes: slice,
+      midScrambleBytes: midBytes,
+      afterBytes: restored,
+      beforeHexPreview: toHex(slice),
+      midHexPreview: toHex(midBytes),
+      afterHexPreview: toHex(restored),
+      sampleOutput: sampleOutput.toString(),
+      sampleExpected: sampleExpected.toString(),
+      bytesEqual,
+      corruptedByteCount,
+      verified: allExact && bytesEqual
+    };
+  }
+
   function verifyCertificate(cert) {
     if (!cert || typeof cert !== 'object' || !cert.kind) {
       return { ok: false, reason: 'Invalid certificate object (missing kind)' };
     }
+    const validDigest = (h) => typeof h === 'string' && /^(?:[0-9a-f]{64}|fnv64:[0-9a-f]{16})$/i.test(h);
     if (cert.kind === 'adaptive_fork_4reg') {
       const N = BigInt(cert.N);
       const p = BigInt(cert.p);
@@ -2153,7 +2251,8 @@
       const N = BigInt(cert.N);
       const p = BigInt(cert.p);
       const plan = planAdaptiveFork({ workload: 'scalar', N, p });
-      const shaOk = Boolean(cert.sha256Before) && cert.sha256Before === cert.sha256After && cert.sha256Identical === true;
+      const digestsValid = validDigest(cert.sha256Before) && validDigest(cert.sha256After) && (!cert.sha256MidFlightScrambled || validDigest(cert.sha256MidFlightScrambled));
+      const shaOk = digestsValid && cert.sha256Before === cert.sha256After && cert.sha256Identical === true;
       const sample = new Uint8Array([0x53, 0x65, 0x6e, 0x73, 0x6f, 0x72]);
       const probe = execCatalyticByteVault(sample, N, 7n, p, { maxChunks: 2 });
       const ok = Boolean(cert.verified) && shaOk && probe.verified && plan.comparison.adaptive_fork.feasible && String(probe.accessesPerChunk) === String(cert.accessesPerChunk);
@@ -2162,7 +2261,7 @@
         kind: cert.kind,
         sha256Match: shaOk,
         recomputedAccessesPerChunk: probe.accessesPerChunk,
-        reason: ok ? 'SHA-256 pre/post digest equality and independent chunk re-execution verified.' : 'Certificate SHA-256 or chunk access count mismatch.'
+        reason: ok ? 'SHA-256 pre/post digest format & equality and independent chunk re-execution verified.' : 'Certificate SHA-256 format/digest or chunk access count mismatch.'
       };
     }
     if (cert.kind === 'matrix_lift_prog5') {
@@ -2191,7 +2290,7 @@
   }
 
   const exportedApi = {
-    version: '1.4.0',
+    version: '1.5.0',
     PROGRAMS_R3,
     mod,
     gcd,
@@ -2212,6 +2311,7 @@
     execFourRegPowering,
     execStreamingMoment,
     execCatalyticByteVault,
+    execCatalyticByteVaultAsync,
     execMatrixLiftProg5,
     evalT1Oracle,
     execT2BilinearFrobenius,

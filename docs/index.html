@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self';">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0b1120">
   <meta name="description" content="Zero-Mathlib Lean 4.35 formalization, 5-kernel (6-run) verification blueprint, and universal offline Adaptive Forking exact BigInt workbench for passive catalytic register programs.">
@@ -233,7 +234,7 @@
     <span class="pill">14 Core Modules &middot; 20 Theorems + Non-Vacuity</span>
     <span class="pill">5 Kernels (6 Runs) PASS</span>
     <span class="pill">8 / 8 LRAT UNSAT Proofs Verified</span>
-    <span class="pill info">Adaptive Forking Offline PWA v1.4</span>
+    <span class="pill info">Adaptive Forking Offline PWA v1.5</span>
     <span class="pill warn">Preprint &middot; Not Peer-Reviewed</span>
   </div>
 
@@ -304,6 +305,7 @@
       <div class="inline-controls">
         <button class="action-btn primary" type="button" onclick="runAdaptiveLive()">Run Live Adaptive Fork Proof</button>
         <button class="action-btn ok" type="button" onclick="runByteVaultLive()">Run SHA-256 Byte-Vault Proof</button>
+        <button class="action-btn ok" id="af-autopilot-btn" type="button" onclick="toggleAdaptiveAutopilot()">Start Adaptive Auto-Pilot</button>
         <button class="action-btn" type="button" onclick="runPass3Trace(8)">Animate Optimal prog8_x13</button>
         <button class="action-btn" type="button" onclick="runPass3Trace(5)">Animate Compact prog5_x7</button>
         <button class="action-btn" type="button" onclick="runDeviceBenchUI()">Benchmark This Device</button>
@@ -334,7 +336,7 @@
         <span id="share-feedback" style="color:var(--ok); font-weight:600;" aria-live="polite"></span>
       </div>
       <details style="margin:0.4rem 0 0.6rem; font-size:0.82rem;">
-        <summary>Universal Zero-Dependency CLI v1.4 (Flags or Positional &middot; Any Laptop / Desktop / Server / Termux)</summary>
+        <summary>Universal Zero-Dependency CLI v1.5 (Flags or Positional &middot; Any Laptop / Desktop / Server / Termux)</summary>
         <pre style="margin:0.4rem 0 0; padding:0.65rem;"><code>curl -fsSLO https://0thernes.github.io/catalytic-register-frontiers/catalytic-engine.js
 node catalytic-engine.js plan    169 1009 4 scalar
 node catalytic-engine.js vault   "SensorBuffer:98.6F" 91 1009
@@ -346,10 +348,12 @@ node catalytic-engine.js bench</code></pre>
       <div id="af-predict-box" class="status-box" aria-live="polite"></div>
       <div id="af-dag" class="dag-box" aria-label="Dynamic Adaptive Fork Decision Tree"></div>
       <div id="af-bars"></div>
+      <div id="af-autopilot-panel" aria-live="polite"></div>
       <details style="margin:0.6rem 0;">
         <summary>Predictive Adaptive Horizon Curve (Exact Access Savings Across N = 5 .. 2,197 on Current Modulus p)</summary>
         <div id="af-horizon-panel" class="dag-box" style="margin-top:0.45rem;" aria-label="Predictive Adaptive Horizon SVG Chart"></div>
       </details>
+      <div id="af-vault-progress" aria-live="polite"></div>
       <div id="af-live-result" aria-live="polite"></div>
       <div id="af-cert-verify" aria-live="polite"></div>
       <div id="af-anim-panel" aria-live="polite"></div>
@@ -1013,9 +1017,83 @@ node catalytic-engine.js bench</code></pre>
     }
   };
 
+  let vaultAbortFlag = false;
+  let autopilotTimer = null;
+  let autopilotTick = 0;
+  let autopilotSavedReads = 0n;
+  let autopilotCleanCount = 0;
+
+  window.cancelByteVault = function () {
+    vaultAbortFlag = true;
+  };
+
+  window.toggleAdaptiveAutopilot = function () {
+    const btn = document.getElementById('af-autopilot-btn');
+    const panel = document.getElementById('af-autopilot-panel');
+    if (autopilotTimer) {
+      clearInterval(autopilotTimer);
+      autopilotTimer = null;
+      if (btn) {
+        btn.textContent = 'Start Adaptive Auto-Pilot';
+        btn.className = 'action-btn ok';
+      }
+      return;
+    }
+    const E = window.CatalyticEngine;
+    const cls = detectDeviceClass();
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const periodMs = reduced ? 1600 : (cls === 'watch' ? 1400 : (cls === 'phone' ? 1050 : 800));
+    const scenarios = [
+      { tag: 'Gray 2-Way Split', N: '20', p: '1009', x: '7' },
+      { tag: '7x13 Compose Wrap', N: '91', p: '1009', x: '11' },
+      { tag: '13^2 Compose Wrap', N: '169', p: '1009', x: '5' },
+      { tag: 'Bad-Prime Dodge (137|D_8)', N: '169', p: '137', x: '9' },
+      { tag: 'Composite Ring Z/1022117Z', N: '91', p: '1022117', x: '42' },
+      { tag: 'F_2 2-Access Frobenius', N: '256', p: '2', x: '1' },
+      { tag: 'F_1009 3-Access T1 Collapse', N: '1018082', p: '1009', x: '7' },
+      { tag: 'F_5 4-Access T1 Collapse', N: '15751', p: '5', x: '3' }
+    ];
+    autopilotTick = 0;
+    autopilotSavedReads = 0n;
+    autopilotCleanCount = 0;
+    if (btn) {
+      btn.textContent = `Stop Auto-Pilot (${cls.toUpperCase()})`;
+      btn.className = 'action-btn danger';
+    }
+    const step = () => {
+      const sc = scenarios[autopilotTick % scenarios.length];
+      autopilotTick += 1;
+      document.getElementById('af-workload').value = 'scalar';
+      document.getElementById('af-n').value = sc.N;
+      document.getElementById('af-p').value = sc.p;
+      document.getElementById('af-x').value = sc.x;
+      updateAdaptivePredictor();
+      const faultBit = document.getElementById('af-fault').checked;
+      const t0 = performance.now();
+      const res = E.execFourRegPowering(BigInt(sc.N), BigInt(sc.x), BigInt(sc.p), { engine: 'adaptive', faultBit });
+      const ms = (performance.now() - t0).toFixed(2);
+      const baseAcc = E.exactFourRegAccesses(5, 4, BigInt(sc.N));
+      const adAcc = BigInt(res.accesses);
+      if (baseAcc > adAcc) autopilotSavedReads += (baseAcc - adAcc);
+      if (res.verified) autopilotCleanCount += 1;
+      if (panel) {
+        panel.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
+          `<span class="pulse-dot"></span><strong>ADAPTIVE AUTO-PILOT JOB #${autopilotTick} (${esc(sc.tag)}):</strong> ` +
+          `${res.verified ? 'VERIFIED 0 BITS CORRUPTED' : 'FAULT CAUGHT LIVE!'} in ${ms} ms &middot; ` +
+          `Selected <code>${esc(res.engineUsed)}</code> (<strong>${res.accesses}</strong> reads vs. ${baseAcc.toString()} baseline)<br>` +
+          `Cumulative Verified Streak: <strong>${autopilotCleanCount} / ${autopilotTick}</strong> clean &middot; ` +
+          `Cumulative Reads Saved vs. Vinciguerra r=3: <strong>${autopilotSavedReads.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</strong> reads</div>`;
+      }
+    };
+    step();
+    autopilotTimer = setInterval(step, periodMs);
+  };
+
   window.runByteVaultLive = async function () {
     const E = window.CatalyticEngine;
     const out = document.getElementById('af-live-result');
+    const prog = document.getElementById('af-vault-progress');
+    vaultAbortFlag = false;
     try {
       const N = BigInt(document.getElementById('af-n').value.trim() || '91');
       const rawP = BigInt(document.getElementById('af-p').value.trim() || '1009');
@@ -1048,7 +1126,17 @@ node catalytic-engine.js bench</code></pre>
       }
 
       const t0 = performance.now();
-      const res = E.execCatalyticByteVault(rawBytes, N, x, p, { faultBit, maxChunks: Math.ceil(maxBytes / 3) });
+      const res = await E.execCatalyticByteVaultAsync(rawBytes, N, x, p, {
+        faultBit,
+        maxChunks: Math.ceil(maxBytes / 3),
+        isAborted: () => vaultAbortFlag,
+        onProgress: ({ doneBytes, totalBytes, pct }) => {
+          if (prog && totalBytes > 512 && pct < 100) {
+            prog.innerHTML = `<div class="status-box note">Processing catalytic Byte-Vault offline: <strong>${doneBytes.toLocaleString()} / ${totalBytes.toLocaleString()} bytes (${pct}%)</strong> <button class="action-btn danger" type="button" onclick="cancelByteVault()" style="min-height:28px; padding:0.15rem 0.5rem; margin-left:0.5rem;">Cancel</button></div>`;
+          }
+        }
+      });
+      if (prog) prog.innerHTML = '';
       const ms = Math.max(0.01, performance.now() - t0);
       const kbps = ((res.borrowedBytes / 1024) / (ms / 1000)).toFixed(1);
       const hashBefore = await sha256Hex(res.beforeBytes);
@@ -1082,6 +1170,7 @@ node catalytic-engine.js bench</code></pre>
         `SHA-256 Restored: <code>${esc(hashAfter)}</code> &rarr; <strong>${shaMatch ? 'IDENTICAL BIT-FOR-BIT' : 'HASH MISMATCH CAUGHT!'}</strong><br>` +
         `Hex Preview: <code>${esc(res.beforeHexPreview)}</code> &rarr; <code>${esc(res.midHexPreview)}</code> &rarr; <code>${esc(res.afterHexPreview)}</code></div>`;
     } catch (err) {
+      if (prog) prog.innerHTML = '';
       out.innerHTML = `<div class="status-box bad"><strong>Byte-Vault notice:</strong> ${esc(err.message)}</div>`;
     }
   };
