@@ -174,6 +174,9 @@ inductive CatOp where
 def CatOp.isStrictValid : CatOp → Prop
   | .addInput _ s _ => s = 1 ∨ s = -1
   | .addProd dst a b s => (s = 1 ∨ s = -1) ∧ dst ≠ a ∧ dst ≠ b ∧ a ≠ b
+def CatOp.usesOnly (regs : List Nat) : CatOp → Prop
+  | .addInput dst _ _ => dst ∈ regs
+  | .addProd dst a b _ => dst ∈ regs ∧ a ∈ regs ∧ b ∈ regs
 def CatOp.exec {R : Type u} [CRing R] (xs : Nat → R) (st : Nat → R) : CatOp → (Nat → R)
   | .addInput dst s v  => fun r => if r = dst then st dst + CRing.intCast s * xs v else st r
   | .addProd dst a b s => fun r => if r = dst then st dst + CRing.intCast s * (st a * st b) else st r
@@ -817,25 +820,21 @@ public theorem t3i_streaming_frequency_moment :
 
 public theorem t4_balanced_multilinear_product :
     ∀ (k target : Nat) (sign : Int) (pool : List Nat) (offset : Nat),
-      (sign = 1 ∨ sign = -1) →
-      (k = 0 ∨ k + 1 ≤ pool.length) →
-      (target :: pool).Nodup →
-      ∃ prog : List CatOp,
-        3 * prog.length + 4 = 7 * (2 ^ k) ^ 2 ∧
-        (∀ op ∈ prog, op.isStrictValid) ∧
-        ∀ (R : Type) [CRing R] (xs st : Nat → R),
-          CatProg.exec xs prog st =
-            (fun r => if r = target then st target + CRing.intCast sign * rangeProd xs offset (2 ^ k)
-                      else st r) := by
+      (sign = 1 ∨ sign = -1) → (k = 0 ∨ k + 1 ≤ pool.length) → (target :: pool).Nodup →
+      let regs := if k = 0 then [target] else target :: pool.take (k + 1)
+      ∃ prog : List CatOp, 3 * prog.length + 4 = 7 * (2 ^ k) ^ 2 ∧ regs.length ≤ k + 2 ∧
+        (∀ op ∈ prog, op.isStrictValid ∧ op.usesOnly regs) ∧
+        ∀ (R : Type) [CRing R] (xs st : Nat → R), CatProg.exec xs prog st =
+          (fun r => if r = target then st target + CRing.intCast sign * rangeProd xs offset (2 ^ k) else st r) := by
   intro k target sign pool offset hsign hpool hnd
   rcases Catalytic.Solution.t4_balanced_multilinear_product k target sign pool offset hsign hpool hnd with
-    ⟨hlen, hval, hclean⟩
-  refine ⟨(Catalytic.balancedProdProg k target sign pool offset).map catOpFromCat, ?_, ?_, ?_⟩
+    ⟨hlen, hreglen, hval, hclean⟩
+  refine ⟨(Catalytic.balancedProdProg k target sign pool offset).map catOpFromCat, ?_, hreglen, ?_, ?_⟩
   · rw [List.length_map]; exact hlen
   · intro op hmem
     rcases List.mem_map.mp hmem with ⟨cop, hcop, rfl⟩
-    have hv := hval cop hcop
-    cases cop <;> exact hv
+    rcases hval cop hcop with ⟨hv, hu⟩
+    cases cop <;> exact ⟨hv, hu⟩
   · intro R inst xs st
     rw [catProg_exec inst, intCast_eq inst, rangeProd_eq inst]
     exact @hclean R (toCatCRing inst) xs st

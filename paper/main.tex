@@ -39,8 +39,8 @@
 \thanks{ORCID: \href{https://orcid.org/0009-0006-8168-9648}{0009-0006-8168-9648};
 DOI: \href{https://doi.org/10.5281/zenodo.24517198}{10.5281/zenodo.24517198};
 \href{https://github.com/0thernes/catalytic-register-frontiers}{Code} \& \href{https://0thernes.github.io/catalytic-register-frontiers/}{Blueprint}.
-Dual-licensed under Apache-2.0 (code/Lean) and CC-BY-4.0 (prose/figures).
-Not externally peer reviewed; formal proofs independently certified by Lean~4.35.0 kernels (\texttt{lean}, \texttt{leanchecker-paranoid}, \texttt{lean4lean}, \texttt{nanoda}, \texttt{con-leche}, \texttt{con-ron}).}
+Apache-2.0 (code) / CC-BY-4.0 (prose).
+Not peer reviewed; certified by 5 Lean~4.35 kernels (6 runs: \texttt{lean}, \texttt{leanchecker} [\texttt{-paranoid}], \texttt{con-leche}, \texttt{con-ron}, \texttt{nanoda\_bin}).}
 
 \date{November 24, 2026}
 
@@ -70,7 +70,7 @@ We resolve two structural questions left open by Vinciguerra's operator analysis
   \item \emph{Balanced zero-workspace bilinear product (Theorem~\ref{thm:T4}).}
   Over any commutative ring, a recursive zero-workspace commutator computes $x_0 \cdots x_{d-1}$ ($d = 2^k$) in $\log_2 d + 2$ registers and $(7d^2 - 4)/3$ primitive ops.
 \end{enumerate}
-All $20$ theorems, corollaries, and literal commutative-ring soundness bridges (including sharp $\F_4$ separation, distinct-operand bilinear collapse, complete $4$-register passive powering for all $N \ge 1$, and algebraic streaming frequency moments over $R^n$) plus $0 \neq 1$ non-vacuity witnesses are formalized across $14$ zero-Mathlib Lean~4.35.0 \texttt{module} files using only the three standard Lean axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}) and pass $6$ verification kernels (\texttt{lean}, \texttt{leanchecker}, \texttt{leanchecker-paranoid}, \texttt{con-leche}, \texttt{con-ron}, \texttt{nanoda\_bin}).
+All $20$ theorems, corollaries, and ring-soundness bridges (incl.\ sharp $\F_4$ separation, distinct-operand collapse, $4$-register powering $\forall N \ge 1$, streaming $F_D$ over $R^n$, and explicit register containment for Theorem~\ref{thm:T4}) plus $0 \neq 1$ non-vacuity witnesses are formalized in $14$ zero-Mathlib Lean~4.35.0 \texttt{module} files using only standard axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}) and pass $5$ distinct kernels ($6$ runs: \texttt{lean}, \texttt{leanchecker} [\texttt{-paranoid}], \texttt{con-leche}, \texttt{con-ron}, \texttt{nanoda\_bin}).
 An accompanying CaDiCaL~2.1.2 SAT audit ($8/8$ verified LRAT UNSAT proofs, brute-force and second-encoder cross-checked) contrasts these gains against Boolean XAG rigidity~\cite{BoyarFind2018,Morse2026}.
 \end{abstract}
 
@@ -589,27 +589,26 @@ This sharp empirical contrast highlights a structural asymmetry: whereas Boolean
 \section{Lean~4.35.0 Formalization, Statement Fidelity, and Open Problems}
 \label{sec:lean}
 
-Every theorem in Tier~1 (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3i}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}), using the Lean~4.35 \texttt{module} system and strict zero-dependency core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unusedVariables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across all $14$ source files ($8{,}069$ lines total; longest file \texttt{FourRegisterPowering.\allowbreak lean}, $1{,}361$ lines).
-To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.\allowbreak lean} exhibits concrete non-trivial ($0 \neq 1$) witnesses (\texttt{ModP 2}, \texttt{ModP 5}, \texttt{ModP 7}, \texttt{ModP 11}, \texttt{ModP 13}, product ring $\mathrm{Fin}\,3 \to \texttt{ModP 13}$, \texttt{GF4} with \texttt{GF4Hom.\allowbreak id}, and \texttt{Int}) satisfying every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}, Corollaries~\ref{cor:powering}--\ref{cor:streaming} (\texttt{T3h}, \texttt{T3i}), and their soundness bridges (including inverses for all five scaling integers $D_5, \dots, D_9$ and factorial denominators).
-A repository-wide scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_\allowbreak decide}, \texttt{implemented\_\allowbreak by}, \texttt{unsafe}, custom \texttt{axiom}, or \texttt{@[extern]}.
-Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay and statement-fidelity audit.
+Every Tier-1 theorem (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3i}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}) using Lean~4.35 \texttt{module} files and strict core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unused\allowbreak Variables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across $14$ core files ($8{,}145$ lines; longest \texttt{Four\allowbreak Register\allowbreak Powering.\allowbreak lean}, $1{,}361$ lines) plus standalone Palomar files \texttt{Palomar\allowbreak Challenge.\allowbreak lean} ($283$ lines) and \texttt{Palomar\allowbreak Solution.\allowbreak lean}.
+To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.\allowbreak lean} exhibits concrete $0 \neq 1$ witnesses (\texttt{ModP 2/5/7/11/13}, $\mathrm{Fin}\,3 \to \texttt{ModP 13}$, \texttt{GF4} with \texttt{GF4Hom.\allowbreak id}, and \texttt{Int}) for every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}, Corollaries~\ref{cor:powering}--\ref{cor:streaming}, and their soundness bridges (incl.\ $D_5, \dots, D_9$ and factorial inverses).
+A repository scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_\allowbreak decide}, \texttt{implemented\_\allowbreak by}, \texttt{unsafe}, custom \texttt{axiom}, or \texttt{@[extern]} across all proof and solution modules (Tables~\ref{tab:kernels}--\ref{tab:fidelity}).
 
 \begin{table}[ht]
 \centering
-\caption{Clean-room multi-kernel verification audit of the master theorem bundle and non-vacuity witnesses ($22$ audited declarations, Lean~4.35.0, zero Mathlib).}
+\caption{Multi-kernel verification audit of the $22$ exported Lean~4.35.0 declarations ($5$ distinct kernel implementations across $6$ locally reproducible runs).}
 \label{tab:kernels}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{5.9cm}@{}}
+\begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{6.1cm}@{}}
 \toprule
 \textbf{\#} & \textbf{Kernel / Tool} & \textbf{Implementation} & \textbf{Verified Result} \\
 \midrule
-1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ reference kernel & 17/17 jobs, 0 warnings; axioms $\subseteq \{\text{propext}, \text{choice}, \text{Quot.sound}\}$ \\
-2 & \texttt{leanchecker} & C++ external \texttt{.olean} replayer & Exit 0 (PASS) \\
-3 & \texttt{leanchecker-paranoid} & C++ paranoid \texttt{.olean} replayer & Exit 0 (PASS) \\
-4 & \texttt{con-leche --verified} & Verified Lean-in-Lean kernel & Accepted 3,525 declarations (Exit 0) \\
-5 & \texttt{con-ron --verified} & Verified Aeneas Rust kernel & Accepted 3,525 declarations (Exit 0) \\
-6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & 3,838 decls, 0 errors, strict 3-axiom check (Exit 0) \\
+1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ reference kernel & 19/19 jobs, 0 warnings; axioms $\subseteq \{\text{propext}, \text{choice}, \text{Quot.sound}\}$ \\
+2 & \texttt{leanchecker} & C++ \texttt{.olean} replayer & Exit 0 on \texttt{Solution} \& \texttt{PalomarSolution} \\
+3 & \texttt{leanchecker-paranoid} & C++ paranoid mode (\#2) & Exit 0 on \texttt{Solution} \& \texttt{PalomarSolution} \\
+4 & \texttt{con-leche --verified} & Verified Lean kernel & Accepted 3,544 (\texttt{Solution}) / 3,502 (\texttt{PalomarSolution}) \\
+5 & \texttt{con-ron --verified} & Verified Rust kernel & Accepted 3,544 (\texttt{Solution}) / 3,502 (\texttt{PalomarSolution}) \\
+6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & 3,544 / 3,502 decls, 0 errors, strict 3-axiom check \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -627,7 +626,7 @@ Tables~\ref{tab:kernels} and~\ref{tab:fidelity} summarize the six-kernel replay 
 \texttt{T1} & \texttt{InRPPass2}, \texttt{GF4}, \texttt{execRing}, \texttt{execAlg} (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Thm.~3.5 & \texttt{IsPrime 2,3,5,7}; \texttt{ModP 5} ($\mathrm{char}=5$); \texttt{GF4} (\texttt{GF4Hom.id}) \\
 \texttt{T2} & \texttt{BilinInstr}, \texttt{DistinctBilinInstr} (\texttt{T2}, \texttt{T2b}) & Bilinear \& distinct-operand Def.~2.2 & \texttt{F2 = ModP 2}, $k=2$, $x=1$ cleanly evaluated \\
 \texttt{T3} & \texttt{Pass3InstrR}, \texttt{Pass4Instr}, \texttt{sumFin} (\texttt{T3a}--\texttt{T3i}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Cor.~4.3.1, 5.1.1; \cite[Lem.~8]{AFM2025} & \texttt{ModP 5,7,11,13} ($D_5^{-1}\!\dots D_9^{-1}$, $12!^{-1}$, $6!^{-1}$); $\mathrm{Fin}\,3\!\to\!\texttt{ModP 13}$ (\texttt{T3i}) \\
-\texttt{T4} & \texttt{CatOp}, \texttt{balancedProdProg} (\texttt{T4}) & Zero-workspace distinct-index bilinear ops & \texttt{Int} ($d=4$, $36$ ops, clean restoration) \\
+\texttt{T4} & \texttt{CatOp}, \texttt{usesOnly}, \texttt{balancedProdProg} (\texttt{T4}) & Zero-workspace distinct-index bilinear ops ($\le k+2$ regs) & \texttt{Int} ($d=4$, $36$ ops, clean restoration) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -640,7 +639,7 @@ We highlight four concrete threats to validity and four unresolved Tier-4 fronti
   \item \emph{Statement fidelity vs.\ model conventions:} Definition~\ref{def:rp} uses formal polynomial-ring cleanliness in $R[O, R_1, \dots, R_{r-1}, x]$ (matching~\cite{Vinciguerra2026}); pointwise function equality over finite fields $\F_p$ collapses via $x^p = x$ and is outside scope.
   \item \emph{Bad-prime denominators (\texttt{T3b}--\texttt{T3d}, \texttt{T3g}):} The $5$-call program \texttt{prog5\_x7} avoids only $\{2, 3\}$, whereas the $6$-, $7$-, $8$-, and $9$-call programs exclude additional prime divisors of $D_t$ (Table~\ref{tab:t3-frontier}); all hold unconditionally in characteristic~$0$.
   \item \emph{SAT companion certificate boundary:} All $8/8$ Tier-2 CaDiCaL~2.1.2 UNSAT certificates (\texttt{results/sat\_certs/}) are archived and independently verified by our exact Python LRAT checker (\texttt{scripts/verify\_lrat.py}) alongside brute-force $n = 2, 3$ encoder equivalence tests, though they have not yet been replayed through CakeML's \texttt{cake\_lpr}; no Tier-1 theorem depends on SAT.
-  \item \emph{Zero-dependency core linters vs.\ Mathlib/Batteries:} Retaining zero external Lake dependencies preserves a minimal six-kernel trust base while precluding Batteries' \texttt{\#lint}; strict built-in Lean~4.35 core linters pass with zero warnings.
+  \item \emph{Zero-dependency core linters \& Windows \texttt{lean4lean} boundary:} Retaining zero external Lake dependencies preserves a minimal five-kernel trust base while precluding Batteries' \texttt{\#lint}; strict built-in Lean~4.35 core linters pass with zero warnings. On Windows, the bundled \texttt{lean4lean.exe} fails locally with an upstream \texttt{.olean} header mismatch and is therefore omitted from Table~\ref{tab:kernels}.
 \end{itemize}
 
 \begin{openproblem}[Closed-form $3$-register frontier]
@@ -663,7 +662,7 @@ Resolve whether nonlinear cancellation can ever beat quadratic-only multiplicati
 
 \subsection*{AI-Assistance, CRediT, COI, and Data/Code Availability}
 \emph{AI-Contribution and CRediT:} Antigravity and Gemini tooling assisted in exploratory exact-arithmetic discovery, Lean~4.35 proof engineering, figure scripting, and manuscript drafting under the direction and scientific accountability of Alexander~S.\ Donahue (CRediT: Conceptualization; Methodology; Formal analysis including definition and statement-fidelity audit; Validation; Writing -- review \& editing; Supervision).
-No AI tool is listed as an author; mathematical correctness of all Tier-1 theorems is certified independently by the six Lean~4.35 verification kernels in Table~\ref{tab:kernels}.
+No AI tool is listed as an author; mathematical correctness of all Tier-1 theorems is certified independently by the five distinct Lean~4.35 verification kernels (six runs) in Table~\ref{tab:kernels}.
 
 \emph{Conflict of Interest \& Export-Control Self-Screen:} Self-funded independent research by Alexander~S.\ Donahue (ORCID \href{https://orcid.org/0009-0006-8168-9648}{0009-0006-8168-9648}); no institutional employer, corporate entity, external grant, or financial conflict of interest. This pure algebraic-complexity research is publicly available fundamental mathematics (15~CFR~734.8) with no dual-use or export-controlled content.
 

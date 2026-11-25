@@ -21,7 +21,8 @@ project:
     complete 4-register passive powering for every N >= 1 in < (104/3) * 8^ell
     accesses, and pointwise product-ring streaming frequency moments F_D over R^n;
     and (4) a balanced zero-workspace bilinear multilinear product x_0...x_{2^k - 1}
-    in k + 2 registers and (7 * (2^k)^2 - 4) / 3 ops.
+    with every operation explicitly constrained by CatOp.usesOnly to at most k + 2
+    designated registers and exact primitive op count (7 * (2^k)^2 - 4) / 3.
   authors:
     - name: "Alexander S. Donahue"
       orcid: "0009-0006-8168-9648"
@@ -52,7 +53,13 @@ sources:
     id: "https://doi.org/10.5281/zenodo.24517198"
     type: "original-proof"
     relationship: "other"
-    note: "Original formalization and companion 15-page AMS-LaTeX preprint first presented in this repository (Zenodo Concept DOI 10.5281/zenodo.24517198; Software Heritage SWHID swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085)."
+    note: >-
+      Original formalization and companion 15-page AMS-LaTeX preprint first
+      presented in this repository. Confirmed live archival identifiers:
+      Zenodo Concept DOI 10.5281/zenodo.24517198 (v1.0.1 Version DOI
+      10.5281/zenodo.24517199) and Software Heritage snapshot
+      swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085. Planned deposits
+      not yet assigned: arXiv ID, HAL ID, and Palomar Registry ID.
   - title: "An Operator Approach to Register Programs for Catalytic Computing"
     authors:
       - "Antoine Vinciguerra"
@@ -100,15 +107,17 @@ related_formalizations: []
 
 status:
   scope: >-
-    Complete zero-Mathlib Lean 4.35.0 formalization of Theorems 1.1-1.4,
-    Corollaries 5.2 (T3h) and algebraic 5.3 (T3i), and literal commutative-ring
-    soundness bridges. The supporting modules also formalize sharp F_4
-    extension-field separation (T1e, T1es), distinct-operand char-2 collapse
-    (T2b), and concrete 0 != 1 non-vacuity witnesses (Catalytic/NonVacuity.lean).
-    Not formalized in Lean: bit-space streaming accounting in Corollary 5.3,
-    general non-commutative matrix lifting in Corollary 5.4 (tested in exact
-    modular Python arithmetic), uniform D^{pass}_{3,Q}(t) = 2t - 3 for t >= 10,
-    and empirical SAT/LRAT Boolean XAG companion checks.
+    Complete zero-Mathlib Lean 4.35.0 formalization of Theorems 1.1-1.4
+    (including explicit CatOp.usesOnly containment within <= k + 2 designated
+    registers for Theorem 1.4), Corollaries 5.2 (T3h) and algebraic 5.3 (T3i),
+    and literal commutative-ring soundness bridges. The supporting modules also
+    formalize sharp F_4 extension-field separation (T1e, T1es), distinct-operand
+    char-2 collapse (T2b), and concrete 0 != 1 non-vacuity witnesses
+    (Catalytic/NonVacuity.lean). Not formalized in Lean: bit-space streaming
+    accounting in Corollary 5.3, general non-commutative matrix lifting in
+    Corollary 5.4 (tested in exact modular Python arithmetic), uniform
+    D^{pass}_{3,Q}(t) = 2t - 3 for t >= 10, and empirical SAT/LRAT Boolean XAG
+    companion checks.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms:
@@ -160,7 +169,16 @@ automation:
       models:
         - "Gemini (Antigravity)"
       framework: "Antigravity"
-      notes: "Assisted with exploratory exact-arithmetic synthesis, zero-Mathlib Lean 4.35 proof engineering, verification scripting, and manuscript drafting under human direction. All formal proofs are independently verified by Lean 4.35, leanchecker-paranoid, lean4lean, NanoDa, con-leche, and con-ron."
+      notes: >-
+        Assisted with exploratory exact-arithmetic synthesis, zero-Mathlib Lean 4.35
+        proof engineering, verification scripting, and manuscript drafting under
+        human direction. All formal proofs are independently verified across 5
+        distinct completed Lean 4.35 kernel implementations (6 runs: lean v4.35.0,
+        leanchecker, leanchecker-paranoid, con-leche --verified, con-ron --verified,
+        and nanoda_bin 0.4.19; see results/six_kernel_audit.txt). Limitation: the
+        bundled Windows lean4lean.exe binary failed locally with an upstream .olean
+        header-version mismatch and is therefore excluded from the completed local
+        kernel count.
 
 fidelity:
   divergences: >-
@@ -173,8 +191,13 @@ fidelity:
 review:
   status: "self-assessed"
   notes: >-
-    Not externally peer-reviewed. Machine-checked across 7 Lean 4.35 verification
-    kernels (lean, leanchecker, leanchecker-paranoid, lean4lean, nanoda_bin,
-    con-leche, con-ron) with 0 warnings, 0 proof sorries, and concrete 0 != 1
-    non-vacuity witnesses in lean/Catalytic/NonVacuity.lean, accompanied by
-    22/22 exact Python/Hypothesis/mutant/SAT tests.
+    Not externally peer-reviewed. Machine-checked across 5 distinct completed Lean
+    4.35 kernel implementations (6 runs: lean v4.35.0, leanchecker,
+    leanchecker-paranoid, con-leche --verified, con-ron --verified, and
+    nanoda_bin 0.4.19; results/six_kernel_audit.txt) with 0 warnings, 0 proof
+    sorries, and concrete 0 != 1 non-vacuity witnesses in
+    lean/Catalytic/NonVacuity.lean, accompanied by exact Python/Hypothesis/mutant/SAT
+    tests. Limitation: the bundled Windows lean4lean.exe binary failed locally with
+    an upstream .olean header-version mismatch (`incompatible header`) and is
+    omitted from the completed verification count (recorded in LIMITATIONS.md and
+    results/six_kernel_audit.txt).

@@ -84,16 +84,16 @@ steps:
   P8.11: {status: done, note: ".github/workflows/release.yml (tag-triggered release + SLSA attestation)"}
   P9.01: {status: done, note: "docs/launch/release-checklist.md (full 41-item Playbook v1.1 audit)"}
   P9.02: {status: done, note: "README.md, REPLICATION.md, docs/index.html"}
-  P9.03: {status: todo, note: "Awaiting owner push to GitHub, Zenodo/OSF DOI minting, and Palomar submission"}
+  P9.03: {status: done, note: "Published GitHub v1.0.0/v1.0.1, Zenodo Concept DOI 10.5281/zenodo.24517198 (v1.0.1: 10.5281/zenodo.24517199), SWHID swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085, and ORCID link; Palomar/arXiv/HAL IDs not yet assigned"}
   P9.04: {status: done, note: "docs/launch/announcement.md + docs/media/social-preview.svg"}
   P9.05: {status: done, note: "docs/launch/channels.md (ordered 6-step Playbook release sequence)"}
-  P9.06: {status: done, note: "Pushed main to 0thernes/catalytic-register-frontiers, set A19 About/Topics & A30 labels (100% Build Standard), deployed Pages, verified 7-kernel Ubuntu + Windows CI (45500957443, Rekor 4087684280), published v1.0.0/v1.0.1 releases (SLSA), archived on Software Heritage (swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085), and enabled Zenodo GitHub DOI integration"}
-  P9.07: {status: todo, note: "Pending post-push CI green run and external reproduction"}
+  P9.06: {status: done, note: "Pushed main to 0thernes/catalytic-register-frontiers, set A19 About/Topics & A30 labels (100% Build Standard), deployed Pages, verified Linux + Windows CI (45500957443, 45504696131, 45513206857; Rekor 4087684280), published v1.0.0/v1.0.1 releases (SLSA), archived on Software Heritage (swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085), minted Zenodo Concept DOI 10.5281/zenodo.24517198, and registered 0TH-2026-010"}
+  P9.07: {status: doing, note: "Post-push Linux & Windows CI green; external human second-machine reproduction pending"}
   P10.01: {status: n/a, note: "Static research repository; no live backend service telemetry"}
   P10.02: {status: n/a, note: "No live service SLOs"}
   P10.03: {status: done, note: "docs/operations.md + ERRATA.md retraction/correction procedure"}
   P10.04: {status: n/a, note: "No production incidents; errata tracked in ERRATA.md"}
-  P10.05: {status: done, note: "Git history + planned Software Heritage SWHID + Zenodo archive"}
+  P10.05: {status: done, note: "Git history + confirmed Software Heritage SWHID swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085 + Zenodo Concept DOI 10.5281/zenodo.24517198"}
   P10.06: {status: n/a, note: "Zero cloud spend"}
   P10.07: {status: done, note: "SECURITY.md + pinned toolchain/lockfiles"}
   P10.08: {status: done, note: "README.md + repo.yaml (status: active, tier: 1)"}

@@ -721,12 +721,19 @@ def test_doc_citation_and_workflow_consistency() -> None:
         "7{,}892 lines",
         "8,036 lines",
         "8{,}036 lines",
+        "8,069 lines",
+        "8{,}069 lines",
         "3,506 declarations",
         "3,523 declarations",
+        "3,525 declarations",
         "3,819 decls",
         "3,819 declarations",
         "3,836 decls",
         "3,836 declarations",
+        "3,838 decls",
+        "3,838 declarations",
+        "7 Lean 4.35",
+        "7-kernel",
         "0.811229",
         "0.81547",
         "0001-zero-mathlib-lean-kernel.md",
@@ -999,9 +1006,9 @@ def test_pass8_sbom_workflow_determinism_and_reuse_strictness() -> None:
     nv_txt = (REPO / "lean" / "Catalytic" / "NonVacuity.lean").read_text(encoding="utf-8")
     assert "theorem nonvac_T3i_witness" in nv_txt and "nonvac_T3i_witness," in nv_txt
 
-    # 7. LIMITATIONS.md synced (no stale 3,819)
+    # 7. LIMITATIONS.md synced (no stale 3,819 or 3,838)
     lim_txt = (REPO / "LIMITATIONS.md").read_text(encoding="utf-8")
-    assert "3,819" not in lim_txt and "3,838" in lim_txt
+    assert "3,819" not in lim_txt and "3,838" not in lim_txt and "3,544" in lim_txt
 
 
 def test_pass9_cor54_matrix_lift_and_blueprint_integrity() -> None:
@@ -1263,4 +1270,71 @@ def test_pass9_cor54_matrix_lift_and_blueprint_integrity() -> None:
         assert "56.6 s" in txt and "< 60 s" in txt, f"Missing measured 56.6 s (< 60 s) cold-build timing in {rel}"
     lim_txt = (REPO / "LIMITATIONS.md").read_text(encoding="utf-8")
     assert "maxRecDepth 4096" in lim_txt and "maxRecDepth 8192" in lim_txt
+
+
+def test_pass10_palomar_t4_and_provenance_integrity() -> None:
+    """Pass 10 permanent regression guard addressing all 3 Palomar editorial review findings:
+    1. T4 enforces explicit CatOp.usesOnly register-set containment within <= k + 2 designated
+       registers in BalancedProduct.lean, Challenge.lean, PalomarChallenge.lean, and PalomarSolution.lean.
+    2. Structured verification accounts (formalization.yaml, results/six_kernel_audit.txt, paper/main.tex)
+       report 5 distinct completed local kernel implementations (6 runs) and retain the failed Windows
+       lean4lean.exe attempt honestly as a limitation rather than a completed check.
+    3. Pinned provenance documents consistently separate confirmed identifiers (Zenodo Concept DOI
+       10.5281/zenodo.24517198, SWHID swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085) from
+       planned/unassigned deposits (Palomar, arXiv, HAL).
+    """
+    # 1. T4 register-set containment in all four Lean contract/proof files
+    for rel in (
+        "lean/Catalytic/BalancedProduct.lean",
+        "lean/Challenge.lean",
+        "lean/PalomarChallenge.lean",
+        "lean/PalomarSolution.lean",
+    ):
+        txt = (REPO / rel).read_text(encoding="utf-8")
+        assert "usesOnly" in txt, f"Missing CatOp.usesOnly register containment in {rel}"
+        assert "regs.length ≤ k + 2" in txt or "designatedRegs_length_le" in txt, (
+            f"Missing <= k + 2 designated register bound in {rel}"
+        )
+
+    # 2. Structured verification accounts honestly report 5 distinct kernels (6 runs) + lean4lean limitation
+    fyaml = (REPO / "lean" / "formalization.yaml").read_text(encoding="utf-8")
+    assert "7 Lean 4.35" not in fyaml
+    assert "5" in fyaml and "6 runs" in fyaml
+    assert "excluded from the completed local" in fyaml or "omitted from the completed verification count" in fyaml
+    audit_txt = (REPO / "results" / "six_kernel_audit.txt").read_text(encoding="utf-8")
+    assert "5 Distinct Implementations / 6 Completed Runs" in audit_txt
+    assert "NOT counted among the 5 completed locally reproducible kernel implementations" in audit_txt
+    assert "3,544" in audit_txt and "3,502" in audit_txt
+    tex = (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
+    assert r"\texttt{lean4lean}" not in tex.split(r"\maketitle", 1)[0]
+
+    # 3. Zero contradictory pre-mint archival provenance phrases across pinned docs
+    contradictory = (
+        "PENDING (external): Zenodo DOI",
+        "PENDING (external DOI/SWHID)",
+        "Awaiting owner push to GitHub",
+        "planned Software Heritage SWHID",
+        "Planned archival mirrors:",
+        "Verified locally, release-ready for GitHub/Palomar/archival",
+        "Post-push external steps (live GitHub Actions CI/SLSA attestations, Zenodo/OSF DOI minting",
+    )
+    for rel in (
+        "README.md",
+        "AGENTS.md",
+        "LIMITATIONS.md",
+        "ROADMAP.md",
+        "CHANGELOG.md",
+        "project.yaml",
+        "llms-full.txt",
+        "docs/operations.md",
+        "docs/launch/channels.md",
+        "docs/launch/release-checklist.md",
+        "docs/reviews/01-10-pass-review.md",
+        "lean/formalization.yaml",
+    ):
+        txt = (REPO / rel).read_text(encoding="utf-8")
+        for bad in contradictory:
+            assert bad not in txt, f"Contradictory archival provenance {bad!r} found in {rel}"
+        assert "10.5281/zenodo.24517198" in txt, f"Confirmed Zenodo Concept DOI missing in {rel}"
+
 

@@ -34,6 +34,11 @@ public def CatOp.isStrictValid : CatOp → Prop
   | .addInput _ s _ => s = 1 ∨ s = -1
   | .addProd dst a b s => (s = 1 ∨ s = -1) ∧ dst ≠ a ∧ dst ≠ b ∧ a ≠ b
 
+/-- Every register read or written by `op` lies inside the designated register list `regs`. -/
+public def CatOp.usesOnly (regs : List Nat) : CatOp → Prop
+  | .addInput dst _ _ => dst ∈ regs
+  | .addProd dst a b _ => dst ∈ regs ∧ a ∈ regs ∧ b ∈ regs
+
 /-- Execute one `CatOp` over any commutative ring `R`. -/
 public def CatOp.exec {R : Type u} [CRing R] (xs : Nat → R) (st : Nat → R) : CatOp → (Nat → R)
   | .addInput dst s v =>
@@ -191,6 +196,72 @@ public theorem balancedProdProg_strictValid (k target : Nat) (sign : Int)
       · exact ih ra (-1) (rb :: rest) offset (Or.inr rfl) hsub1 hnd_a op h
       · exact ⟨hneg, hta, htb, hab⟩
       · exact ih rb (-1) (ra :: rest) (offset + 2 ^ k) (Or.inr rfl) hsub2 hnd_b op h
+
+private theorem CatOp.usesOnly_mono {r1 r2 : List Nat} (hsub : ∀ x ∈ r1, x ∈ r2) :
+    ∀ op : CatOp, op.usesOnly r1 → op.usesOnly r2
+  | .addInput _ _ _, h => hsub _ h
+  | .addProd _ _ _ _, ⟨h1, h2, h3⟩ => ⟨hsub _ h1, hsub _ h2, hsub _ h3⟩
+
+/-- The designated register list for level `k` has at most `k + 2` registers (`1` for `k = 0`). -/
+public theorem designatedRegs_length_le (k target : Nat) (pool : List Nat) :
+    (if k = 0 then [target] else target :: pool.take (k + 1)).length ≤ k + 2 := by
+  by_cases hk : k = 0
+  · subst hk; simp
+  · simp [hk, List.length_take]; omega
+
+/-- Every instruction emitted by `balancedProdProg` reads and writes ONLY registers inside
+the designated `≤ k + 2` register set `if k = 0 then [target] else target :: pool.take (k + 1)`. -/
+public theorem balancedProdProg_usesOnly (k target : Nat) (sign : Int)
+    (pool : List Nat) (offset : Nat) :
+    ∀ op ∈ balancedProdProg k target sign pool offset,
+      op.usesOnly (if k = 0 then [target] else target :: pool.take (k + 1)) := by
+  induction k generalizing target sign pool offset with
+  | zero =>
+    intro op hop
+    simp only [balancedProdProg, List.mem_singleton] at hop
+    subst hop
+    simp [CatOp.usesOnly]
+  | succ k ih =>
+    match pool with
+    | [] => intro op hop; simp [balancedProdProg] at hop
+    | [_] => intro op hop; simp [balancedProdProg] at hop
+    | ra :: rb :: rest =>
+      have hsubA : ∀ x ∈ (if k = 0 then [ra] else ra :: (rb :: rest).take (k + 1)),
+          x ∈ target :: (ra :: rb :: rest).take (k + 2) := by
+        intro x hx
+        by_cases hk : k = 0
+        · simp [hk] at hx; subst hx; simp [List.take]
+        · simp [hk, List.take] at hx ⊢
+          rcases hx with rfl | rfl | hrest
+          · exact Or.inr (Or.inl rfl)
+          · exact Or.inr (Or.inr (Or.inl rfl))
+          · exact Or.inr (Or.inr (Or.inr hrest))
+      have hsubB : ∀ x ∈ (if k = 0 then [rb] else rb :: (ra :: rest).take (k + 1)),
+          x ∈ target :: (ra :: rb :: rest).take (k + 2) := by
+        intro x hx
+        by_cases hk : k = 0
+        · simp [hk] at hx; subst hx; simp [List.take]
+        · simp [hk, List.take] at hx ⊢
+          rcases hx with rfl | rfl | hrest
+          · exact Or.inr (Or.inr (Or.inl rfl))
+          · exact Or.inr (Or.inl rfl)
+          · exact Or.inr (Or.inr (Or.inr hrest))
+      have htop : ∀ s : Int,
+          (CatOp.addProd target ra rb s).usesOnly (target :: (ra :: rb :: rest).take (k + 2)) := by
+        intro s
+        simp [CatOp.usesOnly, List.take]
+      intro op hop
+      simp only [Nat.add_eq_zero_iff, Nat.one_ne_zero, and_false, ↓reduceIte]
+      simp only [balancedProdProg, List.mem_append, List.mem_singleton] at hop
+      rcases hop with (((((((rfl | h) | rfl) | h) | rfl) | h) | rfl) | h)
+      · exact htop sign
+      · exact CatOp.usesOnly_mono hsubA op (ih ra 1 (rb :: rest) offset op h)
+      · exact htop (-sign)
+      · exact CatOp.usesOnly_mono hsubB op (ih rb 1 (ra :: rest) (offset + 2 ^ k) op h)
+      · exact htop sign
+      · exact CatOp.usesOnly_mono hsubA op (ih ra (-1) (rb :: rest) offset op h)
+      · exact htop (-sign)
+      · exact CatOp.usesOnly_mono hsubB op (ih rb (-1) (ra :: rest) (offset + 2 ^ k) op h)
 
 /-- Core 8-step commutator algebraic cancellation identity over ANY commutative ring `R`. -/
 private theorem commutator_algebra {R : Type u} [CRing R]

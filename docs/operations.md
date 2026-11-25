@@ -16,7 +16,8 @@ git bundle verify ../catalytic-register-frontiers-$(date +%Y%m%d).bundle
 ```
 
 - **Local canonical workspace:** `Z:\[Vibe Coded (AI)]\ANTIGRAVITY\catalytic-register-frontiers` (dedicated ReFS Dev Drive).
-- **Planned archival mirrors:** GitHub (`0thernes/catalytic-register-frontiers`), Software Heritage (`archive.softwareheritage.org/save`, ISO/IEC 18670 SWHID), and master research archive (`0thernes-research-archive`).
+- **Confirmed live archival mirrors:** GitHub (`0thernes/catalytic-register-frontiers`), Zenodo Concept DOI `10.5281/zenodo.24517198` (`v1.0.1`: `10.5281/zenodo.24517199`), Software Heritage snapshot `swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085` (ISO/IEC 18670 SWHID), and master research archive (`0thernes/0thernes-research-archive`, record `0TH-2026-010`).
+- **Planned secondary deposits (not yet assigned):** Palomar Registry, arXiv (`cs.CC`), and HAL.
 - **Last local bundle/audit refresh:** 2026-11-24.
 
 ## Deployment & Rollback

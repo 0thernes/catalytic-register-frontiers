@@ -8,10 +8,10 @@ Pipeline Artifact: P7.F3
 - Result: PASS (0 secrets found; `.env.example` documents optional local binary path overrides only; zero runtime network credentials required; hardcoded user paths removed from `scripts/run_all.ps1` and `experiments/exp4_boolean_mc_companion.py`).
 
 ## 2. Lean 4.35 Trust-Base & Forbidden-Token Scan
-- Scope: All 14 `.lean` files under `lean/` (8,069 lines total, longest 1,361 lines).
-- Forbidden tokens (`sorry`, `admit`, `native_decide`, `implemented_by`, `unsafe`, custom `axiom`, `@[extern]`): 0 matches (PASS).
+- Scope: All 14 core proof `.lean` files under `lean/` (8,145 lines total, longest 1,361 lines) plus standalone Palomar contract pair (`PalomarChallenge.lean` 283 lines, `PalomarSolution.lean` 842 lines; 16 files / 9,270 lines total).
+- Forbidden tokens (`sorry`, `admit`, `native_decide`, `implemented_by`, `unsafe`, custom `axiom`, `@[extern]`): 0 matches across all 15 proof/solution modules (PASS); `PalomarChallenge.lean` has zero imports and Comparator placeholder `sorry` only.
 - Axioms (`VerifyAxioms.lean`): 22/22 declarations strictly within `[propext, Classical.choice, Quot.sound]` (PASS).
-- Multi-kernel replay (`results/six_kernel_audit.txt`): 6/6 native Windows runs PASS (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified` [3,525 decls], `con-ron --verified` [3,525 decls], `nanoda_bin 0.4.19` [3,838 decls]). Upstream Windows `lean4lean.exe` `.olean` header mismatch recorded as external `problem`.
+- Multi-kernel replay (`results/six_kernel_audit.txt`): 5 distinct locally reproducible kernel implementations across 6 native runs PASS (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified` [3,544 decls], `con-ron --verified` [3,544 decls], `nanoda_bin 0.4.19` [3,544 decls]). Upstream Windows `lean4lean.exe` `.olean` header mismatch retained as external `problem` and excluded from completed local kernel count.
 
 ## 3. Supply-Chain & Licensing Inventory
 - Lean external packages: 0 (`lean/lake-manifest.json` empty; zero Mathlib dependency).

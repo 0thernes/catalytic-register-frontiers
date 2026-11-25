@@ -1,17 +1,20 @@
-# Six-Kernel Lean 4.35.0 Clean-Room Verification Audit
+# Multi-Kernel Lean 4.35.0 Clean-Room Verification Audit (5 Distinct Implementations / 6 Completed Runs)
 Date: 2026-11-24
 Toolchain: leanprover/lean4:v4.35.0 (zero Mathlib, zero external Lake dependencies)
 Core Linters: autoImplicit=false, relaxedAutoImplicit=false, linter.unusedVariables=true, linter.deprecated=true
-Forbidden-token scan across all 14 .lean files (8,069 lines total, max 1,361 lines): 0 matches (0 sorry, 0 admit, 0 native_decide, 0 custom axiom, 0 unsafe, 0 @[extern])
-Targets exported: Catalytic.Solution.prove_all_catalytic_theorems (20 theorems: T1, T1a-T1e, T1s, T1es, T2, T2b, T3a-T3i, T4), Catalytic.NonVacuity.nonvac_all_hypotheses (incl. Fin 3 -> ModP 13 nonvac_T3i_witness)
+Forbidden-token scan: 0 forbidden tokens across all 15 proof/solution .lean modules (14 core modules: 8,145 lines, max 1,361 lines; PalomarSolution.lean: 842 lines; standalone zero-import PalomarChallenge.lean: 283 lines with Comparator placeholder sorries only; 16 files / 9,270 lines total)
+Targets exported:
+- Solution: Catalytic.Solution.prove_all_catalytic_theorems (20 theorems: T1, T1a-T1e, T1s, T1es, T2, T2b, T3a-T3i, T4 [incl. CatOp.usesOnly <= k + 2 designated register containment]), Catalytic.NonVacuity.nonvac_all_hypotheses (incl. Fin 3 -> ModP 13 nonvac_T3i_witness) -> 3,544 exported declarations
+- PalomarSolution: all 17 standalone Palomar Comparator theorems (Catalytic.Palomar.*) -> 3,502 exported declarations
 
-1. lean v4.35.0 (clean lake build + VerifyAxioms.lean): PASS (17/17 jobs, 0 warnings, 22/22 decls strictly within [propext, Classical.choice, Quot.sound])
-2. leanchecker Solution: PASS (exit 0)
-3. leanchecker-paranoid Solution: PASS (exit 0)
-4. con-leche --verified: PASS (exit 0) -- con-leche: accepted 3525 declarations (--verified)
-5. con-ron --verified: PASS (exit 0) -- con-ron: accepted 3525 declarations (--verified)
-6. nanoda_bin 0.4.19 (unpermitted_axiom_hard_error=true): PASS (exit 0, 3838 declarations, 0 typechecker errors, 0 unpermitted axioms)
+Completed locally reproducible kernel checks (5 distinct kernel implementations across 6 runs):
+1. lean v4.35.0 (clean lake build + VerifyAxioms.lean): PASS (19/19 default jobs, 0 warnings, 22/22 decls strictly within [propext, Classical.choice, Quot.sound])
+2. leanchecker (C++ external .olean replayer — standard mode): PASS on Solution and PalomarSolution (exit 0)
+3. leanchecker-paranoid (C++ external .olean replayer — paranoid mode; same implementation family as #2): PASS on Solution and PalomarSolution (exit 0)
+4. con-leche --verified (verified Lean-in-Lean kernel): PASS (exit 0) -- accepted 3,544 declarations (Solution) and 3,502 declarations (PalomarSolution)
+5. con-ron --verified (verified Aeneas Rust kernel): PASS (exit 0) -- accepted 3,544 declarations (Solution) and 3,502 declarations (PalomarSolution)
+6. nanoda_bin 0.4.19 (independent Rust kernel, unpermitted_axiom_hard_error=true): PASS (exit 0) -- 3,544 exported declarations (Solution) and 3,502 exported declarations (PalomarSolution), 0 typechecker errors, 0 unpermitted axioms
 
-Upstream Windows tooling notes (honest boundary):
-- `lake check --paranoid`: Lean 4.35's `lake check` wrapper requires POSIX `bwrap` and `git` on PATH and is executed on Linux (`ubuntu-latest`) in `.github/workflows/ci.yml`; all five underlying bundled kernel implementations above run natively on Windows.
-- `lean4lean.exe` (bundled in `leanprover--lean4---v4.35.0` Windows toolchain): classified as an upstream `problem` — running `lake env lean4lean Solution` (and even `lake env lean4lean Init`) exits with `failed to read file '...olean', incompatible header` due to an upstream `.olean` header-version mismatch in the Windows bundle. Linux CI (`lake check --paranoid`) is the authoritative multi-kernel gate.
+Upstream Windows tooling limitations (explicitly excluded from completed local kernel count above):
+- `lean4lean.exe` (bundled in `leanprover--lean4---v4.35.0` Windows toolchain): FAILED locally — classified as an upstream `problem`; running `lake env lean4lean Solution` (and even `lake env lean4lean Init`) exits with `failed to read file '...olean', incompatible header` due to an upstream `.olean` header-version mismatch in the Windows bundle. Accordingly, `lean4lean` is NOT counted among the 5 completed locally reproducible kernel implementations above.
+- `lake check --paranoid`: Lean 4.35's `lake check` wrapper requires POSIX `bwrap` and `git` on PATH and is configured for Linux (`ubuntu-latest`) in `.github/workflows/ci.yml` rather than native Windows.

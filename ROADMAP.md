@@ -1,18 +1,17 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Roadmap (`ROADMAP.md`)
 
-## Shipped (`v1.0.0`)
+## Shipped (`v1.0.0` / `v1.0.1`)
 
-- Zero-Mathlib Lean 4.35.0 formalization of all 20 theorems & soundness bridges (`T1`, `T1a`–`T1e`, `T1s`, `T1es`, `T2`, `T2b`, `T3a`–`T3i`, `T4`) plus concrete `0 ≠ 1` `NonVacuity` witnesses (14 modules, 8,069 lines, 22 audited declarations), passing 6 kernel runs across 5 implementations (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin`).
+- Zero-Mathlib Lean 4.35.0 formalization of all 20 theorems & soundness bridges (`T1`, `T1a`–`T1e`, `T1s`, `T1es`, `T2`, `T2b`, `T3a`–`T3i`, `T4` with machine-checked `CatOp.usesOnly` containment within $\le k + 2$ designated registers) plus concrete `0 ≠ 1` `NonVacuity` witnesses (14 core modules, 8,145 lines, max 1,361 lines; plus standalone zero-import `PalomarChallenge.lean` [283 lines] and `PalomarSolution.lean` [842 lines]; 22 audited declarations), passing 5 distinct locally reproducible kernel implementations across 6 runs (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin 0.4.19`).
 - Exact-arithmetic computational suite (`exp1`–`exp4`), `pytest` + Hypothesis property/metamorphic tests + mutant-killing tests + brute-force & second-encoder differential SAT audits + 8/8 archived & verified CaDiCaL 2.1.2 LRAT UNSAT proofs (`18,932` steps).
 - Deterministic vector PDF figures, frozen AMS-LaTeX white paper + clean-room `dist/arxiv_submission.tar.gz`, 100% REUSE 3.3 SPDX coverage, and cryptographically verified DigiCert RFC 3161 + OpenTimestamps provenance (`provenance/`).
+- **Confirmed Live Public Releases & Archival Mirrors:** Published `https://github.com/0thernes/catalytic-register-frontiers` with 100.0% Build Standard v1.1.0 score (`62/62`), green Linux & Windows CI + Sigstore SLSA attestations, live GitHub Pages Blueprint (`https://0thernes.github.io/catalytic-register-frontiers/`), Zenodo Concept DOI `10.5281/zenodo.24517198` (`v1.0.1` Version DOI `10.5281/zenodo.24517199`), Software Heritage snapshot `swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085`, ORCID `0009-0006-8168-9648` work link, and `0thernes-research-archive` record `0TH-2026-010`.
 
-## Next Release & External Credibility Steps (Ordered per Independent Research Playbook)
+## Planned & In-Progress External Credibility Steps
 
-1. **Public GitHub Push & CI Verification:** Push `main` to `https://github.com/0thernes/catalytic-register-frontiers` and verify green Linux (`lake check --paranoid` + `pytest` + Tectonic) and Windows CI runs.
-2. **Cryptographic Release & Archival:** Cut a signed release tag `v1.0.0` triggering `.github/workflows/release.yml` (`SHA256SUMS` + Sigstore SLSA attestations), evaluate Zenodo April 2026 AI eligibility honestly (or deposit via OSF/HAL), and request a Software Heritage SWHID (`archive.softwareheritage.org/save`).
-3. **Palomar Registry Submission:** Submit the pinned 40-character commit SHA with `lean/Challenge.lean`, `lean/Solution.lean`, `lean/comparator.json`, and `lean/formalization.yaml` at `submit.palomar-registry.org`.
-4. **Community & Peer Scrutiny:** Request independent reproduction on a second clean machine (updating [`REPLICATION.md`](REPLICATION.md)), post hand-written outreach on Lean Zulip (`#new members` → `#maths`), seek domain arXiv (`cs.CC`) endorsement from an active complexity author, and consider formal journal submission.
+1. **Palomar Registry Final Registration:** Complete Palomar Registry editorial review and registration of the hardened commit (`lean/PalomarChallenge.lean`, `lean/PalomarSolution.lean`, `lean/palomar_comparator.json`, `lean/formalization.yaml`) at `submit.palomar-registry.org` (Palomar ID not yet assigned).
+2. **Community & Peer Scrutiny:** Request independent reproduction on a second clean machine (updating [`REPLICATION.md`](REPLICATION.md)), post hand-written 5-sentence outreach on Lean Zulip (`#new members` → `#maths`), complete arXiv (`cs.CC`, `math.CO`, `cs.LO`) and HAL preprint deposits (IDs not yet assigned), and consider formal peer-reviewed journal submission.
 
 ## Open Mathematical Frontiers (Tier-4)
 

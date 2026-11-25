@@ -224,15 +224,18 @@ def T3i_StreamingFrequencyMoment : Prop :=
 /-- **T4 (Balanced Zero-Workspace Bilinear Multilinear Product):**
 For every `k : Nat`, arbitrary commutative ring `R`, inputs `xs`, arbitrary catalytic state `st`,
 and distinct register list `target :: pool` (`pool.length ≥ k + 1` for `k ≥ 1`),
-`balancedProdProg` cleanly computes `x_0 * ... * x_{2^k - 1}` with strictly distinct indices
-and exact op count `3 * ops + 4 = 7 * (2^k)^2`. -/
+`balancedProdProg` cleanly computes `x_0 * ... * x_{2^k - 1}` with strictly distinct indices,
+every operation restricted to the `≤ k + 2` designated registers (`[target]` for `k = 0`,
+`target :: pool.take (k + 1)` for `k ≥ 1`), and exact op count `3 * ops + 4 = 7 * (2^k)^2`. -/
 def T4_BalancedMultilinearProduct : Prop :=
   ∀ (k target : Nat) (sign : Int) (pool : List Nat) (offset : Nat),
     (sign = 1 ∨ sign = -1) →
     (k = 0 ∨ k + 1 ≤ pool.length) →
     (target :: pool).Nodup →
+    let regs := if k = 0 then [target] else target :: pool.take (k + 1)
     3 * (balancedProdProg k target sign pool offset).length + 4 = 7 * (2 ^ k) ^ 2 ∧
-    (∀ op ∈ balancedProdProg k target sign pool offset, op.isStrictValid) ∧
+    regs.length ≤ k + 2 ∧
+    (∀ op ∈ balancedProdProg k target sign pool offset, op.isStrictValid ∧ op.usesOnly regs) ∧
     ∀ (R : Type) [CRing R] (xs st : Nat → R),
       CatProg.exec xs (balancedProdProg k target sign pool offset) st =
         (fun r => if r = target then st target + CRing.intCast sign * rangeProd xs offset (2 ^ k)

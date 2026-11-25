@@ -93,7 +93,9 @@ public theorem t3i_streaming_frequency_moment : T3i_StreamingFrequencyMoment :=
 public theorem t4_balanced_multilinear_product : T4_BalancedMultilinearProduct :=
   fun k target sign pool offset hsign hpool hnd =>
     ⟨by rw [balancedProdProg_length k target sign pool offset hpool]; exact balancedOpCount_formula k,
-     balancedProdProg_strictValid k target sign pool offset hsign hpool hnd,
+     designatedRegs_length_le k target pool,
+     fun op hop => ⟨balancedProdProg_strictValid k target sign pool offset hsign hpool hnd op hop,
+                    balancedProdProg_usesOnly k target sign pool offset op hop⟩,
      fun R _ xs st => balancedProdProg_clean (R := R) k target sign pool offset hpool hnd xs st⟩
 
 /-- Single master conjunction bundling all 20 verified theorems for one-shot external kernel export. -/
