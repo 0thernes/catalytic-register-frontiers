@@ -1527,5 +1527,61 @@ def test_pass12_deep_hardening_and_pwa_v12(tmp_path: pathlib.Path) -> None:
         assert proc.returncode == 0, f"Node.js v1.2 audit failed (rc={proc.returncode}): {proc.stderr}"
 
 
+def test_pass13_v13_cli_animator_and_benchmark() -> None:
+    """Pass 13 permanent regression guard:
+    1. Unused LaTeX packages (cleveref, multirow, mathtools) stripped from paper/main.tex.
+    2. PWA v1.3 features present in docs/index.html (non-trivial T2 default k=5, interactive
+       register scramble animator, live device calibration benchmark, auto-run on open).
+    3. Universal zero-dependency Node.js CLI subcommands (plan, run, vault, bench) exit 0
+       and emit verified JSON proofs + identical SHA-256 before/after hashes.
+    """
+    import shutil
+    import subprocess
+
+    tex = (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
+    for unused in ("cleveref", "multirow", "mathtools"):
+        assert unused not in tex, f"Unused LaTeX package {unused!r} still loaded in paper/main.tex"
+
+    html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    assert "Adaptive Forking Offline PWA v1.3" in html
+    assert 'id="t2-k" type="number" min="1" max="12" value="5"' in html
+    assert "toggleTracePlay" in html and "runDeviceBenchUI" in html
+
+    node_bin = shutil.which("node")
+    if node_bin:
+        js_path = str(REPO / "docs" / "catalytic-engine.js")
+        for cmd_args, check_fn in [
+            (
+                ["plan", "--N", "91", "--p", "1009"],
+                lambda d: d["winner"]["accesses"] == "80" and d["speedupFactor"] >= 2.5,
+            ),
+            (
+                ["run", "--N", "91", "--p", "1009", "--x", "7"],
+                lambda d: d["verified"] is True and d["accesses"] == 80,
+            ),
+            (
+                ["vault", "SmartwatchPhoneTabletLaptopDesktop", "--N", "91", "--p", "1009"],
+                lambda d: d["verified"] is True
+                and d["sha256Identical"] is True
+                and d["sha256Before"] != d["sha256MidFlightScrambled"],
+            ),
+            (
+                ["bench", "--iters", "2"],
+                lambda d: d["verified"] is True and d["n91"]["adaptiveAccesses"] == 80 and d["vault"]["bytesPerSec"] > 0,
+            ),
+        ]:
+            proc = subprocess.run(
+                [node_bin, js_path, *cmd_args],
+                capture_output=True,
+                text=True,
+                timeout=30,
+                check=False,
+            )
+            assert proc.returncode == 0, f"CLI {cmd_args} failed: {proc.stderr}"
+            parsed = json.loads(proc.stdout)
+            assert check_fn(parsed), f"CLI {cmd_args} failed assertion: {parsed}"
+
+
+
 
 

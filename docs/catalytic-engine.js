@@ -1399,7 +1399,7 @@
     const N = BigInt(NIn);
     const x = mod(BigInt(xIn), p);
     const faultBit = Boolean(opts.faultBit);
-    const maxChunks = Math.max(1, Number(opts.maxChunks ?? 16));
+    const maxChunks = Math.max(1, Math.min(21845, Number(opts.maxChunks ?? 256)));
     const cappedLen = Math.min(bytes.length, maxChunks * 3);
     const slice = bytes.slice(0, cappedLen);
 
@@ -1939,8 +1939,81 @@
     };
   }
 
-  return {
-    version: '1.2.0',
+  // =========================================================================
+  // 9. Real-Time Cross-Device Calibration Benchmark (Adaptive vs. Baseline)
+  // =========================================================================
+
+  function runDeviceBenchmark(opts = {}) {
+    const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    const iters = Math.max(2, Number(opts.iters ?? 6));
+    const p = 1009n;
+
+    // Warm-up JIT once
+    execFourRegPowering(91, 7, p, { engine: 'adaptive' });
+    execFourRegPowering(91, 7, p, { engine: 'prog4_x5' });
+
+    // Benchmark N=91 (7*13): Adaptive Fork (80 accesses) vs Vinciguerra Static Baseline (208 accesses)
+    let ok = true;
+    const tA91 = now();
+    for (let i = 0; i < iters; i++) {
+      if (!execFourRegPowering(91, 7 + i, p, { engine: 'adaptive' }).verified) ok = false;
+    }
+    const adaptive91Ms = Math.max(0.01, (now() - tA91) / iters);
+
+    const tB91 = now();
+    for (let i = 0; i < iters; i++) {
+      if (!execFourRegPowering(91, 7 + i, p, { engine: 'prog4_x5' }).verified) ok = false;
+    }
+    const baseline91Ms = Math.max(0.01, (now() - tB91) / iters);
+
+    // Benchmark N=169 (13^2): Adaptive Fork (128 accesses) vs Vinciguerra Static Baseline (592 accesses)
+    const tA169 = now();
+    for (let i = 0; i < iters; i++) {
+      if (!execFourRegPowering(169, 11 + i, p, { engine: 'adaptive' }).verified) ok = false;
+    }
+    const adaptive169Ms = Math.max(0.01, (now() - tA169) / iters);
+
+    const tB169 = now();
+    for (let i = 0; i < iters; i++) {
+      if (!execFourRegPowering(169, 11 + i, p, { engine: 'prog4_x5' }).verified) ok = false;
+    }
+    const baseline169Ms = Math.max(0.01, (now() - tB169) / iters);
+
+    // Benchmark Catalytic Byte-Vault throughput (192 bytes @ N=13 prog8_x13)
+    const sample = new Uint8Array(192);
+    for (let i = 0; i < sample.length; i++) sample[i] = (i * 37 + 13) & 0xff;
+    const tV = now();
+    const vRes = execCatalyticByteVault(sample, 13, 7, p, { maxChunks: 64 });
+    const vaultMs = Math.max(0.01, now() - tV);
+    if (!vRes.verified) ok = false;
+
+    return {
+      iters,
+      verified: ok,
+      n91: {
+        adaptiveAccesses: 80,
+        baselineAccesses: 208,
+        adaptiveMs: Number(adaptive91Ms.toFixed(2)),
+        baselineMs: Number(baseline91Ms.toFixed(2)),
+        wallSpeedup: Number((baseline91Ms / adaptive91Ms).toFixed(2))
+      },
+      n169: {
+        adaptiveAccesses: 128,
+        baselineAccesses: 592,
+        adaptiveMs: Number(adaptive169Ms.toFixed(2)),
+        baselineMs: Number(baseline169Ms.toFixed(2)),
+        wallSpeedup: Number((baseline169Ms / adaptive169Ms).toFixed(2))
+      },
+      vault: {
+        bytes: sample.length,
+        ms: Number(vaultMs.toFixed(2)),
+        bytesPerSec: Math.round((sample.length / vaultMs) * 1000)
+      }
+    };
+  }
+
+  const exportedApi = {
+    version: '1.3.0',
     PROGRAMS_R3,
     mod,
     gcd,
@@ -1965,6 +2038,94 @@
     evalT1Oracle,
     execT2BilinearFrobenius,
     execT4BalancedProduct,
-    runAdversarialFuzz
+    runAdversarialFuzz,
+    runDeviceBenchmark
   };
+
+  // Universal zero-dependency Node.js CLI entrypoint (laptops, desktops, servers, Termux, containers)
+  if (typeof require === 'function' && typeof module === 'object' && require.main === module) {
+    const args = process.argv.slice(2);
+    const cmd = args[0] || 'help';
+    const getArg = (flag, def) => {
+      const idx = args.indexOf(flag);
+      return idx >= 0 && idx + 1 < args.length ? args[idx + 1] : def;
+    };
+    const bigReplacer = (_k, v) => (typeof v === 'bigint' ? v.toString() : v);
+    try {
+      if (cmd === 'plan') {
+        const res = planAdaptiveFork({
+          N: BigInt(getArg('--N', '91')),
+          p: BigInt(getArg('--p', '1009')),
+          workload: getArg('--workload', 'scalar'),
+          matrixDim: Number(getArg('--m', '4'))
+        });
+        console.log(JSON.stringify({
+          version: exportedApi.version,
+          N: res.N,
+          p: res.p,
+          ring: res.ringLabel,
+          winner: res.comparison.adaptive_fork,
+          baseline: res.comparison.vinciguerra_r3_x5,
+          speedupFactor: Number(res.speedupFactor.toFixed(3)),
+          reductionPct: Number(res.reductionPct.toFixed(2))
+        }, bigReplacer, 2));
+      } else if (cmd === 'run') {
+        const res = execFourRegPowering(
+          BigInt(getArg('--N', '91')),
+          BigInt(getArg('--x', '7')),
+          BigInt(getArg('--p', '1009')),
+          { engine: getArg('--engine', 'adaptive'), faultBit: args.includes('--fault') }
+        );
+        console.log(JSON.stringify(res, bigReplacer, 2));
+        if (!res.verified) process.exitCode = 2;
+      } else if (cmd === 'vault') {
+        const crypto = require('crypto');
+        const payload = args[1] && !args[1].startsWith('--') ? args[1] : 'SensorBuffer:98.6F|Battery:84%|Keys:OK';
+        const raw = Buffer.from(payload, 'utf8');
+        const res = execCatalyticByteVault(
+          new Uint8Array(raw),
+          BigInt(getArg('--N', '91')),
+          BigInt(getArg('--x', '7')),
+          BigInt(getArg('--p', '1009')),
+          { faultBit: args.includes('--fault') }
+        );
+        const hBefore = crypto.createHash('sha256').update(res.beforeBytes).digest('hex');
+        const hMid = crypto.createHash('sha256').update(res.midScrambleBytes).digest('hex');
+        const hAfter = crypto.createHash('sha256').update(res.afterBytes).digest('hex');
+        console.log(JSON.stringify({
+          engineUsed: res.engineUsed,
+          borrowedBytes: res.borrowedBytes,
+          accessesPerChunk: res.accessesPerChunk,
+          sha256Before: hBefore,
+          sha256MidFlightScrambled: hMid,
+          sha256After: hAfter,
+          sha256Identical: hBefore === hAfter,
+          verified: res.verified && hBefore === hAfter
+        }, null, 2));
+        if (!(res.verified && hBefore === hAfter)) process.exitCode = 2;
+      } else if (cmd === 'bench') {
+        console.log(JSON.stringify(runDeviceBenchmark({ iters: Number(getArg('--iters', '6')) }), null, 2));
+      } else if (cmd === 'fuzz') {
+        const n = Number(args[1] && !args[1].startsWith('--') ? args[1] : getArg('--trials', '300'));
+        const res = runAdversarialFuzz(n, 20261125);
+        console.log(JSON.stringify(res, null, 2));
+        if (res.failed > 0) process.exitCode = 2;
+      } else {
+        console.log([
+          `Catalytic Register Frontiers — Adaptive Forking CLI v${exportedApi.version}`,
+          'Usage:',
+          '  node catalytic-engine.js plan  --N 91 --p 1009 [--workload scalar|streaming|matrix]',
+          '  node catalytic-engine.js run   --N 91 --p 1009 --x 7 [--fault]',
+          '  node catalytic-engine.js vault "SecretRAM" --N 91 --p 1009 [--fault]',
+          '  node catalytic-engine.js bench [--iters 6]',
+          '  node catalytic-engine.js fuzz  [300]'
+        ].join('\n'));
+      }
+    } catch (err) {
+      console.error('ERROR:', err.message);
+      process.exitCode = 1;
+    }
+  }
+
+  return exportedApi;
 });

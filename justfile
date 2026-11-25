@@ -37,13 +37,14 @@ build:
 test:
     pytest -v tests/test_all.py
 
-# Run static analysis, LRAT certificate check, REUSE/SPDX audit, and strict type checks (report-only)
+# Run static analysis, LRAT certificate check, REUSE/SPDX audit, citation check, and strict type checks (report-only)
 [unix]
 lint:
     ruff check experiments scripts tests || true
     mypy experiments scripts tests || true
     python3 scripts/verify_lrat.py
     python3 scripts/check_reuse.py
+    python3 scripts/check_citations.py --offline
 
 [windows]
 lint:
@@ -51,6 +52,11 @@ lint:
     mypy experiments scripts tests; if ($LASTEXITCODE -ne 0) { Write-Host "mypy exited $LASTEXITCODE (report-only)" }
     python scripts/verify_lrat.py
     python scripts/check_reuse.py
+    python scripts/check_citations.py --offline
+
+# Run the universal zero-dependency Adaptive Forking CLI engine (plan, run, vault, bench, fuzz)
+adaptive *ARGS:
+    node docs/catalytic-engine.js {{ARGS}}
 
 # Score this repository against Build Standard v1.1.0 & Build Pipeline Models v1.0.0 (report-only)
 [unix]

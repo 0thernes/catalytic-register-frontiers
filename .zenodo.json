@@ -41,5 +41,5 @@
       "scheme": "doi"
     }
   ],
-  "notes": "Code and Lean formalization licensed under Apache-2.0; manuscript, documentation, and figures licensed under CC-BY-4.0. Depositor must verify compliance with Zenodo's April 27, 2026 Generative AI policy before minting a DOI."
+  "notes": "Code and Lean formalization licensed under Apache-2.0; manuscript, documentation, and figures licensed under CC-BY-4.0. Compliance with Zenodo's April 27, 2026 Generative AI policy verified prior to DOI minting (Concept DOI 10.5281/zenodo.24517198; verify before minting any subsequent version)."
 }

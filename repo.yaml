@@ -109,7 +109,7 @@ items:
   B35: {status: done, evidence: "CI secret/citation hygiene audit and CycloneDX sbom.cdx.json"}
   B36: {status: done, evidence: "docs/threat-model.md"}
   B37: {status: done, evidence: "MANIFEST.sha256 and SHA256SUMS in .github/workflows/release.yml"}
-  B38: {status: done, evidence: "actions/attest-build-provenance@v2 in .github/workflows/ci.yml and release.yml"}
+  B38: {status: done, evidence: "actions/attest-build-provenance@v4 in .github/workflows/ci.yml and release.yml"}
   B39: {status: n/a, note: "No external dataset corpus; exact generated artifacts hashed in root MANIFEST.sha256"}
   B40: {status: done, evidence: "docs/run-log.md"}
   B41: {status: done, evidence: "LIMITATIONS.md"}

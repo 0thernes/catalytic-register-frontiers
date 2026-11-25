@@ -17,7 +17,7 @@ Maps every applicable rung of Part B of the Build Standard for LLMs (v1.1.0) and
 | B17–B18 | Static analysis & strict type checking (report-only) | `ruff check experiments scripts tests` and `mypy experiments scripts tests` + Lean core linters (`autoImplicit=false`, `linter.unusedVariables=true`) | **PASS** |
 | B22 | Formal specification and proof | Zero-Mathlib `lean/` + 5-kernel (6-run) audit (`results/six_kernel_audit.txt`) + `lean/Catalytic/NonVacuity.lean` | **PASS** |
 | B35–B36 | Security scanning, SBOM, & threat model | CI secret scan, `sbom.cdx.json`, `docs/threat-model.md` | **PASS** |
-| B37–B38 | Release checksums & SLSA attestations | `MANIFEST.sha256` + `.github/workflows/release.yml` (`SHA256SUMS` + `actions/attest-build-provenance@v2`) | **PASS** |
+| B37–B38 | Release checksums & SLSA attestations | `MANIFEST.sha256` + `.github/workflows/release.yml` (`SHA256SUMS` + `actions/attest-build-provenance@v4`) | **PASS** |
 | B40–B43 | Audit trail, limitations, refutation criteria, replication protocol | `docs/run-log.md`, `LIMITATIONS.md`, `CLAIMS.md`, `REPLICATION.md` | **PASS** |
 | B44 | Independent replication | Clean-room self-replication logged in `REPLICATION.md`; external human replicator pending (explicitly marked) | **PARTIAL (external pending)** |
 | B45 | Peer & red-team review | `docs/reviews/01-10-pass-review.md`, `docs/plan/00-redteam.md` (external peer review pending) | **PASS (internal red-team)** |

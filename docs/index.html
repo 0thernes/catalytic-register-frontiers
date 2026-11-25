@@ -233,7 +233,7 @@
     <span class="pill">14 Core Modules &middot; 20 Theorems + Non-Vacuity</span>
     <span class="pill">5 Kernels (6 Runs) PASS</span>
     <span class="pill">8 / 8 LRAT UNSAT Proofs Verified</span>
-    <span class="pill info">Adaptive Forking Offline PWA v1.2</span>
+    <span class="pill info">Adaptive Forking Offline PWA v1.3</span>
     <span class="pill warn">Preprint &middot; Not Peer-Reviewed</span>
   </div>
 
@@ -304,8 +304,9 @@
       <div class="inline-controls">
         <button class="action-btn primary" type="button" onclick="runAdaptiveLive()">Run Live Adaptive Fork Proof</button>
         <button class="action-btn ok" type="button" onclick="runByteVaultLive()">Run SHA-256 Byte-Vault Proof</button>
-        <button class="action-btn" type="button" onclick="runPass3Trace(8)">Trace Optimal prog8_x13</button>
-        <button class="action-btn" type="button" onclick="runPass3Trace(5)">Trace Compact prog5_x7</button>
+        <button class="action-btn" type="button" onclick="runPass3Trace(8)">Animate Optimal prog8_x13</button>
+        <button class="action-btn" type="button" onclick="runPass3Trace(5)">Animate Compact prog5_x7</button>
+        <button class="action-btn" type="button" onclick="runDeviceBenchUI()">Benchmark This Device</button>
         <label class="toggle-lbl"><input id="af-fault" type="checkbox"> Inject 1-Bit Fault (Test Catch)</label>
       </div>
 
@@ -322,13 +323,20 @@
       </div>
 
       <div class="inline-controls" style="font-size:0.8rem;">
-        <label class="toggle-lbl" style="color:var(--muted);">Optional local file bytes for Byte-Vault (100% offline, never uploaded):
+        <label class="toggle-lbl" style="color:var(--muted);">Local file for SHA-256 Byte-Vault (up to 64 KiB, 100% offline, never uploaded):
           <input id="af-file" type="file" style="max-width:220px; font-size:0.78rem;">
         </label>
         <button class="action-btn" type="button" onclick="exportProofCertificate()">Download JSON Proof Certificate</button>
         <button class="action-btn" type="button" onclick="copyShareLink()">Copy Shareable Deep Link</button>
         <span id="share-feedback" style="color:var(--ok); font-weight:600;"></span>
       </div>
+      <details style="margin:0.4rem 0 0.6rem; font-size:0.82rem;">
+        <summary>Universal Zero-Dependency CLI (Run on Any Laptop / Desktop / Server / Termux)</summary>
+        <pre style="margin:0.4rem 0 0; padding:0.65rem;"><code>curl -fsSLO https://0thernes.github.io/catalytic-register-frontiers/catalytic-engine.js
+node catalytic-engine.js plan  --N 91 --p 1009
+node catalytic-engine.js vault "SensorBuffer:98.6F" --N 91 --p 1009
+node catalytic-engine.js bench</code></pre>
+      </details>
 
       <div id="af-predict-box" class="status-box"></div>
       <div id="af-dag" class="dag-box" aria-label="Dynamic Adaptive Fork Decision Tree"></div>
@@ -414,8 +422,8 @@
           <input id="t1-t" type="number" min="1" value="2" oninput="runT1OracleUI()">
         </div>
         <div class="field">
-          <label for="t2-k">T2 Tower Depth k (x^(2^k) over GF(2^8))</label>
-          <input id="t2-k" type="number" min="1" max="12" value="8">
+          <label for="t2-k">T2 Tower Depth k (x^(2^k) over GF(2^8); k=5 -&gt; x^32 non-trivial!)</label>
+          <input id="t2-k" type="number" min="1" max="12" value="5">
         </div>
         <div class="field">
           <label for="t2-x">GF(2^8) Byte Input x (0..255)</label>
@@ -853,9 +861,13 @@
       }
 
       if (p === 0n) {
-        const t = N === 7n ? 5 : 8;
-        runPass3Trace(t);
-        return;
+        const mapExactZ = { 5: 4, 7: 5, 9: 6, 11: 7, 13: 8, 15: 9 };
+        const tMatch = mapExactZ[Number(N)];
+        if (tMatch) {
+          runPass3Trace(tMatch);
+          return;
+        }
+        throw new Error(`For exact Z (p=0), direct 3-register literal traces exist for N in {5, 7, 9, 11, 13, 15}. For arbitrary N=${N}, set a modulus p >= 2 (e.g., p=1009 or composite 1022117) or click "Animate Optimal prog8_x13".`);
       }
       if (p < 2n) throw new Error('Modulus p must be 0 (exact Z trace) or >= 2 (prime F_p or valid composite ring Z/mZ).');
       if (N > 2000n) {
@@ -905,20 +917,28 @@
     const out = document.getElementById('af-live-result');
     try {
       const N = BigInt(document.getElementById('af-n').value.trim() || '91');
-      let p = BigInt(document.getElementById('af-p').value.trim() || '1009');
+      const rawP = BigInt(document.getElementById('af-p').value.trim() || '1009');
+      let p = rawP;
+      let promotedNote = '';
+      if (p < 257n) {
+        p = 1009n;
+        promotedNote = ` (auto-promoted from p=${rawP} to prime p=1009 so every byte 0..255 fits injectively in one register)`;
+      }
       const x = BigInt(document.getElementById('af-x').value.trim() || '7');
       const faultBit = document.getElementById('af-fault').checked;
-      if (p < 257n) p = 1009n;
       if (N > 2000n) throw new Error('Set N <= 2000 for instant Byte-Vault SHA-256 catalytic execution.');
 
+      const cls = detectDeviceClass();
+      const maxBytes = cls === 'watch' ? 1024 : (cls === 'phone' ? 8192 : 65536);
       const fileInput = document.getElementById('af-file');
       let rawBytes;
       let sourceDesc;
       if (fileInput && fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
-        const buf = await file.slice(0, 48).arrayBuffer();
+        const take = Math.min(file.size, maxBytes);
+        const buf = await file.slice(0, take).arrayBuffer();
         rawBytes = new Uint8Array(buf);
-        sourceDesc = `Local file "${file.name}" (first ${rawBytes.length} bytes, 100% local)`;
+        sourceDesc = `Local file "${file.name}" (${rawBytes.length.toLocaleString()} bytes, 100% local)`;
       } else {
         const text = document.getElementById('af-payload').value || 'SensorBuffer:98.6F|Battery:84%|Keys:OK';
         rawBytes = new TextEncoder().encode(text);
@@ -926,8 +946,9 @@
       }
 
       const t0 = performance.now();
-      const res = E.execCatalyticByteVault(rawBytes, N, x, p, { faultBit, maxChunks: 16 });
-      const ms = (performance.now() - t0).toFixed(2);
+      const res = E.execCatalyticByteVault(rawBytes, N, x, p, { faultBit, maxChunks: Math.ceil(maxBytes / 3) });
+      const ms = Math.max(0.01, performance.now() - t0);
+      const kbps = ((res.borrowedBytes / 1024) / (ms / 1000)).toFixed(1);
       const hashBefore = await sha256Hex(res.beforeBytes);
       const hashMid = await sha256Hex(res.midScrambleBytes);
       const hashAfter = await sha256Hex(res.afterBytes);
@@ -936,12 +957,13 @@
       lastCertificate = {
         kind: 'catalytic_sha256_byte_vault',
         timestamp: new Date().toISOString(),
-        device: detectDeviceClass(),
+        device: cls,
         source: sourceDesc,
         N: N.toString(),
         p: p.toString(),
         engineUsed: res.engineUsed,
         borrowedBytes: res.borrowedBytes,
+        throughputKBps: Number(kbps),
         accessesPerChunk: res.accessesPerChunk,
         sha256Before: hashBefore,
         sha256MidFlightScrambled: hashMid,
@@ -951,14 +973,32 @@
       };
 
       out.innerHTML = `<div class="status-box ${res.verified && shaMatch ? 'ok' : 'bad'}">` +
-        `<strong>${res.verified && shaMatch ? 'SHA-256 CATALYTIC BYTE-VAULT VERIFIED (0 BITS CORRUPTED!)' : 'BYTE-VAULT CORRUPTION CAUGHT BY SHA-256!'}</strong> (${ms} ms)<br>` +
-        `Source: <strong>${esc(sourceDesc)}</strong> &middot; Borrowed <strong>${res.borrowedBytes}</strong> bytes across ${res.chunks} catalytic chunks via <code>${esc(res.engineUsed)}</code> (${res.accessesPerChunk} accesses/chunk)<br>` +
+        `<strong>${res.verified && shaMatch ? 'SHA-256 CATALYTIC BYTE-VAULT VERIFIED (0 BITS CORRUPTED!)' : 'BYTE-VAULT CORRUPTION CAUGHT BY SHA-256!'}</strong> (${ms.toFixed(2)} ms &middot; ${kbps} KiB/s)${esc(promotedNote)}<br>` +
+        `Source: <strong>${esc(sourceDesc)}</strong> &middot; Borrowed <strong>${res.borrowedBytes.toLocaleString()}</strong> bytes across ${res.chunks.toLocaleString()} catalytic chunks via <code>${esc(res.engineUsed)}</code> (${res.accessesPerChunk} accesses/chunk)<br>` +
         `SHA-256 Before: <code>${esc(hashBefore)}</code><br>` +
         `SHA-256 Mid-Flight (Scrambled): <code>${esc(hashMid)}</code><br>` +
         `SHA-256 Restored: <code>${esc(hashAfter)}</code> &rarr; <strong>${shaMatch ? 'IDENTICAL BIT-FOR-BIT' : 'HASH MISMATCH CAUGHT!'}</strong><br>` +
         `Hex Preview: <code>${esc(res.beforeHexPreview)}</code> &rarr; <code>${esc(res.midHexPreview)}</code> &rarr; <code>${esc(res.afterHexPreview)}</code></div>`;
     } catch (err) {
       out.innerHTML = `<div class="status-box bad"><strong>Byte-Vault notice:</strong> ${esc(err.message)}</div>`;
+    }
+  };
+
+  window.runDeviceBenchUI = function () {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('af-live-result');
+    try {
+      const cls = detectDeviceClass();
+      const iters = cls === 'watch' ? 2 : (cls === 'phone' ? 4 : 6);
+      const b = E.runDeviceBenchmark({ iters });
+      lastCertificate = { kind: 'device_calibration_benchmark', timestamp: new Date().toISOString(), device: cls, benchmark: b };
+      out.innerHTML = `<div class="status-box ${b.verified ? 'ok' : 'bad'}">` +
+        `<strong>Live Device Calibration Complete (${esc(cls.toUpperCase())} &middot; ${b.verified ? '100% EXACT VERIFIED' : 'VERIFY FAIL'})</strong><br>` +
+        `<strong>N=91 (7&times;13):</strong> Adaptive Fork <code>${b.n91.adaptiveMs} ms</code> (80 reads) vs. Vinciguerra Baseline <code>${b.n91.baselineMs} ms</code> (208 reads) &rarr; <strong>${b.n91.wallSpeedup}&times; real wall-clock speedup</strong><br>` +
+        `<strong>N=169 (13&sup2;):</strong> Adaptive Fork <code>${b.n169.adaptiveMs} ms</code> (128 reads) vs. Vinciguerra Baseline <code>${b.n169.baselineMs} ms</code> (592 reads) &rarr; <strong>${b.n169.wallSpeedup}&times; real wall-clock speedup</strong><br>` +
+        `<strong>Catalytic Byte-Vault Throughput (prog8_x13):</strong> <strong>${(b.vault.bytesPerSec / 1024).toFixed(1)} KiB/s</strong> (${b.vault.bytes} bytes verified in ${b.vault.ms} ms, 0 bits corrupted)</div>`;
+    } catch (err) {
+      out.innerHTML = `<div class="status-box bad"><strong>Benchmark error:</strong> ${esc(err.message)}</div>`;
     }
   };
 
@@ -999,9 +1039,62 @@
     }
   };
 
+  let traceAnimTimer = null;
+  let activeTrace = null;
+
+  window.renderTraceFrame = function (idx) {
+    if (!activeTrace) return;
+    const E = window.CatalyticEngine;
+    const tr = activeTrace.trace[idx];
+    const init = activeTrace.initial;
+    const uClean = tr.u === init.u;
+    const vClean = tr.v === init.v;
+    const oDone = tr.O === activeTrace.expectedO;
+    const box = document.getElementById('trace-frame-box');
+    const lbl = document.getElementById('trace-step-label');
+    const scrub = document.getElementById('trace-scrub');
+    if (scrub) scrub.value = String(idx);
+    if (lbl) lbl.textContent = `Frame ${idx} / ${activeTrace.trace.length - 1} (${tr.stage})`;
+    if (box) {
+      box.innerHTML =
+        `<div style="margin-bottom:0.45rem;"><strong>Instruction:</strong> <code>${esc(tr.op)}</code></div>` +
+        `<div class="grid" style="margin-top:0.35rem;">` +
+        `<div class="stat"><div class="l">Output O (Passive) ${oDone ? '<span class="pill" style="font-size:0.68rem;">TARGET REACHED</span>' : ''}</div><div class="k" style="font-size:0.95rem;"><code>${esc(E.formatBig(tr.O, 24))}</code></div></div>` +
+        `<div class="stat"><div class="l">Catalyst u ${uClean ? '<span class="pill" style="font-size:0.68rem;">RESTORED EXACT</span>' : '<span class="pill warn" style="font-size:0.68rem;">SCRAMBLED IN-FLIGHT</span>'}</div><div class="k" style="font-size:0.95rem;"><code>${esc(E.formatBig(tr.u, 24))}</code></div></div>` +
+        `<div class="stat"><div class="l">Catalyst v ${vClean ? '<span class="pill" style="font-size:0.68rem;">RESTORED EXACT</span>' : '<span class="pill warn" style="font-size:0.68rem;">SCRAMBLED IN-FLIGHT</span>'}</div><div class="k" style="font-size:0.95rem;"><code>${esc(E.formatBig(tr.v, 24))}</code></div></div>` +
+        `</div>`;
+    }
+  };
+
+  window.toggleTracePlay = function () {
+    const btn = document.getElementById('trace-play-btn');
+    if (traceAnimTimer) {
+      clearInterval(traceAnimTimer);
+      traceAnimTimer = null;
+      if (btn) btn.textContent = 'Play Animation';
+      return;
+    }
+    if (!activeTrace) return;
+    const scrub = document.getElementById('trace-scrub');
+    let cur = scrub ? parseInt(scrub.value, 10) : 0;
+    if (cur >= activeTrace.trace.length - 1) cur = 0;
+    if (btn) btn.textContent = 'Pause';
+    traceAnimTimer = setInterval(() => {
+      renderTraceFrame(cur);
+      if (cur >= activeTrace.trace.length - 1) {
+        clearInterval(traceAnimTimer);
+        traceAnimTimer = null;
+        if (btn) btn.textContent = 'Replay Animation';
+        return;
+      }
+      cur += 1;
+    }, 380);
+  };
+
   window.runPass3Trace = function (t) {
     const E = window.CatalyticEngine;
     const out = document.getElementById('af-live-result');
+    if (traceAnimTimer) { clearInterval(traceAnimTimer); traceAnimTimer = null; }
     try {
       const p = BigInt(document.getElementById('af-p').value.trim() || '0');
       const x = BigInt(document.getElementById('af-x').value.trim() || '7');
@@ -1014,6 +1107,7 @@
       const t0 = performance.now();
       const res = E.execPass3(t, x, p, { O0, u0, v0, faultBit });
       const ms = (performance.now() - t0).toFixed(2);
+      activeTrace = res;
       const limit = detectDeviceClass() === 'watch' ? 6 : res.trace.length;
       const rows = res.trace.slice(0, limit).map((tr) =>
         `<tr><td><code>${esc(tr.stage)}</code></td><td><code>${esc(tr.op)}</code></td><td><code>${esc(E.formatBig(tr.O, 18))}</code></td><td><code>${esc(E.formatBig(tr.u, 16))}</code></td><td><code>${esc(E.formatBig(tr.v, 16))}</code></td></tr>`
@@ -1021,8 +1115,15 @@
       out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
         `<strong>${esc(res.spec.label)}</strong> &mdash; ${res.verified ? 'PASS: Bit-for-Bit Clean Restoration' : 'FAULT CAUGHT!'} (${ms} ms, ${res.accesses} input accesses, ${res.basicOps} basic ops, mod ${p === 0n ? 'exact Z' : p})<br>` +
         `Output exact: <strong>${res.outputExact}</strong> &middot; Borrowed RAM (u, v) restored identically: <strong>${res.catalystsRestored}</strong></div>` +
-        `<details open><summary>Step-by-Step Register Scramble &rarr; Restoration Trace (${res.trace.length} states)</summary>` +
+        `<div class="status-box" style="margin-top:0.5rem;">` +
+        `<div class="inline-controls" style="margin:0 0 0.45rem;">` +
+        `<button class="action-btn primary" id="trace-play-btn" type="button" onclick="toggleTracePlay()">Play Animation</button>` +
+        `<input id="trace-scrub" type="range" min="0" max="${res.trace.length - 1}" value="${Math.floor(res.trace.length / 2)}" oninput="renderTraceFrame(parseInt(this.value,10))" aria-label="Scrub register trace frame" style="flex:1; min-width:140px;">` +
+        `<span id="trace-step-label" style="font-size:0.8rem; color:var(--muted);"></span>` +
+        `</div><div id="trace-frame-box"></div></div>` +
+        `<details><summary>Full Step-by-Step Register Table (${res.trace.length} states)</summary>` +
         `<div class="table-wrap"><table><thead><tr><th>Stage</th><th>Literal Instruction</th><th>O (Passive Output)</th><th>u (Catalyst 1)</th><th>v (Catalyst 2)</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
+      renderTraceFrame(Math.floor(res.trace.length / 2));
     } catch (err) {
       out.innerHTML = `<div class="status-box bad"><strong>Trace error:</strong> ${esc(err.message)}</div>`;
     }
@@ -1255,6 +1356,14 @@
   refreshDeviceBar();
   updateAdaptivePredictor();
   runT1OracleUI();
+  // Immediately demonstrate a real verified SHA-256 Byte-Vault catalytic proof on initial open (zero empty state)
+  try {
+    const initN = BigInt(document.getElementById('af-n').value.trim() || '91');
+    const initWl = document.getElementById('af-workload').value;
+    if (initN <= 2000n && initWl !== 'matrix') {
+      runByteVaultLive();
+    }
+  } catch (_) {}
 
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     navigator.serviceWorker.register('./sw.js').then(() => {
