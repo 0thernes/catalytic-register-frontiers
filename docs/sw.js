@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
-// Offline-first Service Worker for the Catalytic Register Frontiers Adaptive Forking PWA.
+// Network-first with instant offline cache fallback Service Worker for the
+// Catalytic Register Frontiers Adaptive Forking PWA.
 // Zero telemetry, zero external network requests, 100% client-side computation.
-const CACHE_NAME = 'catalytic-adaptive-fork-v1.0.1';
+const CACHE_NAME = 'catalytic-adaptive-fork-v1.2.0';
 const ASSETS = [
   './',
   './index.html',
   './catalytic-engine.js',
   './manifest.webmanifest',
+  './icon.svg',
   './social-preview.svg',
   './blueprint/lean_axioms.txt',
   './blueprint/six_kernel_audit.txt',
@@ -29,15 +31,20 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  const reqUrl = new URL(event.request.url);
+  if (reqUrl.origin !== self.location.origin) return;
+
+  // Network-first so returning users always receive fresh verified code while online,
+  // falling back instantaneously to the precached offline bundle in Airplane Mode.
   event.respondWith(
-    caches.match(event.request).then((cached) =>
-      cached || fetch(event.request).then((resp) => {
+    fetch(event.request)
+      .then((resp) => {
         if (resp && resp.status === 200 && resp.type === 'basic') {
           const copy = resp.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         }
         return resp;
-      }).catch(() => cached)
-    )
+      })
+      .catch(() => caches.match(event.request).then((hit) => hit || caches.match('./index.html')))
   );
 });

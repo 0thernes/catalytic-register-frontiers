@@ -42,7 +42,7 @@ DOI: \href{https://doi.org/10.5281/zenodo.24517198}{10.5281/zenodo.24517198};
 Apache-2.0 (code) / CC-BY-4.0 (prose).
 Not peer reviewed; certified by 5 Lean~4.35 kernels (6 runs: \texttt{lean}, \texttt{leanchecker} [\texttt{-paranoid}], \texttt{con-leche}, \texttt{con-ron}, \texttt{nanoda\_bin}).}
 
-\date{November 24, 2026}
+\date{November 25, 2026}
 
 \subjclass[2020]{68Q06, 68Q15, 11T06, 12E20}
 \keywords{Catalytic computing, register programs, finite fields, Lucas's theorem, powering algorithms, streaming algorithms, matrix powering, Lean~4 formal verification}
@@ -529,9 +529,8 @@ At $d = 2$ (\texttt{prog5\_x7}), $3m^2 + \binom{m^2+1}{2} = 2m^2 + \binom{m^2+2}
 \end{proof}
 
 \begin{remark}[Why $r = 4$ triangular loops do not immediately beat $\log_7 4$]
-Exact modular linear algebra over $\F_{10^9 + 7}$ (\texttt{probe12}, Tier-2) applied to the analogous $r = 4$ triangular closed-loop family on $(O, u, v, w)$ achieves $N = 7$ at $t = 4$ (Vinciguerra's $\log_7 4 \approx 0.71241$), $N = 9$ at $t = 5$ ($\log_9 5 \approx 0.73249$), and $N = 11$ at $t = 6$ ($\log_{11} 6 \approx 0.74722$).
-Because the degree grows as $2t - 1$ (slope~$2$ in $t$) within this one-step triangular ansatz, $\log_{2t-1} t$ is strictly increasing for $t \ge 4$.
-Whether non-triangular or multi-stage $r = 4$ loops can reach $N \ge 10$ at $t = 5$ or $N \ge 13$ at $t = 6$ remains an intriguing open question (Open Problem~\ref{op:r4}).
+Exact modular linear algebra over $\F_{10^9 + 7}$ (\texttt{exp2}, Tier-2) on the $r = 4$ triangular closed-loop ansatz ($d_1 = 2, d_2 = 4$) yields $N = 9$ at $t = 5$ ($\log_9 5 \approx 0.73249$; $N = 10$ unsolvable) and $N = 11$ at $t = 6$ ($\log_{11} 6 \approx 0.74722$; $N = 12$ unsolvable), failing to beat Vinciguerra's $t = 4$ baseline $N = 7$ ($\log_7 4 \approx 0.71241$).
+Because degree grows as $2t - 1$ (slope~$2$) here, $\log_{2t-1} t$ rises for $t \ge 4$; non-triangular or multi-stage $r = 4$ loops reaching $N \ge 10$ ($t = 5$) or $N \ge 13$ ($t = 6$) remain open (Open Problem~\ref{op:r4}).
 \end{remark}
 
 \section{Theorem~\ref{thm:T4}: Balanced Zero-Workspace Bilinear Product}

@@ -21,7 +21,7 @@ steps:
   P1.02: {status: n/a, note: "Theoretical mathematics research; literature review replaces customer interviews (docs/literature-search-log.md)"}
   P1.03: {status: done, note: "docs/literature-search-log.md (Vinciguerra 2026, AFM 2025, Boyar-Find 2018, Morse 2026)"}
   P1.04: {status: n/a, note: "Not a commercial product; research novelty validated against primary literature instead"}
-  P1.05: {status: done, note: "docs/plan/01-spikes.md (probe1..probe12 + r=4 negative spike)"}
+  P1.05: {status: done, note: "docs/plan/01-spikes.md (reproducible r=4 negative spike archived in exp2_three_register_breakthrough.py)"}
   P1.06: {status: done, note: "docs/legal-and-ethics.md + docs/adr/0002-epistemic-scope-and-identity.md"}
   P1.07: {status: done, note: "docs/plan/decision-log.md"}
   P2.01: {status: done, note: "docs/plan/02-requirements.md"}

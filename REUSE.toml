@@ -43,6 +43,7 @@ path = [
     "dist/**",
     "docs/*.md",
     "docs/*.html",
+    "docs/*.svg",
     "docs/adr/**",
     "docs/launch/**",
     "docs/media/**",

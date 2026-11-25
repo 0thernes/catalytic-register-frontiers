@@ -302,6 +302,179 @@ def synthesize_and_verify_r3(t: int, shifts: list[int], deg_w: int, target_N: in
     }
 
 
+def verify_r4_triangular_frontier() -> list[dict]:
+    """
+    Exact modular linear algebra over F_{10^9+7} verifying Remark 5.5:
+    In the analogous r = 4 triangular closed-loop family on (O, u, v, w) with
+    (d_1, d_2) = (2, 4), t = 5 achieves N = 9 (N = 10 unsolvable; eps = log_9 5 = 0.73249)
+    and t = 6 achieves N = 11 (N = 12 unsolvable; eps = log_11 6 = 0.74722),
+    strictly worse than Vinciguerra's r = 4, t = 4 baseline log_7 4 = 0.71241.
+    """
+    P = 1_000_000_007
+
+    def modinv(a: int) -> int:
+        return pow(a % P, P - 2, P)
+
+    def padd(a: dict, b: dict, s: int = 1) -> dict:
+        r = dict(a)
+        for k, v in b.items():
+            nv = (r.get(k, 0) + s * v) % P
+            if nv:
+                r[k] = nv
+            else:
+                r.pop(k, None)
+        return r
+
+    def pmul(a: dict, b: dict) -> dict:
+        r: dict = {}
+        for k1, v1 in a.items():
+            for k2, v2 in b.items():
+                k = (k1[0] + k2[0], k1[1] + k2[1], k1[2] + k2[2], k1[3] + k2[3])
+                r[k] = (r.get(k, 0) + v1 * v2) % P
+        return {k: v for k, v in r.items() if v}
+
+    def ppow(a: dict, e: int) -> dict:
+        res = {(0, 0, 0, 0): 1}
+        b = a
+        while e:
+            if e & 1:
+                res = pmul(res, b)
+            b = pmul(b, b)
+            e >>= 1
+        return res
+
+    def solvable_modp(cols: list[list[int]], rhs: list[int]) -> bool:
+        nrows, ncols = len(rhs), len(cols)
+        mat = [[cols[c][r] % P for c in range(ncols)] + [rhs[r] % P] for r in range(nrows)]
+        row = 0
+        for c in range(ncols):
+            piv = next((r for r in range(row, nrows) if mat[r][c]), None)
+            if piv is None:
+                continue
+            mat[row], mat[piv] = mat[piv], mat[row]
+            iv = modinv(mat[row][c])
+            mat[row] = [(v * iv) % P for v in mat[row]]
+            for r in range(nrows):
+                if r != row and mat[r][c]:
+                    fac = mat[r][c]
+                    mat[r] = [(mat[r][j] - fac * mat[row][j]) % P for j in range(ncols + 1)]
+            row += 1
+        return all(mat[r][ncols] == 0 for r in range(row, nrows))
+
+    X = {(1, 0, 0, 0): 1}
+    U = {(0, 1, 0, 0): 1}
+    V = {(0, 0, 1, 0): 1}
+    W = {(0, 0, 0, 1): 1}
+
+    records: list[dict] = []
+    d1, d2 = 2, 4
+    for t, expected_n in [(5, 9), (6, 11)]:
+        a_w = []
+        for m in range(t):
+            den = 1
+            for j in range(t):
+                if j != m:
+                    den = (den * (m - j)) % P
+            a_w.append(modinv(den))
+        Q = [0] * (t + 1)
+        for m in range(1, t):
+            Q[m] = (Q[m - 1] - a_w[m - 1]) % P
+        uc, vc = dict(U), dict(V)
+        u_states, v_states = [], []
+        for k in range(t):
+            u_states.append(dict(uc))
+            v_states.append(dict(vc))
+            qn = Q[k + 1] if k + 1 < t else 0
+            if qn:
+                vc = padd(vc, ppow(uc, d1), -qn)
+            alpha = ((k + 1) % t) - k
+            uc = padd(uc, X, alpha)
+            if qn:
+                vc = padd(vc, ppow(uc, d1), qn)
+        assert uc == U and vc == V
+
+        g_terms = []
+        for k in range(t):
+            for jv in range(d2 // d1 + 1):
+                ju = d2 - jv * d1
+                g_terms.append((k, pmul(ppow(u_states[k], ju), ppow(v_states[k], jv))))
+        mons_g = sorted({m for _, poly in g_terms for m in poly})
+        nrows, ncols = len(mons_g), len(g_terms)
+        mat = [[g_terms[c][1].get(mons_g[r], 0) for c in range(ncols)] for r in range(nrows)]
+        piv_cols: list[int] = []
+        row = 0
+        for c in range(ncols):
+            piv = next((r for r in range(row, nrows) if mat[r][c]), None)
+            if piv is None:
+                continue
+            mat[row], mat[piv] = mat[piv], mat[row]
+            iv = modinv(mat[row][c])
+            mat[row] = [(v * iv) % P for v in mat[row]]
+            for r in range(nrows):
+                if r != row and mat[r][c]:
+                    fac = mat[r][c]
+                    mat[r] = [(mat[r][j] - fac * mat[row][j]) % P for j in range(ncols)]
+            piv_cols.append(c)
+            row += 1
+        free_cols = [c for c in range(ncols) if c not in piv_cols]
+        assert free_cols, f"No closed w-loop found at t={t}"
+        w_deltas: list[dict] = [{} for _ in range(t)]
+        for fi, fc in enumerate(free_cols, 1):
+            vec = [0] * ncols
+            vec[fc] = 1
+            for r_i, pc in enumerate(piv_cols):
+                vec[pc] = (-mat[r_i][fc]) % P
+            for c, coeff in enumerate(vec):
+                if coeff:
+                    k_step, poly = g_terms[c]
+                    w_deltas[k_step] = padd(w_deltas[k_step], poly, (coeff * (fi * 7 + 3)) % P)
+        wc = dict(W)
+        w_states = []
+        for k in range(t):
+            w_states.append(dict(wc))
+            wc = padd(wc, w_deltas[k], 1)
+        assert wc == W
+
+        def check_target(target_N: int) -> bool:
+            o_terms = []
+            for k in range(t):
+                for jw in range(target_N // d2 + 1):
+                    rem = target_N - jw * d2
+                    for jv in range(rem // d1 + 1):
+                        ju = rem - jv * d1
+                        o_terms.append(
+                            pmul(
+                                pmul(ppow(u_states[k], ju), ppow(v_states[k], jv)),
+                                ppow(w_states[k], jw),
+                            )
+                        )
+            mons_o = sorted({m for p_ in o_terms for m in p_} | {(target_N, 0, 0, 0)})
+            cols = [[p_.get(m, 0) for m in mons_o] for p_ in o_terms]
+            rhs = [1 if m == (target_N, 0, 0, 0) else 0 for m in mons_o]
+            return solvable_modp(cols, rhs)
+
+        ok_n = check_target(expected_n)
+        ok_next = check_target(expected_n + 1)
+        assert ok_n and not ok_next, f"r=4 triangular mismatch at t={t}: ok_n={ok_n}, ok_next={ok_next}"
+        eps = math.log(t) / math.log(expected_n)
+        print(
+            f"[VERIFIED r=4 NEGATIVE SPIKE] t={t} (d1={d1}, d2={d2}): "
+            f"N={expected_n} solvable (eps={eps:.5f} > log_7 4 = 0.71241), N={expected_n + 1} unsolvable."
+        )
+        records.append({
+            "r": 4,
+            "t": t,
+            "d1": d1,
+            "d2": d2,
+            "prime_modulus": P,
+            "achieved_degree": expected_n,
+            "next_degree_unsolvable": expected_n + 1,
+            "exponent": round(eps, 8),
+            "beats_vinciguerra_log7_4": False,
+        })
+    return records
+
+
 def main() -> None:
     repo = pathlib.Path(__file__).resolve().parent.parent
     out_path = repo / "results" / "exp2_three_register.json"
@@ -316,6 +489,7 @@ def main() -> None:
         (9, [0, 1, 2, 3, 4, 5, 6, 7, 9], 7, 15),
     ]
     programs = [synthesize_and_verify_r3(*cfg) for cfg in configs]
+    r4_triangular = verify_r4_triangular_frontier()
 
     # Exact integer rational-separator certification (matching Lean T3e)
     chain_checks = {
@@ -338,6 +512,7 @@ def main() -> None:
         "new_optimal_exponent": round(math.log(8) / math.log(13), 8),
         "exponent_reduction": round(math.log(4) / math.log(5) - math.log(8) / math.log(13), 8),
         "programs": programs,
+        "r4_triangular_frontier": r4_triangular,
         "exponent_chain_exact_nat_checks": chain_checks,
     }
     out_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")

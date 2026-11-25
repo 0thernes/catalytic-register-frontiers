@@ -193,6 +193,18 @@ def verify_lrat(cnf_path: pathlib.Path, lrat_path: pathlib.Path) -> tuple[int, i
                 rat_map: dict[int, list[int]] = {}
                 for idx_i, pos in enumerate(neg_positions):
                     target_id = -hints[pos]
+                    if target_id in rat_map:
+                        raise ValueError(
+                            f"Step {step_id}: duplicate RAT negative hint for clause {target_id}"
+                        )
+                    if target_id not in clauses:
+                        raise ValueError(
+                            f"Step {step_id}: RAT negative hint references unknown/deleted clause {target_id}"
+                        )
+                    if -pivot not in clauses[target_id]:
+                        raise ValueError(
+                            f"Step {step_id}: RAT negative hint targets clause {target_id} lacking {-pivot}"
+                        )
                     end_pos = (
                         neg_positions[idx_i + 1] if idx_i + 1 < len(neg_positions) else len(hints)
                     )

@@ -1444,4 +1444,88 @@ def test_pass11_cycle3_audit_and_adaptive_fork_engine(tmp_path: pathlib.Path) ->
         assert proc.returncode == 0, f"Node.js differential check failed (rc={proc.returncode}): {proc.stderr}"
 
 
+def test_pass12_deep_hardening_and_pwa_v12(tmp_path: pathlib.Path) -> None:
+    """Pass 12 (Second 3-Cycle Forensic Hardening + Adaptive Forking PWA v1.2) permanent regression guard:
+    1. Zero ghost 'probe12' reference in paper/main.tex; exp2_three_register.json reproduces r=4 Remark 5.5.
+    2. LRAT verifier strictly rejects duplicate RAT negative hints & unknown/non-pivot RAT targets.
+    3. Zero raw LaTeX in docs/index.html; square PWA icon.svg XML-valid & deployed in manifest/sw/pages.yml.
+    4. Official GitHub Actions upgraded to Node-24-native major tags (checkout@v7, setup-python@v7, etc.).
+    5. Live Node.js audit of catalytic-engine.js v1.2.0: N=1 (1 access), composite ring Z/mZ invertibility,
+       honest large-N infeasibility (p=3), bad-prime p=137 dodge, exact Z binomExact, N=10^30 BigInt ratios,
+       Catalytic Byte-Vault byte-for-byte restoration + 1-bit fault rejection, and 6-mode 300-trial fuzzer.
+    """
+    import shutil
+    import subprocess
+    import xml.etree.ElementTree as ET
+
+    # 1. Paper Remark 5.5 & exp2 reproducible r=4 frontier
+    tex = (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
+    assert "probe12" not in tex, "Ghost reference 'probe12' found in paper/main.tex"
+    exp2 = json.loads((REPO / "results" / "exp2_three_register.json").read_text(encoding="utf-8"))
+    r4 = exp2.get("r4_triangular_frontier", [])
+    assert len(r4) == 2 and r4[0]["t"] == 5 and r4[0]["achieved_degree"] == 9
+    assert r4[1]["t"] == 6 and r4[1]["achieved_degree"] == 11
+
+    # 2. Strict RAT negative-hint validation in verify_lrat.py
+    bad_cnf = tmp_path / "rat_dup.cnf"
+    bad_lrat = tmp_path / "rat_dup.lrat"
+    bad_cnf.write_text("p cnf 2 2\n-1 2 0\n-1 -2 0\n", encoding="ascii", newline="\n")
+    bad_lrat.write_text("3 1 0 -1 -1 0\n4 0 3 1 2 0\n", encoding="ascii", newline="\n")
+    try:
+        verify_lrat(bad_cnf, bad_lrat)
+    except ValueError as exc:
+        assert "duplicate RAT negative hint" in str(exc)
+    else:
+        raise AssertionError("verify_lrat failed to reject duplicate RAT negative hint")
+
+    # 3. PWA v1.2 hygiene: zero raw LaTeX in HTML, valid square icon.svg, network-first SW, pages.yml parity
+    html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    assert r"$O(\log N)$" not in html, "Unrendered raw LaTeX found in docs/index.html"
+    assert 'href="./icon.svg"' in html
+    icon_svg = REPO / "docs" / "icon.svg"
+    assert icon_svg.exists()
+    ET.parse(icon_svg)
+    pwa_manifest = json.loads((REPO / "docs" / "manifest.webmanifest").read_text(encoding="utf-8"))
+    assert any(ic.get("src") == "./icon.svg" for ic in pwa_manifest.get("icons", []))
+    sw_txt = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
+    assert "./icon.svg" in sw_txt and "fetch(event.request)" in sw_txt
+    pages_yml = (REPO / ".github" / "workflows" / "pages.yml").read_text(encoding="utf-8")
+    assert "_site/icon.svg" in pages_yml and "actions/checkout@v7" in pages_yml
+    assert "actions/upload-pages-artifact@v5" in pages_yml and "actions/deploy-pages@v5" in pages_yml
+
+    # 4. Node-24-native official GitHub Actions in ci.yml & release.yml
+    ci_yml = (REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    rel_yml = (REPO / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    assert "actions/checkout@v7" in ci_yml and "actions/setup-python@v7" in ci_yml
+    assert "actions/attest-build-provenance@v4" in ci_yml and "actions/attest-build-provenance@v4" in rel_yml
+
+    # 5. Live Node.js adversarial audit of catalytic-engine.js v1.2.0
+    node_bin = shutil.which("node")
+    if node_bin:
+        js_path = REPO / "docs" / "catalytic-engine.js"
+        node_check = (
+            f"const E = require({json.dumps(str(js_path))});"
+            "if (E.planAdaptiveFork({N:1,p:1009,workload:'scalar'}).comparison.adaptive_fork.accesses !== '1') process.exit(31);"
+            "if (E.execFourRegPowering(1, 7, 1009, {engine:'adaptive'}).accesses !== 1) process.exit(32);"
+            "if (E.planAdaptiveFork({N:9,p:9,workload:'scalar'}).comparison.adaptive_fork.feasible !== false) process.exit(33);"
+            "if (E.planAdaptiveFork({N:5000,p:3,workload:'scalar'}).comparison.adaptive_fork.feasible !== false) process.exit(34);"
+            "if (!E.execFourRegPowering(91, 42, 1009n*1013n, {engine:'adaptive'}).verified) process.exit(35);"
+            "const pl137 = E.planAdaptiveFork({N:169,p:137,workload:'scalar'});"
+            "if (!pl137.forkCandidates.some(c => c.id==='prog8_x13' && c.status==='pruned')) process.exit(36);"
+            "if (!E.execFourRegPowering(169, 7, 137, {engine:'adaptive'}).verified) process.exit(37);"
+            "if (E.binomModP(10, 4, 0) !== 210n) process.exit(38);"
+            "const plHuge = E.planAdaptiveFork({N:'1000000000000000000000000000000',p:1009,workload:'scalar'});"
+            "if (!plHuge.comparison.adaptive_fork.feasible || !(plHuge.speedupFactor > 1)) process.exit(39);"
+            "const raw = new TextEncoder().encode('CatalyticVault:WatchPhoneLaptop');"
+            "const vOk = E.execCatalyticByteVault(raw, 91, 7, 1009);"
+            "const vBad = E.execCatalyticByteVault(raw, 91, 7, 1009, {faultBit:true});"
+            "if (!vOk.verified || !vOk.bytesEqual || vOk.corruptedByteCount !== 0 || vBad.verified || vBad.bytesEqual) process.exit(40);"
+            "const f = E.runAdversarialFuzz(300, 20261125);"
+            "if (f.failed !== 0 || f.passed !== 300) process.exit(41);"
+        )
+        proc = subprocess.run([node_bin, "-e", node_check], capture_output=True, text=True, timeout=30, check=False)
+        assert proc.returncode == 0, f"Node.js v1.2 audit failed (rc={proc.returncode}): {proc.stderr}"
+
+
+
 

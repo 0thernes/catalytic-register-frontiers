@@ -7,14 +7,16 @@
  *   - T1 / T1a–T1d: Exact prime-field base-p digit-sum oracle & Lucas binomials
  *   - T2: Strictly bilinear 2-access Frobenius collapse x^(2^k) over char-2 rings (k+1 regs, 4k-2 ops)
  *   - T3a–T3g: Literal 3-register passive Pascal-row shear loops prog4_x5 .. prog9_x15
- *   - T3h: Complete 4-register passive powering x^N (Cook-Mertz + non-passive 3-reg composition)
- *   - T3i: Zero-write-wear exact streaming frequency moments F_D(f) = sum_i f_i^D over F_p^n
+ *   - T3h: Complete 4-register passive powering x^N over arbitrary commutative rings Z/mZ or F_p
+ *   - T3i: Zero-write-wear exact streaming frequency moments F_D(f) = sum_i f_i^D over R^n
  *   - R3 (Cor. 5.4): Non-commutative homogeneous degree-2 lift mu_7(prog5_x7) on M_2(F_p)
  *   - T4: Balanced zero-workspace bilinear multilinear product x_0...x_{d-1} in <= log_2 d + 2 regs
- *   - Adaptive Forking (DP + Hybrid Scheduler): Dynamically selects optimal verified fork at each
- *     recursion level across Frobenius, direct digit leaves, multiplicative composition, and
- *     mixed-radix Cook-Mertz splits subject to modulus p, bad-prime constraints, matrix dimension,
- *     and device profile (watch / phone / tablet / laptop / desktop).
+ *   - Adaptive Forking (Exact DP + Hybrid Scheduler): Dynamically branches across Frobenius
+ *     collapse, prime-field digit-sum, direct 3-reg gadgets, passive 4-reg composition wraps,
+ *     Gray-code 2-way Cook-Mertz splits, and feasible mixed-radix Cook-Mertz schedules subject to
+ *     exact commutative-ring invertibility gcd(D_t, m) = gcd((d-1)!, m) = gcd(len!, m) = 1.
+ *   - Catalytic Byte-Vault: Borrows real Uint8Array bytes as dirty catalytic registers, runs exact
+ *     computations, and restores every borrowed byte identically for live SHA-256 verification.
  *
  * Works identically in browsers (window.CatalyticEngine), Web Workers, and Node.js (module.exports).
  */
@@ -30,7 +32,7 @@
   'use strict';
 
   // =========================================================================
-  // 1. Exact BigInt Number Theory & Modular Arithmetic (zero floats)
+  // 1. Exact BigInt Number Theory & Ring Arithmetic (zero floats)
   // =========================================================================
 
   function mod(a, p) {
@@ -51,6 +53,7 @@
   }
 
   function modInv(a, p) {
+    if (p <= 1n) throw new Error(`Modulus ${p} has no modular inverses`);
     a = mod(a, p);
     if (a === 0n) throw new Error('Zero has no modular inverse');
     let t = 0n;
@@ -131,8 +134,23 @@
     return s;
   }
 
+  // Exact BigInt binomial coefficient C(n, k) — works for Z (p=0), primes, AND composite moduli!
+  function binomExact(n, k) {
+    const nb = BigInt(n);
+    let kb = BigInt(k);
+    if (kb < 0n || kb > nb) return 0n;
+    if (kb > nb - kb) kb = nb - kb;
+    let res = 1n;
+    for (let i = 1n; i <= kb; i++) {
+      res = (res * (nb - kb + i)) / i;
+    }
+    return res;
+  }
+
   function binomModP(n, k, p) {
     const pb = BigInt(p);
+    if (pb === 0n) return binomExact(n, k);
+    if (!isPrimeBig(pb)) return mod(binomExact(n, k), pb);
     let nb = BigInt(n);
     let kb = BigInt(k);
     if (kb > nb) return 0n;
@@ -160,6 +178,26 @@
       acc = p === 0n ? acc * i : (acc * i) % p;
     }
     return acc;
+  }
+
+  // Exact commutative-ring invertibility check for n! in Z/pZ (or Z/Q when p=0):
+  // n! is a unit in Z/pZ iff gcd(k, p) = 1 for every 2 <= k <= n (no prime <= n divides p).
+  function isFactInvertible(n, p) {
+    if (p === 0n) return true;
+    if (p < 2n) return false;
+    for (let k = 2n; k <= BigInt(n); k++) {
+      if (gcd(k, p) !== 1n) return false;
+    }
+    return true;
+  }
+
+  function bigRatio(numBig, denBig) {
+    const num = BigInt(numBig);
+    const den = BigInt(denBig);
+    if (den <= 0n) return 1;
+    // Scale by 10,000 in exact BigInt to avoid Number overflow on huge N (up to 10^30+)
+    const scaled = (num * 10000n) / den;
+    return Number(scaled) / 10000;
   }
 
   function textToBigInt(str, p) {
@@ -310,6 +348,7 @@
     const spec = PROGRAMS_R3[t];
     if (!spec) throw new Error(`Unsupported 3-register engine t=${t}`);
     const p = BigInt(pIn);
+    if (p < 0n || p === 1n) throw new Error('Modulus p must be 0 (exact Z) or >= 2');
     const x = mod(BigInt(xIn), p);
     const O0 = mod(BigInt(opts.O0 ?? 1234567n), p);
     const u0 = mod(BigInt(opts.u0 ?? 89101112n), p);
@@ -376,7 +415,7 @@
   }
 
   // =========================================================================
-  // 4. Adaptive Forking Planner (Exact DP + Hybrid Asymptotic Scheduler)
+  // 4. Adaptive Forking Planner (Exact Commutative-Ring DP + Hybrid Scheduler)
   // =========================================================================
 
   function exactFourRegAccesses(delta, t, N) {
@@ -395,35 +434,86 @@
 
   function isGadgetFeasible(spec, p, workload) {
     if (workload === 'matrix' && spec.shearDeg > 2) {
-      return false; // Keep matrix shear tier strictly O(m^4) zero-overhead unless forced
+      return false; // Keep matrix shear tier strictly O(m^4) zero-overhead
     }
     if (p === 0n) return true;
-    return gcd(spec.D, p) === 1n;
+    return p >= 2n && gcd(spec.D, p) === 1n;
+  }
+
+  function isRadixScheduleValid(spec, N, p) {
+    if (p === 0n) return true;
+    if (p < 2n) return false;
+    const mLen = baseDigits(spec.degree, N).length;
+    return (
+      gcd(spec.D, p) === 1n &&
+      isFactInvertible(spec.degree - 1, p) &&
+      isFactInvertible(mLen, p)
+    );
   }
 
   function planAdaptiveFork(opts) {
     const workload = opts.workload || 'scalar'; // 'scalar' | 'streaming' | 'matrix' | 'frobenius'
     const N = BigInt(opts.N ?? 1000);
-    const p = BigInt(opts.p ?? 0); // 0n means characteristic 0 (Q / exact Z)
+    const p = BigInt(opts.p ?? 0); // 0n means characteristic 0 (Q / exact Z), >= 2n means ring Z/pZ
     const matrixDim = Math.max(1, Number(opts.matrixDim ?? 2));
     const deviceClass = opts.deviceClass || 'desktop';
     const pIsPrime = p >= 2n && isPrimeBig(p);
+    const ringLabel = p === 0n ? 'exact Z/Q' : (pIsPrime ? `prime field F_${p}` : `commutative ring Z/${p}Z`);
 
     if (N < 1n) throw new Error('Exponent N must be >= 1');
+    if (p < 0n || p === 1n) throw new Error('Modulus p must be 0 (exact Z/Q) or >= 2');
 
     // Static baselines for comparison
     const base4Acc = exactFourRegAccesses(5, 4, N);
     const prog5Acc = exactFourRegAccesses(7, 5, N);
     const prog8Acc = exactFourRegAccesses(13, 8, N);
-    const ell5 = baseDigits(5, N).length - 1;
-    const ell7 = baseDigits(7, N).length - 1;
-    const ell13 = baseDigits(13, N).length - 1;
 
-    const p5Valid = p === 0n || (p > BigInt(Math.max(6, ell7 + 1)) && gcd(576n, p) === 1n);
-    const p8Valid = p === 0n || (p > BigInt(Math.max(12, ell13 + 1)) && gcd(PROGRAMS_R3[8].D, p) === 1n);
-    const p4Valid = p === 0n || (p > BigInt(Math.max(4, ell5 + 1)) && gcd(54n, p) === 1n);
+    const p4Valid = isRadixScheduleValid(PROGRAMS_R3[4], N, p);
+    const p5Valid = isRadixScheduleValid(PROGRAMS_R3[5], N, p);
+    const p8Valid = isRadixScheduleValid(PROGRAMS_R3[8], N, p);
 
-    // Check T1/T2 prime-field Frobenius collapse (exact 2-access) and T1 digit-sum candidate
+    // Track every fork branch evaluated so the live SVG Fork-DAG can visualize winners & dodged branches!
+    const forkCandidates = [];
+
+    // Direct trivial case N = 1: literally 1 access (O += x) in 1 register!
+    if (N === 1n) {
+      forkCandidates.push({
+        id: 'direct_x1',
+        label: 'Direct O <- O + x',
+        accesses: '1',
+        status: 'winner',
+        reason: 'Degree 1 requires only 1 input access in 1 register'
+      });
+      const baseNum = Number(base4Acc);
+      return {
+        workload,
+        N: '1',
+        p: p.toString(),
+        pIsPrime,
+        ringLabel,
+        matrixDim,
+        device: { maxFuzz: 500, traceLimit: 16, hint: 'Trivial degree-1 direct access (1 register, 1 access)' },
+        internalPlan: { kind: 'direct_x1', n: 1 },
+        forkCandidates,
+        comparison: {
+          vinciguerra_r3_x5: { accesses: base4Acc.toString(), exponent: '0.861353', validForP: p4Valid },
+          prog5_x7_T3a: { accesses: prog5Acc.toString(), exponent: '0.827087', validForP: p5Valid, asympGainVsBase: 1 },
+          prog8_x13_T3d: { accesses: prog8Acc.toString(), exponent: '0.810714', validForP: p8Valid, asympGainVsBase: 1 },
+          adaptive_fork: {
+            strategy: 'DIRECT_X1',
+            label: 'Direct Input Addition (O <- O + x: 1 access, 1 register!)',
+            accesses: '1',
+            registers: workload === 'matrix' ? `${matrixDim * matrixDim} scalars` : '1 passive reg',
+            tree: 'x^1 -> direct O <- O + x (1 access)',
+            feasible: true
+          }
+        },
+        reductionPct: baseNum > 0 ? ((baseNum - 1) / baseNum) * 100 : 0,
+        speedupFactor: baseNum > 0 ? baseNum : 1
+      };
+    }
+
+    // Check T1/T2 prime-field Frobenius collapse (strictly requires PRIME p and N >= 2)
     let frobenius2Plan = null;
     let t1DirectCandidate = null;
     if (pIsPrime && workload !== 'matrix') {
@@ -436,6 +526,13 @@
           registers: p === 2n ? `${N.toString(2).length} bilinear regs` : '2 passive regs',
           tree: `x^${N} (s_${p}(${N}) = 1) -> direct 2-access Frobenius collapse!`
         };
+        forkCandidates.push({
+          id: 'frobenius_2',
+          label: p === 2n ? 'T2 Bilinear Frobenius' : `T1a Frobenius (F_${p})`,
+          accesses: '2',
+          status: 'winner',
+          reason: `s_${p}(${N}) = 1 collapses to 2 accesses`
+        });
       } else if (BigInt(sp) < p) {
         t1DirectCandidate = {
           strategy: 'T1_DIGIT_SUM_DIRECT',
@@ -444,35 +541,79 @@
           registers: '2 passive regs',
           tree: `x^${N} (s_${p}(${N}) = ${sp} <= ${p - 1n}) -> 2-register forward-difference program`
         };
+        forkCandidates.push({
+          id: 't1_direct',
+          label: `T1 Digit-Sum (F_${p})`,
+          accesses: String(sp + 1),
+          status: 'candidate',
+          reason: `s_${p}(${N}) = ${sp} < ${p}`
+        });
+      } else {
+        forkCandidates.push({
+          id: 't1_direct',
+          label: `T1 2-Reg (F_${p})`,
+          accesses: 'INF',
+          status: 'pruned',
+          reason: `T1c impossibility: s_${p}(${N}) = ${sp} >= ${p}`
+        });
+      }
+    } else if (p >= 2n && !pIsPrime && workload !== 'matrix') {
+      forkCandidates.push({
+        id: 't1_direct',
+        label: 'T1 Frobenius',
+        accesses: 'N/A',
+        status: 'pruned',
+        reason: `Composite ring Z/${p}Z (T1 requires prime p)`
+      });
+    }
+
+    // Determine feasible 3-register composition gadgets (exact ring check gcd(D_t, p) == 1)
+    const feasibleSpecs = [];
+    for (const t of [4, 5, 6, 7, 8, 9]) {
+      const spec = PROGRAMS_R3[t];
+      if (isGadgetFeasible(spec, p, workload)) {
+        feasibleSpecs.push(spec);
+      } else if (t === 8 || t === 5 || t === 6) {
+        const reason = workload === 'matrix' && spec.shearDeg > 2
+          ? `Shear deg ${spec.shearDeg} > 2 (Theta(m^${2 * spec.shearDeg}) scalars)`
+          : `Bad divisor: gcd(D_${t}, ${p}) = ${gcd(spec.D, p)} > 1`;
+        forkCandidates.push({
+          id: spec.id,
+          label: `${spec.id} (x^${spec.degree})`,
+          accesses: 'DODGED',
+          status: 'pruned',
+          reason
+        });
       }
     }
 
-    // Determine feasible 3-register composition gadgets
-    const feasibleSpecs = [4, 5, 6, 7, 8]
-      .map((t) => PROGRAMS_R3[t])
-      .filter((spec) => isGadgetFeasible(spec, p, workload));
-
-    // Exact DP over n <= DP_LIMIT (for small/medium N, gives provably optimal adaptive fork tree!)
+    // Exact DP over n <= DP_LIMIT (strictly verifying exact ring invertibility at EVERY node!)
     const DP_LIMIT = N <= 4096n ? Number(N) : 2048;
     const costW3 = new Array(DP_LIMIT + 1).fill(Infinity);
     const planW3 = new Array(DP_LIMIT + 1).fill(null);
 
-    // 3-work-register non-passive composition DP (Alekseev et al. Lem. 8):
-    //   - Direct 2-reg digit leaf: n + 1 accesses (valid when p == 0 or p > n)
-    //   - Prime-field T1 digit-sum leaf: s_p(n) + 1 (when p prime, s_p(n) < p, non-matrix)
-    //   - Multiplicative composition fork: if d_k | n, compose(P_{n/d_k}, prog_k) costs t_k * costW3[n/d_k]
     costW3[0] = 0;
     planW3[0] = { op: 'const1' };
     costW3[1] = 1;
     planW3[1] = { op: 'direct', n: 1, accesses: 1 };
 
+    // Precompute factorial invertibility limit for p (largest maxFactOk such that maxFactOk! is a unit mod p)
+    let maxFactOk = DP_LIMIT;
+    if (p >= 2n) {
+      maxFactOk = 1;
+      for (let k = 2; k <= DP_LIMIT; k++) {
+        if (gcd(BigInt(k), p) === 1n) maxFactOk = k;
+        else break;
+      }
+    }
+
     for (let n = 2; n <= DP_LIMIT; n++) {
-      // Option A: direct forward-difference 2-reg program (needs n! invertible mod p)
-      if (p === 0n || p > BigInt(n)) {
+      // Option A: direct forward-difference 2-reg program (requires n! invertible in Z/pZ!)
+      if (n <= maxFactOk) {
         costW3[n] = n + 1;
         planW3[n] = { op: 'digit_leaf', n, accesses: n + 1 };
       }
-      // Option B: prime-field T1 shortcut (strictly non-matrix)
+      // Option B: prime-field T1 shortcut (strictly prime p, non-matrix)
       if (pIsPrime && workload !== 'matrix') {
         const sp = digitSum(p, BigInt(n));
         if (BigInt(sp) < p && sp + 1 < costW3[n]) {
@@ -493,8 +634,9 @@
       }
     }
 
-    // 4-register passive Cook-Mertz / Gray-Code Adaptive Fork DP:
+    // 4-register passive Cook-Mertz / Gray-Code / Composition Adaptive Fork DP:
     let adaptiveBest = null;
+    let winningForkId = frobenius2Plan ? 'frobenius_2' : '';
 
     if (frobenius2Plan) {
       adaptiveBest = {
@@ -514,47 +656,95 @@
         bestAcc = Number(t1DirectCandidate.accesses);
         bestDesc = t1DirectCandidate.label;
         bestPlan = { kind: 't1_direct', n: nInt };
+        winningForkId = 't1_direct';
       }
-      // 1. Direct passive 3-register single gadget match (e.g., N = 5, 7, 9, 11, 13)
+      // 1. Direct passive 3-register single gadget match (e.g., N = 5, 7, 9, 11, 13, 15)
       for (const spec of feasibleSpecs) {
-        if (spec.degree === nInt && spec.t < bestAcc) {
-          bestAcc = spec.t;
-          bestDesc = `Direct passive 3-reg ${spec.id} (x^${nInt} in ${spec.t} accesses, 3 regs!)`;
-          bestPlan = { kind: 'direct_pass3', t: spec.t, gadget: spec.id };
+        if (spec.degree === nInt) {
+          forkCandidates.push({
+            id: `direct_${spec.id}`,
+            label: `Direct 3-Reg ${spec.id}`,
+            accesses: String(spec.t),
+            status: 'candidate',
+            reason: `Exact 3-register passive loop for x^${nInt}`
+          });
+          if (spec.t < bestAcc) {
+            bestAcc = spec.t;
+            bestDesc = `Direct passive 3-reg ${spec.id} (x^${nInt} in ${spec.t} accesses, 3 regs!)`;
+            bestPlan = { kind: 'direct_pass3', t: spec.t, gadget: spec.id };
+            winningForkId = `direct_${spec.id}`;
+          }
         }
       }
-      // 2. Direct 2-reg forward-difference leaf (needs n! invertible)
-      if ((p === 0n || p > BigInt(nInt)) && nInt + 1 < bestAcc) {
-        bestAcc = nInt + 1;
-        bestDesc = `Direct 2-reg forward-difference leaf (x^${nInt} in ${nInt + 1} accesses)`;
-        bestPlan = { kind: 'direct_digit', n: nInt };
+      // 2. Direct 2-reg forward-difference leaf (needs n! invertible in Z/pZ!)
+      if (nInt <= maxFactOk) {
+        forkCandidates.push({
+          id: 'direct_digit',
+          label: '2-Reg Forward Diff',
+          accesses: String(nInt + 1),
+          status: 'candidate',
+          reason: `${nInt}! invertible in ${ringLabel}`
+        });
+        if (nInt + 1 < bestAcc) {
+          bestAcc = nInt + 1;
+          bestDesc = `Direct 2-reg forward-difference leaf (x^${nInt} in ${nInt + 1} accesses)`;
+          bestPlan = { kind: 'direct_digit', n: nInt };
+          winningForkId = 'direct_digit';
+        }
       }
-      // 2b. Passive 4-reg wrap of exact Work3 multiplicative composition (O -= U; U += x^n; O += U; U -= x^n -> 2 * costW3[n] accesses!)
-      if (costW3[nInt] < Infinity && planW3[nInt] && planW3[nInt].op === 'compose' && 2 * costW3[nInt] < bestAcc) {
-        bestAcc = 2 * costW3[nInt];
-        bestDesc = `Adaptive Composition Wrap: passive 4-reg wrap of Work3(${nInt} = ${planW3[nInt].degree} * ${planW3[nInt].child}) -> ${bestAcc} accesses`;
-        bestPlan = { kind: 'wrap1_work3', n: nInt, work3Plan: planW3[nInt], work3Table: planW3 };
+      // 2b. Passive 4-reg wrap of exact Work3 multiplicative composition (2 * costW3[n] accesses!)
+      if (costW3[nInt] < Infinity && planW3[nInt] && planW3[nInt].op === 'compose') {
+        const wAcc = 2 * costW3[nInt];
+        forkCandidates.push({
+          id: 'wrap1_work3',
+          label: `4-Reg Compose (${planW3[nInt].gadget}*x^${planW3[nInt].child})`,
+          accesses: String(wAcc),
+          status: 'candidate',
+          reason: `Non-passive 3-reg composition wrapped cleanly`
+        });
+        if (wAcc < bestAcc) {
+          bestAcc = wAcc;
+          bestDesc = `Adaptive Composition Wrap: passive 4-reg wrap of Work3(${nInt} = ${planW3[nInt].degree} * ${planW3[nInt].child}) -> ${wAcc} accesses`;
+          bestPlan = { kind: 'wrap1_work3', n: nInt, work3Plan: planW3[nInt], work3Table: planW3 };
+          winningForkId = 'wrap1_work3';
+        }
       }
-      // 3. Exact Gray-Code 2-way Cook-Mertz adaptive fork: x^n = x^a * x^(n-a) -> exact 2*costW3[a] + 2*costW3[b] accesses!
-      if (p === 0n || p > 2n) {
+      // 3. Exact Gray-Code 2-way Cook-Mertz adaptive fork: x^n = x^a * x^(n-a) (needs 2 invertible in Z/pZ!)
+      if (2 <= maxFactOk) {
+        let bestGray = Infinity;
+        let bestGrayPair = null;
         for (let a = 1; a <= Math.floor(nInt / 2); a++) {
           const b = nInt - a;
           if (costW3[a] < Infinity && costW3[b] < Infinity) {
             const cand = 2 * costW3[a] + 2 * costW3[b];
-            if (cand < bestAcc) {
-              bestAcc = cand;
-              bestDesc = `Gray-Code 2-Way Adaptive Fork: x^${nInt} = x^${a} (${costW3[a]}w) * x^${b} (${costW3[b]}w) -> ${cand} accesses`;
-              bestPlan = { kind: 'gray_cm2_fork', a, b, planA: planW3[a], planB: planW3[b], work3Table: planW3 };
+            if (cand < bestGray) {
+              bestGray = cand;
+              bestGrayPair = { a, b };
             }
           }
         }
+        if (bestGrayPair) {
+          const { a, b } = bestGrayPair;
+          forkCandidates.push({
+            id: 'gray_cm2_fork',
+            label: `Gray-Code Split (x^${a}*x^${b})`,
+            accesses: String(bestGray),
+            status: 'candidate',
+            reason: `2*${costW3[a]} + 2*${costW3[b]} in 4 passive regs`
+          });
+          if (bestGray < bestAcc) {
+            bestAcc = bestGray;
+            bestDesc = `Gray-Code 2-Way Adaptive Fork: x^${nInt} = x^${a} (${costW3[a]}w) * x^${b} (${costW3[b]}w) -> ${bestGray} accesses`;
+            bestPlan = { kind: 'gray_cm2_fork', a, b, planA: planW3[a], planB: planW3[b], work3Table: planW3 };
+            winningForkId = 'gray_cm2_fork';
+          }
+        }
       }
-      // 4. Compare all feasible base-delta Cook-Mertz expansions (delta in {5, 7, 9, 11, 13})
+      // 4. Compare all feasible base-delta Cook-Mertz expansions (delta in {5, 7, 9, 11, 13, 15})
       for (const spec of feasibleSpecs) {
+        if (!isRadixScheduleValid(spec, N, p)) continue;
         const ds = baseDigits(spec.degree, N);
         const mLen = ds.length;
-        const okMod = p === 0n || (p > BigInt(Math.max(spec.degree - 1, mLen)) && gcd(spec.D, p) === 1n);
-        if (!okMod) continue;
         let acc = 0;
         let tPow = 1;
         let dPow = 1;
@@ -567,21 +757,28 @@
           tPow *= spec.t;
           dPow *= spec.degree;
         }
+        forkCandidates.push({
+          id: `radix_${spec.id}`,
+          label: `Base-${spec.degree} (${spec.id})`,
+          accesses: String(acc),
+          status: 'candidate',
+          reason: `Cook-Mertz digits [${ds.join(',')}]`
+        });
         if (acc < bestAcc) {
           bestAcc = acc;
           bestDesc = `Adaptive Base-${spec.degree} Fork (${spec.id}, digits [${ds.join(', ')}] LSB-first) -> ${acc} accesses`;
           bestPlan = { kind: 'radix_fork', base: spec.degree, t: spec.t, gadget: spec.id, digits: ds };
+          winningForkId = `radix_${spec.id}`;
         }
       }
 
       if (bestAcc === Infinity) {
-        // Fallback when modulus p is tiny composite or divides required factorials
         adaptiveBest = {
           strategy: 'MODULUS_CONSTRAINT_WARNING',
-          label: `Modulus p=${p} divides a required denominator; use prime p > max(12, floor(log_13 N)+1) avoiding bad primes`,
+          label: `Modulus p=${p} divides a required denominator for N=${N}; choose modulus coprime to D_t and required factorials (e.g. prime p > max(12, floor(log_13 N)+1) avoiding bad primes)`,
           accesses: prog5Acc,
           registers: workload === 'matrix' ? `${3 * matrixDim * matrixDim + (matrixDim * matrixDim * (matrixDim * matrixDim + 1)) / 2} scalars` : '4 passive regs',
-          tree: `Modulus p=${p} is incompatible with exact inverse requirements for N=${N}`,
+          tree: `No exact inverse exists mod ${p} for any verified schedule at N=${N}`,
           feasible: false
         };
       } else {
@@ -598,55 +795,75 @@
         };
       }
     } else {
-      // Large-N Hybrid Top-Down Adaptive Forking (N > 4096, up to 10^12+!)
-      // Picks the asymptotically optimal feasible engine across all constraints
+      // Large-N Hybrid Top-Down Adaptive Forking (N > 4096, arbitrary BigInt!)
       let chosenSpec = null;
-      for (const tCand of (workload === 'matrix' ? [5, 4] : [8, 7, 6, 5, 4])) {
+      const priority = workload === 'matrix' ? [5, 4] : [8, 9, 7, 6, 5, 4];
+      for (const tCand of priority) {
         const sp = PROGRAMS_R3[tCand];
-        const ell = baseDigits(sp.degree, N).length - 1;
-        const okMod = p === 0n || (p > BigInt(Math.max(sp.degree - 1, ell + 1)) && gcd(sp.D, p) === 1n);
-        if (isGadgetFeasible(sp, p, workload) && okMod) {
+        if (isGadgetFeasible(sp, p, workload) && isRadixScheduleValid(sp, N, p)) {
           chosenSpec = sp;
           break;
         }
       }
       if (!chosenSpec) {
-        chosenSpec = PROGRAMS_R3[5];
-      }
-      // Compute hybrid adaptive accesses: replace low-order digit subtrees <= DP_LIMIT by exact DP costW3!
-      const ds = baseDigits(chosenSpec.degree, N);
-      let hybridAcc = 0n;
-      let tPow = 1n;
-      let dPow = 1n;
-      for (let i = 0; i < ds.length; i++) {
-        const b = ds[i];
-        const termExp = BigInt(b) * dPow;
-        let ci = b === 0 ? 0n : BigInt(b + 1) * tPow;
-        if (b > 0 && termExp <= BigInt(DP_LIMIT) && costW3[Number(termExp)] < Number(ci)) {
-          ci = BigInt(costW3[Number(termExp)]);
+        const matScalars = 3 * matrixDim * matrixDim + (matrixDim * matrixDim * (matrixDim * matrixDim + 1)) / 2;
+        adaptiveBest = {
+          strategy: 'MODULUS_CONSTRAINT_WARNING',
+          label: `Modulus p=${p} is incompatible with all verified large-N schedules at N=${N} (need gcd(D_t, p)=1 and required factorials invertible mod p)`,
+          accesses: prog5Acc,
+          registers: workload === 'matrix' ? `${matScalars} scalar regs` : '4 passive regs',
+          tree: `Modulus p=${p} divides required denominators across all feasible gadgets`,
+          feasible: false
+        };
+      } else {
+        const ds = baseDigits(chosenSpec.degree, N);
+        let hybridAcc = 0n;
+        let tPow = 1n;
+        let dPow = 1n;
+        for (let i = 0; i < ds.length; i++) {
+          const b = ds[i];
+          const termExp = BigInt(b) * dPow;
+          let ci = b === 0 ? 0n : BigInt(b + 1) * tPow;
+          if (b > 0 && termExp <= BigInt(DP_LIMIT) && costW3[Number(termExp)] < Number(ci)) {
+            ci = BigInt(costW3[Number(termExp)]);
+          }
+          hybridAcc = 2n * ci + 2n * hybridAcc;
+          tPow *= BigInt(chosenSpec.t);
+          dPow *= BigInt(chosenSpec.degree);
         }
-        hybridAcc = 2n * ci + 2n * hybridAcc;
-        tPow *= BigInt(chosenSpec.t);
-        dPow *= BigInt(chosenSpec.degree);
+        const matScalars = 3 * matrixDim * matrixDim + (matrixDim * matrixDim * (matrixDim * matrixDim + 1)) / 2;
+        winningForkId = `hybrid_${chosenSpec.id}`;
+        forkCandidates.push({
+          id: winningForkId,
+          label: `Hybrid ${chosenSpec.id} (Base ${chosenSpec.degree})`,
+          accesses: hybridAcc.toString(),
+          status: 'winner',
+          reason: `Optimal feasible exponent ${chosenSpec.exponent.toFixed(5)} + DP leaves`
+        });
+        adaptiveBest = {
+          strategy: workload === 'matrix' ? 'ADAPTIVE_MATRIX_PROG5' : `ADAPTIVE_HYBRID_${chosenSpec.id.toUpperCase()}`,
+          label: workload === 'matrix'
+            ? `Adaptive Matrix Fork (${chosenSpec.id}, d=2 shear, zero extra scalar regs) + DP leaves`
+            : `Adaptive Hybrid Fork (${chosenSpec.id} top radix + DP-optimal leaves)`,
+          accesses: hybridAcc,
+          registers: workload === 'matrix' ? `${matScalars} scalar regs (m=${matrixDim}, exact r=3 tier)` : '4 passive regs',
+          tree: `Top radix ${chosenSpec.degree} (${chosenSpec.id}, ${ds.length} digits) -> DP leaf optimization for sub-exponents <= ${DP_LIMIT}`,
+          chosenSpecId: chosenSpec.id,
+          feasible: true
+        };
       }
-      const matScalars = 3 * matrixDim * matrixDim + (matrixDim * matrixDim * (matrixDim * matrixDim + 1)) / 2;
-      adaptiveBest = {
-        strategy: workload === 'matrix' ? 'ADAPTIVE_MATRIX_PROG5' : `ADAPTIVE_HYBRID_${chosenSpec.id.toUpperCase()}`,
-        label: workload === 'matrix'
-          ? `Adaptive Matrix Fork (${chosenSpec.id}, d=2 shear, zero extra scalar regs) + DP leaves`
-          : `Adaptive Hybrid Fork (${chosenSpec.id} top radix + DP-optimal leaves)`,
-        accesses: hybridAcc,
-        registers: workload === 'matrix' ? `${matScalars} scalar regs (m=${matrixDim}, exact r=3 tier)` : '4 passive regs',
-        tree: `Top radix ${chosenSpec.degree} (${chosenSpec.id}, ${ds.length} digits) -> DP leaf optimization for sub-exponents <= ${DP_LIMIT}`,
-        chosenSpecId: chosenSpec.id,
-        feasible: true
-      };
     }
 
-    const baseNum = Number(base4Acc);
-    const adaptNum = Number(adaptiveBest.accesses);
-    const reductionPct = baseNum > 0 ? ((baseNum - adaptNum) / baseNum) * 100 : 0;
-    const speedupFactor = adaptNum > 0 ? baseNum / adaptNum : 1;
+    // Mark the single winning fork candidate clearly
+    for (const fc of forkCandidates) {
+      if (fc.id === winningForkId) fc.status = 'winner';
+    }
+
+    // Exact BigInt-safe speedup & percentage calculation (never overflows Number even for N = 10^30!)
+    const speedupFactor = bigRatio(base4Acc, adaptiveBest.accesses);
+    const reductionPct = base4Acc > 0n
+      ? (1 - bigRatio(adaptiveBest.accesses, base4Acc)) * 100
+      : 0;
 
     // Asymptotic ratio at N (pure exponent comparison)
     const nf = Number(N > 10n ** 15n ? 10n ** 15n : N);
@@ -654,20 +871,23 @@
     const asympRatio8 = nf > 1 ? Math.pow(nf, Math.log(4) / Math.log(5) - Math.log(8) / Math.log(13)) : 1;
 
     const deviceBudgets = {
-      watch: { maxFuzz: 100, traceLimit: 8, hint: 'Smartwatch glance mode: compact exact BigInt & 100-trial live fuzzer' },
-      phone: { maxFuzz: 300, traceLimit: 16, hint: 'Mobile mode: touch-tuned adaptive fork & 300-trial fuzzer' },
-      tablet: { maxFuzz: 600, traceLimit: 24, hint: 'Tablet split-view: full live step trace & 600-trial fuzzer' },
-      laptop: { maxFuzz: 1000, traceLimit: 40, hint: 'Laptop mode: full multi-engine workbench & 1,000-trial fuzzer' },
-      desktop: { maxFuzz: 2000, traceLimit: 60, hint: 'Desktop mode: full trace, streaming telemetry & 2,000-trial fuzzer' }
+      watch: { maxFuzz: 100, traceLimit: 6, streamHz: 1, hint: 'Smartwatch glance mode: compact exact BigInt & 100-trial live fuzzer' },
+      phone: { maxFuzz: 300, traceLimit: 14, streamHz: 2, hint: 'Mobile mode: touch-tuned adaptive fork & 300-trial fuzzer' },
+      tablet: { maxFuzz: 600, traceLimit: 24, streamHz: 3, hint: 'Tablet split-view: full live step trace & 600-trial fuzzer' },
+      laptop: { maxFuzz: 1000, traceLimit: 40, streamHz: 4, hint: 'Laptop mode: full multi-engine workbench & 1,000-trial fuzzer' },
+      desktop: { maxFuzz: 2000, traceLimit: 60, streamHz: 4, hint: 'Desktop mode: full trace, live telemetry & 2,000-trial fuzzer' }
     };
 
     return {
       workload,
       N: N.toString(),
       p: p.toString(),
+      pIsPrime,
+      ringLabel,
       matrixDim,
       device: deviceBudgets[deviceClass] || deviceBudgets.desktop,
       internalPlan: adaptiveBest.plan || null,
+      forkCandidates: forkCandidates.slice(0, 7),
       comparison: {
         vinciguerra_r3_x5: { accesses: base4Acc.toString(), exponent: '0.861353', validForP: p4Valid },
         prog5_x7_T3a: { accesses: prog5Acc.toString(), exponent: '0.827087', validForP: p5Valid, asympGainVsBase: asympRatio5 },
@@ -690,10 +910,7 @@
   // 5. Literal 4-Register Powering (T3h) & Streaming Moments (T3i)
   // =========================================================================
 
-  // Execute a clean 3-work-register subprogram computing r0 <- r0 + x^(b * delta^i)
-  // by literal instruction replay of 2-reg forward differences composed with prog_delta!
   function execDigitPowWork3(b, x, p, state, scale = 1n) {
-    // Cleanly computes r0 <- r0 + scale * x^b on (r0, r1, r2), restoring r1, r2.
     let [r0, r1, r2] = state;
     if (b === 0) {
       return { state: [mod(r0 + scale, p), r1, r2], accesses: 0 };
@@ -701,13 +918,12 @@
     if (b === 1) {
       return { state: [mod(r0 + mod(scale * x, p), p), r1, r2], accesses: 1 };
     }
-    // Forward finite difference: sum_{a=0}^b (-1)^(b-a) C(b, a) (r1 + a*x)^b = b! * x^b
     const invFact = modInv(factorialMod(b, p), p);
     const outFactor = mod(scale * invFact, p);
     let accesses = 0;
     for (let a = 0; a <= b; a++) {
       const sign = ((b - a) & 1) ? -1n : 1n;
-      const w = mod(outFactor * sign * binomModP(b, a, p), p);
+      const w = mod(outFactor * sign * mod(binomExact(b, a), p), p);
       r0 = mod(r0 + mod(w * modPow(r1, b, p), p), p);
       const step = a < b ? 1n : -BigInt(b);
       r1 = mod(r1 + mod(step * x, p), p);
@@ -716,26 +932,11 @@
     return { state: [r0, r1, r2], accesses };
   }
 
-  // Clean non-passive composition on 3 work registers (Alekseev et al. MFCS 2025, Lem. 8):
-  // Executes P with input x replaced by g(x) = x^(delta^i), rotating registers cleanly.
   function execPowerLevelWork3(spec, level, b, x, p, state, scale = 1n) {
     if (level === 0) {
       return execDigitPowWork3(b, x, p, state, scale);
     }
-    // Non-passive recursive substitution: replace each input access `u += alpha * y`
-    // in the outer level with a rotated call to level - 1 computing `u += alpha * x^(delta^(level-1))`.
-    const outer = execPowerLevelWork3_outer(spec, level, b, x, p, state, scale);
-    return outer;
-  }
 
-  function execPowerLevelWork3_outer(spec, level, b, x, p, state, scale) {
-    // Build the exact recursive evaluation of x^(b * delta^level) by substituting spec
-    // into every input access of digitPow(b) using cyclic register rotation!
-    // Base call: if level == 1 and b == 1, literally runs Pass3(spec) on (r0, r1, r2).
-    if (level === 0) {
-      return execDigitPowWork3(b, x, p, state, scale);
-    }
-    // Helper: execute spec on registers (dst, uReg, vReg) with input oracle `addInput(uVal, alpha)`
     function runSpecWithOracle(st3, dstIdx, uIdx, vIdx, sScale, addInputFn) {
       const reg = [st3[0], st3[1], st3[2]];
       const invD = modInv(spec.D, p);
@@ -751,7 +952,6 @@
         if (st.qNext !== 0n) {
           reg[vIdx] = mod(reg[vIdx] - mod(st.qNext * modPow(reg[uIdx], spec.shearDeg, p), p), p);
         }
-        // Input access on uIdx using the other two registers catalytically!
         const sub = addInputFn(reg, uIdx, vIdx, dstIdx, st.alpha);
         reg[0] = sub.state[0];
         reg[1] = sub.state[1];
@@ -775,22 +975,19 @@
       );
     }
 
-    // Now wrap digitPow(b) around runPowTower(level):
     if (b === 0) {
       return { state: [mod(state[0] + scale, p), state[1], state[2]], accesses: 0 };
     }
     if (b === 1) {
       return runPowTower(level, state, 0, 1, 2, scale);
     }
-    // Forward finite difference on (r0, r1, r2) with each step `r1 += step * x^(delta^level)`
-    // executed via runPowTower(level) targeting r1 and using (r2, r0) catalytically!
     const reg = [state[0], state[1], state[2]];
     const invFact = modInv(factorialMod(b, p), p);
     const outFactor = mod(scale * invFact, p);
     let totalAcc = 0;
     for (let a = 0; a <= b; a++) {
       const sign = ((b - a) & 1) ? -1n : 1n;
-      const w = mod(outFactor * sign * binomModP(b, a, p), p);
+      const w = mod(outFactor * sign * mod(binomExact(b, a), p), p);
       reg[0] = mod(reg[0] + mod(w * modPow(reg[1], b, p), p), p);
       const step = a < b ? 1n : -BigInt(b);
       const sub = runPowTower(level, reg, 1, 2, 0, step);
@@ -802,8 +999,6 @@
     return { state: reg, accesses: totalAcc };
   }
 
-  // Execute a DP Work3 plan recursively on registers (reg[dstIdx], reg[uIdx], reg[vIdx])
-  // with input oracle addInputFn(regState, subDst, subU, subV, alpha), restoring non-target regs!
   function execWork3PlanNode(planTable, n, p, regState, dstIdx, uIdx, vIdx, scale, addInputFn) {
     const node = planTable[n];
     if (!node || node.op === 'const1') {
@@ -821,7 +1016,7 @@
       let acc = 0;
       for (let a = 0; a <= n; a++) {
         const sign = ((n - a) & 1) ? -1n : 1n;
-        const w = mod(outFactor * sign * binomModP(n, a, p), p);
+        const w = mod(outFactor * sign * mod(binomExact(n, a), p), p);
         reg[dstIdx] = mod(reg[dstIdx] + mod(w * modPow(reg[uIdx], n, p), p), p);
         const step = a < n ? 1n : -BigInt(n);
         const sub = addInputFn(reg, uIdx, vIdx, dstIdx, step);
@@ -831,7 +1026,6 @@
       return { state: reg, accesses: acc };
     }
     if (node.op === 't1_frobenius') {
-      // Exact T1 forward finite difference on A = {0..s_p(n)} over F_p!
       const s = node.sp;
       const reg = [regState[0], regState[1], regState[2]];
       const invFact = modInv(factorialMod(s, p), p);
@@ -839,7 +1033,7 @@
       let acc = 0;
       for (let a = 0; a <= s; a++) {
         const sign = ((s - a) & 1) ? -1n : 1n;
-        const w = mod(outFactor * sign * binomModP(s, a, p), p);
+        const w = mod(outFactor * sign * mod(binomExact(s, a), p), p);
         reg[dstIdx] = mod(reg[dstIdx] + mod(w * modPow(reg[uIdx], n, p), p), p);
         const step = a < s ? 1n : -BigInt(s);
         const sub = addInputFn(reg, uIdx, vIdx, dstIdx, step);
@@ -864,7 +1058,6 @@
         if (st.qNext !== 0n) {
           reg[vIdx] = mod(reg[vIdx] - mod(st.qNext * modPow(reg[uIdx], spec.shearDeg, p), p), p);
         }
-        // Substitute child composition cleanly into uIdx using (vIdx, dstIdx) catalytically!
         const sub = execWork3PlanNode(planTable, node.child, p, reg, uIdx, vIdx, dstIdx, st.alpha, addInputFn);
         reg[0] = sub.state[0]; reg[1] = sub.state[1]; reg[2] = sub.state[2];
         acc += sub.accesses;
@@ -880,7 +1073,8 @@
   function execFourRegPowering(NIn, xIn, pIn, opts = {}) {
     const N = BigInt(NIn);
     const p = BigInt(pIn);
-    if (p < 2n || !isPrimeBig(p)) throw new Error('Modulus p must be prime for modular 4-register execution');
+    if (N < 1n) throw new Error('Exponent N must be >= 1');
+    if (p < 2n) throw new Error('Modulus p must be >= 2 for modular 4-register execution (supports prime F_p AND valid composite rings Z/mZ)');
     const x = mod(BigInt(xIn), p);
     const engineChoice = opts.engine || 'adaptive'; // 'prog4_x5' | 'prog5_x7' | 'prog8_x13' | 'adaptive'
     const faultBit = Boolean(opts.faultBit);
@@ -889,6 +1083,8 @@
     const u0 = mod(BigInt(opts.u0 ?? 135791n), p);
     const r10 = mod(BigInt(opts.r10 ?? 246802n), p);
     const r20 = mod(BigInt(opts.r20 ?? 975313n), p);
+
+    let forcedRadixSpec = null;
 
     // If adaptive mode AND N <= 4096, execute the LITERAL DP-optimal Adaptive Fork plan!
     if (engineChoice === 'adaptive' && N <= 4096n) {
@@ -900,12 +1096,30 @@
         return { state: out, accesses: 1 };
       };
 
+      if (plan && plan.kind === 'direct_x1') {
+        let O = mod(O0 + x, p);
+        let u = u0;
+        if (faultBit) u = mod(u + 1n, p);
+        const expectedO = mod(O0 + x, p);
+        return {
+          engineUsed: 'adaptive:direct_x1 (1-reg, 1 access)',
+          N: '1', p: p.toString(), x: x.toString(), digits: [1],
+          initial: { O: O0, u: u0, r1: r10, r2: r20 },
+          midScramble: { O, u, r1: r10, r2: r20 },
+          final: { O, u, r1: r10, r2: r20 },
+          expectedO, accesses: 1,
+          vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
+          outputExact: O === expectedO, catalystsRestored: u === u0, verified: O === expectedO && u === u0
+        };
+      }
       if (plan && plan.kind === 'direct_pass3') {
         const r3 = execPass3(plan.t, x, p, { O0, u0, v0: r10, faultBit });
+        const mid = r3.trace[Math.floor(r3.trace.length / 2)] || r3.final;
         return {
           engineUsed: `adaptive:${plan.gadget} (direct 3-reg)`,
           N: N.toString(), p: p.toString(), x: x.toString(), digits: [Number(N)],
           initial: { O: O0, u: u0, r1: r10, r2: r20 },
+          midScramble: { O: mid.O, u: mid.u, r1: mid.v, r2: r20 },
           final: { O: r3.final.O, u: r3.final.u, r1: r3.final.v, r2: r20 },
           expectedO: r3.expectedO, accesses: r3.accesses,
           vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
@@ -919,13 +1133,15 @@
         let O = O0;
         let u = u0;
         let acc = 0;
+        let midScramble = null;
         for (let a = 0; a <= s; a++) {
           const sign = ((s - a) & 1) ? -1n : 1n;
-          const w = mod(invFact * sign * binomModP(s, a, p), p);
+          const w = mod(invFact * sign * mod(binomExact(s, a), p), p);
           O = mod(O + mod(w * modPow(u, nInt, p), p), p);
           const step = a < s ? 1n : -BigInt(s);
           u = mod(u + mod(step * x, p), p);
           if (faultBit && a === 0) u = mod(u + 1n, p);
+          if (a === Math.floor(s / 2)) midScramble = { O, u, r1: r10, r2: r20 };
           acc += 1;
         }
         const expectedO = mod(O0 + modPow(x, N, p), p);
@@ -933,6 +1149,7 @@
           engineUsed: `adaptive:${plan.kind} (2-reg passive)`,
           N: N.toString(), p: p.toString(), x: x.toString(), digits: [nInt],
           initial: { O: O0, u: u0, r1: r10, r2: r20 },
+          midScramble: midScramble || { O, u, r1: r10, r2: r20 },
           final: { O, u, r1: r10, r2: r20 },
           expectedO, accesses: acc,
           vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
@@ -940,11 +1157,11 @@
         };
       }
       if (plan && plan.kind === 'wrap1_work3') {
-        // Passive 4-register wrap: O -= U; U += x^N; O += U; U -= x^N -> 2 * costW3[N] accesses!
         let O = mod(O0 - u0, p);
         let work = [u0, r10, r20];
         const rPlus = execWork3PlanNode(plan.work3Table, plan.n, p, work, 0, 1, 2, 1n, baseOracle);
         work = rPlus.state;
+        const midScramble = { O, u: work[0], r1: work[1], r2: work[2] };
         if (faultBit) work[1] = mod(work[1] + 1n, p);
         O = mod(O + work[0], p);
         const rMinus = execWork3PlanNode(plan.work3Table, plan.n, p, work, 0, 1, 2, -1n, baseOracle);
@@ -955,6 +1172,7 @@
           engineUsed: `adaptive:wrap1_compose(${plan.work3Plan.gadget}*x^${plan.work3Plan.child})`,
           N: N.toString(), p: p.toString(), x: x.toString(), digits: [plan.n],
           initial: { O: O0, u: u0, r1: r10, r2: r20 },
+          midScramble,
           final: { O, u: work[0], r1: work[1], r2: work[2] },
           expectedO, accesses: rPlus.accesses + rMinus.accesses,
           vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
@@ -962,28 +1180,22 @@
         };
       }
       if (plan && plan.kind === 'gray_cm2_fork') {
-        // Exact Gray-code 2-way Cook-Mertz: (0,0) -> (1,0) -> (1,1) -> (0,1) -> (0,0)
-        // Literally 2 * costW3[a] + 2 * costW3[b] accesses!
         const inv2 = modInv(2n, p);
         let O = O0;
         let work = [u0, r10, r20];
         let acc = 0;
-        // (0,0): +inv2 * u^2
         O = mod(O + mod(inv2 * modPow(work[0], 2, p), p), p);
-        // +A -> (1,0): -inv2 * (u+A)^2
         let sub = execWork3PlanNode(plan.work3Table, plan.a, p, work, 0, 1, 2, 1n, baseOracle);
         work = sub.state; acc += sub.accesses;
         if (faultBit) work[1] = mod(work[1] + 1n, p);
         O = mod(O - mod(inv2 * modPow(work[0], 2, p), p), p);
-        // +B -> (1,1): +inv2 * (u+A+B)^2
         sub = execWork3PlanNode(plan.work3Table, plan.b, p, work, 0, 1, 2, 1n, baseOracle);
         work = sub.state; acc += sub.accesses;
+        const midScramble = { O, u: work[0], r1: work[1], r2: work[2] };
         O = mod(O + mod(inv2 * modPow(work[0], 2, p), p), p);
-        // -A -> (0,1): -inv2 * (u+B)^2
         sub = execWork3PlanNode(plan.work3Table, plan.a, p, work, 0, 1, 2, -1n, baseOracle);
         work = sub.state; acc += sub.accesses;
         O = mod(O - mod(inv2 * modPow(work[0], 2, p), p), p);
-        // -B -> (0,0) restored!
         sub = execWork3PlanNode(plan.work3Table, plan.b, p, work, 0, 1, 2, -1n, baseOracle);
         work = sub.state; acc += sub.accesses;
         const expectedO = mod(O0 + modPow(x, N, p), p);
@@ -992,6 +1204,7 @@
           engineUsed: `adaptive:gray_cm2(x^${plan.a}*x^${plan.b})`,
           N: N.toString(), p: p.toString(), x: x.toString(), digits: [plan.a, plan.b],
           initial: { O: O0, u: u0, r1: r10, r2: r20 },
+          midScramble,
           final: { O, u: work[0], r1: work[1], r2: work[2] },
           expectedO, accesses: acc,
           vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
@@ -1000,11 +1213,11 @@
       }
       if (planRes.comparison.adaptive_fork.strategy === 'T1a_FROBENIUS_COLLAPSE' ||
           planRes.comparison.adaptive_fork.strategy === 'T2_BILINEAR_FROBENIUS') {
-        // Exact 2-access Frobenius collapse: O += (u+x)^N - u^N (2 input accesses: u += x; u -= x)
         let O = O0;
         let u = u0;
         O = mod(O - modPow(u, N, p), p);
         u = mod(u + x, p);
+        const midScramble = { O, u, r1: r10, r2: r20 };
         if (faultBit) u = mod(u + 1n, p);
         O = mod(O + modPow(u, N, p), p);
         u = mod(u - x, p);
@@ -1013,60 +1226,65 @@
           engineUsed: 'adaptive:T1a_frobenius_2access',
           N: N.toString(), p: p.toString(), x: x.toString(), digits: [Number(N)],
           initial: { O: O0, u: u0, r1: r10, r2: r20 },
+          midScramble,
           final: { O, u, r1: r10, r2: r20 },
           expectedO, accesses: 2,
           vinciguerraBaselineAccesses: Number(exactFourRegAccesses(5, 4, N)),
           outputExact: O === expectedO, catalystsRestored: u === u0, verified: O === expectedO && u === u0
         };
       }
+      if (plan && plan.kind === 'radix_fork' && PROGRAMS_R3[plan.t]) {
+        forcedRadixSpec = PROGRAMS_R3[plan.t];
+      }
     }
 
-    let spec = PROGRAMS_R3[8];
-    if (engineChoice === 'prog4_x5') spec = PROGRAMS_R3[4];
-    else if (engineChoice === 'prog5_x7') spec = PROGRAMS_R3[5];
-    else if (engineChoice === 'prog8_x13') spec = PROGRAMS_R3[8];
-    else {
-      const ds13 = baseDigits(13, N);
-      const ds7 = baseDigits(7, N);
-      if (p > BigInt(Math.max(12, ds13.length)) && gcd(PROGRAMS_R3[8].D, p) === 1n && N >= 13n) {
-        spec = PROGRAMS_R3[8];
-      } else if (p > BigInt(Math.max(6, ds7.length)) && gcd(PROGRAMS_R3[5].D, p) === 1n) {
-        spec = PROGRAMS_R3[5];
-      } else {
-        spec = PROGRAMS_R3[4];
+    let spec = forcedRadixSpec;
+    if (!spec) {
+      if (engineChoice === 'prog4_x5') spec = PROGRAMS_R3[4];
+      else if (engineChoice === 'prog5_x7') spec = PROGRAMS_R3[5];
+      else if (engineChoice === 'prog6_x9') spec = PROGRAMS_R3[6];
+      else if (engineChoice === 'prog7_x11') spec = PROGRAMS_R3[7];
+      else if (engineChoice === 'prog8_x13') spec = PROGRAMS_R3[8];
+      else {
+        for (const tCand of [8, 9, 7, 6, 5, 4]) {
+          const cand = PROGRAMS_R3[tCand];
+          if (isRadixScheduleValid(cand, N, p)) {
+            spec = cand;
+            break;
+          }
+        }
+        if (!spec) spec = PROGRAMS_R3[4];
       }
     }
 
     const ds = baseDigits(spec.degree, N);
     const m = ds.length;
-    if (p <= BigInt(Math.max(spec.degree - 1, m)) || gcd(spec.D, p) !== 1n) {
-      throw new Error(`Prime p=${p} is incompatible with ${spec.id} at N=${N} (need p > ${Math.max(spec.degree - 1, m)} and p not dividing D_${spec.t})`);
+    if (!isRadixScheduleValid(spec, N, p)) {
+      throw new Error(`Modulus p=${p} is incompatible with ${spec.id} at N=${N} (requires gcd(D_${spec.t}, p)=1 and (${spec.degree - 1})!, ${m}! invertible mod p)`);
     }
 
     let O = O0;
     let work = [u0, r10, r20];
     let accesses = 0;
     let faultInjected = false;
+    let midScramble = null;
     const invFactM = modInv(factorialMod(m, p), p);
 
-    // Literal Cook-Mertz recursive accumulation matching FourRegisterPowering.accumProg:
-    // Recurses over digits MSB-first (index idx from m-1 down to 0)
     function accumRec(idx, sign) {
       if (idx < 0) {
         O = mod(O + mod(sign * invFactM * modPow(work[0], m, p), p), p);
         return;
       }
       const b = ds[idx];
-      // Branch 1: U <- U + x^(b * delta^idx)
       const rPlus = execPowerLevelWork3(spec, idx, b, x, p, work, 1n);
       work = rPlus.state;
       accesses += rPlus.accesses;
+      if (!midScramble) midScramble = { O, u: work[0], r1: work[1], r2: work[2] };
       if (faultBit && !faultInjected) {
         work[1] = mod(work[1] + 1n, p);
         faultInjected = true;
       }
       accumRec(idx - 1, sign);
-      // Uncompute: U <- U - x^(b * delta^idx)
       const rMinus = execPowerLevelWork3(spec, idx, b, x, p, work, -1n);
       work = rMinus.state;
       accesses += rMinus.accesses;
@@ -1080,12 +1298,13 @@
     const catalystsRestored = work[0] === u0 && work[1] === r10 && work[2] === r20;
 
     return {
-      engineUsed: spec.id,
+      engineUsed: forcedRadixSpec ? `adaptive:radix(${spec.id})` : spec.id,
       N: N.toString(),
       p: p.toString(),
       x: x.toString(),
       digits: ds,
       initial: { O: O0, u: u0, r1: r10, r2: r20 },
+      midScramble: midScramble || { O, u: work[0], r1: work[1], r2: work[2] },
       final: { O, u: work[0], r1: work[1], r2: work[2] },
       expectedO,
       accesses,
@@ -1097,7 +1316,11 @@
   }
 
   function execStreamingMoment(freqVec, DIn, pIn, opts = {}) {
+    if (!Array.isArray(freqVec) || freqVec.length === 0) {
+      throw new Error('Frequency vector must contain at least 1 element');
+    }
     const D = BigInt(DIn);
+    if (D < 1n) throw new Error('Moment order D must be >= 1');
     const p = BigInt(pIn);
     const engine = opts.engine || 'adaptive';
     const faultBit = Boolean(opts.faultBit);
@@ -1127,7 +1350,7 @@
         faultBit: faultBit && i === 0
       });
       engineUsed = res.engineUsed;
-      passes = res.accesses; // Vectorized product ring R^n performs the exact same pass schedule in parallel!
+      passes = res.accesses;
       sumO0 = mod(sumO0 + O0, p);
       sumOFinal = mod(sumOFinal + res.final.O, p);
       naiveFD = mod(naiveFD + modPow(vec[i], D, p), p);
@@ -1157,6 +1380,90 @@
       allCatalystsRestored,
       verified: sumExact && allOutputsExact && allCatalystsRestored,
       coordResults
+    };
+  }
+
+  // =========================================================================
+  // 5b. Live Catalytic Byte-Vault (Real Arbitrary Byte Borrowing & Restoration)
+  // =========================================================================
+
+  // Borrows real Uint8Array bytes verbatim into catalytic registers mod p (where p >= 257
+  // holds 1 full byte per register cleanly, or p >= 65537 holds 2 bytes per register),
+  // executes an exact Adaptive Fork computation on every 3-register chunk, captures the
+  // mid-flight scrambled bytes, and unpacks the exact restored Uint8Array for SHA-256 audit.
+  function execCatalyticByteVault(rawBytes, NIn, xIn, pIn, opts = {}) {
+    const bytes = rawBytes instanceof Uint8Array ? rawBytes : new Uint8Array(rawBytes);
+    if (bytes.length === 0) throw new Error('Byte vault payload cannot be empty');
+    const p = BigInt(pIn);
+    if (p < 257n) throw new Error('Byte vault requires modulus p >= 257 so every byte (0..255) fits injectively in a catalytic register');
+    const N = BigInt(NIn);
+    const x = mod(BigInt(xIn), p);
+    const faultBit = Boolean(opts.faultBit);
+    const maxChunks = Math.max(1, Number(opts.maxChunks ?? 16));
+    const cappedLen = Math.min(bytes.length, maxChunks * 3);
+    const slice = bytes.slice(0, cappedLen);
+
+    const restored = new Uint8Array(slice.length);
+    const midBytes = new Uint8Array(slice.length);
+    let totalAccesses = 0;
+    let allExact = true;
+    let engineUsed = '';
+    let sampleOutput = 0n;
+    let sampleExpected = 0n;
+
+    for (let offset = 0; offset < slice.length; offset += 3) {
+      const u0 = BigInt(slice[offset]);
+      const r10 = offset + 1 < slice.length ? BigInt(slice[offset + 1]) : 0n;
+      const r20 = offset + 2 < slice.length ? BigInt(slice[offset + 2]) : 0n;
+      const O0 = mod(BigInt(17 + offset * 31), p);
+      const res = execFourRegPowering(N, x, p, {
+        engine: 'adaptive',
+        O0,
+        u0,
+        r10,
+        r20,
+        faultBit: faultBit && offset === 0
+      });
+      engineUsed = res.engineUsed;
+      totalAccesses = res.accesses;
+      sampleOutput = res.final.O;
+      sampleExpected = res.expectedO;
+      if (!res.verified) allExact = false;
+
+      midBytes[offset] = Number(res.midScramble.u & 0xffn);
+      if (offset + 1 < slice.length) midBytes[offset + 1] = Number(res.midScramble.r1 & 0xffn);
+      if (offset + 2 < slice.length) midBytes[offset + 2] = Number(res.midScramble.r2 & 0xffn);
+
+      restored[offset] = Number(res.final.u & 0xffn);
+      if (offset + 1 < slice.length) restored[offset + 1] = Number(res.final.r1 & 0xffn);
+      if (offset + 2 < slice.length) restored[offset + 2] = Number(res.final.r2 & 0xffn);
+    }
+
+    let bytesEqual = true;
+    let corruptedByteCount = 0;
+    for (let i = 0; i < slice.length; i++) {
+      if (slice[i] !== restored[i]) {
+        bytesEqual = false;
+        corruptedByteCount += 1;
+      }
+    }
+    const toHex = (arr) => Array.from(arr.slice(0, 16)).map((b) => b.toString(16).padStart(2, '0')).join(' ');
+    return {
+      engineUsed,
+      borrowedBytes: slice.length,
+      chunks: Math.ceil(slice.length / 3),
+      accessesPerChunk: totalAccesses,
+      beforeBytes: slice,
+      midScrambleBytes: midBytes,
+      afterBytes: restored,
+      beforeHexPreview: toHex(slice),
+      midHexPreview: toHex(midBytes),
+      afterHexPreview: toHex(restored),
+      sampleOutput: sampleOutput.toString(),
+      sampleExpected: sampleExpected.toString(),
+      bytesEqual,
+      corruptedByteCount,
+      verified: allExact && bytesEqual
     };
   }
 
@@ -1330,7 +1637,9 @@
       expectedO: expectedO.map((r) => r.map((v) => v.toString())),
       A7: expectedA7.map((r) => r.map((v) => v.toString())),
       nonCommuting,
-      scalarRegisters: 22, // 3*4 + C(5,2) = 12 + 10 = 22 (exact r=3 Vinciguerra tier)
+      singleCallScalarRegisters: 18, // O(4) + u(4) + v(10) = 18 scalars for single A^7
+      recursiveScalarRegisters: 22,  // + U(4) = 22 scalars for recursive A^N (exact r=3 tier)
+      scalarRegisters: 22,
       matrixAccesses: 5,
       outputExact,
       catalystsRestored,
@@ -1349,6 +1658,7 @@
     if (!isPrimeBig(p)) {
       return { validPrime: false, message: `${p} is not prime. Theorem T1 characterizes prime fields F_p.` };
     }
+    if (d < 0n) throw new Error('Degree d must be >= 0');
     const digits = baseDigits(p, d);
     const sp = digitSum(p, d);
     const pNum = p > 1000000n ? 1000000 : Number(p);
@@ -1372,8 +1682,6 @@
     };
   }
 
-  // Execute T2 strictly bilinear 2-access Frobenius x^(2^k) over F_{2^8} (AES/Rijndael field x^8+x^4+x^3+x+1)!
-  // Using F_{2^8} makes x^(2^k) genuinely non-trivial (unlike F_2 where x^2 = x)!
   function gf256Mul(a, b) {
     let res = 0;
     let x = a & 0xff;
@@ -1543,7 +1851,7 @@
   }
 
   // =========================================================================
-  // 8. Live Adversarial Fuzzer (Deterministic PRNG across T1–T4)
+  // 8. Live Adversarial Fuzzer (Deterministic PRNG across T1–T4 + Composite Rings)
   // =========================================================================
 
   function runAdversarialFuzz(trials = 500, seed = 20261125) {
@@ -1555,16 +1863,17 @@
     const t0 = typeof performance !== 'undefined' ? performance.now() : Date.now();
     let passed = 0;
     let failed = 0;
-    const goodPrimes = [11n, 13n, 19n, 23n, 29n, 31n, 101n, 1009n, 1000003n];
-    const gadgets = [4, 5, 6, 7, 8];
+    const safePrimes = [11n, 13n, 19n, 29n, 31n, 101n, 1009n, 1000003n];
+    const safeComposites = [1009n * 1013n, 19n * 29n, 31n * 37n]; // Valid odd composite rings Z/mZ!
+    const gadgets = [4, 5, 6, 7, 8, 9];
 
     for (let i = 0; i < trials; i++) {
-      const mode = i % 5;
+      const mode = i % 6;
       let ok = false;
       if (mode === 0) {
-        // Fuzz 3-register prog4..prog8 over good prime with random dirty catalysts
+        // Fuzz ALL 3-register engines prog4_x5 .. prog9_x15 over safe primes
         const t = gadgets[nextU32() % gadgets.length];
-        const p = goodPrimes[nextU32() % goodPrimes.length];
+        const p = safePrimes[nextU32() % safePrimes.length];
         const res = execPass3(t, BigInt(nextU32()), p, {
           O0: BigInt(nextU32()),
           u0: BigInt(nextU32()),
@@ -1586,10 +1895,22 @@
         const sign = (nextU32() & 1) ? 1n : -1n;
         ok = execT4BalancedProduct(xs, init, sign).verified;
       } else if (mode === 3) {
-        // Fuzz T3h 4-register passive powering with random dirty catalysts
-        const N = 1 + (nextU32() % 45);
-        const p = 1009n;
+        // Fuzz T3h Adaptive Fork across prime F_1009 AND bad-prime dodging F_137 (137 | D_8!)
+        const N = 1 + (nextU32() % 95);
+        const p = (i % 18 === 3) ? 137n : 1009n;
         const res = execFourRegPowering(N, BigInt(nextU32()), p, {
+          engine: 'adaptive',
+          O0: BigInt(nextU32()),
+          u0: BigInt(nextU32()),
+          r10: BigInt(nextU32()),
+          r20: BigInt(nextU32())
+        });
+        ok = res.verified;
+      } else if (mode === 4) {
+        // Fuzz T3h Adaptive Fork over NON-PRIME COMPOSITE COMMUTATIVE RINGS Z/mZ!
+        const N = 1 + (nextU32() % 28);
+        const m = safeComposites[nextU32() % safeComposites.length];
+        const res = execFourRegPowering(N, BigInt(nextU32()), m, {
           engine: 'adaptive',
           O0: BigInt(nextU32()),
           u0: BigInt(nextU32()),
@@ -1619,16 +1940,19 @@
   }
 
   return {
-    version: '1.0.1',
+    version: '1.2.0',
     PROGRAMS_R3,
     mod,
     gcd,
     modInv,
     modPow,
     isPrimeBig,
+    isFactInvertible,
     baseDigits,
     digitSum,
+    binomExact,
     binomModP,
+    bigRatio,
     textToBigInt,
     formatBig,
     exactFourRegAccesses,
@@ -1636,6 +1960,7 @@
     planAdaptiveFork,
     execFourRegPowering,
     execStreamingMoment,
+    execCatalyticByteVault,
     execMatrixLiftProg5,
     evalT1Oracle,
     execT2BilinearFrobenius,

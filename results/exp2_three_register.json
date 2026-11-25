@@ -253,6 +253,30 @@
       ]
     }
   ],
+  "r4_triangular_frontier": [
+    {
+      "r": 4,
+      "t": 5,
+      "d1": 2,
+      "d2": 4,
+      "prime_modulus": 1000000007,
+      "achieved_degree": 9,
+      "next_degree_unsolvable": 10,
+      "exponent": 0.73248676,
+      "beats_vinciguerra_log7_4": false
+    },
+    {
+      "r": 4,
+      "t": 6,
+      "d1": 2,
+      "d2": 4,
+      "prime_modulus": 1000000007,
+      "achieved_degree": 11,
+      "next_degree_unsolvable": 12,
+      "exponent": 0.74722174,
+      "beats_vinciguerra_log7_4": false
+    }
+  ],
   "exponent_chain_exact_nat_checks": {
     "log13_8_lt_30_37": true,
     "30_37_lt_log11_7": true,

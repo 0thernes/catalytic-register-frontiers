@@ -22,7 +22,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Assemble static site with blueprint overview and axiom report
         run: |
           mkdir -p _site/blueprint
@@ -30,11 +30,12 @@ jobs:
           cp docs/catalytic-engine.js _site/catalytic-engine.js
           cp docs/manifest.webmanifest _site/manifest.webmanifest
           cp docs/sw.js _site/sw.js
+          cp docs/icon.svg _site/icon.svg
           cp docs/media/social-preview.svg _site/social-preview.svg
           cp results/lean_axioms.txt _site/blueprint/lean_axioms.txt
           cp results/six_kernel_audit.txt _site/blueprint/six_kernel_audit.txt
           cp docs/statement-fidelity.md _site/blueprint/statement-fidelity.md
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
@@ -46,4 +47,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
