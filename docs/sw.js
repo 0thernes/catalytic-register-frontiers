@@ -2,7 +2,7 @@
 // Network-first with instant offline cache fallback Service Worker for the
 // Catalytic Register Frontiers Adaptive Forking PWA.
 // Zero telemetry, zero external network requests, 100% client-side computation.
-const CACHE_NAME = 'catalytic-adaptive-fork-v1.5.0';
+const CACHE_NAME = 'catalytic-adaptive-fork-v1.6.0';
 const CORE_ASSETS = [
   './',
   './index.html',

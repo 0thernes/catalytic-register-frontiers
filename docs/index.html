@@ -234,7 +234,7 @@
     <span class="pill">14 Core Modules &middot; 20 Theorems + Non-Vacuity</span>
     <span class="pill">5 Kernels (6 Runs) PASS</span>
     <span class="pill">8 / 8 LRAT UNSAT Proofs Verified</span>
-    <span class="pill info">Adaptive Forking Offline PWA v1.5</span>
+    <span class="pill info">Adaptive Forking Offline PWA v1.6</span>
     <span class="pill warn">Preprint &middot; Not Peer-Reviewed</span>
   </div>
 
@@ -332,14 +332,18 @@
         </label>
         <button class="action-btn" type="button" onclick="exportProofCertificate()">Download JSON Proof Certificate</button>
         <button class="action-btn" type="button" onclick="verifyLastCertificateUI()">Re-Verify Last Certificate</button>
+        <label class="toggle-lbl" style="color:var(--muted);">Verify External Cert JSON:
+          <input id="af-cert-file" type="file" accept=".json,application/json" onchange="verifyExternalCertificateFile(this)" style="max-width:190px; font-size:0.78rem;">
+        </label>
         <button class="action-btn" type="button" onclick="copyShareLink()">Copy Shareable Deep Link</button>
         <span id="share-feedback" style="color:var(--ok); font-weight:600;" aria-live="polite"></span>
       </div>
       <details style="margin:0.4rem 0 0.6rem; font-size:0.82rem;">
-        <summary>Universal Zero-Dependency CLI v1.5 (Flags or Positional &middot; Any Laptop / Desktop / Server / Termux)</summary>
+        <summary>Universal Zero-Dependency CLI v1.6 (Flags, Positional, &amp; Stdin Piping &middot; Any Laptop / Desktop / Server / Termux)</summary>
         <pre style="margin:0.4rem 0 0; padding:0.65rem;"><code>curl -fsSLO https://0thernes.github.io/catalytic-register-frontiers/catalytic-engine.js
 node catalytic-engine.js plan    169 1009 4 scalar
-node catalytic-engine.js vault   "SensorBuffer:98.6F" 91 1009
+echo "LiveRAM" | node catalytic-engine.js vault --stdin 91 1009
+node catalytic-engine.js stream  "imu_a imu_a imu_b imu_c imu_a" 20 1009
 node catalytic-engine.js horizon 137 scalar
 node catalytic-engine.js verify  catalytic-proof-*.json
 node catalytic-engine.js bench</code></pre>
@@ -954,10 +958,12 @@ node catalytic-engine.js bench</code></pre>
       const faultBit = document.getElementById('af-fault').checked;
 
       if (workload === 'matrix') {
-        const res = E.execMatrixLiftProg5([[1, 2], [3, 5]], p >= 11n && E.isPrimeBig(p) ? p : 11n, { faultBit });
+        const useP = p >= 11n && E.isPrimeBig(p) ? p : 11n;
+        const matNote = useP !== p ? ` (auto-promoted from p=${p} to prime p=11 because matrix lift mu_7 requires prime p > 7)` : '';
+        const res = E.execMatrixLiftProg5([[1, 2], [3, 5]], useP, { faultBit });
         lastCertificate = { kind: 'matrix_lift_prog5', timestamp: new Date().toISOString(), device: detectDeviceClass(), result: res };
         out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
-          `<strong>Live Matrix Lift &mu;_7(prog5_x7) over M_2(F_${esc(res.p)}):</strong> ${res.verified ? 'PASS — Exact A^7 + 100% catalyst restoration' : 'INTEGRITY ALERT — Fault detected!'}<br>` +
+          `<strong>Live Matrix Lift &mu;_7(prog5_x7) over M_2(F_${esc(res.p)}):</strong> ${res.verified ? 'PASS — Exact A^7 + 100% catalyst restoration' : 'INTEGRITY ALERT — Fault detected!'}${esc(matNote)}<br>` +
           `A^7 = <code>${esc(JSON.stringify(res.A7))}</code> &middot; Scalar regs: ${res.singleCallScalarRegisters} single / ${res.recursiveScalarRegisters} recursive (exact r=3 tier)</div>`;
         return;
       }
@@ -1206,6 +1212,24 @@ node catalytic-engine.js bench</code></pre>
     out.innerHTML = `<div class="status-box ${v.ok ? 'ok' : 'bad'}">` +
       `<strong>Independent Certificate Audit (${esc(v.kind || lastCertificate.kind)}):</strong> ${v.ok ? 'PASS — Independently Re-Verified!' : 'FAILED AUDIT!'}<br>` +
       `${esc(v.reason)}</div>`;
+  };
+
+  window.verifyExternalCertificateFile = async function (inputEl) {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('af-cert-verify');
+    if (!out || !inputEl || !inputEl.files || !inputEl.files[0]) return;
+    const file = inputEl.files[0];
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const v = E.verifyCertificate(parsed);
+      out.innerHTML = `<div class="status-box ${v.ok ? 'ok' : 'bad'}">` +
+        `<strong>External Certificate File Audit ("${esc(file.name)}", 100% offline):</strong> ` +
+        `${v.ok ? 'PASS — Independently Re-Verified!' : 'REJECTED / TAMPER DETECTED!'}<br>` +
+        `Kind: <code>${esc(v.kind || parsed.kind || 'unknown')}</code> &middot; ${esc(v.reason)}</div>`;
+    } catch (err) {
+      out.innerHTML = `<div class="status-box bad"><strong>Certificate Parse Error ("${esc(file.name)}"):</strong> ${esc(err.message)}</div>`;
+    }
   };
 
   window.exportProofCertificate = function () {
@@ -1587,6 +1611,15 @@ node catalytic-engine.js bench</code></pre>
   window.addEventListener('resize', refreshDeviceBar);
   window.addEventListener('online', refreshDeviceBar);
   window.addEventListener('offline', refreshDeviceBar);
+
+  // Battery-safe background pause on smartwatches, phones, tablets, and laptops when tab/screen hides
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (autopilotTimer) toggleAdaptiveAutopilot();
+      if (telemetryTimer) toggleRealtimeTelemetry();
+      if (traceAnimTimer) toggleTracePlay();
+    }
+  });
 
   refreshDeviceBar();
   updateAdaptivePredictor();

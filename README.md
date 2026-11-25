@@ -97,13 +97,14 @@ pwsh -NoProfile -File scripts/run_all.ps1 -Task all
 bash scripts/run_all.sh all
 ```
 
-Expected result: 19/19 default Lean jobs built with 0 warnings, `leanchecker`, `leanchecker-paranoid`, `con-leche`, and `con-ron` exit 0, all 28 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / SBOM / workflow / schema / SVG / HTML5 / matrix-lift / factorization / JS Adaptive Forking PWA & CLI differential consistency tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, 100% `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK`.
+Expected result: 19/19 default Lean jobs built with 0 warnings, `leanchecker`, `leanchecker-paranoid`, `con-leche`, and `con-ron` exit 0, all 29 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / SBOM / workflow / schema / SVG / HTML5 / matrix-lift / factorization / JS Adaptive Forking PWA & CLI differential consistency tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, 100% `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK`.
 
 ### Universal Zero-Dependency Adaptive Forking CLI (Any Device with Node.js)
 ```bash
-# Accepts BOTH clean positional args and --flag syntax:
+# Accepts positional args, --flags, AND raw --stdin piping:
 node docs/catalytic-engine.js plan    169 1009 4 scalar
-node docs/catalytic-engine.js vault   "Catalytic zero-waste memory test" 91 1009
+echo "LiveRAM" | node docs/catalytic-engine.js vault --stdin 91 1009
+node docs/catalytic-engine.js stream  "imu_a imu_a imu_b imu_c imu_a" 20 1009
 node docs/catalytic-engine.js horizon 137 scalar
 node docs/catalytic-engine.js verify  catalytic-proof-*.json
 node docs/catalytic-engine.js bench

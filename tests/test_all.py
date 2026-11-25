@@ -1681,11 +1681,11 @@ def test_pass15_planner_executor_csp_and_autopilot() -> None:
     html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
     assert 'http-equiv="Content-Security-Policy"' in html
     assert "connect-src 'self'" in html
-    assert "Adaptive Forking Offline PWA v1.5" in html
+    assert re.search(r"Adaptive Forking Offline PWA v1\.[5-9]", html) is not None
     assert "toggleAdaptiveAutopilot" in html and "execCatalyticByteVaultAsync" in html
 
     sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
-    assert "catalytic-adaptive-fork-v1.5.0" in sw_src
+    assert re.search(r"catalytic-adaptive-fork-v1\.[5-9]\.0", sw_src) is not None
 
     node_bin = shutil.which("node")
     if node_bin:
@@ -1693,7 +1693,7 @@ def test_pass15_planner_executor_csp_and_autopilot() -> None:
         node_check = (
             f"const E = require({json.dumps(js_path)});"
             "(async () => {"
-            "  if (E.version !== '1.5.0') process.exit(60);"
+            "  if (!/^1\\.[5-9]\\./.test(E.version)) process.exit(60);"
             "  const r9 = E.execFourRegPowering(15, 7, 1009, {engine:'prog9_x15'});"
             "  if (!r9.verified || r9.engineUsed !== 'prog9_x15') process.exit(61);"
             "  for (const [N, p] of [[15751, 5], [1018082, 1009], [50625, 1009], [50625, 1009*1013]]) {"
@@ -1712,5 +1712,63 @@ def test_pass15_planner_executor_csp_and_autopilot() -> None:
         )
         proc = subprocess.run([node_bin, "-e", node_check], capture_output=True, text=True, timeout=30, check=False)
         assert proc.returncode == 0, f"Node.js v1.5 audit failed (rc={proc.returncode}): {proc.stderr}"
+
+
+def test_pass16_matrix_cor54_parity_and_cli_stream_stdin() -> None:
+    """Pass 16 permanent regression guard:
+    1. Exact cor:matpow prime-characteristic invertibility in planAdaptiveFork for workload='matrix':
+       prog5_x7 requires 7! invertible (p > 7, so p=7 is INVALID) and prog4_x5 requires 5! invertible (p=5 INVALID),
+       while p=11 is valid.
+    2. Battery-safe visibilitychange pause, portable external JSON certificate file verifier (#af-cert-file),
+       and transparent matrix p=11 promotion notice in docs/index.html v1.6.
+    3. Node.js CLI v1.6 `stream` subcommand and `vault --stdin` raw pipe verification.
+    """
+    import shutil
+    import subprocess
+
+    html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    assert "Adaptive Forking Offline PWA v1.6" in html
+    assert "visibilitychange" in html and "verifyExternalCertificateFile" in html and "af-cert-file" in html
+    sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
+    assert "catalytic-adaptive-fork-v1.6.0" in sw_src
+
+    node_bin = shutil.which("node")
+    if node_bin:
+        js_path = str(REPO / "docs" / "catalytic-engine.js")
+        node_check = (
+            f"const E = require({json.dumps(js_path)});"
+            "if (E.version !== '1.6.0') process.exit(70);"
+            "const m7 = E.planAdaptiveFork({workload:'matrix', N:49, p:7, matrixDim:2});"
+            "if (m7.comparison.prog5_x7_T3a.validForP !== false) process.exit(71);"
+            "if (m7.comparison.adaptive_fork.feasible && /prog5_x7/i.test(m7.comparison.adaptive_fork.label)) process.exit(72);"
+            "const m5 = E.planAdaptiveFork({workload:'matrix', N:25, p:5, matrixDim:2});"
+            "if (m5.comparison.vinciguerra_r3_x5.validForP !== false) process.exit(73);"
+            "const m11 = E.planAdaptiveFork({workload:'matrix', N:49, p:11, matrixDim:2});"
+            "if (!m11.comparison.prog5_x7_T3a.validForP || !m11.comparison.adaptive_fork.feasible) process.exit(74);"
+            "const m7big = E.planAdaptiveFork({workload:'matrix', N:100000, p:7, matrixDim:2});"
+            "if (m7big.comparison.adaptive_fork.feasible && /prog5_x7/i.test(m7big.comparison.adaptive_fork.strategy)) process.exit(75);"
+        )
+        proc = subprocess.run([node_bin, "-e", node_check], capture_output=True, text=True, timeout=30, check=False)
+        assert proc.returncode == 0, f"Node.js v1.6 matrix audit failed (rc={proc.returncode}): {proc.stderr}"
+
+        # Test CLI `stream` subcommand
+        p_st = subprocess.run(
+            [node_bin, js_path, "stream", "imu_a imu_a imu_b imu_c imu_a imu_b", "20", "1009"],
+            capture_output=True, text=True, timeout=30, check=False,
+        )
+        assert p_st.returncode == 0, f"CLI stream failed: {p_st.stderr}"
+        st_data = json.loads(p_st.stdout)
+        assert st_data["verified"] is True and st_data["sumExact"] is True and st_data["allCatalystsRestored"] is True
+
+        # Test CLI `vault --stdin` raw stdin piping
+        p_in = subprocess.run(
+            [node_bin, js_path, "vault", "--stdin", "91", "1009"],
+            input=b"SatelliteIMU:Roll=0.02|Pitch=-0.01|CRC=OK\n",
+            capture_output=True, timeout=30, check=False,
+        )
+        assert p_in.returncode == 0, f"CLI vault --stdin failed: {p_in.stderr.decode('utf-8', 'replace')}"
+        in_data = json.loads(p_in.stdout.decode("utf-8"))
+        assert in_data["verified"] is True and in_data["sha256Identical"] is True and in_data["borrowedBytes"] == 42
+
 
 

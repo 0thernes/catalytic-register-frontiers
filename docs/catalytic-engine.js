@@ -437,16 +437,22 @@
       return false; // Keep matrix shear tier strictly O(m^4) zero-overhead
     }
     if (p === 0n) return true;
-    return p >= 2n && gcd(spec.D, p) === 1n;
+    if (p < 2n || gcd(spec.D, p) !== 1n) return false;
+    // Non-commutative matrix lift mu_delta (cor:matpow / Vinciguerra §4.4) divides by delta!, requiring delta! invertible mod p!
+    if (workload === 'matrix' && !isFactInvertible(spec.degree, p)) {
+      return false;
+    }
+    return true;
   }
 
-  function isRadixScheduleValid(spec, N, p) {
+  function isRadixScheduleValid(spec, N, p, workload = 'scalar') {
     if (p === 0n) return true;
     if (p < 2n) return false;
     const mLen = baseDigits(spec.degree, N).length;
+    const reqFact = workload === 'matrix' ? spec.degree : (spec.degree - 1);
     return (
       gcd(spec.D, p) === 1n &&
-      isFactInvertible(spec.degree - 1, p) &&
+      isFactInvertible(reqFact, p) &&
       isFactInvertible(mLen, p)
     );
   }
@@ -468,9 +474,9 @@
     const prog5Acc = exactFourRegAccesses(7, 5, N);
     const prog8Acc = exactFourRegAccesses(13, 8, N);
 
-    const p4Valid = isRadixScheduleValid(PROGRAMS_R3[4], N, p);
-    const p5Valid = isRadixScheduleValid(PROGRAMS_R3[5], N, p);
-    const p8Valid = isRadixScheduleValid(PROGRAMS_R3[8], N, p);
+    const p4Valid = isRadixScheduleValid(PROGRAMS_R3[4], N, p, workload);
+    const p5Valid = isRadixScheduleValid(PROGRAMS_R3[5], N, p, workload);
+    const p8Valid = isRadixScheduleValid(PROGRAMS_R3[8], N, p, workload);
 
     // Track every fork branch evaluated so the live SVG Fork-DAG can visualize winners & dodged branches!
     const forkCandidates = [];
@@ -573,10 +579,12 @@
       const spec = PROGRAMS_R3[t];
       if (isGadgetFeasible(spec, p, workload)) {
         feasibleSpecs.push(spec);
-      } else if (t === 8 || t === 5 || t === 6) {
+      } else if (t === 8 || t === 5 || t === 6 || (workload === 'matrix' && t === 4)) {
         const reason = workload === 'matrix' && spec.shearDeg > 2
           ? `Shear deg ${spec.shearDeg} > 2 (Theta(m^${2 * spec.shearDeg}) scalars)`
-          : `Bad divisor: gcd(D_${t}, ${p}) = ${gcd(spec.D, p)} > 1`;
+          : (workload === 'matrix' && p >= 2n && !isFactInvertible(spec.degree, p)
+            ? `Matrix lift mu_${spec.degree} requires ${spec.degree}! invertible (p > ${spec.degree})`
+            : `Bad divisor: gcd(D_${t}, ${p}) = ${gcd(spec.D, p)} > 1`);
         forkCandidates.push({
           id: spec.id,
           label: `${spec.id} (x^${spec.degree})`,
@@ -742,7 +750,7 @@
       }
       // 4. Compare all feasible base-delta Cook-Mertz expansions (delta in {5, 7, 9, 11, 13, 15})
       for (const spec of feasibleSpecs) {
-        if (!isRadixScheduleValid(spec, N, p)) continue;
+        if (!isRadixScheduleValid(spec, N, p, workload)) continue;
         const ds = baseDigits(spec.degree, N);
         const mLen = ds.length;
         let acc = 0;
@@ -803,7 +811,7 @@
 
       for (const tCand of priority) {
         const sp = PROGRAMS_R3[tCand];
-        if (!isGadgetFeasible(sp, p, workload) || !isRadixScheduleValid(sp, N, p)) continue;
+        if (!isGadgetFeasible(sp, p, workload) || !isRadixScheduleValid(sp, N, p, workload)) continue;
         const ds = baseDigits(sp.degree, N);
         let hybridAcc = 0n;
         let tPow = 1n;
@@ -2290,7 +2298,7 @@
   }
 
   const exportedApi = {
-    version: '1.5.0',
+    version: '1.6.0',
     PROGRAMS_R3,
     mod,
     gcd,
@@ -2330,15 +2338,20 @@
     const pos = [];
     const flags = new Map();
     const boolFlags = new Set();
+    const knownBoolFlags = new Set(['--fault', '--stdin']);
     for (let i = 1; i < args.length; i++) {
       const a = args[i];
       if (a.startsWith('--')) {
-        const next = args[i + 1];
-        if (next !== undefined && !next.startsWith('--')) {
-          flags.set(a, next);
-          i += 1;
-        } else {
+        if (knownBoolFlags.has(a)) {
           boolFlags.add(a);
+        } else {
+          const next = args[i + 1];
+          if (next !== undefined && !next.startsWith('--')) {
+            flags.set(a, next);
+            i += 1;
+          } else {
+            boolFlags.add(a);
+          }
         }
       } else {
         pos.push(a);
@@ -2379,14 +2392,30 @@
         if (!res.verified) process.exitCode = 2;
       } else if (cmd === 'vault') {
         const crypto = require('crypto');
-        const payload = getArg('--text', 0, 'SensorBuffer:98.6F|Battery:84%|Keys:OK');
-        const raw = Buffer.from(payload, 'utf8');
+        const fs = require('fs');
+        const useStdin = boolFlags.has('--stdin');
+        let raw;
+        let NArg;
+        let pArg;
+        let xArg;
+        if (useStdin) {
+          raw = fs.readFileSync(0);
+          NArg = getArg('--N', 0, '91');
+          pArg = getArg('--p', 1, '1009');
+          xArg = getArg('--x', 2, '7');
+        } else {
+          const payload = getArg('--text', 0, 'SensorBuffer:98.6F|Battery:84%|Keys:OK');
+          raw = Buffer.from(payload, 'utf8');
+          NArg = getArg('--N', 1, '91');
+          pArg = getArg('--p', 2, '1009');
+          xArg = getArg('--x', 3, '7');
+        }
         const res = execCatalyticByteVault(
           new Uint8Array(raw),
-          BigInt(getArg('--N', 1, '91')),
-          BigInt(getArg('--x', 3, '7')),
-          BigInt(getArg('--p', 2, '1009')),
-          { faultBit: boolFlags.has('--fault') }
+          BigInt(NArg),
+          BigInt(xArg),
+          BigInt(pArg),
+          { faultBit: boolFlags.has('--fault'), maxChunks: 21845 }
         );
         const hBefore = crypto.createHash('sha256').update(res.beforeBytes).digest('hex');
         const hMid = crypto.createHash('sha256').update(res.midScrambleBytes).digest('hex');
@@ -2402,6 +2431,20 @@
           verified: res.verified && hBefore === hAfter
         }, null, 2));
         if (!(res.verified && hBefore === hAfter)) process.exitCode = 2;
+      } else if (cmd === 'stream') {
+        const rawToks = getArg('--tokens', 0, 'req_api req_api req_auth req_db req_api req_auth');
+        const tokens = rawToks.trim().split(/[\s,;]+/).filter(Boolean);
+        const counts = new Map();
+        for (const t of tokens) counts.set(t, (counts.get(t) || 0) + 1);
+        const freqVec = Array.from(counts.values());
+        const res = execStreamingMoment(
+          freqVec,
+          BigInt(getArg('--D', 1, '20')),
+          BigInt(getArg('--p', 2, '1009')),
+          { engine: getArg('--engine', 3, 'adaptive'), faultBit: boolFlags.has('--fault') }
+        );
+        console.log(JSON.stringify(res, bigReplacer, 2));
+        if (!res.verified) process.exitCode = 2;
       } else if (cmd === 'horizon') {
         const pVal = BigInt(getArg('--p', 0, '1009'));
         const wl = getArg('--workload', 1, 'scalar');
@@ -2427,7 +2470,8 @@
           'Usage (supports BOTH --flags and positional arguments):',
           '  node catalytic-engine.js plan    [N=91] [p=1009] [m=4] [workload=scalar]',
           '  node catalytic-engine.js run     [N=91] [x=7] [p=1009] [--fault]',
-          '  node catalytic-engine.js vault   ["SecretRAM"] [N=91] [p=1009] [x=7] [--fault]',
+          '  node catalytic-engine.js vault   ["SecretRAM"|--stdin] [N=91] [p=1009] [x=7] [--fault]',
+          '  node catalytic-engine.js stream  ["a a b a c b"] [D=20] [p=1009] [engine=adaptive]',
           '  node catalytic-engine.js horizon [p=1009] [workload=scalar]',
           '  node catalytic-engine.js verify  <certificate.json>',
           '  node catalytic-engine.js bench   [iters=6]',
