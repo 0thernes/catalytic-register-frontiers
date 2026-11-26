@@ -1,16 +1,14 @@
 # Cryptographic Trusted Timestamp Audit (provenance/TIMESTAMP_AUDIT.txt)
-Date (UTC): 2026-11-26T13:21:25Z
+Date (UTC): 2026-11-26T21:48:12Z
 Target: MANIFEST.sha256
-MANIFEST.sha256 SHA-256: 4a13a195b78e771f0189e9640470d3cfa8599540264eeab8e154639c418ad73b
-MANIFEST.sha256.tsr SHA-256: 6ca47de4e26dcb50d67992b064dd323a18eceafad92775449ebefa4f6ea6cec1
-MANIFEST.sha256.ots SHA-256: 2957b642a2f63b621112bc2bf623f536e6f5b66bcc9362d2253e763f95f5a965
+MANIFEST.sha256 SHA-256: a3d3d1362216ba83296db2b7c960305d6d6a46c9d28e4ef8f101f4ba3fe331e9
+MANIFEST.sha256.tsr SHA-256: 815f6b1e9b9605f8c1626d9e1f9e75ebf2b0b61232ff8dbe7669ad71e181633f
+MANIFEST.sha256.ots SHA-256: 694802f8ed4c10e5df81ab3491becb9d288c14dc0e1d795528b343c7cb0d1338
 
 ## 1. DigiCert RFC 3161 Trusted Timestamp (TSA: http://timestamp.digicert.com)
 Verification Command (POSIX / Git Bash):
   openssl ts -verify -data MANIFEST.sha256 -in provenance/MANIFEST.sha256.tsr -CAfile /usr/ssl/certs/ca-bundle.crt
 Verification Result: Verification: OK
-
-Using configuration from /usr/ssl/openssl.cnf
 
 Status info:
 Status: Granted.
@@ -22,16 +20,18 @@ Version: 1
 Policy OID: 2.16.840.1.114412.7.1
 Hash Algorithm: sha256
 Message data:
-    0000 - 4a 13 a1 95 b7 8e 77 1f-01 89 e9 64 04 70 d3 cf   J.....w....d.p..
-    0010 - a8 59 95 40 26 4e ea b8-e1 54 63 9c 41 8a d7 3b   .Y.@&N...Tc.A..;
-Serial number: 0xA5D9CF9120BB57BD7370AB9B9480108E
-Time stamp: Nov 26 13:21:23 2026 GMT
+    0000 - a3 d3 d1 36 22 16 ba 83-29 6d b2 b7 c9 60 30 5d   ...6"...)m...`0]
+    0010 - 6d 6a 46 c9 d2 8e 4e f8-f1 01 f4 ba 3f e3 31 e9   mjF...N.....?.1.
+Serial number: 0x043B00803621262F57EF457D7585D6BB
+Time stamp: Nov 26 21:48:12 2026 GMT
 Accuracy: unspecified
 Ordering: no
-Nonce: 0xD1EC8B62A2B6AB04
+Nonce: 0x3E232F4F7ABA69AC
 TSA: unspecified
 Extensions:
 
 ## 2. OpenTimestamps Bitcoin Calendar Submission
 Calendar: https://a.pool.opentimestamps.org/digest
 Artifact: provenance/MANIFEST.sha256.ots (pending Bitcoin block attestation; upgradeable later via ots upgrade)
+
+Re-sealed after the 2026-11-26 statement-audit corrections to documentation files.
