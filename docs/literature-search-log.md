@@ -7,7 +7,7 @@ Dated record of primary literature checks, novelty queries, and automated DOI/UR
 
 | Date | Database / Source | Query / Scope | Outcome & Novelty Assessment |
 |---|---|---|---|
-| 2026-11-23 | arXiv (`cs.CC`) | Primary read of A. Vinciguerra, `arXiv:2609.18692v1` (Sep 16, 2026) | Confirms Vinciguerra restricts §3 lower bounds (Thms 3.2, 3.3, 3.5) to $\operatorname{char}(K) = 0$, gives $r$-register 4-call bound $x^{2r-1}$ (for $r=3$: $x^5$ at $t=4$, $\log_5 4 \approx 0.86135$), and explicitly asks in §6 whether additional input accesses increase $D_{r,K}^{\mathrm{pass}}(t)$. Our `T1`–`T3` answer both questions directly. |
+| 2026-11-23 | arXiv (`cs.CC`) | Primary read of A. Vinciguerra, `arXiv:2609.18692v1` (Sep 16, 2026) | Confirms Vinciguerra restricts §3 lower bounds (Thms 3.2, 3.3, 3.5) to $\operatorname{char}(K) = 0$, gives $r$-register 4-call bound $x^{2r-1}$ (for $r=3$: $x^5$ at $t=4$, $\log_5 4 \approx 0.86135$), and asks in §6 whether $D_{r,K}^{\mathrm{pass}}(4) > 2r - 1$ and whether additional input accesses drastically increase $D_{r,K}^{\mathrm{pass}}$. Correction (2026-11-26 statement audit): `T1`–`T3` answer neither question. The first is not addressed; on the second, `T3a`–`T3g` give only lower bounds $D_3^{\mathrm{pass}}(t) \ge 2t - 3$ for $t = 5, \dots, 9$. The positive-characteristic question of `T1` is not posed in the source. |
 | 2026-11-23 | arXiv (`cs.CC`) | Primary read of G. Morse, `arXiv:2608.30238v1` (Aug 31, 2026) | Confirms Morse settles $\mathrm{MC}_\wedge(\mathrm{Mul}_4) = 9$ (Lean 4 + Mathlib) and isolates the $n=5$ multi-defect program; Boyar–Find general $(n, m)$ quadratic-circuit optimality remains open. |
 | 2026-11-23 | Web / OEIS | `"576" "382500000" OEIS OR catalytic register program` | No prior catalytic register-program sequence matching $D_5 = 576$, $D_6 = 382{,}500{,}000$ found. |
 | 2026-11-23 | Web / OEIS | `"1, 8, 36, 148, 596" OEIS OR "(7*4^n - 4)/3"` | Recurrence $a_n = 4 a_{n-1} + 4, a_0 = 1$ is standard algebraically; its realization as the exact op count of a zero-workspace strictly-distinct-index balanced catalytic product tree (`T4`, $\log_2 d + 2$ registers) is framed honestly as an explicit structural construction (not overclaimed as an unproven lower bound). |
@@ -27,5 +27,5 @@ All 10 entries in `paper/references.bib` were audited against Crossref API (`api
 | `BenOrCleve1992` | `10.1137/0221006` | Crossref OK (SIAM J. Comput. 21(1), pp. 54–58) | `updates=[]` |
 | `CoppersmithGrossman1975` | `10.1137/0129051` | Crossref OK (SIAM J. Appl. Math. 29(4), pp. 624–627) | `updates=[]` |
 | `BoyarFind2018` | `10.1016/j.tcs.2018.02.023` | Crossref OK (TCS 720, pp. 36–46, 2018) | `updates=[]` (corrected from pre-release draft) |
-| `Lucas1878` | `10.2307/2369308` | Crossref OK (AJM 1, pp. 184–240, 289–321, 1878) | `updates=[]` |
+| `Lucas1878` | `10.2307/2369308` | Crossref resolves; the record covers only the instalment starting at p. 184 (AJM 1, 1878), not the whole range pp. 184–240, 289–321 (corrected 2026-11-26) | `updates=[]` |
 | `Williams2025` | `10.1145/3717823.3718225` / `arXiv:2502.17779` | Crossref OK (STOC 2025, pp. 13–23) + arXiv API 200 | `updates=[]` |

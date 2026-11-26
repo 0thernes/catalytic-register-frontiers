@@ -4,25 +4,32 @@ version: "v0.4"
 release_version: "1.0.1"
 
 project:
-  name: "Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs"
+  name: "Prime-Field Digit-Sum Dichotomy and Improved Three-Register Powering Exponents in Passive Catalytic Register Programs"
   description: >-
-    Zero-Mathlib Lean 4.35.0 formalization resolving two structural questions left
-    open by Vinciguerra's operator analysis of passive-output catalytic register
-    programs (arXiv:2609.18692). The 17 compared theorems prove: (1) an exact base-p
-    digit-sum dichotomy f in RP^{pass}_{F_p}(2, t) iff s_p(d) <= min(p - 1, t - 1)
-    for all d >= 2 with alpha_d != 0, yielding unbounded-degree 2-access Frobenius
-    collapse (x^{p^m}), exact F_2 saturation (x^3 impossible for all t), the
-    impossibility threshold s_p(d) >= p, characteristic-0 recovery for d < p, and a
-    literal commutative-ring soundness bridge; (2) strictly bilinear 2-access
-    Frobenius collapse x^{2^k} in k + 1 registers and 4k - 2 bilinear ops over any
-    characteristic-2 commutative ring; (3) explicit 3-register Pascal-row shear loops
-    computing x^7, x^9, x^11, x^13, and x^15 in 5..9 accesses, unconditional global
-    integer optimality of log_13 8 < 30/37 < log_{2t-3} t for all t >= 4 (t != 8),
-    complete 4-register passive powering for every N >= 1 in < (104/3) * 8^ell
-    accesses, and pointwise product-ring streaming frequency moments F_D over R^n;
-    and (4) a balanced zero-workspace bilinear multilinear product x_0...x_{2^k - 1}
-    with every operation explicitly constrained by CatOp.usesOnly to at most k + 2
-    designated registers and exact primitive op count (7 * (2^k)^2 - 4) / 3.
+    Zero-Mathlib Lean 4.35.0 formalization of new results extending Vinciguerra's
+    operator analysis of passive-output catalytic register programs
+    (arXiv:2609.18692); no question posed in that paper is resolved. The 17
+    compared theorems prove: (1) under formal-polynomial cleanliness with program
+    constants in F_p, a base-p digit-sum characterisation f in RP^{pass}_{F_p}(2, t)
+    iff s_p(d) <= min(p - 1, t - 1) for all d >= 2 with alpha_d != 0, with
+    corollaries x^{p^m} in 2 accesses (the characteristic-0 lower bounds do not
+    extend to characteristic p), no program yielding the formal polynomial x^3 with
+    F_2 constants for any t (as a function on F_2, x^3 = x), no program yielding
+    x^d when s_p(d) >= p, a large-characteristic analogue of Theorem 3.5 for d < p,
+    and a soundness bridge from formal cleanliness to execution over every
+    characteristic-p commutative ring; (2) 2-access product-only programs for
+    x^{2^k} in k + 1 registers and 4k - 2 bilinear ops over any characteristic-2
+    commutative ring; (3) explicit 3-register Pascal-row shear loops computing x^7,
+    x^9, x^11, x^13, and x^15 in 5..9 accesses, the integer fact that t = 8
+    minimises log_{2t-3} t over integers t >= 4 (not an optimality theorem for
+    register programs; no upper bound is proved), 4-register passive powering for
+    every N >= 1 in < (104/3) * 8^ell accesses over rings where D_8, 12! and
+    (ell + 1)! are invertible, and its coordinatewise form over R^n; and (4) a
+    balanced zero-workspace multilinear product x_0...x_{2^k - 1} (the classical
+    four-step clean-product recursion; cf. Ben-Or and Cleve, SIAM J. Comput. 21(1),
+    1992, doi:10.1137/0221006) with every operation constrained by CatOp.usesOnly
+    to at most k + 2 designated registers and exact primitive op count
+    (7 * (2^k)^2 - 4) / 3.
   authors:
     - name: "Alexander S. Donahue"
       orcid: "0009-0006-8168-9648"
@@ -59,7 +66,9 @@ sources:
       Zenodo Concept DOI 10.5281/zenodo.24517198 (v1.0.1 Version DOI
       10.5281/zenodo.24517199) and Software Heritage snapshot
       swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085. Planned deposits
-      not yet assigned: arXiv ID, HAL ID, and Palomar Registry ID.
+      not yet assigned: arXiv ID, HAL ID, and Palomar Registry ID. Deposited
+      under this title; the word "Optimal" is withdrawn (no three-register
+      upper bound is proved; see ERRATA.md, 2026-11-26 statement audit).
   - title: "An Operator Approach to Register Programs for Catalytic Computing"
     authors:
       - "Antoine Vinciguerra"
@@ -67,7 +76,7 @@ sources:
     type: "paper"
     location: "Definition 2.2, Theorems 2.3, 3.2, 3.3, 3.5, Corollaries 4.3.1 & 5.1.1, Theorem 5.2"
     relationship: "background"
-    note: "Defines the passive-output register program model RP^{pass}_K(r, t) and proves the characteristic-0 baseline bounds addressed by Theorems T1-T3."
+    note: "Defines the passive-output register program model RP^{pass}_K(r, t) and proves the characteristic-0 baseline bounds extended by Theorems T1-T3. Its Definition 2.2 is functional; this formalization uses formal-polynomial cleanliness. Neither Section 6 question of the paper is resolved here."
   - title: "Catalytic Computing and Register Programs Beyond Log-Depth"
     authors:
       - "Yaroslav Alekseev"
@@ -77,7 +86,7 @@ sources:
       - "Antoine Vinciguerra"
     id: "https://doi.org/10.4230/LIPIcs.MFCS.2025.6"
     type: "paper"
-    location: "Lemma 8"
+    location: "Composition Lemma (cited as Lemma 8 in arXiv:2609.18692; numbered Lemma 2.1 in arXiv:2504.17412v1)"
     relationship: "background"
     note: "Algebraic register-program framework and clean non-passive register composition background."
   - title: "Unrestricted Boolean Multiplicative Complexity of Four-Term Binary Polynomial Multiplication: Rational Places, Hasse Jets, and the Failure of Nonlinear Feedback"
@@ -182,8 +191,11 @@ automation:
 
 fidelity:
   divergences: >-
-    Formal polynomial-ring cleanliness over F_p[O, R, x] (matching Vinciguerra Def. 2.2)
-    is formalized rather than pointwise function equality on F_p. In PalomarChallenge.lean,
+    Formal polynomial-ring cleanliness over F_p[O, R, x] is formalized, with the
+    instruction set of Vinciguerra Def. 2.2; Def. 2.2 itself is functional (pointwise
+    clean execution), and over F_p the two notions differ because x^p = x. The
+    converse of the soundness bridge T1s (literal execution implies the formal
+    predicate) is not formalized. In PalomarChallenge.lean,
     digitSum and baseDigits use fuel-bounded structural recursion (proved equivalent to
     well-founded division recursion in PalomarSolution.lean) to avoid module-private
     termination proof terms in standalone Comparator exports.

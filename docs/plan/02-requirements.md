@@ -6,7 +6,7 @@
 - **Target users:** Theoretical computer scientists (catalytic computing, circuit complexity), Lean 4 / Palomar reviewers, and independent replicators.
 
 ## Scope (Must-Have)
-1. Complete zero-Mathlib Lean 4.35.0 formalization of Theorems `T1` (`T1a`–`T1e`, `T1s`, `T1es`), `T2` (`T2b`), `T3` (`T3a`–`T3i`, including complete 4-register passive powering for all $N \ge 1$ and pointwise product-ring streaming frequency moments $F_D$), `T4` (with explicit `CatOp.usesOnly` containment within $\le k + 2$ designated registers), and `NonVacuity` (14 core modules, 8,151 lines; plus standalone zero-import Palomar contract pair; 22 audited declarations), passing 5 distinct locally reproducible kernel implementations across 6 runs.
+1. Complete zero-Mathlib Lean 4.35.0 formalization of Theorems `T1` (`T1a`–`T1e`, `T1s`, `T1es`), `T2` (`T2b`), `T3` (`T3a`–`T3i`, including 4-register passive powering for all $N \ge 1$ (invertibility hypotheses) and coordinatewise product-ring powering over $R^n$), `T4` (with explicit `CatOp.usesOnly` containment within $\le k + 2$ designated registers), and `NonVacuity` (14 core modules, 8,151 lines; plus standalone zero-import Palomar contract pair; 22 audited declarations), passing 5 distinct locally reproducible kernel implementations across 6 runs.
 2. Independent exact-arithmetic and CaDiCaL 2.1.2 verification scripts (`exp1`–`exp4`) + `pytest` / Hypothesis / mutant / brute-force SAT tests.
 3. Deterministic vector PDF figures (`fig1`–`fig3`) and zero-warning AMS-LaTeX white paper + clean-room `dist/arxiv_submission.tar.gz`.
 4. Full Build Standard v1.1.0 + Independent Research Playbook v1.1 governance, provenance (`MANIFEST.sha256`, `sbom.cdx.json`), and bibliographic audit.
