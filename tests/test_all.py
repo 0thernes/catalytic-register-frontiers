@@ -1785,7 +1785,7 @@ def test_pass17_nan_bounds_and_v17_report_preview() -> None:
     import subprocess
 
     html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
-    assert "Adaptive Forking Offline PWA v1.7" in html
+    assert re.search(r"Adaptive Forking Offline PWA v1\.[7-9]", html) is not None
     assert "CSP: Zero-Exfiltration" in html
     assert "setDevicePreview" in html and "preview-watch" in html
     assert "exportProofReportHtml" in html
@@ -1793,7 +1793,7 @@ def test_pass17_nan_bounds_and_v17_report_preview() -> None:
     assert "Math.max(11, parseInt(" not in html
 
     sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
-    assert "catalytic-adaptive-fork-v1.7.0" in sw_src
+    assert re.search(r"catalytic-adaptive-fork-v1\.[7-9]\.0", sw_src) is not None
 
     node_bin = shutil.which("node")
     if node_bin:
@@ -1801,7 +1801,7 @@ def test_pass17_nan_bounds_and_v17_report_preview() -> None:
         node_check = (
             f"const E = require({json.dumps(js_path)});"
             "(async () => {"
-            "  if (E.version !== '1.7.0' || typeof E.safeInt !== 'function') process.exit(80);"
+            "  if (!/^1\\.[7-9]\\./.test(E.version) || typeof E.safeInt !== 'function') process.exit(80);"
             "  for (const badK of [NaN, 2.5, Infinity, -1, 'abc']) {"
             "    let okErr = false;"
             "    try { E.execT2BilinearFrobenius(badK, 87); } catch (e) { okErr = /integer/i.test(e.message); }"
@@ -1829,6 +1829,75 @@ def test_pass17_nan_bounds_and_v17_report_preview() -> None:
         )
         proc = subprocess.run([node_bin, "-e", node_check], capture_output=True, text=True, timeout=30, check=False)
         assert proc.returncode == 0, f"Node.js v1.7 hostile NaN/bounds audit failed (rc={proc.returncode}): {proc.stderr}"
+
+
+def test_pass18_null_safety_cli_eq_selfcheck_and_v18_ui() -> None:
+    """Pass 18 permanent regression guard:
+    1. Null-safe opts handling across all 11 exported API functions in docs/catalytic-engine.js v1.8.0,
+       strict 2x2 matrix shape validation in execMatrixLiftProg5 (preventing silent truncation),
+       Array.isArray + d <= 64 guard in execT4BalancedProduct, and 12-case differential runSelfCheck().
+    2. CLI --flag=value parsing (`plan --N=169 --p=1009`), `selfcheck` subcommand, `--help` exit 0,
+       and unknown command non-zero exit 1.
+    3. PWA v1.8 UI hooks (Visual Catalytic Byte-Diff Matrix, 1-Tap Simulate Tampered Cert, 1-Tap
+       12-Proof Self-Check), sw.js v1.8.0, and manifest.webmanifest `id` + `shortcuts`.
+    """
+    import shutil
+    import subprocess
+
+    html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    assert "Adaptive Forking Offline PWA v1.8" in html
+    for marker in ("renderByteDiffMatrix", "runSelfCheckUI", "testTamperedCertificateUI", "byte-matrix"):
+        assert marker in html, f"Missing Pass 18 v1.8 UI marker {marker!r}"
+
+    sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
+    assert "catalytic-adaptive-fork-v1.8.0" in sw_src
+
+    man = json.loads((REPO / "docs" / "manifest.webmanifest").read_text(encoding="utf-8"))
+    assert man.get("id") == "./" and len(man.get("shortcuts", [])) >= 3
+
+    node_bin = shutil.which("node")
+    if node_bin:
+        js_path = str(REPO / "docs" / "catalytic-engine.js")
+        node_check = (
+            f"const E = require({json.dumps(js_path)});"
+            "(async () => {"
+            "  if (E.version !== '1.8.0' || typeof E.runSelfCheck !== 'function') process.exit(90);"
+            "  E.planAdaptiveFork(); E.planAdaptiveFork(null);"
+            "  E.execPass3(5, 7, 1009, null);"
+            "  E.execFourRegPowering(91, 7, 1009, null);"
+            "  E.execStreamingMoment([1, 2], 5, 1009, null);"
+            "  E.execCatalyticByteVault(new Uint8Array([1, 2, 3]), 13, 7, 1009, null);"
+            "  await E.execCatalyticByteVaultAsync(new Uint8Array([1, 2, 3]), 13, 7, 1009, null);"
+            "  E.execMatrixLiftProg5([[1, 2], [3, 5]], 11, null);"
+            "  E.execT2BilinearFrobenius(4, 87, null, null);"
+            "  E.execT4BalancedProduct([2, 3, 5, 7], null, 1, null);"
+            "  E.runDeviceBenchmark(null); E.computeAdaptiveHorizon(1009, null);"
+            "  for (const badM of [[[1, 2, 3], [4, 5, 6]], [[1, 2], [3, 4], [5, 6]]]) {"
+            "    let rej = false; try { E.execMatrixLiftProg5(badM, 11); } catch (_) { rej = true; }"
+            "    if (!rej) process.exit(91);"
+            "  }"
+            "  let t4Cap = false; try { E.execT4BalancedProduct(new Array(256).fill(1)); } catch (_) { t4Cap = true; }"
+            "  if (!t4Cap) process.exit(92);"
+            "  const sc = E.runSelfCheck();"
+            "  if (!sc.ok || sc.passed !== 12 || sc.total !== 12) process.exit(93);"
+            "})().catch((e) => { console.error(e); process.exit(94); });"
+        )
+        proc = subprocess.run([node_bin, "-e", node_check], capture_output=True, text=True, timeout=30, check=False)
+        assert proc.returncode == 0, f"Node.js v1.8 audit failed (rc={proc.returncode}): {proc.stderr}"
+
+        # CLI --flag=value, selfcheck, --help, and unknown command exit codes
+        p_eq = subprocess.run([node_bin, js_path, "plan", "--N=169", "--p=1009"], capture_output=True, text=True, timeout=30, check=False)
+        assert p_eq.returncode == 0 and json.loads(p_eq.stdout)["N"] == "169" and json.loads(p_eq.stdout)["winner"]["accesses"] == "128"
+
+        p_sc = subprocess.run([node_bin, js_path, "selfcheck"], capture_output=True, text=True, timeout=30, check=False)
+        assert p_sc.returncode == 0 and json.loads(p_sc.stdout)["ok"] is True and json.loads(p_sc.stdout)["passed"] == 12
+
+        p_help = subprocess.run([node_bin, js_path, "--help"], capture_output=True, text=True, timeout=30, check=False)
+        assert p_help.returncode == 0 and "selfcheck" in p_help.stdout
+
+        p_bad = subprocess.run([node_bin, js_path, "unknown_typo_cmd"], capture_output=True, text=True, timeout=30, check=False)
+        assert p_bad.returncode == 1 and "Unknown command" in p_bad.stderr
+
 
 
 

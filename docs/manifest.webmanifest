@@ -1,4 +1,5 @@
 {
+  "id": "./",
   "name": "Catalytic Register Frontiers — Adaptive Fork Workbench",
   "short_name": "Catalytic Fork",
   "description": "Offline-capable exact BigInt Adaptive Forking engine, SHA-256 catalytic byte-vault verifier, and Lean 4.35 formal blueprint for passive catalytic register programs (smartwatches, phones, tablets, laptops, desktops).",
@@ -9,6 +10,23 @@
   "background_color": "#0b1120",
   "theme_color": "#0b1120",
   "categories": ["education", "utilities", "developer"],
+  "shortcuts": [
+    {
+      "name": "Adaptive Fork & SHA-256 Vault",
+      "short_name": "Byte-Vault",
+      "url": "./index.html?wl=scalar&N=91&p=1009&x=7#adaptive-workbench"
+    },
+    {
+      "name": "Bad-Prime Dodge (p=137)",
+      "short_name": "Dodge p=137",
+      "url": "./index.html?wl=scalar&N=169&p=137&x=7#adaptive-workbench"
+    },
+    {
+      "name": "F_2 Frobenius 2-Access Collapse",
+      "short_name": "F_2 Collapse",
+      "url": "./index.html?wl=scalar&N=256&p=2&x=1#adaptive-workbench"
+    }
+  ],
   "icons": [
     {
       "src": "./icon.svg",

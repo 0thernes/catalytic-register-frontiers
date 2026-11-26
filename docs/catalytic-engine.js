@@ -354,15 +354,16 @@
   // =========================================================================
 
   function execPass3(t, xIn, pIn, opts = {}) {
+    const o = opts || {};
     const spec = PROGRAMS_R3[t];
     if (!spec) throw new Error(`Unsupported 3-register engine t=${t}`);
     const p = BigInt(pIn);
     if (p < 0n || p === 1n) throw new Error('Modulus p must be 0 (exact Z) or >= 2');
     const x = mod(BigInt(xIn), p);
-    const O0 = mod(BigInt(opts.O0 ?? 1234567n), p);
-    const u0 = mod(BigInt(opts.u0 ?? 89101112n), p);
-    const v0 = mod(BigInt(opts.v0 ?? 31415926n), p);
-    const faultBit = Boolean(opts.faultBit);
+    const O0 = mod(BigInt(o.O0 ?? 1234567n), p);
+    const u0 = mod(BigInt(o.u0 ?? 89101112n), p);
+    const v0 = mod(BigInt(o.v0 ?? 31415926n), p);
+    const faultBit = Boolean(o.faultBit);
     const scaleOut = p === 0n ? 1n : modInv(spec.D, p);
 
     let O = O0;
@@ -466,12 +467,13 @@
     );
   }
 
-  function planAdaptiveFork(opts) {
-    const workload = opts.workload || 'scalar'; // 'scalar' | 'streaming' | 'matrix' | 'frobenius'
-    const N = BigInt(opts.N ?? 1000);
-    const p = BigInt(opts.p ?? 0); // 0n means characteristic 0 (Q / exact Z), >= 2n means ring Z/pZ
-    const matrixDim = safeInt(opts.matrixDim, 2, 1, 256);
-    const deviceClass = opts.deviceClass || 'desktop';
+  function planAdaptiveFork(opts = {}) {
+    const o = opts || {};
+    const workload = o.workload || 'scalar'; // 'scalar' | 'streaming' | 'matrix' | 'frobenius'
+    const N = BigInt(o.N ?? 1000);
+    const p = BigInt(o.p ?? 0); // 0n means characteristic 0 (Q / exact Z), >= 2n means ring Z/pZ
+    const matrixDim = safeInt(o.matrixDim, 2, 1, 256);
+    const deviceClass = o.deviceClass || 'desktop';
     const pIsPrime = p >= 2n && isPrimeBig(p);
     const ringLabel = p === 0n ? 'exact Z/Q' : (pIsPrime ? `prime field F_${p}` : `commutative ring Z/${p}Z`);
 
@@ -1128,18 +1130,19 @@
   }
 
   function execFourRegPowering(NIn, xIn, pIn, opts = {}) {
+    const o = opts || {};
     const N = BigInt(NIn);
     const p = BigInt(pIn);
     if (N < 1n) throw new Error('Exponent N must be >= 1');
     if (p < 2n) throw new Error('Modulus p must be >= 2 for modular 4-register execution (supports prime F_p AND valid composite rings Z/mZ)');
     const x = mod(BigInt(xIn), p);
-    const engineChoice = opts.engine || 'adaptive'; // 'prog4_x5' | 'prog5_x7' | 'prog8_x13' | 'adaptive'
-    const faultBit = Boolean(opts.faultBit);
+    const engineChoice = o.engine || 'adaptive'; // 'prog4_x5' | 'prog5_x7' | 'prog8_x13' | 'adaptive'
+    const faultBit = Boolean(o.faultBit);
 
-    const O0 = mod(BigInt(opts.O0 ?? 424242n), p);
-    const u0 = mod(BigInt(opts.u0 ?? 135791n), p);
-    const r10 = mod(BigInt(opts.r10 ?? 246802n), p);
-    const r20 = mod(BigInt(opts.r20 ?? 975313n), p);
+    const O0 = mod(BigInt(o.O0 ?? 424242n), p);
+    const u0 = mod(BigInt(o.u0 ?? 135791n), p);
+    const r10 = mod(BigInt(o.r10 ?? 246802n), p);
+    const r20 = mod(BigInt(o.r20 ?? 975313n), p);
 
     let forcedRadixSpec = null;
 
@@ -1410,6 +1413,7 @@
   }
 
   function execStreamingMoment(freqVec, DIn, pIn, opts = {}) {
+    const o = opts || {};
     if (!Array.isArray(freqVec) || freqVec.length === 0) {
       throw new Error('Frequency vector must contain at least 1 element');
     }
@@ -1417,8 +1421,8 @@
     if (D < 1n) throw new Error('Moment order D must be >= 1');
     const p = BigInt(pIn);
     if (p < 2n) throw new Error('Modulus p must be >= 2 for modular streaming execution');
-    const engine = opts.engine || 'adaptive';
-    const faultBit = Boolean(opts.faultBit);
+    const engine = o.engine || 'adaptive';
+    const faultBit = Boolean(o.faultBit);
     const vec = freqVec.map((v) => mod(BigInt(v), p));
     const n = vec.length;
 
@@ -1487,14 +1491,15 @@
   // executes an exact Adaptive Fork computation on every 3-register chunk, captures the
   // mid-flight scrambled bytes, and unpacks the exact restored Uint8Array for SHA-256 audit.
   function execCatalyticByteVault(rawBytes, NIn, xIn, pIn, opts = {}) {
+    const o = opts || {};
     const bytes = rawBytes instanceof Uint8Array ? rawBytes : new Uint8Array(rawBytes);
     if (bytes.length === 0) throw new Error('Byte vault payload cannot be empty');
     const p = BigInt(pIn);
     if (p < 257n) throw new Error('Byte vault requires modulus p >= 257 so every byte (0..255) fits injectively in a catalytic register');
     const N = BigInt(NIn);
     const x = mod(BigInt(xIn), p);
-    const faultBit = Boolean(opts.faultBit);
-    const maxChunks = safeInt(opts.maxChunks, 256, 1, 21845);
+    const faultBit = Boolean(o.faultBit);
+    const maxChunks = safeInt(o.maxChunks, 256, 1, 21845);
     const cappedLen = Math.min(bytes.length, maxChunks * 3);
     const slice = bytes.slice(0, cappedLen);
 
@@ -1567,11 +1572,16 @@
   // =========================================================================
 
   function execMatrixLiftProg5(AIn, pIn, opts = {}) {
+    const o = opts || {};
     const p = BigInt(pIn);
     if (p < 11n || !isPrimeBig(p)) throw new Error('Matrix lift mu_7(prog5_x7) requires prime p >= 11');
+    const is2x2 = (M) => Array.isArray(M) && M.length === 2 && Array.isArray(M[0]) && M[0].length === 2 && Array.isArray(M[1]) && M[1].length === 2;
+    if (!is2x2(AIn)) throw new Error('Matrix lift mu_7(prog5_x7) requires an exact 2x2 input matrix A');
+    const rawO0 = o.O0 || [[4n, 7n], [2n, 9n]];
+    if (!is2x2(rawO0)) throw new Error('Matrix lift mu_7(prog5_x7) requires an exact 2x2 initial output matrix O0');
     const A = AIn.map((row) => row.map((v) => mod(BigInt(v), p)));
-    const O0 = (opts.O0 || [[4n, 7n], [2n, 9n]]).map((row) => row.map((v) => mod(BigInt(v), p)));
-    const faultBit = Boolean(opts.faultBit);
+    const O0 = rawO0.map((row) => row.map((v) => mod(BigInt(v), p)));
+    const faultBit = Boolean(o.faultBit);
 
     const matAdd = (x, y) => [
       [mod(x[0][0] + y[0][0], p), mod(x[0][1] + y[0][1], p)],
@@ -1804,9 +1814,10 @@
   }
 
   function execT2BilinearFrobenius(kIn, xByte, initRegs, opts = {}) {
+    const o = opts || {};
     const k = Number(kIn);
     if (!Number.isInteger(k) || k < 1 || k > 12) throw new Error('Choose integer k in [1, 12]');
-    const faultBit = Boolean(opts.faultBit);
+    const faultBit = Boolean(o.faultBit);
     const x = Number(xByte) & 0xff;
     const init = [];
     for (let i = 0; i <= k; i++) {
@@ -1859,9 +1870,12 @@
   }
 
   function execT4BalancedProduct(xsIn, initRegsIn, signIn = 1n, opts = {}) {
+    const o = opts || {};
+    if (!Array.isArray(xsIn)) throw new Error('T4 requires an array of d = 2^k inputs');
     const xs = xsIn.map((v) => BigInt(v));
     const d = xs.length;
     if (d < 1 || (d & (d - 1)) !== 0) throw new Error('T4 requires d = 2^k inputs');
+    if (d > 64) throw new Error('T4 live execution caps d <= 64 (9,557 exact ops) to keep watches/phones responsive');
     const k = Math.round(Math.log2(d));
     const neededRegs = k === 0 ? 1 : k + 2;
     const init = [];
@@ -1870,7 +1884,7 @@
     }
     const regs = init.slice();
     const sign = BigInt(signIn) === -1n ? -1n : 1n;
-    const faultBit = Boolean(opts.faultBit);
+    const faultBit = Boolean(o.faultBit);
     let ops = 0;
     let faultDone = false;
     const allowedRegs = new Set();
@@ -2058,8 +2072,9 @@
   // =========================================================================
 
   function runDeviceBenchmark(opts = {}) {
+    const o = opts || {};
     const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
-    const iters = safeInt(opts.iters, 6, 2, 100);
+    const iters = safeInt(o.iters, 6, 2, 100);
     const p = 1009n;
 
     // Warm-up JIT once
@@ -2131,10 +2146,11 @@
   // =========================================================================
 
   function computeAdaptiveHorizon(pIn, opts = {}) {
+    const o = opts || {};
     const p = BigInt(pIn ?? 1009);
-    const workload = opts.workload || 'scalar';
-    const matrixDim = safeInt(opts.matrixDim, 4, 1, 256);
-    const points = opts.exponents || [5, 7, 9, 13, 15, 20, 25, 49, 64, 91, 121, 169, 256, 500, 1000, 2197];
+    const workload = o.workload || 'scalar';
+    const matrixDim = safeInt(o.matrixDim, 4, 1, 256);
+    const points = o.exponents || [5, 7, 9, 13, 15, 20, 25, 49, 64, 91, 121, 169, 256, 500, 1000, 2197];
     const rows = [];
     for (const nVal of points) {
       const r = planAdaptiveFork({ workload, N: BigInt(nVal), p, matrixDim });
@@ -2153,19 +2169,20 @@
 
   // Non-blocking chunked async Catalytic Byte-Vault for 60fps UI responsiveness on watches/phones/desktops
   async function execCatalyticByteVaultAsync(rawBytes, NIn, xIn, pIn, opts = {}) {
+    const o = opts || {};
     const bytes = rawBytes instanceof Uint8Array ? rawBytes : new Uint8Array(rawBytes);
     if (bytes.length === 0) throw new Error('Byte vault payload cannot be empty');
     const p = BigInt(pIn);
     if (p < 257n) throw new Error('Byte vault requires modulus p >= 257 so every byte (0..255) fits injectively in a catalytic register');
     const N = BigInt(NIn);
     const x = mod(BigInt(xIn), p);
-    const faultBit = Boolean(opts.faultBit);
-    const maxChunks = safeInt(opts.maxChunks, 256, 1, 21845);
+    const faultBit = Boolean(o.faultBit);
+    const maxChunks = safeInt(o.maxChunks, 256, 1, 21845);
     const cappedLen = Math.min(bytes.length, maxChunks * 3);
     const slice = bytes.slice(0, cappedLen);
-    const onProgress = typeof opts.onProgress === 'function' ? opts.onProgress : null;
-    const isAborted = typeof opts.isAborted === 'function' ? opts.isAborted : null;
-    const yieldEveryMs = safeInt(opts.yieldEveryMs, 12, 4, 250);
+    const onProgress = typeof o.onProgress === 'function' ? o.onProgress : null;
+    const isAborted = typeof o.isAborted === 'function' ? o.isAborted : null;
+    const yieldEveryMs = safeInt(o.yieldEveryMs, 12, 4, 250);
     const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
     const restored = new Uint8Array(slice.length);
@@ -2313,8 +2330,84 @@
     }
   }
 
+  function runSelfCheck() {
+    const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    const t0 = now();
+    const checks = [];
+    const record = (name, fn) => {
+      try {
+        const detail = fn();
+        checks.push({ name, ok: Boolean(detail.ok), info: detail.info || '' });
+      } catch (err) {
+        checks.push({ name, ok: false, info: err.message });
+      }
+    };
+
+    const parityCases = [
+      ['N=1 direct (F_1009)', 1n, 1009n, 1],
+      ['N=104 Gray 2-way split (F_1009)', 104n, 1009n, 92],
+      ['N=91 7x13 compose wrap (F_1009)', 91n, 1009n, 80],
+      ['N=169 13^2 compose wrap (F_1009)', 169n, 1009n, 128],
+      ['N=169 bad-prime 137 dodge', 169n, 137n, null],
+      ['N=91 composite ring Z/1022117Z', 91n, 1022117n, 80],
+      ['N=65536 F_2 2-access Frobenius', 65536n, 2n, 2],
+      ['N=1018082 F_1009 3-access T1', 1018082n, 1009n, 3]
+    ];
+    for (const [label, N, p, expectedAcc] of parityCases) {
+      record(label, () => {
+        const pl = planAdaptiveFork({ workload: 'scalar', N, p });
+        const ex = execFourRegPowering(N, 7n, p, { engine: 'adaptive' });
+        const accOk = String(ex.accesses) === String(pl.comparison.adaptive_fork.accesses) &&
+          (expectedAcc === null || ex.accesses === expectedAcc);
+        return {
+          ok: pl.comparison.adaptive_fork.feasible && ex.verified && accOk,
+          info: `${ex.engineUsed} (${ex.accesses} reads)`
+        };
+      });
+    }
+
+    record('T2 bilinear Frobenius x^32 over GF(2^8)', () => {
+      const r = execT2BilinearFrobenius(5, 87);
+      return { ok: r.verified && r.accesses === 2, info: `2 accesses, ${r.bilinOps} bilin ops` };
+    });
+
+    record('R3 matrix lift mu_7(prog5_x7) & p=7 guard', () => {
+      const r = execMatrixLiftProg5([[1, 2], [3, 5]], 11);
+      const m7 = planAdaptiveFork({ workload: 'matrix', N: 49, p: 7, matrixDim: 2 });
+      return {
+        ok: r.verified && r.nonCommuting && m7.comparison.prog5_x7_T3a.validForP === false,
+        info: 'M_2(F_11) verified, p=7 rejected per Cor. 5.4'
+      };
+    });
+
+    record('T4 zero-workspace balanced product d=8', () => {
+      const r = execT4BalancedProduct([2, -3, 5, -7, 11, -13, 17, -19]);
+      return { ok: r.verified && r.ops === 148 && r.registers === 5, info: '148 ops, 5 regs' };
+    });
+
+    record('Byte-Vault 0-bit clean + 1-bit fault catch', () => {
+      const buf = new Uint8Array([0x43, 0x61, 0x74, 0x61, 0x6c, 0x79, 0x74, 0x69, 0x63]);
+      const clean = execCatalyticByteVault(buf, 91, 7, 1009);
+      const fault = execCatalyticByteVault(buf, 91, 7, 1009, { faultBit: true });
+      return {
+        ok: clean.verified && clean.bytesEqual && !fault.verified && fault.corruptedByteCount > 0,
+        info: `9B clean=0 err, fault caught=${fault.corruptedByteCount}B`
+      };
+    });
+
+    const passed = checks.filter((c) => c.ok).length;
+    return {
+      ok: passed === checks.length,
+      version: '1.8.0',
+      passed,
+      total: checks.length,
+      elapsedMs: Number((now() - t0).toFixed(2)),
+      checks
+    };
+  }
+
   const exportedApi = {
-    version: '1.7.0',
+    version: '1.8.0',
     PROGRAMS_R3,
     safeInt,
     mod,
@@ -2344,14 +2437,15 @@
     runAdversarialFuzz,
     runDeviceBenchmark,
     computeAdaptiveHorizon,
-    verifyCertificate
+    verifyCertificate,
+    runSelfCheck
   };
 
   // Universal zero-dependency Node.js CLI entrypoint (laptops, desktops, servers, Termux, containers)
-  // Supports BOTH named flags (--N 169 --p 1009) AND clean positional arguments (plan 169 1009 4 scalar)!
+  // Supports --flag=value, --flag value, AND clean positional arguments (plan 169 1009 4 scalar)!
   if (typeof require === 'function' && typeof module === 'object' && require.main === module) {
     const args = process.argv.slice(2);
-    const cmd = args[0] || 'help';
+    const cmd = args.length === 0 ? 'help' : args[0];
     const pos = [];
     const flags = new Map();
     const boolFlags = new Set();
@@ -2359,7 +2453,16 @@
     for (let i = 1; i < args.length; i++) {
       const a = args[i];
       if (a.startsWith('--')) {
-        if (knownBoolFlags.has(a)) {
+        const eqIdx = a.indexOf('=');
+        if (eqIdx > 2) {
+          const k = a.slice(0, eqIdx);
+          const v = a.slice(eqIdx + 1);
+          if (knownBoolFlags.has(k)) {
+            if (!/^(?:0|false|no|off)$/i.test(v)) boolFlags.add(k);
+          } else {
+            flags.set(k, v);
+          }
+        } else if (knownBoolFlags.has(a)) {
           boolFlags.add(a);
         } else {
           const next = args[i + 1];
@@ -2379,13 +2482,28 @@
       if (posIdx !== null && pos[posIdx] !== undefined) return pos[posIdx];
       return def;
     };
+    const printUsage = () => {
+      console.log([
+        `Catalytic Register Frontiers — Adaptive Forking CLI v${exportedApi.version}`,
+        'Usage (supports --flag=value, --flag value, AND positional arguments):',
+        '  node catalytic-engine.js plan      [N=91] [p=1009] [m=4] [workload=scalar]',
+        '  node catalytic-engine.js run       [N=91] [x=7] [p=1009] [--fault]',
+        '  node catalytic-engine.js vault     ["SecretRAM"|--stdin] [N=91] [p=1009] [x=7] [--fault]',
+        '  node catalytic-engine.js stream    ["a a b a c b"] [D=20] [p=1009] [engine=adaptive]',
+        '  node catalytic-engine.js horizon   [p=1009] [workload=scalar]',
+        '  node catalytic-engine.js verify    <certificate.json>',
+        '  node catalytic-engine.js selfcheck',
+        '  node catalytic-engine.js bench     [iters=6]',
+        '  node catalytic-engine.js fuzz      [trials=300]'
+      ].join('\n'));
+    };
     const bigReplacer = (_k, v) => (typeof v === 'bigint' ? v.toString() : v);
     try {
       if (cmd === 'plan') {
         const res = planAdaptiveFork({
           N: BigInt(getArg('--N', 0, '91')),
           p: BigInt(getArg('--p', 1, '1009')),
-          matrixDim: Number(getArg('--m', 2, '4')),
+          matrixDim: safeInt(getArg('--m', 2, '4'), 4, 1, 256),
           workload: getArg('--workload', 3, 'scalar')
         });
         console.log(JSON.stringify({
@@ -2474,26 +2592,23 @@
         const verdict = verifyCertificate(cert);
         console.log(JSON.stringify(verdict, bigReplacer, 2));
         if (!verdict.ok) process.exitCode = 2;
+      } else if (cmd === 'selfcheck') {
+        const res = runSelfCheck();
+        console.log(JSON.stringify(res, null, 2));
+        if (!res.ok) process.exitCode = 2;
       } else if (cmd === 'bench') {
-        console.log(JSON.stringify(runDeviceBenchmark({ iters: Number(getArg('--iters', 0, '6')) }), null, 2));
+        console.log(JSON.stringify(runDeviceBenchmark({ iters: safeInt(getArg('--iters', 0, '6'), 6, 2, 100) }), null, 2));
       } else if (cmd === 'fuzz') {
-        const n = Number(getArg('--trials', 0, '300'));
+        const n = safeInt(getArg('--trials', 0, '300'), 300, 1, 50000);
         const res = runAdversarialFuzz(n, 20261125);
         console.log(JSON.stringify(res, null, 2));
         if (res.failed > 0) process.exitCode = 2;
+      } else if (cmd === 'help' || cmd === '--help' || cmd === '-h') {
+        printUsage();
       } else {
-        console.log([
-          `Catalytic Register Frontiers — Adaptive Forking CLI v${exportedApi.version}`,
-          'Usage (supports BOTH --flags and positional arguments):',
-          '  node catalytic-engine.js plan    [N=91] [p=1009] [m=4] [workload=scalar]',
-          '  node catalytic-engine.js run     [N=91] [x=7] [p=1009] [--fault]',
-          '  node catalytic-engine.js vault   ["SecretRAM"|--stdin] [N=91] [p=1009] [x=7] [--fault]',
-          '  node catalytic-engine.js stream  ["a a b a c b"] [D=20] [p=1009] [engine=adaptive]',
-          '  node catalytic-engine.js horizon [p=1009] [workload=scalar]',
-          '  node catalytic-engine.js verify  <certificate.json>',
-          '  node catalytic-engine.js bench   [iters=6]',
-          '  node catalytic-engine.js fuzz    [trials=300]'
-        ].join('\n'));
+        console.error(`Unknown command: ${cmd}`);
+        printUsage();
+        process.exitCode = 1;
       }
     } catch (err) {
       console.error('ERROR:', err.message);

@@ -244,6 +244,28 @@
       cursor: pointer;
     }
     .preview-btn.active { background: #0c4a6e; border-color: var(--accent); color: #f8fafc; }
+    .byte-matrix {
+      margin-top: 0.55rem;
+      padding: 0.55rem 0.65rem;
+      border-radius: 8px;
+      background: #0a101d;
+      border: 1px solid var(--border);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.74rem;
+    }
+    .byte-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.28rem; margin: 0.25rem 0; }
+    .byte-lbl { min-width: 78px; color: var(--muted); font-weight: 600; font-size: 0.72rem; }
+    .byte-tile {
+      display: inline-block;
+      padding: 0.12rem 0.34rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: #13203b;
+      color: var(--ink);
+    }
+    .byte-tile.mid { background: #451a03; border-color: #b45309; color: #fde68a; }
+    .byte-tile.ok { background: #064e3b; border-color: #059669; color: #a7f3d0; }
+    .byte-tile.bad { background: #4c0519; border-color: #f43f5e; color: #ffe4e6; font-weight: 700; }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .bar-fill, .filter-btn, .tab-btn, .action-btn { transition: none; }
@@ -265,7 +287,7 @@
     <span class="pill">14 Core Modules &middot; 20 Theorems + Non-Vacuity</span>
     <span class="pill">5 Kernels (6 Runs) PASS</span>
     <span class="pill">8 / 8 LRAT UNSAT Proofs Verified</span>
-    <span class="pill info">Adaptive Forking Offline PWA v1.7</span>
+    <span class="pill info">Adaptive Forking Offline PWA v1.8</span>
     <span class="pill warn">Preprint &middot; Not Peer-Reviewed</span>
   </div>
 
@@ -346,12 +368,13 @@
         <button class="action-btn" type="button" onclick="runPass3Trace(8)">Animate Optimal prog8_x13</button>
         <button class="action-btn" type="button" onclick="runPass3Trace(5)">Animate Compact prog5_x7</button>
         <button class="action-btn" type="button" onclick="runDeviceBenchUI()">Benchmark This Device</button>
+        <button class="action-btn" type="button" onclick="runSelfCheckUI()">Run 12-Proof Self-Check</button>
         <label class="toggle-lbl"><input id="af-fault" type="checkbox"> Inject 1-Bit Fault (Test Catch)</label>
       </div>
 
       <div class="inline-controls" style="font-size:0.8rem;">
         <span style="color:var(--muted);">Quick Presets:</span>
-        <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','20','1009','7')">N=20 (Gray Win)</button>
+        <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','104','1009','7')">N=104 (Gray Win)</button>
         <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','91','1009','7')">N=91 (7&times;13 Compose)</button>
         <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','169','1009','7')">N=169 (13&sup2; Compose)</button>
         <button class="action-btn" type="button" onclick="setAdaptivePreset('scalar','169','137','7')">p=137 (Bad-Prime Dodge!)</button>
@@ -370,6 +393,7 @@
         <button class="action-btn" type="button" onclick="exportProofCertificate()">Download JSON Proof Certificate</button>
         <button class="action-btn" type="button" onclick="exportProofReportHtml()">Export Printable Proof Report (.html)</button>
         <button class="action-btn" type="button" onclick="verifyLastCertificateUI()">Re-Verify Last Certificate</button>
+        <button class="action-btn danger" type="button" onclick="testTamperedCertificateUI()">Simulate Tampered Cert</button>
         <label class="toggle-lbl" style="color:var(--muted);">Verify External Cert JSON:
           <input id="af-cert-file" type="file" accept=".json,application/json" onchange="verifyExternalCertificateFile(this)" style="max-width:190px; font-size:0.78rem;">
         </label>
@@ -377,9 +401,10 @@
         <span id="share-feedback" style="color:var(--ok); font-weight:600;" aria-live="polite"></span>
       </div>
       <details style="margin:0.4rem 0 0.6rem; font-size:0.82rem;">
-        <summary>Universal Zero-Dependency CLI v1.7 (Flags, Positional, &amp; Stdin Piping &middot; Any Laptop / Desktop / Server / Termux)</summary>
+        <summary>Universal Zero-Dependency CLI v1.8 (--flag=val, Positional, Self-Check &amp; Stdin Piping &middot; Any Device)</summary>
         <pre style="margin:0.4rem 0 0; padding:0.65rem;"><code>curl -fsSLO https://0thernes.github.io/catalytic-register-frontiers/catalytic-engine.js
-node catalytic-engine.js plan    169 1009 4 scalar
+node catalytic-engine.js selfcheck
+node catalytic-engine.js plan    --N=169 --p=1009
 echo "LiveRAM" | node catalytic-engine.js vault --stdin 91 1009
 node catalytic-engine.js stream  "imu_a imu_a imu_b imu_c imu_a" 20 1009
 node catalytic-engine.js horizon 137 scalar
@@ -1107,7 +1132,7 @@ node catalytic-engine.js bench</code></pre>
     const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const periodMs = reduced ? 1600 : (cls === 'watch' ? 1400 : (cls === 'phone' ? 1050 : 800));
     const scenarios = [
-      { tag: 'Gray 2-Way Split', N: '20', p: '1009', x: '7' },
+      { tag: 'Gray 2-Way Split', N: '104', p: '1009', x: '7' },
       { tag: '7x13 Compose Wrap', N: '91', p: '1009', x: '11' },
       { tag: '13^2 Compose Wrap', N: '169', p: '1009', x: '5' },
       { tag: 'Bad-Prime Dodge (137|D_8)', N: '169', p: '137', x: '9' },
@@ -1225,17 +1250,89 @@ node catalytic-engine.js bench</code></pre>
         verified: res.verified && shaMatch
       };
 
+      const byteGridHtml = renderByteDiffMatrix(res.beforeBytes, res.midScrambleBytes, res.afterBytes, cls);
       out.innerHTML = `<div class="status-box ${res.verified && shaMatch ? 'ok' : 'bad'}">` +
         `<strong>${res.verified && shaMatch ? 'SHA-256 CATALYTIC BYTE-VAULT VERIFIED (0 BITS CORRUPTED!)' : 'BYTE-VAULT CORRUPTION CAUGHT BY SHA-256!'}</strong> (${ms.toFixed(2)} ms &middot; ${kbps} KiB/s)${esc(promotedNote)}<br>` +
         `Source: <strong>${esc(sourceDesc)}</strong> &middot; Borrowed <strong>${res.borrowedBytes.toLocaleString()}</strong> bytes across ${res.chunks.toLocaleString()} catalytic chunks via <code>${esc(res.engineUsed)}</code> (${res.accessesPerChunk} accesses/chunk)<br>` +
         `SHA-256 Before: <code>${esc(hashBefore)}</code><br>` +
         `SHA-256 Mid-Flight (Scrambled): <code>${esc(hashMid)}</code><br>` +
-        `SHA-256 Restored: <code>${esc(hashAfter)}</code> &rarr; <strong>${shaMatch ? 'IDENTICAL BIT-FOR-BIT' : 'HASH MISMATCH CAUGHT!'}</strong><br>` +
-        `Hex Preview: <code>${esc(res.beforeHexPreview)}</code> &rarr; <code>${esc(res.midHexPreview)}</code> &rarr; <code>${esc(res.afterHexPreview)}</code></div>`;
+        `SHA-256 Restored: <code>${esc(hashAfter)}</code> &rarr; <strong>${shaMatch ? 'IDENTICAL BIT-FOR-BIT' : 'HASH MISMATCH CAUGHT!'}</strong>` +
+        byteGridHtml + `</div>`;
     } catch (err) {
       if (prog) prog.innerHTML = '';
       out.innerHTML = `<div class="status-box bad"><strong>Byte-Vault notice:</strong> ${esc(err.message)}</div>`;
     }
+  };
+
+  function renderByteDiffMatrix(beforeBytes, midBytes, afterBytes, cls) {
+    const cap = cls === 'watch' ? 8 : (cls === 'phone' ? 12 : 16);
+    const n = Math.min(beforeBytes.length, cap);
+    const hex2 = (b) => b.toString(16).padStart(2, '0');
+    let rOrig = '<div class="byte-row"><span class="byte-lbl">Before:</span>';
+    let rMid = '<div class="byte-row"><span class="byte-lbl">In-Flight:</span>';
+    let rRest = '<div class="byte-row"><span class="byte-lbl">Restored:</span>';
+    for (let i = 0; i < n; i++) {
+      const b0 = beforeBytes[i];
+      const bm = midBytes[i];
+      const b1 = afterBytes[i];
+      const match = b0 === b1;
+      const changedMid = bm !== b0;
+      rOrig += `<span class="byte-tile" title="Byte #${i} original">${hex2(b0)}</span>`;
+      rMid += `<span class="byte-tile${changedMid ? ' mid' : ''}" title="Byte #${i} scrambled mid-flight">${hex2(bm)}</span>`;
+      rRest += `<span class="byte-tile ${match ? 'ok' : 'bad'}" title="Byte #${i} ${match ? 'exact 0-bit restoration' : 'CORRUPTED: expected ' + hex2(b0) + ', got ' + hex2(b1)}">${hex2(b1)}</span>`;
+    }
+    const suffix = beforeBytes.length > n ? `<span style="color:var(--muted); margin-left:0.25rem;">+${(beforeBytes.length - n).toLocaleString()} B</span>` : '';
+    return `<div class="byte-matrix" aria-label="Live Catalytic Byte-by-Byte Diff Matrix">${rOrig}${suffix}</div>${rMid}</div>${rRest}</div></div>`;
+  }
+
+  window.runSelfCheckUI = function () {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('af-bench-panel');
+    if (!E || !out) return;
+    try {
+      const sc = E.runSelfCheck();
+      const rows = sc.checks.map((c) =>
+        `<li><strong>[${c.ok ? 'PASS' : 'FAIL'}]</strong> ${esc(c.name)} &mdash; <code>${esc(c.info)}</code></li>`
+      ).join('');
+      out.innerHTML = `<div class="status-box ${sc.ok ? 'ok' : 'bad'}">` +
+        `<strong>Live Cross-Ring Differential Self-Check (${esc(detectDeviceClass().toUpperCase())} &middot; Engine v${esc(sc.version)}):</strong> ` +
+        `<strong>${sc.passed} / ${sc.total} PROOFS PASS</strong> in ${sc.elapsedMs} ms (planner == executor across primes, bad-prime 137 dodge, composite Z/1022117Z, F_2/F_1009 T1/T2, Cor. 5.4 matrix lift, T4 &amp; Byte-Vault fault-catch)` +
+        `<details style="margin-top:0.45rem;"><summary>Inspect all ${sc.total} verified cases</summary><ul style="margin:0.35rem 0 0 1.1rem; padding:0; font-size:0.8rem;">${rows}</ul></details></div>`;
+    } catch (err) {
+      out.innerHTML = `<div class="status-box bad"><strong>Self-check error:</strong> ${esc(err.message)}</div>`;
+    }
+  };
+
+  window.testTamperedCertificateUI = function () {
+    const E = window.CatalyticEngine;
+    const out = document.getElementById('af-cert-verify');
+    if (!E || !out) return;
+    if (!lastCertificate) runAdaptiveLive();
+    if (!lastCertificate) return;
+    const tampered = JSON.parse(JSON.stringify(lastCertificate));
+    let mutationDesc = '';
+    if (tampered.kind === 'catalytic_sha256_byte_vault' && typeof tampered.sha256After === 'string') {
+      const flipped = (tampered.sha256After[0] === '0' ? 'f' : '0') + tampered.sha256After.slice(1);
+      tampered.sha256After = flipped;
+      mutationDesc = 'flipped 1 hex nibble in sha256After';
+    } else if (tampered.kind === 'adaptive_fork_4reg') {
+      tampered.accesses = Number(tampered.accesses) + 1;
+      mutationDesc = 'inflated claimed accesses by +1';
+    } else if (tampered.kind === 'matrix_lift_prog5' && tampered.result && tampered.result.A7) {
+      tampered.result.A7[0][0] = String(BigInt(tampered.result.A7[0][0]) + 1n);
+      mutationDesc = 'perturbed A^7[0][0] by +1';
+    } else if (tampered.kind === 'device_calibration_benchmark' && tampered.benchmark && tampered.benchmark.n91) {
+      tampered.benchmark.n91.adaptiveAccesses = 999;
+      mutationDesc = 'forged n91.adaptiveAccesses = 999';
+    } else {
+      tampered.verified = false;
+      mutationDesc = 'flipped verified flag';
+    }
+    const v = E.verifyCertificate(tampered);
+    out.innerHTML = `<div class="status-box ${!v.ok ? 'ok' : 'bad'}">` +
+      `<strong>Tamper-Detection Simulation (${esc(tampered.kind)} &middot; ${esc(mutationDesc)}):</strong> ` +
+      `${!v.ok ? 'PASS — FORGED CERTIFICATE REJECTED OFFLINE!' : 'UNEXPECTED PASS!'}<br>` +
+      `Verifier response: <code>${esc(v.reason)}</code></div>`;
   };
 
   window.runDeviceBenchUI = function () {
