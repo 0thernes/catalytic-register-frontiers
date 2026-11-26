@@ -266,6 +266,21 @@
     .byte-tile.mid { background: #451a03; border-color: #b45309; color: #fde68a; }
     .byte-tile.ok { background: #064e3b; border-color: #059669; color: #a7f3d0; }
     .byte-tile.bad { background: #4c0519; border-color: #f43f5e; color: #ffe4e6; font-weight: 700; }
+    #adaptive-workbench.drag-over {
+      border-color: var(--ok);
+      box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.35);
+    }
+    @media print {
+      body { background: #ffffff; color: #0f172a; padding: 0; font-size: 11pt; }
+      .card, .stat, .status-box, .dag-box, .byte-matrix, pre {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border-color: #cbd5e1 !important;
+        box-shadow: none !important;
+      }
+      h1, h2, h3, .stat .k { color: #0f172a !important; }
+      .tab-bar, .inline-controls, .preview-btn, #pwa-install-btn { display: none !important; }
+    }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .bar-fill, .filter-btn, .tab-btn, .action-btn { transition: none; }
@@ -287,7 +302,7 @@
     <span class="pill">14 Core Modules &middot; 20 Theorems + Non-Vacuity</span>
     <span class="pill">5 Kernels (6 Runs) PASS</span>
     <span class="pill">8 / 8 LRAT UNSAT Proofs Verified</span>
-    <span class="pill info">Adaptive Forking Offline PWA v1.8</span>
+    <span class="pill info">Adaptive Forking Offline PWA v1.9</span>
     <span class="pill warn">Preprint &middot; Not Peer-Reviewed</span>
   </div>
 
@@ -368,7 +383,7 @@
         <button class="action-btn" type="button" onclick="runPass3Trace(8)">Animate Optimal prog8_x13</button>
         <button class="action-btn" type="button" onclick="runPass3Trace(5)">Animate Compact prog5_x7</button>
         <button class="action-btn" type="button" onclick="runDeviceBenchUI()">Benchmark This Device</button>
-        <button class="action-btn" type="button" onclick="runSelfCheckUI()">Run 12-Proof Self-Check</button>
+        <button class="action-btn" type="button" onclick="runSelfCheckUI()">Run 13-Proof Self-Check</button>
         <label class="toggle-lbl"><input id="af-fault" type="checkbox"> Inject 1-Bit Fault (Test Catch)</label>
       </div>
 
@@ -387,7 +402,7 @@
       </div>
 
       <div class="inline-controls" style="font-size:0.8rem;">
-        <label class="toggle-lbl" style="color:var(--muted);">Local file for SHA-256 Byte-Vault (up to 64 KiB, auto-runs 100% offline, never uploaded):
+        <label class="toggle-lbl" style="color:var(--muted);">Local file (or drag &amp; drop onto panel — up to 64 KiB, 100% offline, never uploaded):
           <input id="af-file" type="file" onchange="runByteVaultLive()" style="max-width:220px; font-size:0.78rem;">
         </label>
         <button class="action-btn" type="button" onclick="exportProofCertificate()">Download JSON Proof Certificate</button>
@@ -401,13 +416,13 @@
         <span id="share-feedback" style="color:var(--ok); font-weight:600;" aria-live="polite"></span>
       </div>
       <details style="margin:0.4rem 0 0.6rem; font-size:0.82rem;">
-        <summary>Universal Zero-Dependency CLI v1.8 (--flag=val, Positional, Self-Check &amp; Stdin Piping &middot; Any Device)</summary>
+        <summary>Universal Zero-Dependency CLI v1.9 (--flag=val, CSV Horizon, Self-Check &amp; Stdin Piping &middot; Any Device)</summary>
         <pre style="margin:0.4rem 0 0; padding:0.65rem;"><code>curl -fsSLO https://0thernes.github.io/catalytic-register-frontiers/catalytic-engine.js
 node catalytic-engine.js selfcheck
 node catalytic-engine.js plan    --N=169 --p=1009
 echo "LiveRAM" | node catalytic-engine.js vault --stdin 91 1009
 node catalytic-engine.js stream  "imu_a imu_a imu_b imu_c imu_a" 20 1009
-node catalytic-engine.js horizon 137 scalar
+node catalytic-engine.js horizon 137 scalar --csv
 node catalytic-engine.js verify  catalytic-proof-*.json
 node catalytic-engine.js bench</code></pre>
       </details>
@@ -418,6 +433,9 @@ node catalytic-engine.js bench</code></pre>
       <div id="af-autopilot-panel" aria-live="polite"></div>
       <details style="margin:0.6rem 0;">
         <summary>Predictive Adaptive Horizon Curve (Exact Access Savings Across N = 5 .. 2,197 on Current Modulus p)</summary>
+        <div style="margin-top:0.45rem;">
+          <button class="action-btn" type="button" onclick="exportHorizonCsv()" style="min-height:32px; padding:0.22rem 0.65rem; font-size:0.78rem;">Export Horizon CSV</button>
+        </div>
         <div id="af-horizon-panel" class="dag-box" style="margin-top:0.45rem;" aria-label="Predictive Adaptive Horizon SVG Chart"></div>
       </details>
       <div id="af-vault-progress" aria-live="polite"></div>
@@ -1051,13 +1069,23 @@ node catalytic-engine.js bench</code></pre>
       }
 
       if (p === 0n) {
+        if (N === 1n) {
+          const O0 = E.textToBigInt(payload + '|O', 0n);
+          const finalO = faultBit ? (O0 + x + 1n) : (O0 + x);
+          const expectedO = O0 + x;
+          const ok = finalO === expectedO;
+          out.innerHTML = `<div class="status-box ${ok ? 'ok' : 'bad'}">` +
+            `<strong>${ok ? 'VERIFIED BIT-FOR-BIT LIVE (EXACT Z)' : 'CORRUPTION DETECTED (FAULT CAUGHT!)'}</strong> via <code>adaptive:direct_x1 (1-reg, 1 access)</code><br>` +
+            `Output O: <code>${esc(E.formatBig(finalO, 28))}</code> (expected <code>${esc(E.formatBig(expectedO, 28))}</code>) &middot; Zero borrowed catalysts needed for degree 1.</div>`;
+          return;
+        }
         const mapExactZ = { 5: 4, 7: 5, 9: 6, 11: 7, 13: 8, 15: 9 };
         const tMatch = mapExactZ[Number(N)];
         if (tMatch) {
           runPass3Trace(tMatch);
           return;
         }
-        throw new Error(`For exact Z (p=0), direct 3-register literal traces exist for N in {5, 7, 9, 11, 13, 15}. For arbitrary N=${N}, set a modulus p >= 2 (e.g., p=1009 or composite 1022117) or click "Animate Optimal prog8_x13".`);
+        throw new Error(`For exact Z (p=0), direct literal traces exist for N in {1, 5, 7, 9, 11, 13, 15}. For arbitrary N=${N}, set a modulus p >= 2 (e.g., p=1009 or composite 1022117) or click "Animate Optimal prog8_x13".`);
       }
       if (p < 2n) throw new Error('Modulus p must be 0 (exact Z trace) or >= 2 (prime F_p or valid composite ring Z/mZ).');
       const prePlan = E.planAdaptiveFork({ workload: 'scalar', N, p });
@@ -1106,6 +1134,8 @@ node catalytic-engine.js bench</code></pre>
   };
 
   let vaultAbortFlag = false;
+  let vaultRunId = 0;
+  let droppedFileOverride = null;
   let autopilotTimer = null;
   let autopilotTick = 0;
   let autopilotSavedReads = 0n;
@@ -1177,11 +1207,17 @@ node catalytic-engine.js bench</code></pre>
     autopilotTimer = setInterval(step, periodMs);
   };
 
-  window.runByteVaultLive = async function () {
+  window.runByteVaultLive = async function (overrideFile) {
     const E = window.CatalyticEngine;
     const out = document.getElementById('af-live-result');
     const prog = document.getElementById('af-vault-progress');
     vaultAbortFlag = false;
+    const myRunId = ++vaultRunId;
+    if (overrideFile instanceof File) {
+      droppedFileOverride = overrideFile;
+    } else if (overrideFile === null) {
+      droppedFileOverride = null;
+    }
     try {
       const N = BigInt(document.getElementById('af-n').value.trim() || '91');
       const rawP = BigInt(document.getElementById('af-p').value.trim() || '1009');
@@ -1198,13 +1234,15 @@ node catalytic-engine.js bench</code></pre>
       const cls = detectDeviceClass();
       const maxBytes = cls === 'watch' ? 1024 : (cls === 'phone' ? 8192 : 65536);
       const fileInput = document.getElementById('af-file');
+      const chosenFile = droppedFileOverride || (fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null);
       let rawBytes;
       let sourceDesc;
-      if (fileInput && fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
+      if (chosenFile) {
+        const file = chosenFile;
         if (file.size === 0) throw new Error(`Selected file "${file.name}" is empty (0 bytes). Pick any non-empty file.`);
         const take = Math.min(file.size, maxBytes);
         const buf = await file.slice(0, take).arrayBuffer();
+        if (myRunId !== vaultRunId) return;
         rawBytes = new Uint8Array(buf);
         sourceDesc = `Local file "${file.name}" (${rawBytes.length.toLocaleString()} bytes, 100% local)`;
       } else {
@@ -1217,19 +1255,22 @@ node catalytic-engine.js bench</code></pre>
       const res = await E.execCatalyticByteVaultAsync(rawBytes, N, x, p, {
         faultBit,
         maxChunks: Math.ceil(maxBytes / 3),
-        isAborted: () => vaultAbortFlag,
+        isAborted: () => vaultAbortFlag || myRunId !== vaultRunId,
         onProgress: ({ doneBytes, totalBytes, pct }) => {
+          if (myRunId !== vaultRunId) return;
           if (prog && totalBytes > 512 && pct < 100) {
             prog.innerHTML = `<div class="status-box note">Processing catalytic Byte-Vault offline: <strong>${doneBytes.toLocaleString()} / ${totalBytes.toLocaleString()} bytes (${pct}%)</strong> <button class="action-btn danger" type="button" onclick="cancelByteVault()" style="min-height:28px; padding:0.15rem 0.5rem; margin-left:0.5rem;">Cancel</button></div>`;
           }
         }
       });
+      if (myRunId !== vaultRunId) return;
       if (prog) prog.innerHTML = '';
       const ms = Math.max(0.01, performance.now() - t0);
       const kbps = ((res.borrowedBytes / 1024) / (ms / 1000)).toFixed(1);
       const hashBefore = await sha256Hex(res.beforeBytes);
       const hashMid = await sha256Hex(res.midScrambleBytes);
       const hashAfter = await sha256Hex(res.afterBytes);
+      if (myRunId !== vaultRunId) return;
       const shaMatch = hashBefore === hashAfter;
 
       lastCertificate = {
@@ -1259,6 +1300,7 @@ node catalytic-engine.js bench</code></pre>
         `SHA-256 Restored: <code>${esc(hashAfter)}</code> &rarr; <strong>${shaMatch ? 'IDENTICAL BIT-FOR-BIT' : 'HASH MISMATCH CAUGHT!'}</strong>` +
         byteGridHtml + `</div>`;
     } catch (err) {
+      if (myRunId !== vaultRunId) return;
       if (prog) prog.innerHTML = '';
       out.innerHTML = `<div class="status-box bad"><strong>Byte-Vault notice:</strong> ${esc(err.message)}</div>`;
     }
@@ -1324,6 +1366,15 @@ node catalytic-engine.js bench</code></pre>
     } else if (tampered.kind === 'device_calibration_benchmark' && tampered.benchmark && tampered.benchmark.n91) {
       tampered.benchmark.n91.adaptiveAccesses = 999;
       mutationDesc = 'forged n91.adaptiveAccesses = 999';
+    } else if (tampered.kind === 'streaming_moment_t3i') {
+      tampered.computedFD = String((BigInt(tampered.computedFD || '0') + 1n) % BigInt(tampered.p || '1009'));
+      mutationDesc = 'perturbed computed F_D(f) by +1';
+    } else if (tampered.kind === 't2_bilinear_frobenius') {
+      tampered.expectedR0 = Number(tampered.expectedR0) ^ 1;
+      mutationDesc = 'flipped LSB of expectedR0';
+    } else if (tampered.kind === 't4_balanced_product') {
+      tampered.expectedTarget = String(BigInt(tampered.expectedTarget || '0') + 1n);
+      mutationDesc = 'perturbed expectedTarget by +1';
     } else {
       tampered.verified = false;
       mutationDesc = 'flipped verified flag';
@@ -1383,6 +1434,34 @@ node catalytic-engine.js bench</code></pre>
         `Kind: <code>${esc(v.kind || parsed.kind || 'unknown')}</code> &middot; ${esc(v.reason)}</div>`;
     } catch (err) {
       out.innerHTML = `<div class="status-box bad"><strong>Certificate Parse Error ("${esc(file.name)}"):</strong> ${esc(err.message)}</div>`;
+    }
+  };
+
+  window.exportHorizonCsv = function () {
+    const E = window.CatalyticEngine;
+    try {
+      const workload = document.getElementById('af-workload').value;
+      const p = BigInt(document.getElementById('af-p').value.trim() || '1009');
+      const matrixDim = E.safeInt(document.getElementById('af-m').value, 2, 1, 64);
+      const h = E.computeAdaptiveHorizon(p, { workload, matrixDim });
+      const csv = E.horizonToCsv(h);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `catalytic-horizon-${workload}-p${p.toString()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      const fb = document.getElementById('share-feedback');
+      if (fb) {
+        fb.textContent = 'Adaptive Horizon CSV exported!';
+        setTimeout(() => { if (fb) fb.textContent = ''; }, 2500);
+      }
+    } catch (err) {
+      const fb = document.getElementById('share-feedback');
+      if (fb) fb.textContent = 'CSV export notice: ' + err.message;
     }
   };
 
@@ -1632,6 +1711,20 @@ node catalytic-engine.js bench</code></pre>
         if (telemetryHistory.length > 24) telemetryHistory.shift();
         const spEl = document.getElementById('st-sparkline');
         if (spEl) spEl.innerHTML = renderTelemetrySparkline(telemetryHistory);
+      } else {
+        lastCertificate = {
+          kind: 'streaming_moment_t3i',
+          timestamp: new Date().toISOString(),
+          device: detectDeviceClass(),
+          freqVec,
+          D: res.D,
+          p: res.p,
+          requestedEngine: engine,
+          engineUsed: res.engineUsed,
+          passes: res.passes,
+          computedFD: res.computedFD,
+          verified: res.verified
+        };
       }
 
       out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
@@ -1669,6 +1762,7 @@ node catalytic-engine.js bench</code></pre>
       const t0 = performance.now();
       const res = E.execMatrixLiftProg5(A, p, { faultBit });
       const ms = (performance.now() - t0).toFixed(2);
+      lastCertificate = { kind: 'matrix_lift_prog5', timestamp: new Date().toISOString(), device: detectDeviceClass(), result: res };
       out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
         `<strong>${res.verified ? 'PASS — Non-Commutative Matrix Lift Verified' : 'FAULT DETECTED IN POLYNOMIAL CATALYST!'}</strong> (${ms} ms)<br>` +
         `A &middot; O_0 &ne; O_0 &middot; A (non-commuting): <strong>${res.nonCommuting}</strong> &middot; Matrix accesses: <strong>5</strong> &middot; Scalar regs: <strong>${res.singleCallScalarRegisters}</strong> single / <strong>${res.recursiveScalarRegisters}</strong> recursive (exact r=3 tier)<br>` +
@@ -1714,6 +1808,17 @@ node catalytic-engine.js bench</code></pre>
       const x = parseInt(document.getElementById('t2-x').value || '87', 10);
       const faultBit = document.getElementById('t2-fault').checked;
       const res = E.execT2BilinearFrobenius(k, x, undefined, { faultBit });
+      lastCertificate = {
+        kind: 't2_bilinear_frobenius',
+        timestamp: new Date().toISOString(),
+        device: detectDeviceClass(),
+        k: res.k,
+        x: res.x,
+        initial: res.initial,
+        expectedR0: res.expectedR0,
+        accesses: res.accesses,
+        verified: res.verified
+      };
       out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
         `<strong>Theorem T2 Strictly Bilinear Frobenius (${esc(res.ring)}):</strong> ${res.verified ? 'PASS — 100% Clean!' : 'FAULT DETECTED!'}<br>` +
         `Computed x^(2^${res.k}) = x^<strong>${esc(res.degree)}</strong> using <strong>${res.registers}</strong> registers, <strong>${res.bilinOps}</strong> bilinear ops, and ONLY <strong>${res.accesses} input accesses</strong>!<br>` +
@@ -1733,6 +1838,18 @@ node catalytic-engine.js bench</code></pre>
       const t0 = performance.now();
       const res = E.execT4BalancedProduct(xs, undefined, 1n, { faultBit });
       const ms = (performance.now() - t0).toFixed(2);
+      lastCertificate = {
+        kind: 't4_balanced_product',
+        timestamp: new Date().toISOString(),
+        device: detectDeviceClass(),
+        xs: xs.map(String),
+        initial: res.initial,
+        sign: '1',
+        ops: res.ops,
+        registers: res.registers,
+        expectedTarget: res.expectedTarget,
+        verified: res.verified
+      };
       const snaps = res.snapshots.map((s) => `<li><strong>op #${s.opIdx}</strong> (${esc(s.label)}): <code>[${s.regs.slice(0, 6).join(', ')}${s.regs.length > 6 ? ', ...' : ''}]</code></li>`).join('');
       out.innerHTML = `<div class="status-box ${res.verified ? 'ok' : 'bad'}">` +
         `<strong>Theorem T4 Zero-Workspace Product (d=${res.d}):</strong> ${res.verified ? 'PASS — Exact + usesOnly <= k+2!' : 'FAULT DETECTED!'} (${ms} ms)<br>` +
@@ -1805,6 +1922,24 @@ node catalytic-engine.js bench</code></pre>
       };
     }
   });
+
+  // Drag-and-drop any local file directly onto the workbench for instant 100% offline SHA-256 Byte-Vault verification
+  const wbEl = document.getElementById('adaptive-workbench');
+  if (wbEl) {
+    wbEl.addEventListener('dragover', (e) => { e.preventDefault(); wbEl.classList.add('drag-over'); });
+    wbEl.addEventListener('dragleave', () => { wbEl.classList.remove('drag-over'); });
+    wbEl.addEventListener('drop', (e) => {
+      e.preventDefault();
+      wbEl.classList.remove('drag-over');
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        runByteVaultLive(e.dataTransfer.files[0]);
+      }
+    });
+  }
+  const fileEl = document.getElementById('af-file');
+  if (fileEl) {
+    fileEl.addEventListener('change', () => { droppedFileOverride = null; });
+  }
 
   document.getElementById('fuzz-n').addEventListener('input', function () { this.dataset.touched = '1'; });
   window.addEventListener('resize', refreshDeviceBar);

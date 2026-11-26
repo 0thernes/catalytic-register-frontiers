@@ -2324,10 +2324,70 @@
           reason: ok ? 'Benchmark access counts (80 @ N=91, 128 @ N=169) and exactness flags verified.' : 'Invalid benchmark certificate.'
         };
       }
+      if (cert.kind === 'streaming_moment_t3i') {
+        if (!Array.isArray(cert.freqVec) || cert.freqVec.length === 0) {
+          return { ok: false, kind: cert.kind, reason: 'Missing streaming frequency vector freqVec' };
+        }
+        const reRun = execStreamingMoment(cert.freqVec, BigInt(cert.D), BigInt(cert.p), {
+          engine: cert.requestedEngine || 'adaptive'
+        });
+        const fdMatch = reRun.computedFD === String(cert.computedFD);
+        const passMatch = String(reRun.passes) === String(cert.passes);
+        const ok = Boolean(cert.verified) && reRun.verified && fdMatch && passMatch;
+        return {
+          ok,
+          kind: cert.kind,
+          recomputedFD: reRun.computedFD,
+          recomputedPasses: reRun.passes,
+          reason: ok ? 'Independent T3i streaming re-execution matched F_D(f), pass count, and 3-vector catalyst restoration.' : 'Streaming F_D(f) or pass count mismatch.'
+        };
+      }
+      if (cert.kind === 't2_bilinear_frobenius') {
+        const reRun = execT2BilinearFrobenius(cert.k, cert.x, cert.initial);
+        const r0Match = reRun.final[0] === Number(cert.expectedR0) && reRun.accesses === 2;
+        const ok = Boolean(cert.verified) && reRun.verified && r0Match;
+        return {
+          ok,
+          kind: cert.kind,
+          recomputedR0: reRun.final[0],
+          reason: ok ? 'Independent T2 GF(2^8) 2-access bilinear Frobenius re-execution verified bit-for-bit.' : 'T2 bilinear Frobenius output mismatch.'
+        };
+      }
+      if (cert.kind === 't4_balanced_product') {
+        if (!Array.isArray(cert.xs) || cert.xs.length === 0) {
+          return { ok: false, kind: cert.kind, reason: 'Missing T4 input vector xs' };
+        }
+        const reRun = execT4BalancedProduct(cert.xs, cert.initial, BigInt(cert.sign ?? 1));
+        const tgtMatch = reRun.final[0] === String(cert.expectedTarget) && reRun.ops === Number(cert.ops);
+        const ok = Boolean(cert.verified) && reRun.verified && tgtMatch;
+        return {
+          ok,
+          kind: cert.kind,
+          recomputedTarget: reRun.final[0],
+          recomputedOps: reRun.ops,
+          reason: ok ? 'Independent T4 zero-workspace balanced product matched exact target, op count, and register bound.' : 'T4 target or op count mismatch.'
+        };
+      }
       return { ok: false, kind: String(cert.kind), reason: `Unsupported certificate kind: ${cert.kind}` };
     } catch (err) {
       return { ok: false, kind: String(cert.kind), reason: `Malformed certificate field: ${err.message}` };
     }
+  }
+
+  function horizonToCsv(horizon) {
+    const rows = ['N,baseline_accesses,adaptive_accesses,speedup_factor,reduction_pct,feasible,strategy'];
+    for (const pt of (horizon && horizon.points ? horizon.points : [])) {
+      rows.push([
+        pt.N,
+        pt.baselineAccesses,
+        pt.adaptiveAccesses,
+        pt.speedupFactor,
+        pt.reductionPct,
+        pt.feasible,
+        `"${String(pt.strategy || '').replace(/"/g, '""')}"`
+      ].join(','));
+    }
+    return rows.join('\n') + '\n';
   }
 
   function runSelfCheck() {
@@ -2395,10 +2455,22 @@
       };
     });
 
+    record('7-family portable cert verify + tamper reject', () => {
+      const st = execStreamingMoment([3, 2, 1], 20, 1009);
+      const cSt = { kind: 'streaming_moment_t3i', freqVec: [3, 2, 1], D: '20', p: '1009', requestedEngine: 'adaptive', passes: st.passes, computedFD: st.computedFD, verified: st.verified };
+      const cStBad = { ...cSt, computedFD: String((BigInt(st.computedFD) + 1n) % 1009n) };
+      const t2 = execT2BilinearFrobenius(5, 87);
+      const cT2 = { kind: 't2_bilinear_frobenius', k: 5, x: 87, initial: t2.initial, expectedR0: t2.expectedR0, verified: t2.verified };
+      const t4 = execT4BalancedProduct([2, 3, 5, 7]);
+      const cT4 = { kind: 't4_balanced_product', xs: ['2', '3', '5', '7'], initial: t4.initial, sign: '1', ops: t4.ops, expectedTarget: t4.expectedTarget, verified: t4.verified };
+      const ok = verifyCertificate(cSt).ok && !verifyCertificate(cStBad).ok && verifyCertificate(cT2).ok && verifyCertificate(cT4).ok;
+      return { ok, info: 'T3i, T2, T4 certs verified & forged T3i rejected' };
+    });
+
     const passed = checks.filter((c) => c.ok).length;
     return {
       ok: passed === checks.length,
-      version: '1.8.0',
+      version: '1.9.0',
       passed,
       total: checks.length,
       elapsedMs: Number((now() - t0).toFixed(2)),
@@ -2407,7 +2479,7 @@
   }
 
   const exportedApi = {
-    version: '1.8.0',
+    version: '1.9.0',
     PROGRAMS_R3,
     safeInt,
     mod,
@@ -2437,6 +2509,7 @@
     runAdversarialFuzz,
     runDeviceBenchmark,
     computeAdaptiveHorizon,
+    horizonToCsv,
     verifyCertificate,
     runSelfCheck
   };
@@ -2449,7 +2522,7 @@
     const pos = [];
     const flags = new Map();
     const boolFlags = new Set();
-    const knownBoolFlags = new Set(['--fault', '--stdin']);
+    const knownBoolFlags = new Set(['--fault', '--stdin', '--csv']);
     for (let i = 1; i < args.length; i++) {
       const a = args[i];
       if (a.startsWith('--')) {
@@ -2490,7 +2563,7 @@
         '  node catalytic-engine.js run       [N=91] [x=7] [p=1009] [--fault]',
         '  node catalytic-engine.js vault     ["SecretRAM"|--stdin] [N=91] [p=1009] [x=7] [--fault]',
         '  node catalytic-engine.js stream    ["a a b a c b"] [D=20] [p=1009] [engine=adaptive]',
-        '  node catalytic-engine.js horizon   [p=1009] [workload=scalar]',
+        '  node catalytic-engine.js horizon   [p=1009] [workload=scalar] [--csv]',
         '  node catalytic-engine.js verify    <certificate.json>',
         '  node catalytic-engine.js selfcheck',
         '  node catalytic-engine.js bench     [iters=6]',
@@ -2583,7 +2656,12 @@
       } else if (cmd === 'horizon') {
         const pVal = BigInt(getArg('--p', 0, '1009'));
         const wl = getArg('--workload', 1, 'scalar');
-        console.log(JSON.stringify(computeAdaptiveHorizon(pVal, { workload: wl }), null, 2));
+        const h = computeAdaptiveHorizon(pVal, { workload: wl });
+        if (boolFlags.has('--csv')) {
+          process.stdout.write(horizonToCsv(h));
+        } else {
+          console.log(JSON.stringify(h, null, 2));
+        }
       } else if (cmd === 'verify') {
         const fs = require('fs');
         const certPath = getArg('--file', 0, '');

@@ -1845,12 +1845,12 @@ def test_pass18_null_safety_cli_eq_selfcheck_and_v18_ui() -> None:
     import subprocess
 
     html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
-    assert "Adaptive Forking Offline PWA v1.8" in html
+    assert re.search(r"Adaptive Forking Offline PWA v1\.[89]", html) is not None
     for marker in ("renderByteDiffMatrix", "runSelfCheckUI", "testTamperedCertificateUI", "byte-matrix"):
         assert marker in html, f"Missing Pass 18 v1.8 UI marker {marker!r}"
 
     sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
-    assert "catalytic-adaptive-fork-v1.8.0" in sw_src
+    assert re.search(r"catalytic-adaptive-fork-v1\.[89]\.0", sw_src) is not None
 
     man = json.loads((REPO / "docs" / "manifest.webmanifest").read_text(encoding="utf-8"))
     assert man.get("id") == "./" and len(man.get("shortcuts", [])) >= 3
@@ -1861,7 +1861,7 @@ def test_pass18_null_safety_cli_eq_selfcheck_and_v18_ui() -> None:
         node_check = (
             f"const E = require({json.dumps(js_path)});"
             "(async () => {"
-            "  if (E.version !== '1.8.0' || typeof E.runSelfCheck !== 'function') process.exit(90);"
+            "  if (!/^1\\.[89]\\./.test(E.version) || typeof E.runSelfCheck !== 'function') process.exit(90);"
             "  E.planAdaptiveFork(); E.planAdaptiveFork(null);"
             "  E.execPass3(5, 7, 1009, null);"
             "  E.execFourRegPowering(91, 7, 1009, null);"
@@ -1879,7 +1879,7 @@ def test_pass18_null_safety_cli_eq_selfcheck_and_v18_ui() -> None:
             "  let t4Cap = false; try { E.execT4BalancedProduct(new Array(256).fill(1)); } catch (_) { t4Cap = true; }"
             "  if (!t4Cap) process.exit(92);"
             "  const sc = E.runSelfCheck();"
-            "  if (!sc.ok || sc.passed !== 12 || sc.total !== 12) process.exit(93);"
+            "  if (!sc.ok || sc.passed < 12 || sc.passed !== sc.total) process.exit(93);"
             "})().catch((e) => { console.error(e); process.exit(94); });"
         )
         proc = subprocess.run([node_bin, "-e", node_check], capture_output=True, text=True, timeout=30, check=False)
@@ -1890,13 +1890,69 @@ def test_pass18_null_safety_cli_eq_selfcheck_and_v18_ui() -> None:
         assert p_eq.returncode == 0 and json.loads(p_eq.stdout)["N"] == "169" and json.loads(p_eq.stdout)["winner"]["accesses"] == "128"
 
         p_sc = subprocess.run([node_bin, js_path, "selfcheck"], capture_output=True, text=True, timeout=30, check=False)
-        assert p_sc.returncode == 0 and json.loads(p_sc.stdout)["ok"] is True and json.loads(p_sc.stdout)["passed"] == 12
+        assert p_sc.returncode == 0 and json.loads(p_sc.stdout)["ok"] is True and json.loads(p_sc.stdout)["passed"] >= 12
 
         p_help = subprocess.run([node_bin, js_path, "--help"], capture_output=True, text=True, timeout=30, check=False)
         assert p_help.returncode == 0 and "selfcheck" in p_help.stdout
 
         p_bad = subprocess.run([node_bin, js_path, "unknown_typo_cmd"], capture_output=True, text=True, timeout=30, check=False)
         assert p_bad.returncode == 1 and "Unknown command" in p_bad.stderr
+
+
+def test_pass19_ci_timeouts_7kind_certs_csv_and_v19_ui() -> None:
+    """Pass 19 permanent regression guard:
+    1. Explicit `timeout-minutes` on every standard job across ci.yml, pages.yml, and release.yml;
+       zero duplicate 'dependency dependency' phrasing in AGENTS.md.
+    2. PWA v1.9 hooks: @media print stylesheet, monotonic vaultRunId async race guard, drag-and-drop
+       offline file vault, Export Horizon CSV, N=1 exact-Z handling, and portable certificate emission
+       across all 5 tabs (streaming_moment_t3i, matrix_lift_prog5, t2_bilinear_frobenius, t4_balanced_product).
+    3. catalytic-engine.js v1.9.0: 13/13 runSelfCheck(), independent verifyCertificate() + tamper
+       rejection across all 7 certificate families, horizonToCsv(), and CLI `horizon --csv`.
+    """
+    import shutil
+    import subprocess
+
+    for wf_name, expected_timeouts in [("ci.yml", 2), ("pages.yml", 2), ("release.yml", 1)]:
+        wf_txt = (REPO / ".github" / "workflows" / wf_name).read_text(encoding="utf-8")
+        assert len(re.findall(r"timeout-minutes:\s*\d+", wf_txt)) >= expected_timeouts, f"Missing timeout-minutes in {wf_name}"
+
+    agents_txt = (REPO / "AGENTS.md").read_text(encoding="utf-8")
+    assert "dependency dependency" not in agents_txt
+
+    html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    assert "Adaptive Forking Offline PWA v1.9" in html
+    for marker in ("@media print", "vaultRunId", "exportHorizonCsv", "drag-over", "streaming_moment_t3i", "t2_bilinear_frobenius", "t4_balanced_product"):
+        assert marker in html, f"Missing Pass 19 v1.9 UI marker {marker!r}"
+
+    sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
+    assert "catalytic-adaptive-fork-v1.9.0" in sw_src
+
+    node_bin = shutil.which("node")
+    if node_bin:
+        js_path = str(REPO / "docs" / "catalytic-engine.js")
+        node_check = (
+            f"const E = require({json.dumps(js_path)});"
+            "if (E.version !== '1.9.0' || typeof E.horizonToCsv !== 'function') process.exit(100);"
+            "const sc = E.runSelfCheck();"
+            "if (!sc.ok || sc.passed !== 13 || sc.total !== 13) process.exit(101);"
+            "const st = E.execStreamingMoment([4, 2, 1], 20, 1009);"
+            "const cSt = {kind:'streaming_moment_t3i', freqVec:[4,2,1], D:'20', p:'1009', requestedEngine:'adaptive', passes:st.passes, computedFD:st.computedFD, verified:true};"
+            "if (!E.verifyCertificate(cSt).ok || E.verifyCertificate({...cSt, computedFD:'99999'}).ok) process.exit(102);"
+            "const t2 = E.execT2BilinearFrobenius(5, 87);"
+            "const cT2 = {kind:'t2_bilinear_frobenius', k:5, x:87, initial:t2.initial, expectedR0:t2.expectedR0, verified:true};"
+            "if (!E.verifyCertificate(cT2).ok || E.verifyCertificate({...cT2, expectedR0:t2.expectedR0 ^ 1}).ok) process.exit(103);"
+            "const t4 = E.execT4BalancedProduct([2, -3, 5, 7]);"
+            "const cT4 = {kind:'t4_balanced_product', xs:['2','-3','5','7'], initial:t4.initial, sign:'1', ops:t4.ops, expectedTarget:t4.expectedTarget, verified:true};"
+            "if (!E.verifyCertificate(cT4).ok || E.verifyCertificate({...cT4, expectedTarget:'0'}).ok) process.exit(104);"
+            "const csv = E.horizonToCsv(E.computeAdaptiveHorizon(137));"
+            "if (!csv.startsWith('N,baseline_accesses,adaptive_accesses') || csv.trim().split('\\n').length < 15) process.exit(105);"
+        )
+        proc = subprocess.run([node_bin, "-e", node_check], capture_output=True, text=True, timeout=30, check=False)
+        assert proc.returncode == 0, f"Node.js v1.9 audit failed (rc={proc.returncode}): {proc.stderr}"
+
+        p_csv = subprocess.run([node_bin, js_path, "horizon", "137", "scalar", "--csv"], capture_output=True, text=True, timeout=30, check=False)
+        assert p_csv.returncode == 0 and p_csv.stdout.startswith("N,baseline_accesses,adaptive_accesses") and len(p_csv.stdout.strip().splitlines()) >= 15
+
 
 
 
