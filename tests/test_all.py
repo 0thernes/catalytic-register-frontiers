@@ -1727,17 +1727,17 @@ def test_pass16_matrix_cor54_parity_and_cli_stream_stdin() -> None:
     import subprocess
 
     html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
-    assert "Adaptive Forking Offline PWA v1.6" in html
+    assert re.search(r"Adaptive Forking Offline PWA v1\.[6-9]", html) is not None
     assert "visibilitychange" in html and "verifyExternalCertificateFile" in html and "af-cert-file" in html
     sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
-    assert "catalytic-adaptive-fork-v1.6.0" in sw_src
+    assert re.search(r"catalytic-adaptive-fork-v1\.[6-9]\.0", sw_src) is not None
 
     node_bin = shutil.which("node")
     if node_bin:
         js_path = str(REPO / "docs" / "catalytic-engine.js")
         node_check = (
             f"const E = require({json.dumps(js_path)});"
-            "if (E.version !== '1.6.0') process.exit(70);"
+            "if (!/^1\\.[6-9]\\./.test(E.version)) process.exit(70);"
             "const m7 = E.planAdaptiveFork({workload:'matrix', N:49, p:7, matrixDim:2});"
             "if (m7.comparison.prog5_x7_T3a.validForP !== false) process.exit(71);"
             "if (m7.comparison.adaptive_fork.feasible && /prog5_x7/i.test(m7.comparison.adaptive_fork.label)) process.exit(72);"
@@ -1769,6 +1769,67 @@ def test_pass16_matrix_cor54_parity_and_cli_stream_stdin() -> None:
         assert p_in.returncode == 0, f"CLI vault --stdin failed: {p_in.stderr.decode('utf-8', 'replace')}"
         in_data = json.loads(p_in.stdout.decode("utf-8"))
         assert in_data["verified"] is True and in_data["sha256Identical"] is True and in_data["borrowedBytes"] == 42
+
+
+def test_pass17_nan_bounds_and_v17_report_preview() -> None:
+    """Pass 17 permanent regression guard:
+    1. All NaN / float / non-integer / out-of-range hostile inputs sanitized via safeInt across
+       docs/catalytic-engine.js v1.7.0 (execT2BilinearFrobenius, execCatalyticByteVault,
+       execCatalyticByteVaultAsync, runDeviceBenchmark, runAdversarialFuzz, planAdaptiveFork,
+       computeAdaptiveHorizon, evalT1Oracle, execStreamingMoment, and try/catch verifyCertificate).
+    2. docs/index.html v1.7 adds 1-click Watch 320px / Phone 390px Device Preview Switcher,
+       visible CSP: Zero-Exfiltration badge, 1-click Export Printable Proof Report (.html),
+       streaming Moment Order D <= 500 JS guard, and NaN-safe randomizeMatrix/runFuzzerLive.
+    """
+    import shutil
+    import subprocess
+
+    html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    assert "Adaptive Forking Offline PWA v1.7" in html
+    assert "CSP: Zero-Exfiltration" in html
+    assert "setDevicePreview" in html and "preview-watch" in html
+    assert "exportProofReportHtml" in html
+    assert "D > 500" in html
+    assert "Math.max(11, parseInt(" not in html
+
+    sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
+    assert "catalytic-adaptive-fork-v1.7.0" in sw_src
+
+    node_bin = shutil.which("node")
+    if node_bin:
+        js_path = str(REPO / "docs" / "catalytic-engine.js")
+        node_check = (
+            f"const E = require({json.dumps(js_path)});"
+            "(async () => {"
+            "  if (E.version !== '1.7.0' || typeof E.safeInt !== 'function') process.exit(80);"
+            "  for (const badK of [NaN, 2.5, Infinity, -1, 'abc']) {"
+            "    let okErr = false;"
+            "    try { E.execT2BilinearFrobenius(badK, 87); } catch (e) { okErr = /integer/i.test(e.message); }"
+            "    if (!okErr) process.exit(81);"
+            "  }"
+            "  const buf = new Uint8Array([1, 2, 3, 4, 5, 6]);"
+            "  const v1 = E.execCatalyticByteVault(buf, 13, 7, 1009, {maxChunks: NaN});"
+            "  const v2 = await E.execCatalyticByteVaultAsync(buf, 13, 7, 1009, {maxChunks: 'bad', yieldEveryMs: NaN});"
+            "  if (v1.borrowedBytes !== 6 || !v1.verified || v2.borrowedBytes !== 6 || !v2.verified) process.exit(82);"
+            "  const b = E.runDeviceBenchmark({iters: NaN});"
+            "  if (!b.verified || !Number.isFinite(b.n91.adaptiveMs) || b.iters !== 6) process.exit(83);"
+            "  const f = E.runAdversarialFuzz(NaN, NaN);"
+            "  if (f.trials !== 500 || f.failed !== 0 || f.passed !== 500) process.exit(84);"
+            "  const pm = E.planAdaptiveFork({workload:'matrix', N:49, p:11, matrixDim: NaN});"
+            "  if (/NaN/.test(JSON.stringify(pm))) process.exit(85);"
+            "  const t1 = E.evalT1Oracle(5, 25, NaN);"
+            "  if (!Number.isInteger(t1.t)) process.exit(86);"
+            "  let stErr = false; try { E.execStreamingMoment([1, 2], 5, 1); } catch (_) { stErr = true; }"
+            "  if (!stErr) process.exit(87);"
+            "  for (const badCert of [null, undefined, 'x', {}, {kind:'adaptive_fork_4reg', N:'abc', p:'1009', x:'7'}, {kind:'catalytic_sha256_byte_vault', N:'bad', p:'1009'}]) {"
+            "    const r = E.verifyCertificate(badCert);"
+            "    if (r.ok !== false) process.exit(88);"
+            "  }"
+            "})().catch((e) => { console.error(e); process.exit(89); });"
+        )
+        proc = subprocess.run([node_bin, "-e", node_check], capture_output=True, text=True, timeout=30, check=False)
+        assert proc.returncode == 0, f"Node.js v1.7 hostile NaN/bounds audit failed (rc={proc.returncode}): {proc.stderr}"
+
 
 
 

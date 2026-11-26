@@ -213,6 +213,37 @@
       .tab-btn, .action-btn { width: 100%; text-align: center; padding: 0.5rem; }
       .device-bar { flex-direction: column; align-items: flex-start; }
     }
+    /* Interactive 1-Click Cross-Device Preview Modes (test Watch 320px / Phone 390px live from any screen) */
+    body.preview-watch main {
+      max-width: 320px;
+      border: 2px solid var(--accent);
+      border-radius: 26px;
+      padding: 0.55rem 0.45rem;
+      background: #0a1020;
+      box-shadow: 0 0 0 6px #1e293b;
+    }
+    body.preview-watch .card { padding: 0.65rem; margin: 0.65rem 0; }
+    body.preview-watch .tab-btn, body.preview-watch .action-btn { width: 100%; text-align: center; padding: 0.45rem; }
+    body.preview-watch .device-bar { flex-direction: column; align-items: flex-start; }
+    body.preview-phone main {
+      max-width: 390px;
+      border: 2px solid var(--accent);
+      border-radius: 24px;
+      padding: 0.65rem 0.55rem;
+      background: #0a1020;
+      box-shadow: 0 0 0 6px #1e293b;
+    }
+    .preview-btn {
+      background: #13203b;
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.16rem 0.46rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .preview-btn.active { background: #0c4a6e; border-color: var(--accent); color: #f8fafc; }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .bar-fill, .filter-btn, .tab-btn, .action-btn { transition: none; }
@@ -234,7 +265,7 @@
     <span class="pill">14 Core Modules &middot; 20 Theorems + Non-Vacuity</span>
     <span class="pill">5 Kernels (6 Runs) PASS</span>
     <span class="pill">8 / 8 LRAT UNSAT Proofs Verified</span>
-    <span class="pill info">Adaptive Forking Offline PWA v1.6</span>
+    <span class="pill info">Adaptive Forking Offline PWA v1.7</span>
     <span class="pill warn">Preprint &middot; Not Peer-Reviewed</span>
   </div>
 
@@ -252,7 +283,13 @@
     <h2>Live Adaptive Catalytic Forking Workbench (100% Exact <code>BigInt</code> &middot; Any Device Offline PWA)</h2>
     <div class="device-bar" id="device-telemetry">
       <span id="device-badge">Detecting device profile...</span>
-      <span style="display:inline-flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
+      <span style="display:inline-flex; flex-wrap:wrap; align-items:center; gap:0.45rem;">
+        <span class="pill" style="font-size:0.7rem; padding:0.12rem 0.5rem;" title="Enforced by HTTP meta Content-Security-Policy: connect-src 'self'; object-src 'none'">CSP: Zero-Exfiltration</span>
+        <span style="display:inline-flex; align-items:center; gap:0.25rem;" role="group" aria-label="Device layout preview">
+          <button class="preview-btn active" id="prev-auto" type="button" onclick="setDevicePreview('auto')">Auto</button>
+          <button class="preview-btn" id="prev-watch" type="button" onclick="setDevicePreview('watch')">Watch 320px</button>
+          <button class="preview-btn" id="prev-phone" type="button" onclick="setDevicePreview('phone')">Phone 390px</button>
+        </span>
         <span id="pwa-status">Offline Engine: Ready (Zero external calls, 100% client-side)</span>
         <button class="action-btn ok" id="pwa-install-btn" type="button" style="display:none; min-height:30px; padding:0.2rem 0.6rem; font-size:0.78rem;">Install App</button>
       </span>
@@ -331,6 +368,7 @@
           <input id="af-file" type="file" onchange="runByteVaultLive()" style="max-width:220px; font-size:0.78rem;">
         </label>
         <button class="action-btn" type="button" onclick="exportProofCertificate()">Download JSON Proof Certificate</button>
+        <button class="action-btn" type="button" onclick="exportProofReportHtml()">Export Printable Proof Report (.html)</button>
         <button class="action-btn" type="button" onclick="verifyLastCertificateUI()">Re-Verify Last Certificate</button>
         <label class="toggle-lbl" style="color:var(--muted);">Verify External Cert JSON:
           <input id="af-cert-file" type="file" accept=".json,application/json" onchange="verifyExternalCertificateFile(this)" style="max-width:190px; font-size:0.78rem;">
@@ -339,7 +377,7 @@
         <span id="share-feedback" style="color:var(--ok); font-weight:600;" aria-live="polite"></span>
       </div>
       <details style="margin:0.4rem 0 0.6rem; font-size:0.82rem;">
-        <summary>Universal Zero-Dependency CLI v1.6 (Flags, Positional, &amp; Stdin Piping &middot; Any Laptop / Desktop / Server / Termux)</summary>
+        <summary>Universal Zero-Dependency CLI v1.7 (Flags, Positional, &amp; Stdin Piping &middot; Any Laptop / Desktop / Server / Termux)</summary>
         <pre style="margin:0.4rem 0 0; padding:0.65rem;"><code>curl -fsSLO https://0thernes.github.io/catalytic-register-frontiers/catalytic-engine.js
 node catalytic-engine.js plan    169 1009 4 scalar
 echo "LiveRAM" | node catalytic-engine.js vault --stdin 91 1009
@@ -765,7 +803,12 @@ node catalytic-engine.js bench</code></pre>
       pts + `</g></svg>`;
   }
 
+  let devicePreviewOverride = 'auto';
+
   function detectDeviceClass() {
+    if (devicePreviewOverride === 'watch' || devicePreviewOverride === 'phone') {
+      return devicePreviewOverride;
+    }
     const w = window.innerWidth || 1024;
     if (w <= 340) return 'watch';
     if (w <= 640) return 'phone';
@@ -773,6 +816,19 @@ node catalytic-engine.js bench</code></pre>
     if (w <= 1500) return 'laptop';
     return 'desktop';
   }
+
+  window.setDevicePreview = function (mode) {
+    devicePreviewOverride = (mode === 'watch' || mode === 'phone') ? mode : 'auto';
+    document.body.classList.remove('preview-watch', 'preview-phone');
+    if (devicePreviewOverride === 'watch') document.body.classList.add('preview-watch');
+    if (devicePreviewOverride === 'phone') document.body.classList.add('preview-phone');
+    ['auto', 'watch', 'phone'].forEach((m) => {
+      const b = document.getElementById('prev-' + m);
+      if (b) b.classList.toggle('active', devicePreviewOverride === m);
+    });
+    refreshDeviceBar();
+    updateAdaptivePredictor();
+  };
 
   async function sha256Hex(uint8) {
     if (typeof crypto !== 'undefined' && crypto.subtle) {
@@ -835,7 +891,8 @@ node catalytic-engine.js bench</code></pre>
     const online = navigator.onLine ? 'Online' : 'Offline (PWA Local Mode)';
     const badge = document.getElementById('device-badge');
     if (badge) {
-      badge.textContent = `Active Profile: ${cls.toUpperCase()} (${window.innerWidth}px) · ${cores} logical cores · ${mem} · ${online}`;
+      const previewTag = devicePreviewOverride === 'auto' ? `${window.innerWidth}px` : `${devicePreviewOverride === 'watch' ? '320px' : '390px'} preview`;
+      badge.textContent = `Active Profile: ${cls.toUpperCase()} (${previewTag}) · ${cores} logical cores · ${mem} · ${online}`;
     }
     const fuzzInput = document.getElementById('fuzz-n');
     if (fuzzInput && !fuzzInput.dataset.touched) {
@@ -895,7 +952,7 @@ node catalytic-engine.js bench</code></pre>
       const workload = document.getElementById('af-workload').value;
       const N = BigInt(document.getElementById('af-n').value.trim() || '1');
       const p = BigInt(document.getElementById('af-p').value.trim() || '0');
-      const matrixDim = parseInt(document.getElementById('af-m').value || '2', 10);
+      const matrixDim = E.safeInt(document.getElementById('af-m').value, 2, 1, 64);
       if (N < 1n || N > 10n ** 18n) throw new Error('Enter N between 1 and 10^18');
       if (p < 0n || p === 1n) throw new Error('Modulus p must be 0 (exact Z/Q) or >= 2');
 
@@ -1248,6 +1305,45 @@ node catalytic-engine.js bench</code></pre>
     URL.revokeObjectURL(url);
   };
 
+  window.exportProofReportHtml = function () {
+    const E = window.CatalyticEngine;
+    if (!lastCertificate) runAdaptiveLive();
+    if (!lastCertificate) return;
+    const verdict = E.verifyCertificate(lastCertificate);
+    const certJson = JSON.stringify(lastCertificate, null, 2);
+    const doc = [
+      '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">',
+      '<title>Catalytic Adaptive Fork Proof Audit Report</title>',
+      '<style>body{font-family:system-ui,sans-serif;max-width:860px;margin:2rem auto;padding:0 1rem;color:#0f172a;line-height:1.55;}',
+      'h1{font-size:1.35rem;margin-bottom:0.25rem;} .meta{color:#475569;font-size:0.88rem;margin-bottom:1.2rem;}',
+      '.badge{display:inline-block;padding:0.25rem 0.7rem;border-radius:999px;font-weight:700;font-size:0.82rem;background:' + (verdict.ok ? '#d1fae5;color:#065f46;' : '#ffe4e6;color:#9f1239;') + '}',
+      'pre{background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:0.9rem;overflow-x:auto;font-size:0.8rem;}',
+      '@media print{body{margin:0.5in;}}</style></head><body>',
+      '<h1>Catalytic Register Frontiers — Offline Proof Audit Report</h1>',
+      '<div class="meta">Author: Alexander S. Donahue (ORCID 0009-0006-8168-9648) &middot; Zenodo DOI: 10.5281/zenodo.24517198 &middot; Lean 4.35.0 Zero-Mathlib Formalization &middot; Engine v' + esc(E.version) + '</div>',
+      '<p><span class="badge">' + (verdict.ok ? 'INDEPENDENTLY RE-VERIFIED PASS' : 'AUDIT REJECTED / FAULT DETECTED') + '</span> &nbsp; ' + esc(verdict.reason) + '</p>',
+      '<h2>Certificate Payload (Exact BigInt / SHA-256)</h2><pre>' + esc(certJson) + '</pre>',
+      '<h2>Independent Offline CLI Verification</h2>',
+      '<pre>node catalytic-engine.js verify &lt;saved-certificate.json&gt;</pre>',
+      '<p style="font-size:0.82rem;color:#475569;">Generated 100% client-side with zero external network transmission (strict CSP connect-src &#39;self&#39;). Print or save as PDF directly from your browser.</p>',
+      '</body></html>'
+    ].join('\n');
+    const blob = new Blob([doc + '\n'], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `catalytic-report-${lastCertificate.kind}-${Date.now()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    const fb = document.getElementById('share-feedback');
+    if (fb) {
+      fb.textContent = 'Printable HTML proof report downloaded!';
+      setTimeout(() => { if (fb) fb.textContent = ''; }, 2500);
+    }
+  };
+
   window.copyShareLink = function () {
     const params = new URLSearchParams({
       wl: document.getElementById('af-workload').value,
@@ -1305,8 +1401,9 @@ node catalytic-engine.js bench</code></pre>
       return;
     }
     if (!activeTrace) return;
+    const E = window.CatalyticEngine;
     const scrub = document.getElementById('trace-scrub');
-    let cur = scrub ? parseInt(scrub.value, 10) : 0;
+    let cur = scrub ? E.safeInt(scrub.value, 0, 0, activeTrace.trace.length - 1) : 0;
     if (cur >= activeTrace.trace.length - 1) cur = 0;
     if (btn) btn.textContent = 'Pause';
     traceAnimTimer = setInterval(() => {
@@ -1418,7 +1515,11 @@ node catalytic-engine.js bench</code></pre>
       for (const tok of tokens) counts.set(tok, (counts.get(tok) || 0) + 1);
       const keys = Array.from(counts.keys());
       const freqVec = keys.map((k) => counts.get(k));
-      const D = parseInt(document.getElementById('st-d').value || '20', 10);
+      const rawD = document.getElementById('st-d').value.trim();
+      const D = Number(rawD || '20');
+      if (!Number.isInteger(D) || D < 1 || D > 500) {
+        throw new Error('Moment order D must be an integer between 1 and 500');
+      }
       const p = BigInt(document.getElementById('st-p').value.trim() || '1009');
       const engine = document.getElementById('st-engine').value;
       const faultBit = document.getElementById('st-fault').checked;
@@ -1448,7 +1549,8 @@ node catalytic-engine.js bench</code></pre>
   };
 
   window.randomizeMatrix = function () {
-    const p = Math.max(11, parseInt(document.getElementById('m-p').value || '11', 10));
+    const parsed = parseInt(document.getElementById('m-p').value || '11', 10);
+    const p = Number.isFinite(parsed) && parsed >= 11 ? parsed : 11;
     const r = () => Math.floor(Math.random() * (p - 1)) + 1;
     document.getElementById('m-a00').value = String(r());
     document.getElementById('m-a01').value = String(r());
@@ -1550,7 +1652,7 @@ node catalytic-engine.js bench</code></pre>
     const E = window.CatalyticEngine;
     const out = document.getElementById('fuzz-output');
     try {
-      const n = Math.max(25, Math.min(3000, parseInt(document.getElementById('fuzz-n').value || '600', 10)));
+      const n = E.safeInt(document.getElementById('fuzz-n').value, 600, 25, 3000);
       const res = E.runAdversarialFuzz(n, 20261125);
       out.innerHTML = `<div class="status-box ${res.failed === 0 ? 'ok' : 'bad'}">` +
         `<strong>Live 7-Engine Adversarial Dirty-Catalyst Stress Test Complete:</strong> ` +

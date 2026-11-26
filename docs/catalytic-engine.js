@@ -35,6 +35,15 @@
   // 1. Exact BigInt Number Theory & Ring Arithmetic (zero floats)
   // =========================================================================
 
+  function safeInt(val, def, min, max) {
+    const n = Number(val);
+    if (!Number.isFinite(n)) return def;
+    const i = Math.trunc(n);
+    if (min !== undefined && i < min) return min;
+    if (max !== undefined && i > max) return max;
+    return i;
+  }
+
   function mod(a, p) {
     if (p === 0n) return a;
     const r = a % p;
@@ -461,7 +470,7 @@
     const workload = opts.workload || 'scalar'; // 'scalar' | 'streaming' | 'matrix' | 'frobenius'
     const N = BigInt(opts.N ?? 1000);
     const p = BigInt(opts.p ?? 0); // 0n means characteristic 0 (Q / exact Z), >= 2n means ring Z/pZ
-    const matrixDim = Math.max(1, Number(opts.matrixDim ?? 2));
+    const matrixDim = safeInt(opts.matrixDim, 2, 1, 256);
     const deviceClass = opts.deviceClass || 'desktop';
     const pIsPrime = p >= 2n && isPrimeBig(p);
     const ringLabel = p === 0n ? 'exact Z/Q' : (pIsPrime ? `prime field F_${p}` : `commutative ring Z/${p}Z`);
@@ -1407,6 +1416,7 @@
     const D = BigInt(DIn);
     if (D < 1n) throw new Error('Moment order D must be >= 1');
     const p = BigInt(pIn);
+    if (p < 2n) throw new Error('Modulus p must be >= 2 for modular streaming execution');
     const engine = opts.engine || 'adaptive';
     const faultBit = Boolean(opts.faultBit);
     const vec = freqVec.map((v) => mod(BigInt(v), p));
@@ -1484,7 +1494,7 @@
     const N = BigInt(NIn);
     const x = mod(BigInt(xIn), p);
     const faultBit = Boolean(opts.faultBit);
-    const maxChunks = Math.max(1, Math.min(21845, Number(opts.maxChunks ?? 256)));
+    const maxChunks = safeInt(opts.maxChunks, 256, 1, 21845);
     const cappedLen = Math.min(bytes.length, maxChunks * 3);
     const slice = bytes.slice(0, cappedLen);
 
@@ -1739,7 +1749,7 @@
   function evalT1Oracle(pIn, dIn, tIn) {
     const p = BigInt(pIn);
     const d = BigInt(dIn);
-    const t = Number(tIn);
+    const t = safeInt(tIn, 1, 0, 1000000000);
     if (!isPrimeBig(p)) {
       return { validPrime: false, message: `${p} is not prime. Theorem T1 characterizes prime fields F_p.` };
     }
@@ -1793,8 +1803,9 @@
     return res;
   }
 
-  function execT2BilinearFrobenius(k, xByte, initRegs, opts = {}) {
-    if (k < 1 || k > 12) throw new Error('Choose k in [1, 12]');
+  function execT2BilinearFrobenius(kIn, xByte, initRegs, opts = {}) {
+    const k = Number(kIn);
+    if (!Number.isInteger(k) || k < 1 || k > 12) throw new Error('Choose integer k in [1, 12]');
     const faultBit = Boolean(opts.faultBit);
     const x = Number(xByte) & 0xff;
     const init = [];
@@ -1939,8 +1950,9 @@
   // 8. Live Adversarial Fuzzer (Deterministic PRNG across T1–T4 + Composite Rings)
   // =========================================================================
 
-  function runAdversarialFuzz(trials = 500, seed = 20261125) {
-    let s = BigInt(seed) & ((1n << 64n) - 1n);
+  function runAdversarialFuzz(trialsIn = 500, seed = 20261125) {
+    const trials = safeInt(trialsIn, 500, 1, 50000);
+    let s = BigInt(safeInt(seed, 20261125)) & ((1n << 64n) - 1n);
     const nextU32 = () => {
       s = (s * 6364136223846793005n + 1442695040888963407n) & ((1n << 64n) - 1n);
       return Number((s >> 32n) & 0xffffffffn);
@@ -2047,7 +2059,7 @@
 
   function runDeviceBenchmark(opts = {}) {
     const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
-    const iters = Math.max(2, Number(opts.iters ?? 6));
+    const iters = safeInt(opts.iters, 6, 2, 100);
     const p = 1009n;
 
     // Warm-up JIT once
@@ -2121,7 +2133,7 @@
   function computeAdaptiveHorizon(pIn, opts = {}) {
     const p = BigInt(pIn ?? 1009);
     const workload = opts.workload || 'scalar';
-    const matrixDim = Math.max(1, Number(opts.matrixDim ?? 4));
+    const matrixDim = safeInt(opts.matrixDim, 4, 1, 256);
     const points = opts.exponents || [5, 7, 9, 13, 15, 20, 25, 49, 64, 91, 121, 169, 256, 500, 1000, 2197];
     const rows = [];
     for (const nVal of points) {
@@ -2148,12 +2160,12 @@
     const N = BigInt(NIn);
     const x = mod(BigInt(xIn), p);
     const faultBit = Boolean(opts.faultBit);
-    const maxChunks = Math.max(1, Math.min(21845, Number(opts.maxChunks ?? 256)));
+    const maxChunks = safeInt(opts.maxChunks, 256, 1, 21845);
     const cappedLen = Math.min(bytes.length, maxChunks * 3);
     const slice = bytes.slice(0, cappedLen);
     const onProgress = typeof opts.onProgress === 'function' ? opts.onProgress : null;
     const isAborted = typeof opts.isAborted === 'function' ? opts.isAborted : null;
-    const yieldEveryMs = Math.max(4, Number(opts.yieldEveryMs ?? 12));
+    const yieldEveryMs = safeInt(opts.yieldEveryMs, 12, 4, 250);
     const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
     const restored = new Uint8Array(slice.length);
@@ -2237,69 +2249,74 @@
       return { ok: false, reason: 'Invalid certificate object (missing kind)' };
     }
     const validDigest = (h) => typeof h === 'string' && /^(?:[0-9a-f]{64}|fnv64:[0-9a-f]{16})$/i.test(h);
-    if (cert.kind === 'adaptive_fork_4reg') {
-      const N = BigInt(cert.N);
-      const p = BigInt(cert.p);
-      const x = BigInt(cert.x);
-      const plan = planAdaptiveFork({ workload: 'scalar', N, p });
-      const reRun = execFourRegPowering(N, x, p, { engine: 'adaptive' });
-      const accessMatch = String(reRun.accesses) === String(cert.accesses);
-      const engineMatch = reRun.engineUsed === cert.engineUsed;
-      const ok = Boolean(cert.verified) && reRun.verified && accessMatch && engineMatch && plan.comparison.adaptive_fork.feasible;
-      return {
-        ok,
-        kind: cert.kind,
-        recomputedAccesses: reRun.accesses,
-        claimedAccesses: cert.accesses,
-        engineMatch,
-        reason: ok ? 'Independent exact re-execution matched claimed engine, access count, and 0-bit catalyst restoration.' : 'Mismatch or failed verification on independent re-execution.'
-      };
+    try {
+      if (cert.kind === 'adaptive_fork_4reg') {
+        const N = BigInt(cert.N);
+        const p = BigInt(cert.p);
+        const x = BigInt(cert.x);
+        const plan = planAdaptiveFork({ workload: 'scalar', N, p });
+        const reRun = execFourRegPowering(N, x, p, { engine: 'adaptive' });
+        const accessMatch = String(reRun.accesses) === String(cert.accesses);
+        const engineMatch = reRun.engineUsed === cert.engineUsed;
+        const ok = Boolean(cert.verified) && reRun.verified && accessMatch && engineMatch && plan.comparison.adaptive_fork.feasible;
+        return {
+          ok,
+          kind: cert.kind,
+          recomputedAccesses: reRun.accesses,
+          claimedAccesses: cert.accesses,
+          engineMatch,
+          reason: ok ? 'Independent exact re-execution matched claimed engine, access count, and 0-bit catalyst restoration.' : 'Mismatch or failed verification on independent re-execution.'
+        };
+      }
+      if (cert.kind === 'catalytic_sha256_byte_vault') {
+        const N = BigInt(cert.N);
+        const p = BigInt(cert.p);
+        const plan = planAdaptiveFork({ workload: 'scalar', N, p });
+        const digestsValid = validDigest(cert.sha256Before) && validDigest(cert.sha256After) && (!cert.sha256MidFlightScrambled || validDigest(cert.sha256MidFlightScrambled));
+        const shaOk = digestsValid && cert.sha256Before === cert.sha256After && cert.sha256Identical === true;
+        const sample = new Uint8Array([0x53, 0x65, 0x6e, 0x73, 0x6f, 0x72]);
+        const probe = execCatalyticByteVault(sample, N, 7n, p, { maxChunks: 2 });
+        const ok = Boolean(cert.verified) && shaOk && probe.verified && plan.comparison.adaptive_fork.feasible && String(probe.accessesPerChunk) === String(cert.accessesPerChunk);
+        return {
+          ok,
+          kind: cert.kind,
+          sha256Match: shaOk,
+          recomputedAccessesPerChunk: probe.accessesPerChunk,
+          reason: ok ? 'SHA-256 pre/post digest format & equality and independent chunk re-execution verified.' : 'Certificate SHA-256 format/digest or chunk access count mismatch.'
+        };
+      }
+      if (cert.kind === 'matrix_lift_prog5') {
+        const r = cert.result;
+        if (!r || !r.A || !r.p) return { ok: false, kind: cert.kind, reason: 'Missing matrix payload' };
+        const reRun = execMatrixLiftProg5(r.A, BigInt(r.p));
+        const a7Match = JSON.stringify(reRun.A7) === JSON.stringify(r.A7);
+        const ok = Boolean(r.verified) && reRun.verified && a7Match;
+        return {
+          ok,
+          kind: cert.kind,
+          a7Match,
+          reason: ok ? 'Independent non-commutative mu_7(prog5_x7) re-execution matched A^7 identically.' : 'Matrix A^7 mismatch.'
+        };
+      }
+      if (cert.kind === 'device_calibration_benchmark') {
+        const b = cert.benchmark;
+        const ok = Boolean(b && b.verified && b.n91 && b.n91.adaptiveAccesses === 80 && b.n169 && b.n169.adaptiveAccesses === 128);
+        return {
+          ok,
+          kind: cert.kind,
+          reason: ok ? 'Benchmark access counts (80 @ N=91, 128 @ N=169) and exactness flags verified.' : 'Invalid benchmark certificate.'
+        };
+      }
+      return { ok: false, kind: String(cert.kind), reason: `Unsupported certificate kind: ${cert.kind}` };
+    } catch (err) {
+      return { ok: false, kind: String(cert.kind), reason: `Malformed certificate field: ${err.message}` };
     }
-    if (cert.kind === 'catalytic_sha256_byte_vault') {
-      const N = BigInt(cert.N);
-      const p = BigInt(cert.p);
-      const plan = planAdaptiveFork({ workload: 'scalar', N, p });
-      const digestsValid = validDigest(cert.sha256Before) && validDigest(cert.sha256After) && (!cert.sha256MidFlightScrambled || validDigest(cert.sha256MidFlightScrambled));
-      const shaOk = digestsValid && cert.sha256Before === cert.sha256After && cert.sha256Identical === true;
-      const sample = new Uint8Array([0x53, 0x65, 0x6e, 0x73, 0x6f, 0x72]);
-      const probe = execCatalyticByteVault(sample, N, 7n, p, { maxChunks: 2 });
-      const ok = Boolean(cert.verified) && shaOk && probe.verified && plan.comparison.adaptive_fork.feasible && String(probe.accessesPerChunk) === String(cert.accessesPerChunk);
-      return {
-        ok,
-        kind: cert.kind,
-        sha256Match: shaOk,
-        recomputedAccessesPerChunk: probe.accessesPerChunk,
-        reason: ok ? 'SHA-256 pre/post digest format & equality and independent chunk re-execution verified.' : 'Certificate SHA-256 format/digest or chunk access count mismatch.'
-      };
-    }
-    if (cert.kind === 'matrix_lift_prog5') {
-      const r = cert.result;
-      if (!r || !r.A || !r.p) return { ok: false, reason: 'Missing matrix payload' };
-      const reRun = execMatrixLiftProg5(r.A, BigInt(r.p));
-      const a7Match = JSON.stringify(reRun.A7) === JSON.stringify(r.A7);
-      const ok = Boolean(r.verified) && reRun.verified && a7Match;
-      return {
-        ok,
-        kind: cert.kind,
-        a7Match,
-        reason: ok ? 'Independent non-commutative mu_7(prog5_x7) re-execution matched A^7 identically.' : 'Matrix A^7 mismatch.'
-      };
-    }
-    if (cert.kind === 'device_calibration_benchmark') {
-      const b = cert.benchmark;
-      const ok = Boolean(b && b.verified && b.n91 && b.n91.adaptiveAccesses === 80 && b.n169 && b.n169.adaptiveAccesses === 128);
-      return {
-        ok,
-        kind: cert.kind,
-        reason: ok ? 'Benchmark access counts (80 @ N=91, 128 @ N=169) and exactness flags verified.' : 'Invalid benchmark certificate.'
-      };
-    }
-    return { ok: false, reason: `Unsupported certificate kind: ${cert.kind}` };
   }
 
   const exportedApi = {
-    version: '1.6.0',
+    version: '1.7.0',
     PROGRAMS_R3,
+    safeInt,
     mod,
     gcd,
     modInv,
