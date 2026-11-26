@@ -5,7 +5,7 @@
 
 ## Remarkable Angles Evaluated (Chosen: #1 + #3 Unified)
 
-1. **(Chosen)** **Exact Positive-Characteristic Dichotomy + 3-Register Exponent Breakthrough:** Unconditionally settle $\mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t)$ via base-$p$ digit sums (`T1`), prove 2-access strictly bilinear Frobenius collapse (`T2`), strictly beat Vinciguerra's 3-register exponent (`T3`), and pair with an optimal zero-workspace balanced product (`T4`).
+1. **(Chosen)** **Prime-Field Digit-Sum Characterisation + Improved Powering Exponent:** characterise $\mathrm{RP}_{\mathbb{F}_p}^{\mathrm{pass}}(2, t)$ under formal-polynomial cleanliness with $\mathbb{F}_p$ constants (`T1`), give 2-access product-only programs for $x^{2^k}$ in characteristic 2 (`T2`), improve the four-register powering exponent of Vinciguerra's Cor. 4.3.1 (`T3`, not proved optimal), and formalise the classical balanced clean-product recursion (`T4`, no lower bound).
 2. Generalize Vinciguerra's $r$-register 4-call operator identity to $r \ge 4$ at $t \ge 5$ (probed; triangular ansatz stays at $2t-1$, leaving non-triangular $r=4$ as Tier-4 Open Problem O2).
 3. Formalize a zero-Mathlib, 6-kernel verified Lean 4.35 artifact with concrete non-vacuity witnesses (`NonVacuity.lean`) so independent skeptical verification takes under 60 seconds.
 4. Contrast catalytic nonlinear cancellation against Boolean XAG multiplicative complexity (`arXiv:2608.30238`) via exact SAT audits.
@@ -20,6 +20,6 @@
 ## Upside, Estimates & Appetite
 
 - **Appetite:** 2-day sprint (completed 2026-11-23).
-- **Best case:** Publishable, Palomar-registered, peer-reviewed algebraic complexity result strictly improving the 3-register catalytic powering exponent and settling the prime-field 2-register frontier.
+- **Best case:** Publishable, Palomar-registered, peer-reviewed algebraic complexity result improving the four-register powering exponent bound and characterising two-register programs over $\mathbb{F}_p$ in the formal-polynomial model.
 - **Likely case:** Permanent, zero-doubt, multi-kernel verified preprint and Lean artifact advancing the open problems of Vinciguerra (`arXiv:2609.18692`).
 - **Cost of failure:** < 48 hours compute + author review time; \$0 direct cash outlay. Survives pessimistic 3x effort estimate comfortably.

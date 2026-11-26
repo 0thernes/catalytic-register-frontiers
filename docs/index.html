@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0b1120">
   <meta name="description" content="Zero-Mathlib Lean 4.35 formalization, 5-kernel (6-run) verification blueprint, and universal offline Adaptive Forking exact BigInt workbench for passive catalytic register programs.">
   <meta property="og:title" content="Catalytic Register Frontiers — Adaptive Forking Workbench &amp; Formal Blueprint">
-  <meta property="og:description" content="Optimal 3-register catalytic powering (0.86135 -> 0.81071), prime-field digit-sum dichotomy, live Adaptive Fork DAG, and SHA-256 catalytic byte-vault running offline on any device.">
+  <meta property="og:description" content="Prime-field digit-sum dichotomy (formal-polynomial model), explicit 3-register programs improving a 4-register powering exponent bound (0.86135 -> 0.81071, not proved optimal), live Adaptive Fork DAG, and SHA-256 catalytic byte-vault running offline on any device.">
   <meta property="og:image" content="./social-preview.svg">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -289,7 +289,7 @@
 </head>
 <body>
 <main>
-  <h1>Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs</h1>
+  <h1>Prime-Field Digit-Sum Dichotomy and Improved Three-Register Powering Exponents in Passive Catalytic Register Programs</h1>
   <p class="meta">
     <strong>Author:</strong> Alexander S. Donahue (Independent Researcher, Spokane, WA, USA) &middot;
     <strong>ORCID:</strong> <a href="https://orcid.org/0009-0006-8168-9648">0009-0006-8168-9648</a> &middot;
@@ -307,7 +307,7 @@
   </div>
 
   <div class="grid">
-    <div class="stat"><div class="k">0.810714</div><div class="l">Optimal 3-reg exponent log<sub>13</sub> 8 (down from log<sub>5</sub> 4 &approx; 0.86135)</div></div>
+    <div class="stat"><div class="k">0.810714</div><div class="l">3-reg exponent log<sub>13</sub> 8, smallest among the constructed programs, not proved optimal (4-register bound down from log<sub>5</sub> 4 &approx; 0.86135)</div></div>
     <div class="stat"><div class="k">22 / 22</div><div class="l">Lean decls strictly in [propext, Classical.choice, Quot.sound]</div></div>
     <div class="stat"><div class="k">18,932</div><div class="l">Verified CaDiCaL 2.1.2 LRAT UNSAT steps across 8/8 certificates</div></div>
     <div class="stat"><div class="k">100% REUSE</div><div class="l">All tracked files covered by inline SPDX + REUSE.toml</div></div>
@@ -332,7 +332,7 @@
       </span>
     </div>
     <p style="margin-top:0; font-size:0.9rem;">
-      Runs the <strong>exact verbatim integer coefficients</strong> certified in <code>lean/Catalytic/</code> directly in arbitrary-precision JavaScript <code>BigInt</code> on smartwatches, phones, tablets, laptops, and desktops. Dynamically <strong>predicts and forks</strong> across Frobenius collapse (<code>T1</code>/<code>T2</code>), compact quadratic-shear <code>prog5_x7</code> (<code>T3a</code>), optimal <code>prog8_x13</code> (<code>T3d</code>/<code>T3h</code>/<code>T3i</code>), Gray-code Cook&ndash;Mertz splits, bad-prime avoidance, composite rings <code>Z/mZ</code>, and non-passive composition while verifying <strong>bit-for-bit SHA-256 restoration</strong> of arbitrary borrowed dirty RAM.
+      Runs the <strong>exact verbatim integer coefficients</strong> certified in <code>lean/Catalytic/</code> directly in arbitrary-precision JavaScript <code>BigInt</code> on smartwatches, phones, tablets, laptops, and desktops. Dynamically <strong>predicts and forks</strong> across Frobenius collapse (<code>T1</code>/<code>T2</code>), compact quadratic-shear <code>prog5_x7</code> (<code>T3a</code>), <code>prog8_x13</code> (<code>T3d</code>/<code>T3h</code>/<code>T3i</code>), Gray-code Cook&ndash;Mertz splits, bad-prime avoidance, composite rings <code>Z/mZ</code>, and non-passive composition while verifying <strong>bit-for-bit SHA-256 restoration</strong> of arbitrary borrowed dirty RAM.
     </p>
 
     <div class="tab-bar" role="tablist" aria-label="Workbench engines">
@@ -380,7 +380,7 @@
         <button class="action-btn primary" type="button" onclick="runAdaptiveLive()">Run Live Adaptive Fork Proof</button>
         <button class="action-btn ok" type="button" onclick="runByteVaultLive()">Run SHA-256 Byte-Vault Proof</button>
         <button class="action-btn ok" id="af-autopilot-btn" type="button" onclick="toggleAdaptiveAutopilot()">Start Adaptive Auto-Pilot</button>
-        <button class="action-btn" type="button" onclick="runPass3Trace(8)">Animate Optimal prog8_x13</button>
+        <button class="action-btn" type="button" onclick="runPass3Trace(8)">Animate prog8_x13</button>
         <button class="action-btn" type="button" onclick="runPass3Trace(5)">Animate Compact prog5_x7</button>
         <button class="action-btn" type="button" onclick="runDeviceBenchUI()">Benchmark This Device</button>
         <button class="action-btn" type="button" onclick="runSelfCheckUI()">Run 13-Proof Self-Check</button>
@@ -697,10 +697,10 @@ node catalytic-engine.js bench</code></pre>
         <tbody>
           <tr data-fam="T1"><td><code>T1</code></td><td><code>t1_digit_sum_dichotomy</code></td><td>Unconditional IFF for RP<sup>pass</sup><sub>F<sub>p</sub></sub>(2, t) via base-p digit sum s<sub>p</sub>(d) &le; min(p&minus;1, t&minus;1)</td><td>3 standard</td></tr>
           <tr data-fam="T1"><td><code>T1a</code></td><td><code>t1a_two_access_frobenius_collapse</code></td><td>Unbounded-degree 2-access Frobenius collapse x<sup>p<sup>m</sup></sup> &in; RP<sup>pass</sup><sub>F<sub>p</sub></sub>(2, 2)</td><td>3 standard</td></tr>
-          <tr data-fam="T1"><td><code>T1b</code></td><td><code>t1b_f2_saturation</code></td><td>Exact F<sub>2</sub> saturation: x<sup>3</sup> &notin; RP<sup>pass</sup><sub>F<sub>2</sub></sub>(2, t) for all t</td><td>3 standard</td></tr>
-          <tr data-fam="T1"><td><code>T1c</code></td><td><code>t1c_impossibility_threshold</code></td><td>Impossibility threshold: s<sub>p</sub>(d) &ge; p implies x<sup>d</sup> impossible for all t</td><td>3 standard</td></tr>
-          <tr data-fam="T1"><td><code>T1d</code></td><td><code>t1d_vinciguerra_recovery</code></td><td>Large-char recovery of Vinciguerra Thm. 3.5: 2 &le; d &lt; p &rArr; (x<sup>d</sup> &in; RP(2,t) &hArr; d+1 &le; t)</td><td>3 standard</td></tr>
-          <tr data-fam="T1"><td><code>T1e</code></td><td><code>t1e_extension_field_separation</code></td><td>Exact sharp F<sub>4</sub> separation: x<sup>5</sup> &in; RP(2,3)\RP(2,2), x<sup>3</sup> &in; RP(2,4)\RP(2,3), &forall;t x<sup>7</sup> &notin; RP(2,t)</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1b</code></td><td><code>t1b_f2_saturation</code></td><td>F<sub>2</sub> saturation: x<sup>3</sup> &notin; RP<sup>pass</sup><sub>F<sub>2</sub></sub>(2, t) for all t, as a formal polynomial (as a function on F<sub>2</sub>, x<sup>3</sup> = x)</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1c</code></td><td><code>t1c_impossibility_threshold</code></td><td>Impossibility threshold: s<sub>p</sub>(d) &ge; p implies x<sup>d</sup> impossible for all t, as a formal polynomial</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1d</code></td><td><code>t1d_vinciguerra_recovery</code></td><td>Large-characteristic analogue of Vinciguerra Thm. 3.5 (nothing proved in characteristic 0): 2 &le; d &lt; p &rArr; (x<sup>d</sup> &in; RP(2,t) &hArr; d+1 &le; t)</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1e</code></td><td><code>t1e_extension_field_separation</code></td><td>Exact F<sub>4</sub> separation (formal-polynomial cleanliness): x<sup>5</sup> &in; RP(2,3)\RP(2,2), x<sup>3</sup> &in; RP(2,4)\RP(2,3), &forall;t x<sup>7</sup> &notin; RP(2,t)</td><td>3 standard</td></tr>
           <tr data-fam="T1"><td><code>T1s</code></td><td><code>t1s_pass2_ring_soundness</code></td><td>Literal CRing soundness bridge: direct ring execution matches symbolic Pass2Prog.exec over every char-p ring R</td><td>3 standard</td></tr>
           <tr data-fam="T1"><td><code>T1es</code></td><td><code>t1es_pass2_gf4_soundness</code></td><td>Literal GF4-algebra soundness bridge: direct algebra execution matches symbolic Pass2GF4Prog.exec over every (R, &phi;)</td><td>3 standard</td></tr>
           <tr data-fam="T2"><td><code>T2</code></td><td><code>t2_bilinear_frobenius_collapse</code></td><td>Strictly bilinear passive 2-access x<sup>2<sup>k</sup></sup> in k+1 regs, 4k&minus;2 ops over every char-2 ring</td><td>3 standard</td></tr>
@@ -708,13 +708,13 @@ node catalytic-engine.js bench</code></pre>
           <tr data-fam="T3"><td><code>T3a</code></td><td><code>t3a_three_reg_5call_x7</code></td><td>x<sup>7</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 5) whenever 576 is invertible (char &ne; 2, 3); log<sub>7</sub> 5 &approx; 0.82709</td><td>3 standard</td></tr>
           <tr data-fam="T3"><td><code>T3b</code></td><td><code>t3b_three_reg_6call_x9</code></td><td>x<sup>9</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 6) avoiding {2,3,5,17}; log<sub>9</sub> 6 &approx; 0.81546</td><td>3 standard</td></tr>
           <tr data-fam="T3"><td><code>T3c</code></td><td><code>t3c_three_reg_7call_x11</code></td><td>x<sup>11</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 7) over Q and good primes; log<sub>11</sub> 7 &approx; 0.81151</td><td>3 standard</td></tr>
-          <tr data-fam="T3"><td><code>T3d</code></td><td><code>t3d_three_reg_8call_x13</code></td><td>x<sup>13</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 8) achieving optimal log<sub>13</sub> 8 &approx; 0.81071</td><td>3 standard</td></tr>
+          <tr data-fam="T3"><td><code>T3d</code></td><td><code>t3d_three_reg_8call_x13</code></td><td>x<sup>13</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 8) with exponent log<sub>13</sub> 8 &approx; 0.81071, the smallest among the constructed programs t = 4..9, not proved optimal</td><td>3 standard</td></tr>
           <tr data-fam="T3"><td><code>T3e</code></td><td><code>t3e_exponent_chain</code></td><td>Exact Nat power chain separating log<sub>13</sub> 8 &lt; log<sub>11</sub> 7 &lt; log<sub>9</sub> 6 &lt; log<sub>7</sub> 5 &lt; log<sub>5</sub> 4 and &lt; log<sub>15</sub> 9</td><td><strong>0 axioms</strong></td></tr>
-          <tr data-fam="T3"><td><code>T3f</code></td><td><code>t3f_global_integer_optimality</code></td><td>Universal global optimality for ALL t &ge; 4, t &ne; 8: 8<sup>37</sup> &lt; 13<sup>30</sup> &and; (2t&minus;3)<sup>30</sup> &lt; t<sup>37</sup></td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
+          <tr data-fam="T3"><td><code>T3f</code></td><td><code>t3f_global_integer_optimality</code></td><td>t = 8 is the unique integer minimiser of log<sub>2t&minus;3</sub> t for t &ge; 4 (integer arithmetic, no register program in the statement): 8<sup>37</sup> &lt; 13<sup>30</sup> &and; (2t&minus;3)<sup>30</sup> &lt; t<sup>37</sup></td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
           <tr data-fam="T3"><td><code>T3g</code></td><td><code>t3g_three_reg_9call_x15</code></td><td>x<sup>15</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 9) post-minimum ascent point (log<sub>15</sub> 9 &approx; 0.81137)</td><td>3 standard</td></tr>
-          <tr data-fam="T3"><td><code>T3h</code></td><td><code>t3h_four_reg_powering</code></td><td>Complete 4-register passive powering for ALL N &ge; 1: &lt; (104/3)N<sup>log<sub>13</sub> 8</sup> (prog8_x13) and &lt; (70/3)N<sup>log<sub>7</sub> 5</sup> (prog5_x7)</td><td>3 standard</td></tr>
-          <tr data-fam="T3"><td><code>T3i</code></td><td><code>t3i_streaming_frequency_moment</code></td><td>Pointwise product-ring (Fin n &rarr; R) catalytic streaming frequency moment F<sub>D</sub>(f) = &sum; f<sub>i</sub><sup>D</sup> in &lt; (104/3)D<sup>log<sub>13</sub> 8</sup> passes</td><td>3 standard</td></tr>
-          <tr data-fam="T4"><td><code>T4</code></td><td><code>t4_balanced_multilinear_product</code></td><td>Zero-workspace balanced product x<sub>0</sub>&cdots;x<sub>d&minus;1</sub> with explicit <code>CatOp.usesOnly</code> &le; k+2 designated regs, (7d<sup>2</sup>&minus;4)/3 ops</td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
+          <tr data-fam="T3"><td><code>T3h</code></td><td><code>t3h_four_reg_powering</code></td><td>4-register passive powering for every N &ge; 1 over rings where the stated constants are invertible: &lt; (104/3)N<sup>log<sub>13</sub> 8</sup> (prog8_x13) and &lt; (70/3)N<sup>log<sub>7</sub> 5</sup> (prog5_x7); improves the exponent of Vinciguerra Cor. 4.3.1 at four registers, the new bound being smaller only for N above about 52,000 (base-7: about 90)</td><td>3 standard</td></tr>
+          <tr data-fam="T3"><td><code>T3i</code></td><td><code>t3i_streaming_frequency_moment</code></td><td><code>T3h</code> in the product ring (Fin n &rarr; R): coordinatewise powers f<sub>i</sub><sup>D</sup> and their sum &sum; f<sub>i</sub><sup>D</sup> in &lt; (104/3)D<sup>log<sub>13</sub> 8</sup> input accesses; no stream, update model or space bound in the statement</td><td>3 standard</td></tr>
+          <tr data-fam="T4"><td><code>T4</code></td><td><code>t4_balanced_multilinear_product</code></td><td>Zero-workspace balanced product x<sub>0</sub>&cdots;x<sub>d&minus;1</sub> with explicit <code>CatOp.usesOnly</code> &le; k+2 designated regs, (7d<sup>2</sup>&minus;4)/3 ops; classical four-step clean-product recursion (see Ben-Or and Cleve 1992), no lower bound</td><td><code>propext</code>, <code>Quot.sound</code></td></tr>
           <tr data-fam="NV"><td><code>NONVAC</code></td><td><code>nonvac_all_hypotheses</code></td><td>Concrete <code>0 &ne; 1</code> witnesses (<code>ModP 2..13</code>, <code>Fin 3 &rarr; ModP 13</code> for <code>T3i</code>, <code>GF4</code>, <code>Int</code>; all D<sub>5</sub>..D<sub>9</sub> &amp; factorials)</td><td>3 standard</td></tr>
         </tbody>
       </table>
@@ -1085,7 +1085,7 @@ node catalytic-engine.js bench</code></pre>
           runPass3Trace(tMatch);
           return;
         }
-        throw new Error(`For exact Z (p=0), direct literal traces exist for N in {1, 5, 7, 9, 11, 13, 15}. For arbitrary N=${N}, set a modulus p >= 2 (e.g., p=1009 or composite 1022117) or click "Animate Optimal prog8_x13".`);
+        throw new Error(`For exact Z (p=0), direct literal traces exist for N in {1, 5, 7, 9, 11, 13, 15}. For arbitrary N=${N}, set a modulus p >= 2 (e.g., p=1009 or composite 1022117) or click "Animate prog8_x13".`);
       }
       if (p < 2n) throw new Error('Modulus p must be 0 (exact Z trace) or >= 2 (prime F_p or valid composite ring Z/mZ).');
       const prePlan = E.planAdaptiveFork({ workload: 'scalar', N, p });
