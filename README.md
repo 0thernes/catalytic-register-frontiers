@@ -110,7 +110,7 @@ pwsh -NoProfile -File scripts/run_all.ps1 -Task all
 bash scripts/run_all.sh all
 ```
 
-Expected result: 19/19 default Lean jobs built with 0 warnings, `leanchecker`, `leanchecker-paranoid`, `con-leche`, and `con-ron` exit 0, all 32 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / SBOM / workflow / schema / SVG / HTML5 / matrix-lift / factorization / JS Adaptive Forking PWA & CLI differential consistency tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK`. (After the first 2026-11-26 wording corrections, `MANIFEST.sha256` and its RFC 3161 timestamp were regenerated in commit `1d32df4`. A second set of corrections on the same date changed listed files again; until the manifest and its timestamp are regenerated once more, `sha256sum -c MANIFEST.sha256` reports those files as changed. See [`ERRATA.md`](ERRATA.md).)
+Expected result: 19/19 default Lean jobs built with 0 warnings, `leanchecker`, `leanchecker-paranoid`, `con-leche`, and `con-ron` exit 0, all 32 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / SBOM / workflow / schema / SVG / HTML5 / matrix-lift / factorization / JS Adaptive Forking PWA & CLI differential consistency tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK`. (After the 2026-11-26 wording corrections, `MANIFEST.sha256` and its RFC 3161 timestamp were regenerated, in commit `1d32df4` and again after a second set of corrections on the same date. See [`ERRATA.md`](ERRATA.md).)
 
 ### Universal Zero-Dependency Adaptive Forking CLI (Any Device with Node.js)
 ```bash
