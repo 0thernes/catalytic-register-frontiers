@@ -2,7 +2,7 @@
 [project]
 name = "catalytic-register-frontiers"
 version = "1.0.1"
-description = "Zero-Mathlib Lean 4.35 formalization and exact-arithmetic verification of positive-characteristic dichotomy and optimal 3-register exponents in passive catalytic register programs."
+description = "Zero-Mathlib Lean 4.35 formalization and exact-arithmetic verification of prime-field digit-sum dichotomy and improved 3-register powering exponents in passive catalytic register programs."
 readme = "README.md"
 requires-python = ">=3.13"
 license = { text = "Apache-2.0" }

@@ -40,7 +40,7 @@ def T1c_ImpossibilityThreshold : Prop :=
   ∀ (p d t : Nat), IsPrime p → 2 ≤ d → 1 ≤ t → p ≤ digitSum p d →
     ¬ InRPPass2 p t (monomial d)
 
-/-- **T1d (Characteristic-0 Limit Recovering Vinciguerra Theorem 3.5):**
+/-- **T1d (Large-Characteristic Analogue of Vinciguerra Theorem 3.5):**
 Whenever `2 ≤ d < p` and `t ≥ 1`, `x^d ∈ RP^{pass}_{𝔽_p}(2, t) ↔ d + 1 ≤ t`. -/
 def T1d_VinciguerraRecovery : Prop :=
   ∀ (p d t : Nat), IsPrime p → 2 ≤ d → d < p → 1 ≤ t →
@@ -50,7 +50,7 @@ def T1d_VinciguerraRecovery : Prop :=
 Over the non-prime extension field `𝔽_4 = 𝔽_2[ω]/(ω^2 + ω + 1)`:
   1. `x^5 ∈ RP^{pass}_{𝔽_4}(2, 3)` AND `x^5 ∉ RP^{pass}_{𝔽_4}(2, 2)` (exact `t_min(5) = 3`),
   2. `x^3 ∈ RP^{pass}_{𝔽_4}(2, 4)` AND `x^3 ∉ RP^{pass}_{𝔽_4}(2, 3)` (exact `t_min(3) = 4`),
-  3. `∀ t, x^7 ∉ RP^{pass}_{𝔽_4}(2, t)` (unconditional impossibility barrier in `𝔽_4`). -/
+  3. `∀ t, x^7 ∉ RP^{pass}_{𝔽_4}(2, t)` (impossibility in `𝔽_4`, formal-polynomial model). -/
 def T1e_ExtensionFieldSeparation : Prop :=
   InRPPass2GF4 3 (monomialGF4 5) ∧
   ¬ InRPPass2GF4 2 (monomialGF4 5) ∧
@@ -138,7 +138,7 @@ def T3c_ThreeReg7CallX11 : Prop :=
     ∀ x o u v : R,
       Pass3Prog.exec x (Pass3Prog.scaleOut invD prog7_x11) (o, u, v) = (o + CRing.pow x 11, u, v)
 
-/-- **T3d (`x^13 ∈ RP^{pass}_R(3, 8)` — optimal 3-register exponent `log_13 8 ≈ 0.810714`):** -/
+/-- **T3d (`x^13 ∈ RP^{pass}_R(3, 8)` — smallest constructed 3-register exponent `log_13 8 ≈ 0.810714`):** -/
 def T3d_ThreeReg8CallX13 : Prop :=
   ∀ (R : Type) [CRing R] (invD : R), invD * CRing.intCast 2656207148788801777680 = 1 →
     Pass3Prog.accesses (Pass3Prog.scaleOut invD prog8_x13) = 8 ∧
@@ -155,8 +155,8 @@ def T3e_ExponentChain : Prop :=
   (5 ^ 6 < 7 ^ 5)    ∧ (5 ^ 5 < 4 ^ 6) ∧
   (15 ^ 30 < 9 ^ 37)
 
-/-- **T3f (Unconditional Global Integer Optimality of `t = 8` for All `t ≥ 4`):**
-Via the single rational separator `30 / 37`, certifies
+/-- **T3f (Unique Integer Minimizer `t = 8` of `log_{2t - 3} t` for All `t ≥ 4`):**
+Integer-arithmetic inequality (no register program in statement): via `30 / 37`, certifies
 `log_13 8 < 30 / 37 < log_{2t - 3} t` for EVERY integer `t ≥ 4` with `t ≠ 8`. -/
 def T3f_GlobalIntegerOptimality : Prop :=
   (8 ^ 37 < 13 ^ 30) ∧
@@ -170,7 +170,7 @@ def T3g_ThreeReg9CallX15 : Prop :=
     ∀ x o u v : R,
       Pass3Prog.exec x (Pass3Prog.scaleOut invD prog9_x15) (o, u, v) = (o + CRing.pow x 15, u, v)
 
-/-- **T3h (Four-Register Passive Powering for EVERY `N ≥ 1` via Non-Passive 3-Register Composition + Cook–Mertz):**
+/-- **T3h (Four-Register Passive Powering over Rings Satisfying Stated Invertibility Hypotheses):**
 For EVERY commutative ring `R` and EVERY `N ≥ 1`:
   1. Using `prog8_x13`, whenever `D_8`, `12!`, and `(ℓ + 1)!` (`ℓ = ⌊log_13 N⌋`) are invertible in `R`,
      there is a literal 4-register passive program computing `O ← O + x^N` cleanly in
@@ -199,7 +199,7 @@ def T3h_FourRegPowering : Prop :=
       ∀ x o u r1 r2 : R,
         Pass4Prog.exec x prog (o, u, r1, r2) = (o + CRing.pow x N, u, r1, r2))
 
-/-- **T3i (Algebraic Catalytic Streaming Frequency-Moment Pass Bound over `R^n`):**
+/-- **T3i (Coordinatewise Four-Register Powering Bound over `R^n`; no stream/space model in statement):**
 Instantiates `T3h` over the pointwise product ring `Fin n → R` (e.g. `𝔽_p^n`): for EVERY
 universe size `n`, EVERY commutative ring `R`, and EVERY moment order `D ≥ 1` where `D_8`,
 `12!`, and `(⌊log_13 D⌋ + 1)!` are invertible, an explicit 4-vector-register passive program

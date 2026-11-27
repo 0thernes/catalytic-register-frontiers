@@ -16,7 +16,7 @@ paper-level Tier-3 reduction to a fully machine-checked Tier-1 Lean 4.35.0 theor
      polynomial updates `r_dst ← r_dst + ∑ c * r_other1^a * r_other2^b` (never reading `r_dst`) and
      input accesses `r_dst ← r_dst + α * x`.
   2. **Clean non-passive 3-register composition (`Work3Prog.compose`, Alekseev et al. MFCS 2025,
-     Lemma 8):** cyclic register shift `shiftReg` lets any passive 3-register block `Q` (such as
+     Composition Lemma — Lemma 8 in `arXiv:2609.18692`, Lemma 2.1 in `arXiv:2504.17412v1`):** cyclic shift lets any passive block `Q` (such as
      `prog8_x13` or `prog5_x7`) be substituted into every input access of `P`, achieving
      `Work3Prog.exec x (compose P Q) st = Work3Prog.exec (g x) P st` and exact access product
      `accesses (compose P Q) = accesses P * tQ` within **3 work registers** (avoiding the extra
@@ -35,7 +35,7 @@ paper-level Tier-3 reduction to a fully machine-checked Tier-1 Lean 4.35.0 theor
        `7^ℓ ≤ N` and `3 * accesses prog < 70 * 5^ℓ` (i.e. `< (10/3) * 7 * N^{log_7 5}`),
        whenever `6!` and `(ℓ + 1)!` are invertible in `R` (since `6! = 720` invertible already
        implies `2` and `3`, hence `576 = 2^6 * 3^2`, are invertible!).
-  6. **Theorem T3i (Algebraic catalytic streaming frequency moments over `R^n`):**
+  6. **Theorem T3i (Coordinatewise powering over `R^n`; no stream or bit-space model in statement):**
      Instantiates `T3h` over the pointwise product ring `CRing (Fin n → R)`, cleanly computing
      `(f_0^D, ..., f_{n-1}^D)` and `F_D(f) = ∑_{i<n} f_i^D` in `< (104/3) * 8^ℓ` passes.
 -/
@@ -279,7 +279,7 @@ theorem Pass3Prog.toWork3_exec {R : Type u} [CRing R] (x : R)
       exact ih _
 
 /--
-**Clean Non-Passive 3-Register Composition (Alekseev et al. MFCS 2025, Lemma 8):**
+**Clean Non-Passive 3-Register Composition (Alekseev et al., Composition Lemma / Lemma 2.1 in `arXiv:2504.17412v1`):**
 Substitute a scalable clean 3-register block `Q : R → List (Work3Instr R)` into every input
 access of `P`, reusing the other two registers catalytically.
 -/
@@ -1156,7 +1156,7 @@ private theorem Pass3Prog.exec_scaleOut_mul {R : Type u} [CRing R] (c s x a b d 
   exact Prod.ext hcs1 hcs2
 
 /--
-**Theorem `T3h` (Part 1 — Optimal `prog8_x13` 4-Register Passive Powering for All `N ≥ 1`):**
+**Theorem `T3h` (Part 1 — `prog8_x13` 4-Register Passive Powering for All `N ≥ 1` under Stated Invertibility):**
 For EVERY commutative ring `R` and EVERY `N ≥ 1` with `ℓ = (baseDigits 13 N).length - 1`,
 whenever `D_8`, `12!`, and `(ℓ + 1)!` are invertible in `R`, there is an explicit passive
 4-register program computing `O ← O + x^N` cleanly with `13^ℓ ≤ N` and

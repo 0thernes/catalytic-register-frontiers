@@ -493,7 +493,7 @@ def prog7_x11 : List Pass3Instr :=
   loopStep 5 [(11, 0, -75339810861908276105898), (6, 1, -8247961873263806201970), (1, 2, -478052152922140654473)] 1 2 ++
   loopStep 5 [(11, 0, 125010731536610689628), (6, 1, -277535590894074174090), (1, 2, 216778495504102818495)] 0 (-7)
 
-/-- **Program 8 (`t = 8` accesses, `d = 6`, `N = 13`, `D = 2656207148788801777680` — optimal exponent!).** -/
+/-- **Program 8 (`t = 8` accesses, `d = 6`, `N = 13`, `D = 2656207148788801777680` — smallest constructed exponent).** -/
 def prog8_x13 : List Pass3Instr :=
   loopStep 6 [(13, 0, 48815710996788904), (7, 1, -106093571331033000), (1, 2, 60350317640973360)] 1 1 ++
   loopStep 6 [(13, 0, -1658292324977727901), (7, 1, -489368519245585980), (1, 2, -127682705470680360)] (-6) 1 ++
@@ -572,7 +572,7 @@ theorem three_reg_7call_x11 {R : Type u} [CRing R]
    fun x o u v =>
      exec3Poly_certifies_monic prog7_x11 11 68724637549388656012800 prog7_x11_cert invD hinv x o u v⟩
 
-/-- **Theorem T3d (`x^13 ∈ RP^{pass}_R(3, 8)` — optimal 3-register exponent `log_13 8 ≈ 0.810714`).** -/
+/-- **Theorem T3d (`x^13 ∈ RP^{pass}_R(3, 8)` — smallest constructed 3-register exponent `log_13 8 ≈ 0.810714`).** -/
 theorem three_reg_8call_x13 {R : Type u} [CRing R]
     (invD : R) (hinv : invD * CRing.intCast 2656207148788801777680 = 1) :
     Pass3Prog.accesses (Pass3Prog.scaleOut invD prog8_x13) = 8 ∧
@@ -626,9 +626,9 @@ private theorem nat_mul_pow (a b : Nat) : ∀ n : Nat, (a * b) ^ n = a ^ n * b ^
       _ = (a ^ n * a) * (b ^ n * b) := by rw [Nat.mul_assoc, Nat.mul_assoc]
 
 /--
-**Theorem T3f (Unconditional Global Integer Optimality of `t = 8` for All `t ≥ 4`):**
-Certifies via the single rational separator `30 / 37` that
-`log_13 8 < 30 / 37 < log_{2t - 3} t` for EVERY integer `t ≥ 4` with `t ≠ 8`:
+**Theorem T3f (Unique Integer Minimizer `t = 8` of `log_{2t - 3} t` for All `t ≥ 4`):**
+Pure integer-arithmetic inequality (no register program in statement): via `30 / 37`,
+certifies `log_13 8 < 30 / 37 < log_{2t - 3} t` for EVERY integer `t ≥ 4` with `t ≠ 8`:
   1. `8 ^ 37 < 13 ^ 30`, and
   2. `∀ t : Nat, 4 ≤ t → t ≠ 8 → (2 * t - 3) ^ 30 < t ^ 37`.
 Proved in pure `Nat` arithmetic using only `[propext, Quot.sound]` (no `Classical.choice`).

@@ -6,8 +6,8 @@ public import Catalytic.PrimeFieldTools
 /-!
 # Theorem T1: Complete Base-`p` Digit-Sum Dichotomy for 2-Register Passive Programs over `𝔽_p`
 
-We formalize Vinciguerra's literal Definition 2.2 passive-output 2-register model over
-any prime field `𝔽_p` (`p` prime), with formal polynomial semantics in `𝔽_p[O, R, x]`,
+We formalize the instruction set of Vinciguerra's Definition 2.2 (2-register passive-output)
+with formal-polynomial cleanliness in `𝔽_p[O, R, x]` and `𝔽_p` constants (distinct from functional Def. 2.2 on `𝔽_p`),
 and prove the exact unconditional if-and-only-if characterization (**Theorem T1**):
 
   `f ∈ RP^{pass}_{𝔽_p}(2, t)  ↔  ∀ d ≥ 2, ([x^d] f ≠ 0 mod p) → s_p(d) ≤ min (p - 1) (t - 1)`
@@ -18,16 +18,16 @@ for every prime `p`, every input-access budget `t ≥ 1`, and every univariate p
 Immediate machine-checked corollaries:
   1. **Unbounded-degree 2-access Frobenius collapse** (`char_p_two_access_unbounded_degree`):
      `∀ p prime, ∀ m, x^(p^m) ∈ RP^{pass}_{𝔽_p}(2, 2)`, showing `D^{pass}_{2, 𝔽_p}(2) = +∞`
-     and proving Vinciguerra's characteristic-0 lower bounds (Theorems 3.2, 3.3, 3.5 of
-     `arXiv:2609.18692`) fail completely in every positive prime characteristic!
+     and showing Vinciguerra's characteristic-0 lower bounds (Theorems 3.2, 3.3, 3.5 of
+     `arXiv:2609.18692`) do not extend to positive prime characteristic.
   2. **Exact `𝔽_2` saturation** (`char_2_two_reg_x3_impossible`):
-     `∀ t, x^3 ∉ RP^{pass}_{𝔽_2}(2, t)` — over `𝔽_2`, 2 registers can NEVER compute `x^3`
-     regardless of how many input accesses `t` are allowed!
+     `∀ t, x^3 ∉ RP^{pass}_{𝔽_2}(2, t)` — over `𝔽_2`, no 2-register `𝔽_2`-const program
+     yields the formal polynomial `x^3` for any `t` (as a function on `𝔽_2`, `x^3 = x`).
   3. **Exact prime-field impossibility threshold** (`char_p_impossibility_threshold`):
      whenever `s_p(d) ≥ p`, `x^d ∉ RP^{pass}_{𝔽_p}(2, t)` for EVERY `t`.
-  4. **Characteristic-0 recovery** (`char_p_large_recovers_vinciguerra_thm35`):
-     whenever `2 ≤ d < p`, `x^d ∈ RP^{pass}_{𝔽_p}(2, t) ↔ d + 1 ≤ t`, recovering
-     Vinciguerra's Theorem 3.5 (`D^{pass}_{2, K}(t) = t - 1`).
+  4. **Large-characteristic analogue** (`char_p_large_recovers_vinciguerra_thm35`):
+     whenever `2 ≤ d < p`, `x^d ∈ RP^{pass}_{𝔽_p}(2, t) ↔ d + 1 ≤ t` (large-char analogue of
+     Vinciguerra's Theorem 3.5; nothing is proved over a characteristic-0 field).
 -/
 
 namespace Catalytic

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Runs after a v* tag is pushed. Publishes release notes from CHANGELOG.md,
-# frozen paper/arXiv artifacts, SHA256SUMS, and Sigstore SLSA build provenance attestations.
+# frozen paper/arXiv artifacts, SHA256SUMS, and Sigstore SLSA build provenance attestations (public repositories).
 # Never gates a commit or push (Build Standard R1, R3).
 name: Release
 
@@ -64,7 +64,7 @@ jobs:
           [ -s notes.md ] || echo "Release $GITHUB_REF_NAME" > notes.md
           {
             echo
-            echo "Verify: \`sha256sum -c SHA256SUMS\` and \`gh attestation verify <file> --repo $GITHUB_REPOSITORY\`."
+            echo "Verify: \`sha256sum -c SHA256SUMS\` and (for public repositories) \`gh attestation verify <file> --repo $GITHUB_REPOSITORY\`."
           } >> notes.md
 
       - name: Publish GitHub release

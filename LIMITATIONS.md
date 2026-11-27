@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Limitations, Epistemic Scope, and Negative Findings (`LIMITATIONS.md`)
 
-This document explicitly states what `catalytic-register-frontiers` **does not** prove, documents negative computational findings, and classifies discovered defects using the taxonomy `{bug, error, issue, problem, dilemma, conflict}`.
+This document explicitly states what `catalytic-register-frontiers` **does not** prove, documents negative computational findings, and classifies discovered defects using the Build Standard v1.2.0 taxonomy `{bug, error, issue, problem, concern, dilemma, conflict, gap, hole, blindspot}`.
 
 ## 1. Explicit Scope Boundaries
 

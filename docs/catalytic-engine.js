@@ -306,7 +306,7 @@
     },
     8: {
       id: 'prog8_x13',
-      label: 'Global Optimal Engine (t=8 -> x^13, T3d)',
+      label: 'Best Constructed Engine (t=8 -> x^13, T3d)',
       theorem: 'Lean T3d / T3f (prog8_x13)',
       t: 8,
       degree: 13,

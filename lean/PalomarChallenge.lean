@@ -189,7 +189,7 @@ theorem t1b_f2_saturation : ∀ (t : Nat), ¬ InRPPass2 2 t (monomial 3) := by s
 /-- T1c: Impossibility threshold whenever `s_p(d) ≥ p` and `d ≥ 2`. -/
 theorem t1c_impossibility_threshold :
     ∀ (p d t : Nat), IsPrime p → 2 ≤ d → 1 ≤ t → p ≤ digitSum p d → ¬ InRPPass2 p t (monomial d) := by sorry
-/-- T1d: Recovery of Vinciguerra's characteristic-0 bound for `2 ≤ d < p`. -/
+/-- T1d: Large-characteristic analogue of Vinciguerra Theorem 3.5 for `2 ≤ d < p`. -/
 theorem t1d_vinciguerra_recovery :
     ∀ (p d t : Nat), IsPrime p → 2 ≤ d → d < p → 1 ≤ t → (InRPPass2 p t (monomial d) ↔ d + 1 ≤ t) := by sorry
 /-- T1s: Literal `CRing` soundness bridge for every characteristic-`p` ring `R`. -/
@@ -222,7 +222,7 @@ theorem t3c_three_reg_7call_x11 :
     ∀ (R : Type) [CRing R] (invD : R), invD * CRing.intCast 68724637549388656012800 = 1 →
       ∃ prog : List (Pass3InstrR R), Pass3Prog.accesses prog = 7 ∧
         ∀ x o u v : R, Pass3Prog.exec x prog (o, u, v) = (o + CRing.pow x 11, u, v) := by sorry
-/-- T3d: `x^13 ∈ RP^{pass}_R(3, 8)` achieving optimal exponent `log_13 8 ≈ 0.810714`. -/
+/-- T3d: `x^13 ∈ RP^{pass}_R(3, 8)` (smallest constructed 3-register exponent `log_13 8 ≈ 0.810714`). -/
 theorem t3d_three_reg_8call_x13 :
     ∀ (R : Type) [CRing R] (invD : R), invD * CRing.intCast 2656207148788801777680 = 1 →
       ∃ prog : List (Pass3InstrR R), Pass3Prog.accesses prog = 8 ∧
@@ -231,7 +231,7 @@ theorem t3d_three_reg_8call_x13 :
 theorem t3e_exponent_chain :
     (8 ^ 37 < 13 ^ 30) ∧ (11 ^ 30 < 7 ^ 37) ∧ (7 ^ 16 < 11 ^ 13) ∧ (9 ^ 13 < 6 ^ 16) ∧
     (6 ^ 11 < 9 ^ 9) ∧ (7 ^ 9 < 5 ^ 11) ∧ (5 ^ 6 < 7 ^ 5) ∧ (5 ^ 5 < 4 ^ 6) ∧ (15 ^ 30 < 9 ^ 37) := by sorry
-/-- T3f: Unconditional global integer optimality of `t = 8` for all `t ≥ 4`. -/
+/-- T3f: Unique integer minimizer `t = 8` of `log_{2t - 3} t` for `t ≥ 4` (integer inequality). -/
 theorem t3f_global_integer_optimality :
     (8 ^ 37 < 13 ^ 30) ∧ (∀ t : Nat, 4 ≤ t → t ≠ 8 → (2 * t - 3) ^ 30 < t ^ 37) := by sorry
 /-- T3g: `x^15 ∈ RP^{pass}_R(3, 9)` (post-minimum ascent point `log_15 9 ≈ 0.811368`). -/
@@ -240,7 +240,7 @@ theorem t3g_three_reg_9call_x15 :
       invD * CRing.intCast 876702103804656272895371895753963647960420947968000 = 1 →
       ∃ prog : List (Pass3InstrR R), Pass3Prog.accesses prog = 9 ∧
         ∀ x o u v : R, Pass3Prog.exec x prog (o, u, v) = (o + CRing.pow x 15, u, v) := by sorry
-/-- T3h: Complete 4-register passive powering for every `N ≥ 1`. -/
+/-- T3h: Four-register passive powering for `N ≥ 1` under stated invertibility hypotheses. -/
 theorem t3h_four_reg_powering :
     (∀ (R : Type) [CRing R] (N : Nat), 1 ≤ N →
       ∀ (invD8 invFact12 invFactLen : R),
@@ -257,7 +257,7 @@ theorem t3h_four_reg_powering :
       ∃ prog : List (Pass4Instr R), let ℓ := (baseDigits 7 N).length - 1
         7 ^ ℓ ≤ N ∧ 3 * Pass4Prog.accesses prog < 70 * 5 ^ ℓ ∧
         ∀ x o u r1 r2 : R, Pass4Prog.exec x prog (o, u, r1, r2) = (o + CRing.pow x N, u, r1, r2)) := by sorry
-/-- T3i: Algebraic catalytic streaming frequency-moment pass bound over `R^n`. -/
+/-- T3i: Coordinatewise four-register powering bound over `R^n` (product-ring corollary of `T3h`). -/
 theorem t3i_streaming_frequency_moment :
     ∀ (R : Type) [CRing R] (n D : Nat), 1 ≤ D →
       ∀ (invD8 invFact12 invFactLen : R),

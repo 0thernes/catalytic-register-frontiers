@@ -18,16 +18,35 @@ run_lean() {
   step "Lean 4.35 lake build + VerifyAxioms + leanchecker-paranoid"
   (
     cd "$REPO/lean"
+    if grep -rnE --exclude-dir=.lake --exclude=PalomarChallenge.lean '\b(sorry|admit|native_decide|implemented_by|unsafe)\b|^\s*(private\s+|protected\s+|local\s+|scoped\s+|noncomputable\s+)*axiom\b|@\[extern' .; then
+      echo "FORBIDDEN TOKEN FOUND IN PROOF MODULES!" >&2
+      exit 1
+    fi
     lake build
     TMP_AX="$(mktemp)"
     trap 'rm -f "$TMP_AX"' EXIT
     lake env lean VerifyAxioms.lean | tr -d '\r' > "$TMP_AX"
     cat "$TMP_AX"
+    test -s "$TMP_AX"
     diff -u ../results/lean_axioms.txt "$TMP_AX"
     if grep -qE 'sorryAx|_native|Lean\.ofReduceBool|Lean\.trustCompiler' "$TMP_AX"; then
       echo "UNPERMITTED AXIOM DETECTED!" >&2
       exit 1
     fi
+    "$PYTHON" - "$TMP_AX" <<'PYEOF'
+import pathlib, re, sys
+allowed = {"propext", "Classical.choice", "Quot.sound"}
+lines = [ln.strip() for ln in pathlib.Path(sys.argv[1]).read_text(encoding="utf-8").splitlines() if ln.strip()]
+assert len(lines) == 22, f"Expected 22 audited axiom lines, got {len(lines)}"
+for ln in lines:
+    if ln.endswith("does not depend on any axioms"):
+        continue
+    m = re.match(r"^'[^']+' depends on axioms: \[([^\]]+)\]$", ln)
+    assert m, f"Unrecognized axiom line: {ln}"
+    extra = {tok.strip() for tok in m.group(1).split(",") if tok.strip()} - allowed
+    assert not extra, f"Disallowed axioms {extra} in: {ln}"
+print(f"Strict 3-axiom allowlist verified on {len(lines)}/22 declarations.")
+PYEOF
     lake env leanchecker --fresh Solution
     lake env leanchecker-paranoid Solution
     if lake env sh -c 'command -v con-leche >/dev/null 2>&1 && command -v con-ron >/dev/null 2>&1'; then

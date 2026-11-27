@@ -1,7 +1,7 @@
 {
-  "title": "Positive-Characteristic Dichotomy and Optimal Three-Register Exponents in Passive Catalytic Register Programs",
+  "title": "Prime-Field Digit-Sum Dichotomy and Improved Three-Register Powering Exponents in Passive Catalytic Register Programs",
   "upload_type": "software",
-  "description": "Zero-Mathlib Lean 4.35.0 formalization (verified across 5 distinct kernel implementations in 6 runs), exact-arithmetic and CaDiCaL 2.1.2 verification suite, deterministic vector figures, interactive Adaptive Forking cross-device workbench, and AMS-LaTeX preprint answering open questions in passive catalytic register programs (Vinciguerra, arXiv:2609.18692; Morse, arXiv:2608.30238). Preprint; not externally peer-reviewed.",
+  "description": "Zero-Mathlib Lean 4.35.0 formalization (verified across 5 distinct kernel implementations in 6 runs), exact-arithmetic and CaDiCaL 2.1.2 verification suite, deterministic vector figures, interactive Adaptive Forking cross-device workbench, and AMS-LaTeX preprint presenting new results on passive catalytic register programs extending Vinciguerra (arXiv:2609.18692; no question posed there is resolved), with a Boolean SAT companion related to Morse (arXiv:2608.30238). Preprint; not externally peer-reviewed.",
   "creators": [
     {
       "name": "Donahue, Alexander S.",
@@ -41,5 +41,5 @@
       "scheme": "doi"
     }
   ],
-  "notes": "Code and Lean formalization licensed under Apache-2.0; manuscript, documentation, and figures licensed under CC-BY-4.0. Compliance with Zenodo's April 27, 2026 Generative AI policy verified prior to DOI minting (Concept DOI 10.5281/zenodo.24517198; verify before minting any subsequent version)."
+  "notes": "Code and Lean formalization licensed under Apache-2.0; manuscript, documentation, and figures licensed under CC-BY-4.0. Compliance with Zenodo's April 27, 2026 Generative AI policy verified prior to DOI minting (Concept DOI 10.5281/zenodo.24517198; v1.0.1 Version DOI 10.5281/zenodo.24517199; Software Heritage SWHID swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085; verify before minting any subsequent version)."
 }

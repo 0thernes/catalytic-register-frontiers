@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """
 Experiment 2: Independent Exact Verification of Theorem T3
-(3-Register Powering, Streaming, and Matrix-Powering Exponent Breakthrough).
+(3-Register Powering, Streaming, and Matrix-Powering Improved Constructions).
 
 Independently derives AND literally executes instruction-by-instruction in exact Z[x, u, v]
 and Q[x, u, v] the passive-output 3-register catalytic programs for:
@@ -9,7 +9,7 @@ and Q[x, u, v] the passive-output 3-register catalytic programs for:
   * t = 5 -> x^7  (NEW, deg_w=2, D=576, bad primes ONLY {2,3}, eps = log_7(5) = 0.827087)
   * t = 6 -> x^9  (NEW, deg_w=4, D=382500000, bad primes {2,3,5,17}, eps = log_9(6) = 0.815465)
   * t = 7 -> x^11 (NEW, deg_w=5, shifts=[0,1,2,3,4,5,7], eps = log_11(7) = 0.811508)
-  * t = 8 -> x^13 (NEW, deg_w=6, shifts=[0..7], eps = log_13(8) = 0.810714 — OPTIMAL!)
+  * t = 8 -> x^13 (NEW, deg_w=6, shifts=[0..7], eps = log_13(8) = 0.810714 — smallest among t=4..9; unique int min of log_{2t-3} t)
   * t = 9 -> x^15 (NEW, deg_w=7, shifts=[0..7,9], eps = log_15(9) = 0.811368)
 
 Also verifies exact modular execution over good prime fields F_p (p = 5, 7, 11, 13, 19)

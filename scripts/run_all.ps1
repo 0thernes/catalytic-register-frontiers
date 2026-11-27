@@ -59,6 +59,9 @@ if r.returncode != 0:
     sys.exit(r.returncode)
 actual = r.stdout.replace('\r\n', '\n').strip()
 print(actual)
+if not actual:
+    print('EMPTY VerifyAxioms.lean OUTPUT!', file=sys.stderr)
+    sys.exit(1)
 expected = pathlib.Path('../results/lean_axioms.txt').read_text(encoding='utf-8').replace('\r\n', '\n').strip()
 if actual != expected:
     print('AXIOM DRIFT DETECTED vs results/lean_axioms.txt!', file=sys.stderr)
@@ -67,6 +70,23 @@ import re
 if re.search(r'sorryAx|_native|Lean\.ofReduceBool|Lean\.trustCompiler', actual):
     print('UNPERMITTED AXIOM DETECTED!', file=sys.stderr)
     sys.exit(1)
+allowed = {'propext', 'Classical.choice', 'Quot.sound'}
+lines = [ln.strip() for ln in actual.splitlines() if ln.strip()]
+if len(lines) != 22:
+    print(f'Expected 22 audited axiom lines, got {len(lines)}', file=sys.stderr)
+    sys.exit(1)
+for ln in lines:
+    if ln.endswith('does not depend on any axioms'):
+        continue
+    m = re.match(r"^'[^']+' depends on axioms: \[([^\]]+)\]$", ln)
+    if not m:
+        print(f'Unrecognized axiom line: {ln}', file=sys.stderr)
+        sys.exit(1)
+    extra = {tok.strip() for tok in m.group(1).split(',') if tok.strip()} - allowed
+    if extra:
+        print(f'DISALLOWED AXIOMS {extra} IN: {ln}', file=sys.stderr)
+        sys.exit(1)
+print(f'Strict 3-axiom allowlist verified on {len(lines)}/22 declarations.')
 "@
             if ($LASTEXITCODE -ne 0) { return }
             & lake env leanchecker --fresh Solution

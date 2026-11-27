@@ -22,6 +22,7 @@ Records compliance with Sections 4, 5, 8 (#27–#40), and 10 of the *Defensible 
   - **Nature Portfolio Risk-Disclosure Framework (Nov 2026) & JOSS AI Policy:** Tool names, task boundaries ("Not done by AI"), and independent mechanical verification boundaries (5 Lean kernels, 8/8 LRAT UNSAT proofs, exact BigInt/Python differential checks) are disclosed transparently in `paper/main.tex` Section 8 and `README.md`.
   - **arXiv CS Practice (Oct 2025 onward):** Original formal/mathematical contribution (not a survey/position paper); clean-room LaTeX source bundle archived in `dist/arxiv_submission.tar.gz`.
   - **ORCID / DataCite Note:** Because DataCite Auto-Update requires the depositor's ORCID to appear verbatim in creator metadata, ORCID `0009-0006-8168-9648` is included in `.zenodo.json`, `CITATION.cff`, and manually verified visible (`Everyone`) on ORCID.
+  - **Transcript Privacy & Redaction (Playbook v1.3 #33):** Raw agent transcripts are held locally by the author outside the public repository; any excerpt or transcript shared externally is scrubbed beforehand to remove secrets, API tokens, private emails, and personal data.
 
 ## 3. Licensing, Third-Party Rights & SPDX Attribution (Playbook v1.3 #24, #35)
 

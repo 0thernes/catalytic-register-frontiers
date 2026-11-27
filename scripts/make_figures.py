@@ -83,7 +83,7 @@ def make_fig1() -> None:
 
     ax1.scatter(ds_feas, ts_feas, color=C_BLUE, s=26, zorder=4, label=r"Feasible over $\mathbb{F}_5$: $t_{\min} = s_5(d)+1$")
     ax1.scatter(ds_imp, [min(v, 10.2) for v in sp_imp], color=C_RED, marker="x", s=24, linewidths=1.2,
-                zorder=4, label=r"Uncomputable in 2 regs ($\forall t \geq 1$)")
+                zorder=4, label=r"No $\mathbb{F}_5$-const formal prog ($\forall t \geq 1$)")
 
     # Highlight Frobenius powers d = 5, 25
     for d_f in [5, 25]:
@@ -192,12 +192,12 @@ def make_fig2() -> None:
     ax2.scatter([5, 6, 7, 9], [ei[1], ei[2], ei[3], ei[5]], color=C_BLUE, s=42, zorder=5,
                 label=r"Lean-verified programs ($t=5,6,7,9$)")
     ax2.scatter([8], [ei[4]], color=C_GREEN, marker="*", s=130, zorder=6,
-                label=rf"Global optimum ($t=8$): $\log_{{13}} 8 = {ei[4]:.5f}$")
+                label=rf"Family min ($t=8$): $\log_{{13}} 8 = {ei[4]:.5f}$")
     ax2.scatter(ti[6:], ei[6:], color=C_GREY, s=22, alpha=0.65, zorder=4,
                 label=r"$t \geq 10$ (curve rises; Lean T3f $\forall t \neq 8$)")
 
     ax2.axhline(30.0 / 37.0, color=C_PURPLE, linestyle=":", lw=1.1,
-                label=r"Lean T3f global separator $30/37 \approx 0.81081$")
+                label=r"Lean T3f family separator $30/37 \approx 0.81081$")
     ax2.annotate(r"$\mathbf{-0.0506}$ exponent drop!" + "\n" + r"($0.86135 \to 0.81071$)",
                  xy=(8, ei[4]), xytext=(8.6, 0.836),
                  fontsize=8.0, color=C_GREEN, fontweight="bold",
@@ -208,7 +208,7 @@ def make_fig2() -> None:
     ax2.set_xticks(range(4, 14))
     ax2.set_xlabel(r"Base loop input accesses $t$")
     ax2.set_ylabel(r"Powering / streaming exponent $\varepsilon(t)$")
-    ax2.set_title(r"(b) Composition Exponent Optimization ($\min$ at $t=8$)")
+    ax2.set_title(r"(b) Family Exponent $\log_{2t-3} t$ ($\min$ at $t=8$)")
     ax2.legend(loc="upper right", frameon=True, framealpha=0.92, fontsize=7.1)
     ax2.grid(alpha=0.25)
 

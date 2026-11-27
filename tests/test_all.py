@@ -2065,8 +2065,89 @@ def test_pass20_v120_standard_and_v13_playbook() -> None:
         assert proc.returncode == 0, f"Adversarial negative T1b check failed: {proc.stderr}"
 
 
+def test_pass21_deep_hardening_zenodo_figs_lean_docstrings_and_strict_axioms() -> None:
+    """Pass 21 permanent regression guard (Playbook v1.3 H08/F16/H42, Build Standard v1.2.0 RC19/RC23,
+    and residual 2026-11-26 statement-audit metadata/figure/PWA/Lean-docstring cleanup):
+    1. `.zenodo.json` & `pyproject.toml` carry the corrected title/description (no 'Optimal', no
+       'answering open questions') and `.zenodo.json` records Concept DOI, Version DOI, and SWHID.
+    2. `scripts/make_figures.py` and `docs/catalytic-engine.js` contain no 'Global optimum' or
+       'Global Optimal Engine' overclaims; `ROADMAP.md` cites Build Standard v1.2.0 and Boyar-Find
+       open question; `LIMITATIONS.md` lists all 10 v1.2.0 finding classes.
+    3. `ci.yml`, `run_all.sh`, and `run_all.ps1` enforce modifier-aware `axiom` scanning (`H08`)
+       and non-empty strict 3-axiom allowlist validation (`F16`/`H01`); `release.yml` & `AGENTS.md`
+       note report-only checks (`RC19`) and public-repo attestations (`RC23`); `release-checklist.md`
+       and `legal-and-ethics.md` document transcript redaction (`H42`).
+    4. Lean docstrings in `Challenge.lean`, `PalomarChallenge.lean`, `DigitSumDichotomy.lean`,
+       `ThreeRegisterBreakthrough.lean`, and `FourRegisterPowering.lean` have zero overclaiming
+       phrases ('optimal 3-register', 'Optimal `prog8_x13`', 'achieving optimal exponent',
+       'fail completely') while preserving exact 1-for-1 line counts (PalomarChallenge = 283 lines).
+    """
+    zen = json.loads((REPO / ".zenodo.json").read_text(encoding="utf-8"))
+    assert "Optimal" not in zen["title"]
+    assert "answering open questions" not in zen["description"]
+    assert "no question posed there is resolved" in zen["description"]
+    assert "10.5281/zenodo.24517199" in zen["notes"]
+    assert "swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085" in zen["notes"]
 
+    pyproj = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+    assert "optimal 3-register" not in pyproj.lower()
 
+    fig_src = (REPO / "scripts" / "make_figures.py").read_text(encoding="utf-8")
+    assert "Global optimum" not in fig_src
+    assert "Family min" in fig_src
 
+    js_src = (REPO / "docs" / "catalytic-engine.js").read_text(encoding="utf-8")
+    assert "Global Optimal Engine" not in js_src
+    assert "Best Constructed Engine (t=8 -> x^13, T3d)" in js_src
 
+    roadmap = (REPO / "ROADMAP.md").read_text(encoding="utf-8")
+    assert "Build Standard v1.2.0" in roadmap
+    assert "Boyar–Find conjecture" not in roadmap
+
+    lim = (REPO / "LIMITATIONS.md").read_text(encoding="utf-8")
+    for cls in ("concern", "gap", "hole", "blindspot"):
+        assert cls in lim, f"Missing v1.2.0 class {cls!r} in LIMITATIONS.md"
+
+    ci_txt = (REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    assert "noncomputable\\s+)*axiom\\b" in ci_txt
+    assert "test -s /tmp/axioms.txt" in ci_txt
+    assert "Strict 3-axiom allowlist verified" in ci_txt
+
+    sh_txt = (REPO / "scripts" / "run_all.sh").read_text(encoding="utf-8")
+    assert "noncomputable\\s+)*axiom\\b" in sh_txt
+    assert 'test -s "$TMP_AX"' in sh_txt
+    assert "Strict 3-axiom allowlist verified" in sh_txt
+
+    ps_txt = (REPO / "scripts" / "run_all.ps1").read_text(encoding="utf-8")
+    assert "EMPTY VerifyAxioms.lean OUTPUT!" in ps_txt
+    assert "Strict 3-axiom allowlist verified" in ps_txt
+
+    rel_txt = (REPO / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    assert "public repositories" in rel_txt
+    agents_txt = (REPO / "AGENTS.md").read_text(encoding="utf-8")
+    assert "report-only" in agents_txt and "public repositories" in agents_txt
+
+    checklist = (REPO / "docs" / "launch" / "release-checklist.md").read_text(encoding="utf-8")
+    legal = (REPO / "docs" / "legal-and-ethics.md").read_text(encoding="utf-8")
+    assert "scrubbed" in checklist and "scrubbed" in legal
+
+    lean_checks = [
+        ("lean/Challenge.lean", 246),
+        ("lean/PalomarChallenge.lean", 283),
+        ("lean/Catalytic/DigitSumDichotomy.lean", 1025),
+        ("lean/Catalytic/ThreeRegisterBreakthrough.lean", 659),
+        ("lean/Catalytic/FourRegisterPowering.lean", 1364),
+    ]
+    bad_lean_phrases = (
+        "optimal 3-register",
+        "Optimal `prog8_x13`",
+        "achieving optimal exponent",
+        "optimal exponent!",
+        "fail completely",
+    )
+    for rel_path, expected_lines in lean_checks:
+        txt = (REPO / rel_path).read_text(encoding="utf-8")
+        assert len(txt.splitlines()) == expected_lines, f"Line-count drift in {rel_path}"
+        for phrase in bad_lean_phrases:
+            assert phrase not in txt, f"Overclaiming docstring {phrase!r} remained in {rel_path}"
 
