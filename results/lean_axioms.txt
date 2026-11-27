@@ -6,6 +6,8 @@
 'Catalytic.Solution.t1e_extension_field_separation' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t1s_pass2_ring_soundness' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t1es_pass2_gf4_soundness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1sc_pass2_ring_equiv' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1esc_pass2_gf4_equiv' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t2_bilinear_frobenius_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t2b_distinct_operand_frobenius' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3a_three_reg_5call_x7' depends on axioms: [propext, Classical.choice, Quot.sound]

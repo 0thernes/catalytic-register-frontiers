@@ -296,9 +296,9 @@ def test_lean_formalization_and_governance_hygiene() -> None:
     assert (lean_dir / "Catalytic" / "Pass2Soundness.lean").exists()
     assert (lean_dir / "Catalytic" / "FourRegisterPowering.lean").exists()
 
-    # Verify results/lean_axioms.txt covers all 22 declarations with zero unpermitted axioms
+    # Verify results/lean_axioms.txt covers all 24 declarations with zero unpermitted axioms
     ax_lines = (REPO / "results" / "lean_axioms.txt").read_text(encoding="utf-8").strip().splitlines()
-    assert len(ax_lines) == 22
+    assert len(ax_lines) == 24
     for line in ax_lines:
         assert "sorryAx" not in line and "ofReduceBool" not in line and "trustCompiler" not in line
 
@@ -645,8 +645,12 @@ def test_all_metadata_schemas_valid() -> None:
 
     comp = json.loads((REPO / "lean" / "comparator.json").read_text(encoding="utf-8"))
     assert comp.get("challenge_module") == "Challenge" and comp.get("solution_module") == "Solution"
-    assert len(comp.get("definition_names", [])) == 20
-    assert len(comp.get("theorem_names", [])) == 21
+    assert len(comp.get("definition_names", [])) == 22
+    assert len(comp.get("theorem_names", [])) == 23
+    assert "Catalytic.Solution.t1sc_pass2_ring_equiv" in comp["theorem_names"]
+    assert "Catalytic.Challenge.T1sc_Pass2RingEquiv" in comp["definition_names"]
+    assert "Catalytic.Solution.t1esc_pass2_gf4_equiv" in comp["theorem_names"]
+    assert "Catalytic.Challenge.T1esc_Pass2GF4Equiv" in comp["definition_names"]
     assert "Catalytic.Solution.t3h_four_reg_powering" in comp["theorem_names"]
     assert "Catalytic.Challenge.T3h_FourRegPowering" in comp["definition_names"]
     assert "Catalytic.Solution.t3i_streaming_frequency_moment" in comp["theorem_names"]
@@ -725,9 +729,18 @@ def test_doc_citation_and_workflow_consistency() -> None:
         "8{,}069 lines",
         "8,145 lines",
         "8{,}145 lines",
+        "8,151 lines",
+        "8{,}151 lines",
+        "20 headline theorems",
+        "20 exported theorems",
+        "22 audited declarations",
+        "22/22 decls",
+        "22/22 audited",
         "3,506 declarations",
         "3,523 declarations",
         "3,525 declarations",
+        "3,544 declarations",
+        "3,544 decls",
         "3,819 decls",
         "3,819 declarations",
         "3,836 decls",
@@ -1008,9 +1021,9 @@ def test_pass8_sbom_workflow_determinism_and_reuse_strictness() -> None:
     nv_txt = (REPO / "lean" / "Catalytic" / "NonVacuity.lean").read_text(encoding="utf-8")
     assert "theorem nonvac_T3i_witness" in nv_txt and "nonvac_T3i_witness," in nv_txt
 
-    # 7. LIMITATIONS.md synced (no stale 3,819 or 3,838)
+    # 7. LIMITATIONS.md synced (no stale 3,819, 3,838, or 3,544)
     lim_txt = (REPO / "LIMITATIONS.md").read_text(encoding="utf-8")
-    assert "3,819" not in lim_txt and "3,838" not in lim_txt and "3,544" in lim_txt
+    assert "3,819" not in lim_txt and "3,838" not in lim_txt and "3,544" not in lim_txt and "3,642" in lim_txt
 
 
 def test_pass9_cor54_matrix_lift_and_blueprint_integrity() -> None:
@@ -1248,7 +1261,7 @@ def test_pass9_cor54_matrix_lift_and_blueprint_integrity() -> None:
     auditor.close()
     assert not auditor.stack, f"Unclosed HTML tags in docs/index.html: {auditor.stack}"
     assert len(auditor.ids) == len(set(auditor.ids)), f"Duplicate HTML IDs in docs/index.html: {auditor.ids}"
-    assert len(auditor.fam_rows) == 21 and "All (21)" in html_txt
+    assert len(auditor.fam_rows) == 23 and "All (23)" in html_txt
     assert len(auditor.filter_btns) == 6
     assert all("aria-pressed" in b for b in auditor.filter_btns), "Filter buttons missing WCAG aria-pressed attribute"
     assert sum(1 for b in auditor.filter_btns if b.get("aria-pressed") == "true") == 1
@@ -1306,7 +1319,7 @@ def test_pass10_palomar_t4_and_provenance_integrity() -> None:
     audit_txt = (REPO / "results" / "six_kernel_audit.txt").read_text(encoding="utf-8")
     assert "5 Distinct Implementations / 6 Completed Runs" in audit_txt
     assert "NOT counted among the 5 completed locally reproducible kernel implementations" in audit_txt
-    assert "3,544" in audit_txt and "3,502" in audit_txt
+    assert "3,642" in audit_txt and "3,502" in audit_txt
     tex = (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
     assert r"\texttt{lean4lean}" not in tex.split(r"\maketitle", 1)[0]
 
@@ -2132,7 +2145,7 @@ def test_pass21_deep_hardening_zenodo_figs_lean_docstrings_and_strict_axioms() -
     assert "scrubbed" in checklist and "scrubbed" in legal
 
     lean_checks = [
-        ("lean/Challenge.lean", 246),
+        ("lean/Challenge.lean", 272),
         ("lean/PalomarChallenge.lean", 283),
         ("lean/Catalytic/DigitSumDichotomy.lean", 1025),
         ("lean/Catalytic/ThreeRegisterBreakthrough.lean", 659),
@@ -2150,4 +2163,116 @@ def test_pass21_deep_hardening_zenodo_figs_lean_docstrings_and_strict_axioms() -
         assert len(txt.splitlines()) == expected_lines, f"Line-count drift in {rel_path}"
         for phrase in bad_lean_phrases:
             assert phrase not in txt, f"Overclaiming docstring {phrase!r} remained in {rel_path}"
+
+
+def test_pass22_fps_completeness_lrat_citations_and_pwa_csp(tmp_path: pathlib.Path) -> None:
+    """Pass 22 permanent regression guard verifying:
+    1. Zero-Mathlib bivariate formal power series completeness (FPS (FPS R)) in Pass2Soundness.lean
+       proving T1sc_Pass2RingEquiv, T1esc_Pass2GF4Equiv, and direct literal-ring rp_pass_two_literal_ring_iff,
+       with ModP lifted cleanly into CommRing.lean and 24 audited axiom lines across CI/runners.
+    2. Hardened scripts/verify_lrat.py rejecting headerless CNFs (missing `p cnf`), non-positive
+       deletion step_ids, and stray `0`s inside hints lists.
+    3. Hardened scripts/check_citations.py catching undefined \\cite{...} keys and uncited BibTeX
+       entries offline, plus Crossref `is-retracted-by` checking online.
+    4. Hardened docs/index.html & docs/catalytic-engine.js: quote escaping in esc(), strict CSP +
+       v1.0.1 Version DOI + SWHID in exported HTML reports, 2 MiB external cert upload cap, no
+       residual "global t=8 opt" SVG text, and N=1, p=0 exact-Z certificate verification.
+    """
+    import shutil
+    import subprocess
+
+    import pytest
+
+    # 1. Lean formal power series completeness & ModP deduplication
+    ps_txt = (REPO / "lean" / "Catalytic" / "Pass2Soundness.lean").read_text(encoding="utf-8")
+    for sym in (
+        "structure FPS",
+        "theorem pass2_ring_exec_implies_clean",
+        "theorem pass2_clean_iff_ring_exec",
+        "theorem rp_pass_two_literal_ring_iff",
+        "theorem pass2gf4_alg_exec_implies_clean",
+        "theorem pass2gf4_clean_iff_alg_exec",
+    ):
+        assert sym in ps_txt, f"Missing {sym!r} in Pass2Soundness.lean"
+
+    cr_txt = (REPO / "lean" / "Catalytic" / "CommRing.lean").read_text(encoding="utf-8")
+    nv_txt = (REPO / "lean" / "Catalytic" / "NonVacuity.lean").read_text(encoding="utf-8")
+    assert "structure ModP" in cr_txt
+    assert "structure ModP" not in nv_txt
+
+    ef_txt = (REPO / "lean" / "Catalytic" / "ExtensionFieldSeparation.lean").read_text(encoding="utf-8")
+    assert "barriers" not in ef_txt
+
+    ch_txt = (REPO / "lean" / "Challenge.lean").read_text(encoding="utf-8")
+    sol_txt = (REPO / "lean" / "Solution.lean").read_text(encoding="utf-8")
+    va_txt = (REPO / "lean" / "VerifyAxioms.lean").read_text(encoding="utf-8")
+    for sym in ("T1sc_Pass2RingEquiv", "T1esc_Pass2GF4Equiv"):
+        assert sym in ch_txt
+    for sym in ("t1sc_pass2_ring_equiv", "t1esc_pass2_gf4_equiv"):
+        assert sym in sol_txt and sym in va_txt
+
+    for rel in (".github/workflows/ci.yml", "scripts/run_all.sh", "scripts/run_all.ps1"):
+        txt = (REPO / rel).read_text(encoding="utf-8")
+        assert "/24 declarations." in txt, f"Expected 24-declaration allowlist in {rel}"
+
+    # 2. Hardened verify_lrat negative checks
+    bad_cnf = tmp_path / "no_header.cnf"
+    bad_cnf.write_text("1 0\n-1 0\n", encoding="utf-8")
+    ok_lrat = tmp_path / "ok.lrat"
+    ok_lrat.write_text("3 0 1 2 0\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="p cnf"):
+        verify_lrat(bad_cnf, ok_lrat)
+
+    good_cnf = tmp_path / "good.cnf"
+    good_cnf.write_text("p cnf 1 2\n1 0\n-1 0\n", encoding="utf-8")
+
+    bad_del = tmp_path / "bad_del.lrat"
+    bad_del.write_text("0 d 1 0\n3 0 1 2 0\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="deletion step id must be positive"):
+        verify_lrat(good_cnf, bad_del)
+
+    stray_zero = tmp_path / "stray_zero.lrat"
+    stray_zero.write_text("3 0 1 0 2 0\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="unexpected zero inside hint list"):
+        verify_lrat(good_cnf, stray_zero)
+
+    # 3. Hardened check_citations offline TeX-vs-BibTeX cross-check & online is-retracted-by
+    cit_src = (REPO / "scripts" / "check_citations.py").read_text(encoding="utf-8")
+    assert "is-retracted-by" in cit_src
+    tmp_bib = tmp_path / "references.bib"
+    tmp_bib.write_text(BIB_PATH.read_text(encoding="utf-8"), encoding="utf-8")
+    tmp_tex = tmp_path / "main.tex"
+    tmp_tex.write_text(r"\cite{Vinciguerra2026,NonExistentKey2026}", encoding="utf-8")
+    _, cit_errs = check_offline(tmp_bib)
+    assert any("NonExistentKey2026" in e for e in cit_errs)
+    assert any("never cited" in e for e in cit_errs)
+
+    # 4. Hardened docs/index.html & docs/catalytic-engine.js
+    html_txt = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    assert "global t=8 opt" not in html_txt
+    assert "replace(/\"/g, '&quot;')" in html_txt
+    assert "replace(/'/g, '&#39;')" in html_txt
+    assert r"default-src \'none\'; style-src \'unsafe-inline\';" in html_txt
+    assert "2 * 1024 * 1024" in html_txt
+    assert "rem:soundness" in (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
+    assert r"Remark~\ref{rem:soundness}" in (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
+
+    node_bin = shutil.which("node")
+    if node_bin:
+        js_path = str(REPO / "docs" / "catalytic-engine.js")
+        js_check = (
+            f"const E = require({json.dumps(js_path)});"
+            "const cert = { kind: 'adaptive_fork_4reg', N: '1', x: '7', p: '0', O0: '100', finalO: '107', "
+            "accesses: 1, engineUsed: 'adaptive:direct_x1 (1-reg, 1 access)', outputExact: true, "
+            "catalystsRestored: true, verified: true };"
+            "const ok = E.verifyCertificate(cert);"
+            "if (!ok.ok) { console.error('Valid N=1,p=0 cert rejected:', ok); process.exit(120); }"
+            "const bad = E.verifyCertificate({ ...cert, finalO: '108' });"
+            "if (bad.ok) { console.error('Tampered N=1,p=0 cert accepted:', bad); process.exit(121); }"
+            "const bad2 = E.verifyCertificate({ ...cert, catalystsRestored: false });"
+            "if (bad2.ok) { console.error('Unclean N=1,p=0 cert accepted:', bad2); process.exit(122); }"
+        )
+        proc = subprocess.run([node_bin, "-e", js_check], capture_output=True, text=True, timeout=30, check=False)
+        assert proc.returncode == 0, f"Pass 22 Node.js N=1,p=0 cert check failed: {proc.stderr}"
+
 

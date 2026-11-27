@@ -2271,6 +2271,19 @@
         const N = BigInt(cert.N);
         const p = BigInt(cert.p);
         const x = BigInt(cert.x);
+        if (N === 1n && p === 0n) {
+          const hasIO = cert.O0 !== undefined && cert.finalO !== undefined;
+          const ioMatch = hasIO && (BigInt(cert.O0) + x === BigInt(cert.finalO));
+          const ok = Boolean(cert.verified) && cert.outputExact === true && cert.catalystsRestored === true && ioMatch && String(cert.accesses) === '1' && cert.engineUsed === 'adaptive:direct_x1 (1-reg, 1 access)';
+          return {
+            ok,
+            kind: cert.kind,
+            recomputedAccesses: 1,
+            claimedAccesses: cert.accesses,
+            engineMatch: cert.engineUsed === 'adaptive:direct_x1 (1-reg, 1 access)',
+            reason: ok ? 'Exact Z degree-1 (1-register, 1-access) certificate verified (O0 + x === finalO).' : 'Mismatch or failed verification on exact Z degree-1 certificate.'
+          };
+        }
         const plan = planAdaptiveFork({ workload: 'scalar', N, p });
         const reRun = execFourRegPowering(N, x, p, { engine: 'adaptive' });
         const accessMatch = String(reRun.accesses) === String(cert.accesses);

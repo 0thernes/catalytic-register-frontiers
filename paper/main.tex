@@ -68,7 +68,7 @@ We prove new results extending Vinciguerra's operator analysis of passive-output
   \item \emph{Balanced zero-workspace bilinear product (Theorem~\ref{thm:T4}).}
   Over any commutative ring, the classical four-step recursion (cf.~\cite{BenOrCleve1992}) computes $x_0 \cdots x_{d-1}$ ($d = 2^k$) in $\log_2 d + 2$ registers and $(7d^2 - 4)/3$ ops.
 \end{enumerate}
-All $20$ theorems, corollaries, and ring-soundness bridges (incl.\ $\F_4$ separation, distinct-operand bilinear collapse, $4$-register powering $\forall N \ge 1$ under stated invertibility hypotheses, coordinatewise $R^n$ powering, and register containment for Theorem~\ref{thm:T4}) plus $0 \neq 1$ non-vacuity witnesses are formalized in $14$ zero-Mathlib Lean~4.35.0 \texttt{module} files using only standard axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}) and pass $5$ distinct kernels ($6$ runs: \texttt{lean}, \texttt{leanchecker} [\texttt{--fresh}, \texttt{-paranoid}], \texttt{con-leche}, \texttt{con-ron}, \texttt{nanoda\_bin}), paired with an $8/8$ LRAT-verified CaDiCaL~2.1.2 Boolean XAG audit~\cite{BoyarFind2018,Morse2026}.
+All $22$ theorems, corollaries, and bi-directional ring bridges (incl.\ $\F_4$ separation, \texttt{T1sc}/\texttt{T1esc} formal-series completeness, distinct-operand bilinear collapse, $4$-register powering $\forall N \ge 1$ under stated invertibility hypotheses, coordinatewise $R^n$ powering, and register containment for Theorem~\ref{thm:T4}) plus $0 \neq 1$ non-vacuity witnesses are formalized in $14$ zero-Mathlib Lean~4.35.0 \texttt{module} files using only standard axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}) and pass $5$ distinct kernels ($6$ runs: \texttt{lean}, \texttt{leanchecker} [\texttt{--fresh}, \texttt{-paranoid}], \texttt{con-leche}, \texttt{con-ron}, \texttt{nanoda\_bin}), paired with an $8/8$ LRAT-verified CaDiCaL~2.1.2 Boolean XAG audit~\cite{BoyarFind2018,Morse2026}.
 \end{abstract}
 
 \maketitle
@@ -168,7 +168,7 @@ To enforce transparent verification boundaries, every claim in this manuscript b
 \toprule
 \textbf{Tier} & \textbf{Scope} & \textbf{Certification Mechanism} \\
 \midrule
-Tier-1 & Theorems~\ref{thm:T1}--\ref{thm:T4}, Cor.~\ref{cor:powering} (\texttt{T3h}), algebraic Cor.~\ref{cor:streaming} (\texttt{T3i}), \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2b}, \texttt{T3a}--\texttt{T3g} & Zero-Mathlib Lean~4.35.0; 5 kernels / 6 runs (Table~\ref{tab:kernels}) \\
+Tier-1 & Theorems~\ref{thm:T1}--\ref{thm:T4}, Cor.~\ref{cor:powering} (\texttt{T3h}), algebraic Cor.~\ref{cor:streaming} (\texttt{T3i}), \texttt{T1a}--\texttt{T1e}, \texttt{T1s}--\texttt{T1esc}, \texttt{T2b}, \texttt{T3a}--\texttt{T3g} & Zero-Mathlib Lean~4.35.0; 5 kernels / 6 runs (Table~\ref{tab:kernels}) \\
 Tier-2 & Full $\F_4$ ($d \le 16$) spectrum, $r=4$ loops, Boyar--Find SAT ($8/8$ LRAT) & Exact $\F_p/\Q/\Z$ arithmetic \& CaDiCaL~2.1.2 \\
 Tier-3 & Bit-space accounting of Cor.~\ref{cor:streaming} \& Cor.~\ref{cor:matpow} (matrix powering) & Paper proof via \cite[Cor.~5.1.1, \S4.4, Thm.~5.2]{Vinciguerra2026} \\
 Tier-4 & General $D_{3,\Q}^{\pass}(t)=2t-3$, $r \ge 4$, Boyar--Find & Explicitly open (Section~\ref{sec:open}) \\
@@ -201,7 +201,7 @@ We write $f \in \RP_R^{\pass}(r, t)$ if $f$ is cleanly computed by a passive $r$
 \begin{remark}[Formal-polynomial vs.\ functional cleanliness over finite fields]
 We use the instruction set of~\cite[Definition~2.2]{Vinciguerra2026} with \emph{formal-polynomial cleanliness} in $\F_p[O, R_1, \dots, R_{r-1}, x]$ ($\F_p$ constants, valid over every commutative $\F_p$-algebra).
 Definition~2.2 of~\cite{Vinciguerra2026} is functional (pointwise clean execution), which differs over $\F_p$ since $x^p = x$: $O \leftarrow O + x$ maps $(o, u) \mapsto (o + x^3, u)$ on $\F_2$, whereas Theorem~\ref{thm:T1} (\texttt{T1b}) excludes formal $x^3$.
-Lean~\texttt{T1s} certifies formal cleanliness $\Rightarrow$ literal ring execution; the converse is a paper-level argument.
+Lean~\texttt{T1s}--\texttt{T1esc} (Remark~\ref{rem:soundness}) certify the exact equivalence ($\Leftrightarrow$) between formal cleanliness and literal clean execution over every char.-$p$ ring (and $\F_4$-algebra) via $\F_p[[U]][[X]]$.
 \end{remark}
 
 \section{Theorem~\ref{thm:T1}: Base-\texorpdfstring{$p$}{p} Digit-Sum Dichotomy for Two Registers}
@@ -310,9 +310,10 @@ Over $\F_4 = \F_2[\omega]/(\omega^2 + \omega + 1)$, our Tier-1 Lean~4.35 theorem
 Exact finite-field linear algebra for $d \in [1, 16]$ (\texttt{exp1}, Tier-2) further confirms $t_{\min} = 2$ for $d \in \{1, 2, 4, 8, 16\}$, $t_{\min} = 3$ for $d \in \{5, 10\}$, $t_{\min} = 4$ for $d \in \{3, 6, 9, 12\}$, and impossibility for all $t$ at $d \in \{7, 11, 13, 14, 15\}$.
 \end{remark}
 
-\begin{remark}[Literal commutative-ring soundness bridge; Lean \texttt{T1s}, \texttt{T1es}]
+\begin{remark}[Literal ring soundness \& completeness; Lean \texttt{T1s}--\texttt{T1esc}]
 \label{rem:soundness}
-To eliminate any trust-base gap between the symbolic trinomial-coefficient semantics (\texttt{Pass2Prog.\allowbreak exec}, \texttt{Pass2GF4Prog.\allowbreak exec}) and literal ring evaluation, \texttt{Pass2Soundness.\allowbreak lean} proves the binomial theorem from first principles in zero-Mathlib Lean~4.35 (\texttt{CRing.\allowbreak add\_pow}) and certifies that direct ring execution (using only ring addition, multiplication, and powers, with zero binomial formulas in its definition) agrees identically with symbolic execution on \emph{every} program over every characteristic-$p$ commutative ring $R$ (\texttt{T1s}) and every commutative $\F_4$-algebra $(R, \varphi)$ (\texttt{T1es}).
+To eliminate any gap between symbolic trinomial semantics (\texttt{Pass2Prog.\allowbreak exec}, \texttt{Pass2GF4Prog.\allowbreak exec}) and literal ring evaluation, \texttt{Pass2Soundness.\allowbreak lean} proves the binomial theorem (\texttt{CRing.\allowbreak add\_pow}) from scratch and certifies that direct ring execution agrees identically with symbolic execution on every program over every char.-$p$ ring $R$ (\texttt{T1s}) and $\F_4$-algebra $(R, \varphi)$ (\texttt{T1es}).
+Conversely, zero-Mathlib bivariate formal power series \texttt{FPS (FPS R)} ($R[[U]][[X]]$) certify exact equivalence ($\Leftrightarrow$) between symbolic cleanliness and universal clean execution over all char.-$p$ rings (\texttt{T1sc}, yielding direct literal-ring \texttt{rp\_pass\_two\_literal\_ring\_iff}) and $\F_4$-algebras (\texttt{T1esc}).
 \end{remark}
 
 \section{Theorem~\ref{thm:T2}: Strictly Bilinear Two-Access Collapse over Characteristic~2}
@@ -587,26 +588,26 @@ This sharp empirical contrast highlights a structural asymmetry: whereas Boolean
 \section{Lean~4.35.0 Formalization, Statement Fidelity, and Open Problems}
 \label{sec:lean}
 
-Every Tier-1 theorem (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3i}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}) using Lean~4.35 \texttt{module} files and strict core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unused\allowbreak Variables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across $14$ core files ($8{,}151$ lines; longest \texttt{Four\allowbreak Register\allowbreak Powering.\allowbreak lean}, $1{,}364$ lines) plus standalone Palomar files \texttt{Palomar\allowbreak Challenge.\allowbreak lean} ($283$ lines) and \texttt{Palomar\allowbreak Solution.\allowbreak lean}.
-To rule out vacuous hypotheses or degenerate zero-ring models, \texttt{NonVacuity.\allowbreak lean} exhibits concrete $0 \neq 1$ witnesses (\texttt{ModP 2/5/7/11/13}, $\mathrm{Fin}\,3 \to \texttt{ModP 13}$, \texttt{GF4} with \texttt{GF4Hom.\allowbreak id}, and \texttt{Int}) for every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}, Corollaries~\ref{cor:powering}--\ref{cor:streaming}, and their soundness bridges (incl.\ $D_5, \dots, D_9$ and factorial inverses).
+Every Tier-1 theorem (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}--\texttt{T1esc}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3i}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}) using \texttt{module} files and strict core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unused\allowbreak Variables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across $14$ core files ($8{,}881$ lines; max \texttt{Pass2\allowbreak Soundness.\allowbreak lean}, $1{,}511$ lines) plus Palomar files \texttt{Palomar\allowbreak Challenge.\allowbreak lean} ($283$ lines) and \texttt{Palomar\allowbreak Solution.\allowbreak lean}.
+To rule out vacuous hypotheses, \texttt{Non\allowbreak Vacuity.\allowbreak lean} exhibits concrete $0 \neq 1$ witnesses (\texttt{ModP 2/5/7/11/13}, $\mathrm{Fin}\,3 \to \texttt{ModP 13}$, \texttt{GF4} with \texttt{GF4Hom.\allowbreak id}, \texttt{Int}) for every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}, Corollaries~\ref{cor:powering}--\ref{cor:streaming}, and their bridges (incl.\ $D_5, \dots, D_9$ and factorials).
 A repository scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_\allowbreak decide}, \texttt{implemented\_\allowbreak by}, \texttt{unsafe}, custom \texttt{axiom}, or \texttt{@[extern]} across all proof and solution modules (Tables~\ref{tab:kernels}--\ref{tab:fidelity}).
 
 \begin{table}[ht]
 \centering
-\caption{Multi-kernel verification audit of the $22$ exported Lean~4.35.0 declarations ($5$ distinct kernel implementations across $6$ locally reproducible runs).}
+\caption{Multi-kernel verification audit of the $24$ exported Lean~4.35.0 declarations ($5$ distinct kernel implementations across $6$ locally reproducible runs).}
 \label{tab:kernels}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{6.1cm}@{}}
+\begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{6.7cm}@{}}
 \toprule
 \textbf{\#} & \textbf{Kernel / Tool} & \textbf{Implementation} & \textbf{Verified Result} \\
 \midrule
-1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ reference kernel & 19/19 jobs, 0 warnings; axioms $\subseteq \{\text{propext}, \text{choice}, \text{Quot.sound}\}$ \\
+1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ ref.\ kernel & 19/19 jobs, 0 warns; std.\ 3 axioms only \\
 2 & \texttt{leanchecker} & C++ \texttt{.olean} replayer & Exit 0 on \texttt{Solution} \& \texttt{PalomarSolution} \\
-3 & \texttt{leanchecker-paranoid} & C++ paranoid mode (\#2) & Exit 0 on \texttt{Solution} \& \texttt{PalomarSolution} \\
-4 & \texttt{con-leche --verified} & Verified Lean kernel & Accepted 3,544 (\texttt{Solution}) / 3,502 (\texttt{PalomarSolution}) \\
-5 & \texttt{con-ron --verified} & Verified Rust kernel & Accepted 3,544 (\texttt{Solution}) / 3,502 (\texttt{PalomarSolution}) \\
-6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust kernel & 3,544 / 3,502 decls, 0 errors, strict 3-axiom check \\
+3 & \texttt{leanchecker-paranoid} & C++ paranoid (\#2) & Exit 0 on \texttt{Solution} \& \texttt{PalomarSolution} \\
+4 & \texttt{con-leche --verified} & Verified Lean kernel & Accepted 3,642 (\texttt{Solution}) / 3,502 (\texttt{Palomar}) \\
+5 & \texttt{con-ron --verified} & Verified Rust kernel & Accepted 3,642 (\texttt{Solution}) / 3,502 (\texttt{Palomar}) \\
+6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust & 3,642 / 3,502 decls, 0 errors, std.\ 3 axioms \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -617,12 +618,12 @@ A repository scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \t
 \label{tab:fidelity}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.5cm}@{}}
+\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{3.9cm}@{}}
 \toprule
 \textbf{ID} & \textbf{Lean Declaration} & \textbf{Literature Anchor} & \textbf{Non-Vacuity ($0 \neq 1$)} \\
 \midrule
-\texttt{T1} & \texttt{InRPPass2}, \texttt{GF4}, \texttt{execRing}, \texttt{execAlg} (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}, \texttt{T1es}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Thm.~3.5 & \texttt{IsPrime 2,3,5,7}; \texttt{ModP 5} ($\mathrm{char}=5$); \texttt{GF4} (\texttt{GF4Hom.id}) \\
-\texttt{T2} & \texttt{BilinInstr}, \texttt{DistinctBilinInstr} (\texttt{T2}, \texttt{T2b}) & Bilinear \& distinct-operand Def.~2.2 & \texttt{F2 = ModP 2}, $k=2$, $x=1$ cleanly evaluated \\
+\texttt{T1} & \texttt{InRPPass2}, \texttt{GF4}, \texttt{execRing}, \texttt{execAlg}, \texttt{FPS} (\texttt{T1}--\texttt{T1esc}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Thm.~3.5 & \texttt{IsPrime 2,3,5,7}; \texttt{ModP 5} ($\mathrm{char}=5$); \texttt{GF4} (\texttt{GF4Hom.id}) \\
+\texttt{T2} & \texttt{BilinInstr}, \texttt{DistinctBilinInstr} (\texttt{T2}, \texttt{T2b}) & Bilinear/distinct Def.~2.2 & \texttt{F2 = ModP 2}, $k=2$, $x=1$ cleanly evaluated \\
 \texttt{T3} & \texttt{Pass3InstrR}, \texttt{Pass4Instr}, \texttt{sumFin} (\texttt{T3a}--\texttt{T3i}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Cor.~4.3.1, 5.1.1; Comp.\ Lem.~\cite{AFM2025} & \texttt{ModP 5,7,11,13} ($D_5^{-1}\!\dots D_9^{-1}$, $12!^{-1}$, $6!^{-1}$); $\mathrm{Fin}\,3\!\to\!\texttt{ModP 13}$ (\texttt{T3i}) \\
 \texttt{T4} & \texttt{CatOp}, \texttt{usesOnly}, \texttt{balancedProdProg} (\texttt{T4}) & Zero-workspace distinct-index bilinear ops ($\le k+2$ regs) & \texttt{Int} ($d=4$, $36$ ops, clean restoration) \\
 \bottomrule
@@ -634,15 +635,15 @@ A repository scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \t
 
 We highlight four threats to validity and four unresolved Tier-4 frontiers:
 \begin{itemize}
-  \item \emph{Formal vs.\ functional model:} Definition~\ref{def:rp} uses formal-polynomial cleanliness with $\F_p$ constants, strictly stronger over $\F_p$ than Vinciguerra's functional Def.~2.2 ($x^3 = x$ on $\F_2$); \texttt{T1s} certifies formal $\Rightarrow$ ring execution, while the converse is paper-level.
+  \item \emph{Formal vs.\ functional model:} Definition~\ref{def:rp} uses formal-polynomial cleanliness ($\F_p$ constants), proved by \texttt{T1s}/\texttt{T1sc} equivalent ($\Leftrightarrow$) to universal char.-$p$ ring execution, yet stronger than pointwise Def.~2.2 on $\F_p$ ($x^3 = x$ on $\F_2$).
   \item \emph{Bad-prime denominators (\texttt{T3b}--\texttt{T3d}, \texttt{T3g}):} \texttt{prog5\_x7} avoids only $\{2, 3\}$, whereas $t = 6..9$ exclude additional prime divisors of $D_t$ (Table~\ref{tab:t3-frontier}); all hold unconditionally in char.~$0$.
-  \item \emph{SAT companion boundary:} All $8/8$ Tier-2 CaDiCaL~2.1.2 UNSAT certificates (\texttt{results/\allowbreak sat\_\allowbreak certs/}) are verified by \texttt{scripts/\allowbreak verify\_\allowbreak lrat.py} alongside $n = 2, 3$ brute-force and second-encoder checks, though not yet replayed in \texttt{cake\_lpr}; no Tier-1 theorem depends on SAT.
-  \item \emph{Zero-dependency linters \& Windows \texttt{lean4lean}:} Keeping zero external Lake deps preserves a minimal 5-kernel trust base while precluding Batteries' \texttt{\#lint}; built-in Lean~4.35 core linters pass with 0 warnings. Windows \texttt{lean4lean.exe} fails locally with an upstream \texttt{.olean} header mismatch and is omitted from Table~\ref{tab:kernels}.
+  \item \emph{SAT companion boundary:} All $8/8$ Tier-2 CaDiCaL~2.1.2 UNSAT certificates (\texttt{results/\allowbreak sat\_\allowbreak certs/}) are checked by \texttt{scripts/\allowbreak verify\_\allowbreak lrat.py} with $n = 2, 3$ brute-force/second-encoder audits; not yet replayed in \texttt{cake\_lpr} (no Tier-1 theorem uses SAT).
+  \item \emph{Zero-dependency linters \& Windows \texttt{lean4lean}:} Keeping zero Lake deps preserves a minimal 5-kernel trust base (precluding Batteries' \texttt{\#lint}); built-in Lean~4.35 linters pass with 0 warnings. Windows \texttt{lean4lean.exe} fails locally (upstream \texttt{.olean} header mismatch) and is omitted from Table~\ref{tab:kernels}.
 \end{itemize}
 
 \begin{openproblem}[Closed-form $3$-register frontier]
 Does $D_{3,\Q}^{\pass}(t) = 2t - 3$ hold for all $t \ge 4$?
-Our constructions show $D_{3,\Q}^{\pass}(t) \ge 2t - 3$ for $t = 4..9$; uniform non-vanishing and upper bounds for $r \ge 3$ remain open.
+Our programs show $D_{3,\Q}^{\pass}(t) \ge 2t - 3$ for $t = 4..9$; uniform non-vanishing and $r \ge 3$ upper bounds stay open.
 \end{openproblem}
 
 \begin{openproblem}[Breaking $\log_7 4$ at $r = 4$ registers]
@@ -655,18 +656,18 @@ Extend Theorem~\ref{thm:T1} to a closed-form criterion over arbitrary $\F_{p^e}$
 \end{openproblem}
 
 \begin{openproblem}[Open question of Boyar--Find and $\mathrm{Mul}_5$]
-Resolve whether nonlinear cancellation can beat quadratic-only multiplicative complexity for any quadratic Boolean map~\cite{BoyarFind2018}, and complete $n = 5$~\cite{Morse2026}.
+Can nonlinear cancellation beat the quadratic bound for any quadratic Boolean map~\cite{BoyarFind2018}, and what is $\MC(\mathrm{Mul}_5)$~\cite{Morse2026}?
 \end{openproblem}
 
 \subsection*{AI-Assistance, CRediT, COI, Versioning, and Data/Code Availability}
-\emph{AI-Contribution and CRediT:} Antigravity/Gemini assisted in exploratory probing, Lean~4.35 proof engineering, figures, and drafting under Alexander~S.\ Donahue (CRediT: Conceptualization; Methodology; Formal analysis; Validation; Writing -- review \& editing; Supervision).
-\emph{Not done by AI:} problem choice, theorem acceptance, statement-fidelity sign-off, and scope decisions.
-No AI is an author; Tier-1 soundness is certified by 5 Lean~4.35 kernels (6 runs, zero \texttt{sorryAx}/\texttt{\_native}; Table~\ref{tab:kernels}).
+\emph{AI \& CRediT:} Antigravity/Gemini assisted in probing, Lean~4.35 proofs, figures, and drafting under Alexander~S.\ Donahue (Conceptualization, Methodology, Formal analysis, Validation, Writing--review/editing, Supervision).
+\emph{Not done by AI:} problem choice, theorem acceptance, fidelity sign-off, and scope.
+No AI is an author; 5 Lean~4.35 kernels (6 runs, zero \texttt{sorryAx}/\texttt{\_native}; Table~\ref{tab:kernels}) certify Tier-1.
 
 \emph{COI, Export Control, \& Versioning:} Self-funded independent research (ORCID \href{https://orcid.org/0009-0006-8168-9648}{0009-0006-8168-9648}); no employer, grant, or COI; fundamental math (15~CFR~734.8).
-Release \texttt{v1.0.1} (Version DOI \href{https://doi.org/10.5281/zenodo.24517199}{10.5281/zenodo.24517199}; Concept DOI \href{https://doi.org/10.5281/zenodo.24517198}{10.5281/zenodo.24517198}): corrections are logged in \texttt{ERRATA.md}, and any falsified claim triggers a dated withdrawal notice on Zenodo/GitHub rather than silent deletion.
+Release \texttt{v1.0.1} (Version DOI \href{https://doi.org/10.5281/zenodo.24517199}{10.5281/zenodo.24517199}; Concept DOI \href{https://doi.org/10.5281/zenodo.24517198}{10.5281/zenodo.24517198}): corrections log in \texttt{ERRATA.md}; falsified claims get a dated Zenodo/GitHub withdrawal notice, never silent deletion.
 
-\emph{Data, Code, and Reproducibility Availability:} All Lean~4.35.0 proofs (\texttt{lean/}, including Palomar contract files \texttt{PalomarChallenge.lean}, \texttt{palomar\_\allowbreak comparator.json}, and \texttt{formalization.yaml}), Python exact-arithmetic and Hypothesis/mutant/SAT tests (\texttt{experiments/}, \texttt{tests/\allowbreak test\_\allowbreak all.py}), deterministic figure scripts (\texttt{scripts/\allowbreak make\_\allowbreak figures.py}), offline browser verifier (\texttt{docs/}), pinned lockfiles and SBOM (\texttt{requirements.\allowbreak lock.txt}, \texttt{sbom.\allowbreak cdx.json}), and cryptographic checksums (\texttt{MANIFEST.\allowbreak sha256}) are released openly under Apache-2.0 (code) and CC-BY-4.0 (prose and figures); no third-party PDFs~\cite{Vinciguerra2026,Morse2026} are redistributed.
+\emph{Data \& Code:} Lean~4.35.0 proofs (\texttt{lean/}, incl.\ \texttt{Palomar\allowbreak Challenge.\allowbreak lean}, \texttt{palomar\_\allowbreak comparator.\allowbreak json}, \texttt{formalization.\allowbreak yaml}), Python/SAT tests (\texttt{experiments/}, \texttt{tests/\allowbreak test\_\allowbreak all.\allowbreak py}), figures (\texttt{scripts/\allowbreak make\_\allowbreak figures.\allowbreak py}), offline verifier (\texttt{docs/}), lockfiles/SBOM (\texttt{requirements.\allowbreak lock.\allowbreak txt}, \texttt{sbom.\allowbreak cdx.\allowbreak json}), and \texttt{MANIFEST.\allowbreak sha256} are Apache-2.0 (code) / CC-BY-4.0 (text/figures); no third-party PDFs~\cite{Vinciguerra2026,Morse2026} are redistributed.
 
 \bibliographystyle{amsplain}
 \bibliography{references}

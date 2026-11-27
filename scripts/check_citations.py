@@ -52,6 +52,19 @@ def check_offline(bib_path: Path) -> tuple[list[dict[str, str]], list[str]]:
             errors.append(f"{key}: missing DOI or arXiv identifier")
     if len(entries) < 8:
         errors.append(f"Expected >= 8 bibliography entries, found {len(entries)}")
+    tex_path = bib_path.parent / "main.tex"
+    if tex_path.exists():
+        tex_txt = tex_path.read_text(encoding="utf-8")
+        cited: set[str] = set()
+        for grp in re.findall(r"\\cite(?:\[[^\]]*\])?\{([^}]+)\}", tex_txt):
+            for k in grp.split(","):
+                k_clean = k.strip()
+                if k_clean:
+                    cited.add(k_clean)
+        for missing in sorted(cited - seen_keys):
+            errors.append(f"Citation key '\\cite{{{missing}}}' in {tex_path.name} not defined in {bib_path.name}")
+        for uncited in sorted(seen_keys - cited):
+            errors.append(f"BibTeX key '{uncited}' in {bib_path.name} is never cited in {tex_path.name}")
     return entries, errors
 
 
@@ -81,6 +94,9 @@ def check_online(entries: list[dict[str, str]]) -> list[str]:
                         msg = json.loads(r.read().decode("utf-8"))["message"]
                         if msg.get("update-to"):
                             errors.append(f"{key}: Crossref update/retraction notice present: {msg['update-to']}")
+                        rel_retract = (msg.get("relation") or {}).get("is-retracted-by")
+                        if rel_retract:
+                            errors.append(f"{key}: Crossref is-retracted-by notice present: {rel_retract}")
                 except Exception as exc:
                     errors.append(f"{key}: Crossref check failed for {doi}: {exc}")
         for arx in re.findall(r"https://arxiv\.org/abs/([0-9]+\.[0-9]+)", str(e)):

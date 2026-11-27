@@ -120,9 +120,11 @@ status:
     (including explicit CatOp.usesOnly containment within <= k + 2 designated
     registers for Theorem 1.4), Corollaries 5.2 (T3h) and algebraic 5.3 (T3i),
     and literal commutative-ring soundness bridges. The supporting modules also
-    formalize sharp F_4 extension-field separation (T1e, T1es), distinct-operand
-    char-2 collapse (T2b), and concrete 0 != 1 non-vacuity witnesses
-    (Catalytic/NonVacuity.lean). Not formalized in Lean: bit-space streaming
+    formalize sharp F_4 extension-field separation (T1e, T1es), bi-directional
+    soundness & completeness bridges via zero-Mathlib formal power series
+    FPS (FPS R) (T1sc, T1esc), distinct-operand char-2 collapse (T2b), and
+    concrete 0 != 1 non-vacuity witnesses (Catalytic/NonVacuity.lean). Not
+    formalized in Lean: bit-space streaming
     accounting in Corollary 5.3, general non-commutative matrix lifting in
     Corollary 5.4 (tested in exact modular Python arithmetic), uniform
     D^{pass}_{3,Q}(t) = 2t - 3 for t >= 10, and empirical SAT/LRAT Boolean XAG
@@ -193,12 +195,17 @@ fidelity:
   divergences: >-
     Formal polynomial-ring cleanliness over F_p[O, R, x] is formalized, with the
     instruction set of Vinciguerra Def. 2.2; Def. 2.2 itself is functional (pointwise
-    clean execution), and over F_p the two notions differ because x^p = x. The
-    converse of the soundness bridge T1s (literal execution implies the formal
-    predicate) is not formalized. In PalomarChallenge.lean,
-    digitSum and baseDigits use fuel-bounded structural recursion (proved equivalent to
-    well-founded division recursion in PalomarSolution.lean) to avoid module-private
-    termination proof terms in standalone Comparator exports.
+    clean execution), and over F_p alone the two notions differ because x^p = x.
+    In the core Solution suite (Pass2Soundness.lean), T1sc and T1esc also formalize
+    the converse direction via zero-Mathlib formal power series FPS (FPS R), proving
+    exact equivalence between formal cleanliness and clean execution over all
+    characteristic-p commutative rings / F_4-algebras (the 17 standalone Palomar
+    Comparator theorems in PalomarChallenge.lean / PalomarSolution.lean remain
+    untouched for commit 1a92f47 / submission 69gqxo2kucrf compatibility). In
+    PalomarChallenge.lean, digitSum and baseDigits use fuel-bounded structural
+    recursion (proved equivalent to well-founded division recursion in
+    PalomarSolution.lean) to avoid module-private termination proof terms in
+    standalone Comparator exports.
 
 review:
   status: "self-assessed"

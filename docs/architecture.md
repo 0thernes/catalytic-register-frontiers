@@ -19,14 +19,14 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-  subgraph Formal["1. Formal Core (Zero-Mathlib Lean 4.35.0 — 14 Modules, 20 Theorems)"]
+  subgraph Formal["1. Formal Core (Zero-Mathlib Lean 4.35.0 — 14 Modules, 22 Theorems)"]
     CR["Catalytic/CommRing.lean"] --> BF["BilinearFrobenius.lean (T2, T2b)"]
     CR --> BP["BalancedProduct.lean (T4)"]
     CR --> TR["ThreeRegisterBreakthrough.lean (T3a-T3g)"]
     TR --> FP["FourRegisterPowering.lean (T3h, T3i)"]
     PF["PrimeFieldTools.lean"] --> DS["DigitSumDichotomy.lean (T1, T1a-T1d)"]
     CR --> EF["ExtensionFieldSeparation.lean (T1e)"]
-    DS & EF --> PS["Pass2Soundness.lean (T1s, T1es)"]
+    DS & EF --> PS["Pass2Soundness.lean (T1s-T1esc, FPS)"]
     PS --> FP
     BF & BP & TR & FP & DS & EF & PS --> NV["NonVacuity.lean"]
     NV --> CH["Challenge.lean"] --> SOL["Solution.lean"] --> VA["VerifyAxioms.lean"]
@@ -53,5 +53,5 @@ flowchart TD
 
 ## Scaling & Observability
 
-- **Build scaling:** All 19 default Lean build jobs across 14 core modules (8,151 lines) + `PalomarSolution` compile cleanly from scratch in under 60 s on standard consumer hardware with < 2 GB RAM (zero Mathlib cache required).
+- **Build scaling:** All 19 default Lean build jobs across 14 core modules (8,881 lines) + `PalomarSolution` compile cleanly from scratch in under 60 s on standard consumer hardware with < 2 GB RAM (zero Mathlib cache required).
 - **Observability:** Every verification stage produces plain-text or JSON evidence artifacts (`results/lean_axioms.txt`, `results/six_kernel_audit.txt`, `results/exp*.json`, `docs/run-log.md`, `MANIFEST.sha256`). Health check: `just reproduce` or `pwsh -NoProfile -File scripts/run_all.ps1 -Task all`.

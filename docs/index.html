@@ -299,7 +299,7 @@
   </p>
   <div class="pills">
     <span class="pill">Lean 4.35.0 &middot; Zero Mathlib</span>
-    <span class="pill">14 Core Modules &middot; 20 Theorems + Non-Vacuity</span>
+    <span class="pill">14 Core Modules &middot; 22 Theorems + Non-Vacuity</span>
     <span class="pill">5 Kernels (6 Runs) PASS</span>
     <span class="pill">8 / 8 LRAT UNSAT Proofs Verified</span>
     <span class="pill info">Adaptive Forking Offline PWA v1.9</span>
@@ -308,7 +308,7 @@
 
   <div class="grid">
     <div class="stat"><div class="k">0.810714</div><div class="l">3-reg exponent log<sub>13</sub> 8, smallest among the constructed programs, not proved optimal (4-register bound down from log<sub>5</sub> 4 &approx; 0.86135)</div></div>
-    <div class="stat"><div class="k">22 / 22</div><div class="l">Lean decls strictly in [propext, Classical.choice, Quot.sound]</div></div>
+    <div class="stat"><div class="k">24 / 24</div><div class="l">Lean decls strictly in [propext, Classical.choice, Quot.sound]</div></div>
     <div class="stat"><div class="k">18,932</div><div class="l">Verified CaDiCaL 2.1.2 LRAT UNSAT steps across 8/8 certificates</div></div>
     <div class="stat"><div class="k">100% REUSE</div><div class="l">All tracked files covered by inline SPDX + REUSE.toml</div></div>
   </div>
@@ -577,7 +577,7 @@ node catalytic-engine.js bench</code></pre>
   <!-- =================================================================== -->
   <div class="card">
     <h2>Interactive Formal Dependency Blueprint (Lean 4.35.0 Module DAG)</h2>
-    <p>Every Tier-1 theorem in <code>paper/main.tex</code> maps to a self-contained zero-Mathlib Lean 4.35.0 <code>module</code> audited across 5 distinct locally reproducible kernel implementations in 6 runs: <code>lean</code>, <code>leanchecker</code>, <code>leanchecker-paranoid</code>, <code>con-leche --verified</code> (3,544 decls), <code>con-ron --verified</code> (3,544 decls), and <code>nanoda_bin 0.4.19</code> (3,544 decls).</p>
+    <p>Every Tier-1 theorem in <code>paper/main.tex</code> maps to a self-contained zero-Mathlib Lean 4.35.0 <code>module</code> audited across 5 distinct locally reproducible kernel implementations in 6 runs: <code>lean</code>, <code>leanchecker</code>, <code>leanchecker-paranoid</code>, <code>con-leche --verified</code> (3,642 decls), <code>con-ron --verified</code> (3,642 decls), and <code>nanoda_bin 0.4.19</code> (3,642 decls).</p>
     <div class="svg-wrap">
       <svg viewBox="0 0 1080 450" width="1080" height="450" role="img" aria-label="Formal Lean 4.35 Module Dependency Graph">
         <defs>
@@ -628,7 +628,7 @@ node catalytic-engine.js bench</code></pre>
 
           <rect x="246" y="138" width="264" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
           <text x="378" y="159" text-anchor="middle" fill="#f8fafc" font-weight="700">ThreeRegisterBreakthrough.lean</text>
-          <text x="378" y="176" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T3a-g: x^7..x^15 + global t=8 opt</text>
+          <text x="378" y="176" text-anchor="middle" fill="#a7f3d0" font-size="10.5">T3a-g: x^7..x^15 + min log_(2t-3) t</text>
 
           <rect x="246" y="196" width="264" height="48" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
           <text x="378" y="217" text-anchor="middle" fill="#f8fafc" font-weight="700">ExtensionFieldSeparation.lean</text>
@@ -640,7 +640,7 @@ node catalytic-engine.js bench</code></pre>
 
           <rect x="246" y="314" width="264" height="48" rx="8" fill="#064e3b" stroke="#38bdf8" stroke-width="1.5"/>
           <text x="378" y="335" text-anchor="middle" fill="#f8fafc" font-weight="700">Pass2Soundness.lean</text>
-          <text x="378" y="352" text-anchor="middle" fill="#bae6fd" font-size="10.5">T1s, T1es: CRing &amp; GF4 literal bridge</text>
+          <text x="378" y="352" text-anchor="middle" fill="#bae6fd" font-size="10.5">T1s-esc: CRing &amp; GF4 IFF (FPS)</text>
 
           <rect x="246" y="374" width="264" height="50" rx="8" fill="#064e3b" stroke="#fbbf24" stroke-width="1.5"/>
           <text x="378" y="395" text-anchor="middle" fill="#f8fafc" font-weight="700">FourRegisterPowering.lean</text>
@@ -658,7 +658,7 @@ node catalytic-engine.js bench</code></pre>
           <!-- Layer 4: Palomar Contract & Verification -->
           <rect x="836" y="98" width="224" height="56" rx="8" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/>
           <text x="948" y="122" text-anchor="middle" fill="#fef08a" font-weight="700">Challenge.lean</text>
-          <text x="948" y="140" text-anchor="middle" fill="#cbd5e1" font-size="10.5">20 Public Prop Specifications</text>
+          <text x="948" y="140" text-anchor="middle" fill="#cbd5e1" font-size="10.5">22 Public Prop Specifications</text>
 
           <rect x="836" y="188" width="224" height="56" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
           <text x="948" y="212" text-anchor="middle" fill="#f8fafc" font-weight="700">Solution.lean</text>
@@ -684,7 +684,7 @@ node catalytic-engine.js bench</code></pre>
   <div class="card">
     <h2>Tier-1 Machine-Checked Theorems &amp; Witnesses</h2>
     <div class="filter-bar" role="group" aria-label="Filter theorems by family">
-      <button class="filter-btn active" aria-pressed="true" onclick="filterRows('all', this)">All (21)</button>
+      <button class="filter-btn active" aria-pressed="true" onclick="filterRows('all', this)">All (23)</button>
       <button class="filter-btn" aria-pressed="false" onclick="filterRows('T1', this)">T1 Prime/Ext Dichotomy</button>
       <button class="filter-btn" aria-pressed="false" onclick="filterRows('T2', this)">T2 Bilinear Frobenius</button>
       <button class="filter-btn" aria-pressed="false" onclick="filterRows('T3', this)">T3 3-Reg Powering</button>
@@ -703,6 +703,8 @@ node catalytic-engine.js bench</code></pre>
           <tr data-fam="T1"><td><code>T1e</code></td><td><code>t1e_extension_field_separation</code></td><td>Exact F<sub>4</sub> separation (formal-polynomial cleanliness): x<sup>5</sup> &in; RP(2,3)\RP(2,2), x<sup>3</sup> &in; RP(2,4)\RP(2,3), &forall;t x<sup>7</sup> &notin; RP(2,t)</td><td>3 standard</td></tr>
           <tr data-fam="T1"><td><code>T1s</code></td><td><code>t1s_pass2_ring_soundness</code></td><td>Literal CRing soundness bridge: direct ring execution matches symbolic Pass2Prog.exec over every char-p ring R</td><td>3 standard</td></tr>
           <tr data-fam="T1"><td><code>T1es</code></td><td><code>t1es_pass2_gf4_soundness</code></td><td>Literal GF4-algebra soundness bridge: direct algebra execution matches symbolic Pass2GF4Prog.exec over every (R, &phi;)</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1sc</code></td><td><code>t1sc_pass2_ring_equiv</code></td><td>Bi-directional soundness &amp; completeness via zero-Mathlib <code>FPS (FPS (ModP p))</code>: formal cleanliness &hArr; literal clean execution over every char-p ring (yields direct literal-ring <code>rp_pass_two_literal_ring_iff</code>)</td><td>3 standard</td></tr>
+          <tr data-fam="T1"><td><code>T1esc</code></td><td><code>t1esc_pass2_gf4_equiv</code></td><td>Bi-directional soundness &amp; completeness via zero-Mathlib <code>FPS (FPS GF4)</code>: formal cleanliness &hArr; literal clean execution over every commutative F<sub>4</sub>-algebra (R, &phi;)</td><td>3 standard</td></tr>
           <tr data-fam="T2"><td><code>T2</code></td><td><code>t2_bilinear_frobenius_collapse</code></td><td>Strictly bilinear passive 2-access x<sup>2<sup>k</sup></sup> in k+1 regs, 4k&minus;2 ops over every char-2 ring</td><td>3 standard</td></tr>
           <tr data-fam="T2"><td><code>T2b</code></td><td><code>t2b_distinct_operand_frobenius</code></td><td>Strictly distinct-operand 2-access x<sup>2<sup>k</sup></sup> in k+2 regs (zero self-squares R<sub>a</sub>R<sub>a</sub>)</td><td>3 standard</td></tr>
           <tr data-fam="T3"><td><code>T3a</code></td><td><code>t3a_three_reg_5call_x7</code></td><td>x<sup>7</sup> &in; RP<sup>pass</sup><sub>R</sub>(3, 5) whenever 576 is invertible (char &ne; 2, 3); log<sub>7</sub> 5 &approx; 0.82709</td><td>3 standard</td></tr>
@@ -727,7 +729,7 @@ node catalytic-engine.js bench</code></pre>
   <div class="card">
     <h2>5-Second Axiom &amp; Provenance Verification</h2>
     <details open>
-      <summary>Verbatim <code>lake env lean VerifyAxioms.lean</code> Output (22/22 Declarations)</summary>
+      <summary>Verbatim <code>lake env lean VerifyAxioms.lean</code> Output (24/24 Declarations)</summary>
       <pre><code>'Catalytic.Solution.t1_digit_sum_dichotomy' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t1a_two_access_frobenius_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t1b_f2_saturation' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -736,6 +738,8 @@ node catalytic-engine.js bench</code></pre>
 'Catalytic.Solution.t1e_extension_field_separation' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t1s_pass2_ring_soundness' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t1es_pass2_gf4_soundness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1sc_pass2_ring_equiv' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Catalytic.Solution.t1esc_pass2_gf4_equiv' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t2_bilinear_frobenius_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t2b_distinct_operand_frobenius' depends on axioms: [propext, Classical.choice, Quot.sound]
 'Catalytic.Solution.t3a_three_reg_5call_x7' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -768,7 +772,12 @@ node catalytic-engine.js bench</code></pre>
   let telemetryHistory = [];
 
   function esc(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   function renderHorizonSvg(horizon) {
@@ -1074,6 +1083,23 @@ node catalytic-engine.js bench</code></pre>
           const finalO = faultBit ? (O0 + x + 1n) : (O0 + x);
           const expectedO = O0 + x;
           const ok = finalO === expectedO;
+          lastCertificate = {
+            kind: 'adaptive_fork_4reg',
+            timestamp: new Date().toISOString(),
+            device: detectDeviceClass(),
+            ring: 'exact integer ring Z',
+            N: '1',
+            p: '0',
+            x: x.toString(),
+            O0: O0.toString(),
+            finalO: finalO.toString(),
+            engineUsed: 'adaptive:direct_x1 (1-reg, 1 access)',
+            accesses: 1,
+            vinciguerraBaselineAccesses: 1,
+            outputExact: ok,
+            catalystsRestored: true,
+            verified: ok
+          };
           out.innerHTML = `<div class="status-box ${ok ? 'ok' : 'bad'}">` +
             `<strong>${ok ? 'VERIFIED BIT-FOR-BIT LIVE (EXACT Z)' : 'CORRUPTION DETECTED (FAULT CAUGHT!)'}</strong> via <code>adaptive:direct_x1 (1-reg, 1 access)</code><br>` +
             `Output O: <code>${esc(E.formatBig(finalO, 28))}</code> (expected <code>${esc(E.formatBig(expectedO, 28))}</code>) &middot; Zero borrowed catalysts needed for degree 1.</div>`;
@@ -1425,6 +1451,9 @@ node catalytic-engine.js bench</code></pre>
     if (!out || !inputEl || !inputEl.files || !inputEl.files[0]) return;
     const file = inputEl.files[0];
     try {
+      if (file.size > 2 * 1024 * 1024) {
+        throw new Error(`Certificate file "${file.name}" exceeds 2 MiB offline safety limit (${file.size.toLocaleString()} bytes).`);
+      }
       const text = await file.text();
       const parsed = JSON.parse(text);
       const v = E.verifyCertificate(parsed);
@@ -1489,6 +1518,7 @@ node catalytic-engine.js bench</code></pre>
     const certJson = JSON.stringify(lastCertificate, null, 2);
     const doc = [
       '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">',
+      '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\';">',
       '<title>Catalytic Adaptive Fork Proof Audit Report</title>',
       '<style>body{font-family:system-ui,sans-serif;max-width:860px;margin:2rem auto;padding:0 1rem;color:#0f172a;line-height:1.55;}',
       'h1{font-size:1.35rem;margin-bottom:0.25rem;} .meta{color:#475569;font-size:0.88rem;margin-bottom:1.2rem;}',
@@ -1496,7 +1526,7 @@ node catalytic-engine.js bench</code></pre>
       'pre{background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:0.9rem;overflow-x:auto;font-size:0.8rem;}',
       '@media print{body{margin:0.5in;}}</style></head><body>',
       '<h1>Catalytic Register Frontiers — Offline Proof Audit Report</h1>',
-      '<div class="meta">Author: Alexander S. Donahue (ORCID 0009-0006-8168-9648) &middot; Zenodo DOI: 10.5281/zenodo.24517198 &middot; Lean 4.35.0 Zero-Mathlib Formalization &middot; Engine v' + esc(E.version) + '</div>',
+      '<div class="meta">Author: Alexander S. Donahue (ORCID 0009-0006-8168-9648) &middot; Zenodo DOI: 10.5281/zenodo.24517198 (v1.0.1: 10.5281/zenodo.24517199) &middot; SWHID: swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085 &middot; Lean 4.35.0 Zero-Mathlib Formalization &middot; Engine v' + esc(E.version) + '</div>',
       '<p><span class="badge">' + (verdict.ok ? 'INDEPENDENTLY RE-VERIFIED PASS' : 'AUDIT REJECTED / FAULT DETECTED') + '</span> &nbsp; ' + esc(verdict.reason) + '</p>',
       '<h2>Certificate Payload (Exact BigInt / SHA-256)</h2><pre>' + esc(certJson) + '</pre>',
       '<h2>Independent Offline CLI Verification</h2>',

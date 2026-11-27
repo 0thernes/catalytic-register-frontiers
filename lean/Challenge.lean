@@ -90,6 +90,32 @@ def T1es_Pass2GF4Soundness : Prop :=
     ∀ (R : Type) [CRing R] (φ : GF4Hom R) (o u x : R),
       Pass2GF4Prog.execAlg φ x prog (o, u) = (o + evalPolyGF4Alg φ f x, u))
 
+/-- **T1sc (Exact Bi-Directional Soundness + Completeness & Direct Literal-Ring Theorem `T1`):**
+Proved via the formal power series ring `FPS (FPS (ModP p hp))`:
+  1. For every `p > 1`, `CleanlyComputes2 p prog f ↔` literal clean execution over every char-`p` `CRing R`,
+  2. Theorem `T1` stated directly on literal `Pass2Prog.execRing` across all char-`p` commutative rings
+     (zero symbolic `State2` / `polyAtShiftCoeff` in the statement). -/
+def T1sc_Pass2RingEquiv : Prop :=
+  (∀ (p : Nat), 1 < p → ∀ (prog : List Pass2Instr) (f : List Nat),
+    CleanlyComputes2 p prog f ↔
+      ∀ (R : Type) [CRing R], (CRing.natCast p : R) = 0 →
+        ∀ o u x : R, Pass2Prog.execRing x prog (o, u) = (o + evalPolyR f x, u)) ∧
+  (∀ (p t : Nat), IsPrime p → 1 ≤ t → ∀ (f : List Nat),
+    (∃ prog : List Pass2Instr, Pass2Prog.accesses prog ≤ t ∧
+      ∀ (R : Type) [CRing R], (CRing.natCast p : R) = 0 →
+        ∀ o u x : R, Pass2Prog.execRing x prog (o, u) = (o + evalPolyR f x, u)) ↔
+      ∀ d : Nat, 2 ≤ d → f.getD d 0 % p ≠ 0 →
+        digitSum p d ≤ min (p - 1) (t - 1))
+
+/-- **T1esc (Exact Bi-Directional Soundness + Completeness for `GF4`-Algebras):**
+Proved via `FPS (FPS GF4)`: `CleanlyComputes2GF4 prog f ↔` literal clean execution over every
+commutative `GF4`-algebra `(R, φ)`. -/
+def T1esc_Pass2GF4Equiv : Prop :=
+  ∀ (prog : List Pass2GF4Instr) (f : List GF4),
+    CleanlyComputes2GF4 prog f ↔
+      ∀ (R : Type) [CRing R] (φ : GF4Hom R) (o u x : R),
+        Pass2GF4Prog.execAlg φ x prog (o, u) = (o + evalPolyGF4Alg φ f x, u)
+
 /-- **T2 (Strictly Bilinear 2-Access Frobenius Collapse over Characteristic 2):**
 For every `k ≥ 1`, there is a passive-output strictly bilinear register program on `k + 1`
 registers using ONLY 2 input accesses and `4*k - 2` bilinear ops that cleanly computes

@@ -72,8 +72,8 @@ if re.search(r'sorryAx|_native|Lean\.ofReduceBool|Lean\.trustCompiler', actual):
     sys.exit(1)
 allowed = {'propext', 'Classical.choice', 'Quot.sound'}
 lines = [ln.strip() for ln in actual.splitlines() if ln.strip()]
-if len(lines) != 22:
-    print(f'Expected 22 audited axiom lines, got {len(lines)}', file=sys.stderr)
+if len(lines) != 24:
+    print(f'Expected 24 audited axiom lines, got {len(lines)}', file=sys.stderr)
     sys.exit(1)
 for ln in lines:
     if ln.endswith('does not depend on any axioms'):
@@ -86,7 +86,7 @@ for ln in lines:
     if extra:
         print(f'DISALLOWED AXIOMS {extra} IN: {ln}', file=sys.stderr)
         sys.exit(1)
-print(f'Strict 3-axiom allowlist verified on {len(lines)}/22 declarations.')
+print(f'Strict 3-axiom allowlist verified on {len(lines)}/24 declarations.')
 "@
             if ($LASTEXITCODE -ne 0) { return }
             & lake env leanchecker --fresh Solution

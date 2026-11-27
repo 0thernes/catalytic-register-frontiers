@@ -95,7 +95,7 @@ items:
   B21: {status: n/a, note: "Not a networked service"}
   B22: {status: done, evidence: "Zero-Mathlib Lean 4.35 formalization in lean/ verified by 5 distinct kernel implementations (6 runs)"}
   B23: {status: n/a, note: "Pure algebraic theorems proved in Lean 4; no concurrent protocol state machine for TLA+/Alloy"}
-  B24: {status: done, evidence: "All 20 headline theorems/soundness bridges + NonVacuity (22 decls across 14 modules) machine-checked in Lean 4.35"}
+  B24: {status: done, evidence: "All 22 headline theorems/ring-equivalence bridges + NonVacuity (24 decls across 14 modules) machine-checked in Lean 4.35"}
   B25: {status: n/a, note: "No C/Rust systems implementation for CBMC/Kani bounded model checking"}
   B26: {status: n/a, note: "No runtime throughput/speedup claims"}
   B27: {status: n/a, note: "No runtime throughput/speedup claims"}

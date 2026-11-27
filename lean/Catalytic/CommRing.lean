@@ -291,6 +291,111 @@ instance : CRing Int where
   one_mul := Int.one_mul
   left_distrib := Int.mul_add
 
+/-- Concrete finite modular ring `ℤ / pℤ` for any `p > 1` (zero-Mathlib witness). -/
+structure ModP (p : Nat) (hp : 1 < p) where
+  val : Nat
+  lt : val < p
+
+namespace ModP
+
+theorem ext {p : Nat} {hp : 1 < p} {a b : ModP p hp} (h : a.val = b.val) : a = b := by
+  cases a; cases b; cases h; rfl
+
+instance (p : Nat) (hp : 1 < p) : DecidableEq (ModP p hp) := fun a b =>
+  if h : a.val = b.val then isTrue (ext h) else isFalse (fun heq => h (congrArg ModP.val heq))
+
+instance (p : Nat) (hp : 1 < p) : Zero (ModP p hp) := ⟨⟨0, by omega⟩⟩
+instance (p : Nat) (hp : 1 < p) : One (ModP p hp) := ⟨⟨1, hp⟩⟩
+instance (p : Nat) (hp : 1 < p) : Add (ModP p hp) :=
+  ⟨fun a b => ⟨(a.val + b.val) % p, Nat.mod_lt _ (by omega)⟩⟩
+instance (p : Nat) (hp : 1 < p) : Mul (ModP p hp) :=
+  ⟨fun a b => ⟨(a.val * b.val) % p, Nat.mod_lt _ (by omega)⟩⟩
+instance (p : Nat) (hp : 1 < p) : Neg (ModP p hp) :=
+  ⟨fun a => ⟨(p - a.val) % p, Nat.mod_lt _ (by omega)⟩⟩
+
+instance (p : Nat) (hp : 1 < p) : CRing (ModP p hp) where
+  add_assoc a b c := by
+    apply ext
+    change ((a.val + b.val) % p + c.val) % p = (a.val + (b.val + c.val) % p) % p
+    rw [Nat.add_mod, Nat.mod_mod, ← Nat.add_mod]
+    rw [Nat.add_mod a.val ((b.val + c.val) % p), Nat.mod_mod, ← Nat.add_mod, Nat.add_assoc]
+  add_comm a b := by
+    apply ext
+    change (a.val + b.val) % p = (b.val + a.val) % p
+    rw [Nat.add_comm]
+  zero_add a := by
+    apply ext
+    change (0 + a.val) % p = a.val
+    rw [Nat.zero_add, Nat.mod_eq_of_lt a.lt]
+  add_neg a := by
+    apply ext
+    change (a.val + (p - a.val) % p) % p = 0
+    have ha := a.lt
+    by_cases h0 : a.val = 0
+    · rw [h0, Nat.sub_zero, Nat.mod_self, Nat.add_zero, Nat.zero_mod]
+    · have hlt : p - a.val < p := by omega
+      rw [Nat.mod_eq_of_lt hlt]
+      have hsum : a.val + (p - a.val) = p := by omega
+      rw [hsum, Nat.mod_self]
+  mul_assoc a b c := by
+    apply ext
+    change ((a.val * b.val) % p * c.val) % p = (a.val * ((b.val * c.val) % p)) % p
+    rw [Nat.mul_mod, Nat.mod_mod, ← Nat.mul_mod]
+    rw [Nat.mul_mod a.val ((b.val * c.val) % p), Nat.mod_mod, ← Nat.mul_mod, Nat.mul_assoc]
+  mul_comm a b := by
+    apply ext
+    change (a.val * b.val) % p = (b.val * a.val) % p
+    rw [Nat.mul_comm]
+  one_mul a := by
+    apply ext
+    change (1 * a.val) % p = a.val
+    rw [Nat.one_mul, Nat.mod_eq_of_lt a.lt]
+  left_distrib a b c := by
+    apply ext
+    change (a.val * ((b.val + c.val) % p)) % p = ((a.val * b.val) % p + (a.val * c.val) % p) % p
+    rw [Nat.mul_mod a.val ((b.val + c.val) % p), Nat.mod_mod, ← Nat.mul_mod]
+    rw [Nat.mul_add, Nat.add_mod]
+
+theorem zero_ne_one (p : Nat) (hp : 1 < p) : (0 : ModP p hp) ≠ (1 : ModP p hp) := by
+  intro h
+  have hv := congrArg ModP.val h
+  exact Nat.zero_ne_one hv
+
+theorem natCast_val {p : Nat} {hp : 1 < p} (k : Nat) :
+    (CRing.natCast k : ModP p hp).val = k % p := by
+  induction k with
+  | zero =>
+    change 0 = 0 % p
+    simp
+  | succ n ih =>
+    change ((CRing.natCast n : ModP p hp).val + 1) % p = (n + 1) % p
+    rw [ih, Nat.add_mod, Nat.mod_mod, ← Nat.add_mod]
+
+theorem mul_intCast_lit_eq_one {p : Nat} {hp : 1 < p} (u : ModP p hp) (k : Nat)
+    (z : Int) (hz : z = Int.ofNat k) (h : (u.val * (k % p)) % p = 1) :
+    u * CRing.intCast z = (1 : ModP p hp) := by
+  subst hz
+  apply ext
+  change (u.val * (CRing.natCast k : ModP p hp).val) % p = 1
+  rw [natCast_val]
+  exact h
+
+theorem mul_natCast_eq_one {p : Nat} {hp : 1 < p} (u : ModP p hp) (k : Nat)
+    (h : (u.val * (k % p)) % p = 1) :
+    u * CRing.natCast k = (1 : ModP p hp) := by
+  apply ext
+  change (u.val * (CRing.natCast k : ModP p hp).val) % p = 1
+  rw [natCast_val]
+  exact h
+
+theorem natCast_p_eq_zero (p : Nat) (hp : 1 < p) :
+    (CRing.natCast p : ModP p hp) = (0 : ModP p hp) := by
+  apply ext
+  rw [natCast_val, Nat.mod_self]
+  rfl
+
+end ModP
+
 end
 
 end Catalytic

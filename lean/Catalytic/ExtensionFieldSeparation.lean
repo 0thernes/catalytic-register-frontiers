@@ -13,16 +13,16 @@ Theorem `T1` (`Catalytic.DigitSumDichotomy`) proves that over every **prime fiel
 and `x^5` (`s_2(5) = 2`) are impossible for every `t`.
 
 This module constructs the finite extension field `𝔽_4 = 𝔽_2[ω] / (ω^2 + ω + 1)` as a
-concrete 4-element `Char2CRing` and formalizes the literal Vinciguerra Def. 2.2 passive-output
-2-register model over `𝔽_4[O, R, x]`, proving **Theorem T1e (Extension-Field Separation)**:
+concrete 4-element `Char2CRing` and formalizes the instruction set of Vinciguerra Def. 2.2
+with formal-polynomial cleanliness over `𝔽_4[O, R, x]`, proving **Theorem T1e (Extension-Field Separation)**:
   1. `x^5 ∈ RP^{pass}_{𝔽_4}(2, 3)` AND `x^5 ∉ RP^{pass}_{𝔽_4}(2, 2)` (exact `t_min = 3`, via `ω^2 u^5 + ω (u + x)^5 + (u + ω x)^5 = x^5`),
   2. `x^3 ∈ RP^{pass}_{𝔽_4}(2, 4)` AND `x^3 ∉ RP^{pass}_{𝔽_4}(2, 3)` (exact `t_min = 4`, via `u^3 + (u + x)^3 + (u + ω x)^3 + (u + ω^2 x)^3 = x^3`),
   3. `∀ t : Nat, x^7 ∉ RP^{pass}_{𝔽_4}(2, t)` (because `α^7 = α` for every `α ∈ 𝔽_4`, so any clean
      program necessarily has `[x^7] ΔO = [R^6 x] ΔO = 0`).
 
 This proves inside Lean 4.35 (with zero Mathlib and zero extra axioms) that the prime-field
-restriction in Theorem `T1` is sharp while extension fields still exhibit absolute impossibility
-barriers.
+restriction in Theorem `T1` is sharp while extension fields still exhibit formal impossibility
+results.
 -/
 
 namespace Catalytic

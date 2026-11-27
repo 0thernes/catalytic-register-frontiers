@@ -51,7 +51,9 @@ def parse_dimacs_cnf(cnf_path: pathlib.Path) -> tuple[int, dict[int, list[int]]]
 
     if current:
         raise ValueError("Unterminated clause at end of DIMACS CNF file")
-    if expected_clauses is not None and len(clauses) != expected_clauses:
+    if expected_clauses is None:
+        raise ValueError("Missing DIMACS 'p cnf' header")
+    if len(clauses) != expected_clauses:
         raise ValueError(
             f"Clause count mismatch: header declared {expected_clauses}, parsed {len(clauses)}"
         )
@@ -120,6 +122,8 @@ def verify_lrat(cnf_path: pathlib.Path, lrat_path: pathlib.Path) -> tuple[int, i
         step_id = int(tokens[0])
 
         if tokens[1] == "d":
+            if step_id <= 0:
+                raise ValueError(f"Line {line_no}: deletion step id must be positive, got {step_id}")
             if tokens[-1] != "0":
                 raise ValueError(f"Line {line_no}: deletion line missing terminating 0")
             for tok in tokens[2:-1]:
@@ -142,6 +146,8 @@ def verify_lrat(cnf_path: pathlib.Path, lrat_path: pathlib.Path) -> tuple[int, i
         if not rest or rest[-1] != 0:
             raise ValueError(f"Line {line_no}: missing hint terminator 0")
         hints = rest[:-1]
+        if 0 in hints:
+            raise ValueError(f"Line {line_no}: unexpected zero inside hint list")
 
         if step_id <= max_clause_id or step_id in clauses:
             raise ValueError(

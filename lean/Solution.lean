@@ -5,7 +5,7 @@ public import Challenge
 public import Catalytic
 
 /-!
-# Verified Solutions to All 20 Formalized Theorems (`T1`–`T4`, Corollaries, and Soundness Bridges)
+# Verified Solutions to All 22 Formalized Theorems (`T1`–`T4`, Corollaries, and Soundness/Completeness Bridges)
 
 All proofs are kernel-checked in pure Lean 4.35.0 with zero external dependencies and only the three standard Lean axioms.
 -/
@@ -45,6 +45,13 @@ public theorem t1es_pass2_gf4_soundness : T1es_Pass2GF4Soundness :=
      Pass2GF4Prog.execAlg_eq_evalState2GF4 (R := R) φ prog D hD o u x,
    fun _ _ hclean R _ φ o u x =>
      pass2gf4_clean_implies_alg_exec hclean R φ o u x⟩
+
+public theorem t1sc_pass2_ring_equiv : T1sc_Pass2RingEquiv :=
+  ⟨fun _ hp prog f => pass2_clean_iff_ring_exec hp prog f,
+   fun p t hp ht f => rp_pass_two_literal_ring_iff p t hp ht f⟩
+
+public theorem t1esc_pass2_gf4_equiv : T1esc_Pass2GF4Equiv :=
+  fun prog f => pass2gf4_clean_iff_alg_exec prog f
 
 public theorem t2_bilinear_frobenius_collapse : T2_BilinearFrobeniusCollapse :=
   fun k hk =>
@@ -98,7 +105,7 @@ public theorem t4_balanced_multilinear_product : T4_BalancedMultilinearProduct :
                     balancedProdProg_usesOnly k target sign pool offset op hop⟩,
      fun R _ xs st => balancedProdProg_clean (R := R) k target sign pool offset hpool hnd xs st⟩
 
-/-- Single master conjunction bundling all 20 verified theorems for one-shot external kernel export. -/
+/-- Single master conjunction bundling all 22 verified theorems for one-shot external kernel export. -/
 public theorem prove_all_catalytic_theorems :
     T1_DigitSumDichotomy ∧
     T1a_TwoAccessFrobeniusCollapse ∧
@@ -108,6 +115,8 @@ public theorem prove_all_catalytic_theorems :
     T1e_ExtensionFieldSeparation ∧
     T1s_Pass2RingSoundness ∧
     T1es_Pass2GF4Soundness ∧
+    T1sc_Pass2RingEquiv ∧
+    T1esc_Pass2GF4Equiv ∧
     T2_BilinearFrobeniusCollapse ∧
     T2b_DistinctOperandFrobenius ∧
     T3a_ThreeReg5CallX7 ∧
@@ -128,6 +137,8 @@ public theorem prove_all_catalytic_theorems :
    t1e_extension_field_separation,
    t1s_pass2_ring_soundness,
    t1es_pass2_gf4_soundness,
+   t1sc_pass2_ring_equiv,
+   t1esc_pass2_gf4_equiv,
    t2_bilinear_frobenius_collapse,
    t2b_distinct_operand_frobenius,
    t3a_three_reg_5call_x7,

@@ -57,7 +57,7 @@ jobs:
           import pathlib, re, sys
           allowed = {"propext", "Classical.choice", "Quot.sound"}
           lines = [ln.strip() for ln in pathlib.Path(sys.argv[1]).read_text(encoding="utf-8").splitlines() if ln.strip()]
-          assert len(lines) == 22, f"Expected 22 audited axiom lines, got {len(lines)}"
+          assert len(lines) == 24, f"Expected 24 audited axiom lines, got {len(lines)}"
           for ln in lines:
               if ln.endswith("does not depend on any axioms"):
                   continue
@@ -65,7 +65,7 @@ jobs:
               assert m, f"Unrecognized axiom line: {ln}"
               extra = {tok.strip() for tok in m.group(1).split(",") if tok.strip()} - allowed
               assert not extra, f"Disallowed axioms {extra} in: {ln}"
-          print(f"Strict 3-axiom allowlist verified on {len(lines)}/22 declarations.")
+          print(f"Strict 3-axiom allowlist verified on {len(lines)}/24 declarations.")
           PYEOF
           lake env leanchecker --fresh Solution
           lake env leanchecker-paranoid Solution

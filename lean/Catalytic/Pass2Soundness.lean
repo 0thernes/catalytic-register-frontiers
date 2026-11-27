@@ -20,16 +20,18 @@ and literal ring evaluation, this module:
   2. Defines direct literal ring execution `Pass2Prog.execRing` (literally `O ← O + evalPolyR poly r`,
      `r ← r + natCast c`, `O ← O + natCast lam * x`, `r ← r + natCast lam * x`) with NO binomial
      coefficients anywhere in its definition.
-  3. Proves **Theorem `T1s_Pass2RingSoundness`**: for EVERY program `prog`, EVERY prime/modulus `p`,
-     and EVERY commutative ring `R` of characteristic `p` (`(CRing.natCast p : R) = 0`), literal
-     ring execution agrees identically with symbolic `Pass2Prog.exec` — and in particular,
-     `CleanlyComputes2 p prog f` implies literal clean execution
-     `Pass2Prog.execRing x prog (o, u) = (o + evalPolyR f x, u)` for all `o, u, x : R`.
+  3. Proves **Theorem `T1s_Pass2RingSoundness`** and **Theorem `T1sc_Pass2RingEquiv`**: for EVERY
+     program `prog`, EVERY modulus `p > 1`, and EVERY polynomial `f`, symbolic `CleanlyComputes2 p prog f`
+     holds **if and only if (`↔`)** literal ring execution `Pass2Prog.execRing` cleanly maps
+     `(o, u) ↦ (o + evalPolyR f x, u)` over **every** characteristic-`p` commutative ring `R`
+     (with completeness proved constructively via the formal power series ring `FPS (FPS (ModP p hp))`).
+     This yields Theorem `T1` (`rp_pass_two_literal_ring_iff`) stated directly on literal ring execution.
   4. Defines direct literal execution `Pass2GF4Prog.execAlg` over ANY commutative `GF4`-algebra `R`
      (via any ring homomorphism `φ : GF4 → R`, including `R = GF4` with `φ = id`) and proves
-     **Theorem `T1es_Pass2GF4Soundness`**: literal `GF4`-algebra execution agrees identically with
-     symbolic `Pass2GF4Prog.exec`, and `CleanlyComputes2GF4 prog f` implies
-     `Pass2GF4Prog.execAlg φ x prog (o, u) = (o + evalPolyGF4Alg φ f x, u)` for all `o, u, x : R`.
+     **Theorem `T1es_Pass2GF4Soundness`** and **Theorem `T1esc_Pass2GF4Equiv`**: symbolic
+     `CleanlyComputes2GF4 prog f` holds **if and only if (`↔`)** literal `GF4`-algebra execution
+     cleanly maps `(o, u) ↦ (o + evalPolyGF4Alg φ f x, u)` over every commutative `GF4`-algebra `(R, φ)`
+     (with completeness proved via `FPS (FPS GF4)`).
 -/
 
 namespace Catalytic
@@ -814,6 +816,695 @@ theorem pass2gf4_clean_implies_alg_exec {prog : List Pass2GF4Instr} {f : List GF
       have hnone : f[d]? = none := List.getElem?_eq_none hd
       simp [List.getD, hnone, φ.map_zero])
   simp [hb, ha, φ.map_zero, hO]
+
+/-! ## 4. Formal Power Series Ring `R[[X]]` and Converse Completeness (`T1sc`, `T1esc`) -/
+
+/-- Univariate formal power series `R[[X]]` over an arbitrary commutative ring `R` (zero Mathlib). -/
+structure FPS (R : Type u) where
+  coeff : Nat → R
+
+theorem FPS.ext {R : Type u} {f g : FPS R} (h : ∀ n : Nat, f.coeff n = g.coeff n) : f = g := by
+  cases f; cases g; congr; funext n; exact h n
+
+section FPSRing
+
+variable {R : Type u} [CRing R]
+
+private theorem sumR_rev (n : Nat) (f : Nat → R) :
+    sumR (n + 1) (fun i => f (n - i)) = sumR (n + 1) f := by
+  induction n with
+  | zero => simp [sumR]
+  | succ m ih =>
+    rw [sumR_succ_shift (m + 1) (fun i => f (m + 1 - i))]
+    have hsub0 : m + 1 - 0 = m + 1 := Nat.sub_zero (m + 1)
+    have hshift :
+        sumR (m + 1) (fun i => f (m + 1 - (i + 1))) = sumR (m + 1) (fun i => f (m - i)) :=
+      sumR_congr (fun i _ => by rw [Nat.succ_sub_succ_eq_sub])
+    rw [hsub0, hshift, ih, CRing.add_comm, ← sumR_succ]
+
+private theorem sumR_shift_ge {m : Nat} (i : Nat) (hi : i ≤ m) (g : Nat → R) :
+    sumR (m + 1) (fun k => if i ≤ k then g k else 0) = sumR (m - i + 1) (fun j => g (i + j)) := by
+  obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_le hi
+  have hsub : i + d - i = d := Nat.add_sub_cancel_left i d
+  rw [hsub]
+  clear hi hsub
+  induction d with
+  | zero =>
+    simp only [Nat.add_zero, sumR_succ, sumR_zero, CRing.zero_add, Nat.le_refl, ↓reduceIte]
+    have hz : sumR i (fun k => if i ≤ k then g k else 0) = 0 :=
+      sumR_eq_zero (fun k hk => by
+        have hnot : ¬ (i ≤ k) := by omega
+        simp only [hnot, ↓reduceIte])
+    rw [hz, CRing.zero_add]
+  | succ d' ih =>
+    have hstep : i + (d' + 1) + 1 = (i + d' + 1) + 1 := by omega
+    rw [hstep, sumR_succ, ih]
+    have hle : i ≤ i + d' + 1 := by omega
+    simp only [hle, ↓reduceIte]
+    have heq : i + d' + 1 = i + (d' + 1) := by omega
+    rw [heq, ← sumR_succ]
+
+instance : Zero (FPS R) := ⟨⟨fun _ => 0⟩⟩
+instance : One (FPS R) := ⟨⟨fun i => if i = 0 then 1 else 0⟩⟩
+instance : Add (FPS R) := ⟨fun f g => ⟨fun i => f.coeff i + g.coeff i⟩⟩
+instance : Neg (FPS R) := ⟨fun f => ⟨fun i => -(f.coeff i)⟩⟩
+instance : Mul (FPS R) :=
+  ⟨fun f g => ⟨fun n => sumR (n + 1) (fun i => f.coeff i * g.coeff (n - i))⟩⟩
+
+instance instCRingFPS : CRing (FPS R) where
+  add_assoc a b c := FPS.ext (fun n => CRing.add_assoc (a.coeff n) (b.coeff n) (c.coeff n))
+  add_comm a b := FPS.ext (fun n => CRing.add_comm (a.coeff n) (b.coeff n))
+  zero_add a := FPS.ext (fun n => CRing.zero_add (a.coeff n))
+  add_neg a := FPS.ext (fun n => CRing.add_neg (a.coeff n))
+  one_mul a := by
+    apply FPS.ext; intro n
+    change sumR (n + 1) (fun i => (if i = 0 then (1 : R) else 0) * a.coeff (n - i)) = a.coeff n
+    have hterm : ∀ i < n + 1,
+        (if i = 0 then (1 : R) else 0) * a.coeff (n - i) = if i = 0 then a.coeff n else 0 := by
+      intro i _
+      by_cases hi : i = 0
+      · subst hi; simp [CRing.one_mul]
+      · simp [hi]
+    rw [sumR_congr hterm]
+    exact sumR_single (Nat.zero_lt_succ n) (a.coeff n)
+  mul_comm a b := by
+    apply FPS.ext; intro n
+    change sumR (n + 1) (fun i => a.coeff i * b.coeff (n - i)) =
+      sumR (n + 1) (fun i => b.coeff i * a.coeff (n - i))
+    rw [← sumR_rev n (fun i => a.coeff i * b.coeff (n - i))]
+    refine sumR_congr (fun i hi => ?_)
+    have hsub : n - (n - i) = i := by omega
+    rw [hsub, CRing.mul_comm]
+  left_distrib a b c := by
+    apply FPS.ext; intro n
+    change sumR (n + 1) (fun i => a.coeff i * (b.coeff (n - i) + c.coeff (n - i))) =
+      sumR (n + 1) (fun i => a.coeff i * b.coeff (n - i)) +
+      sumR (n + 1) (fun i => a.coeff i * c.coeff (n - i))
+    rw [← sumR_add]
+    exact sumR_congr (fun i _ => CRing.left_distrib _ _ _)
+  mul_assoc a b c := by
+    apply FPS.ext; intro n
+    change sumR (n + 1) (fun k => sumR (k + 1) (fun i => a.coeff i * b.coeff (k - i)) * c.coeff (n - k)) =
+      sumR (n + 1) (fun i => a.coeff i * sumR (n - i + 1) (fun j => b.coeff j * c.coeff (n - i - j)))
+    have h1 :
+        sumR (n + 1) (fun k => sumR (k + 1) (fun i => a.coeff i * b.coeff (k - i)) * c.coeff (n - k)) =
+        sumR (n + 1) (fun k => sumR (n + 1) (fun i => if i ≤ k then a.coeff i * b.coeff (k - i) * c.coeff (n - k) else 0)) := by
+      refine sumR_congr (fun k hk => ?_)
+      rw [← sumR_mul_right]
+      have hinner :
+          sumR (k + 1) (fun i => a.coeff i * b.coeff (k - i) * c.coeff (n - k)) =
+          sumR (k + 1) (fun i => if i ≤ k then a.coeff i * b.coeff (k - i) * c.coeff (n - k) else 0) :=
+        sumR_congr (fun i hi => by
+          have hle : i ≤ k := by omega
+          simp only [hle, ↓reduceIte])
+      rw [hinner]
+      exact sumR_extend (by omega) (fun i hi1 _ => by
+        have hnot : ¬ (i ≤ k) := by omega
+        simp only [hnot, ↓reduceIte])
+    rw [h1, sumR_swap]
+    refine sumR_congr (fun i hi => ?_)
+    rw [sumR_shift_ge i (by omega) (fun k => a.coeff i * b.coeff (k - i) * c.coeff (n - k)), ← sumR_mul_left]
+    refine sumR_congr (fun j _ => ?_)
+    have hsub1 : i + j - i = j := Nat.add_sub_cancel_left i j
+    have hsub2 : n - (i + j) = n - i - j := Nat.sub_add_eq n i j
+    rw [hsub1, hsub2, CRing.mul_assoc]
+
+/-- Constant embedding `R → R[[X]]`. -/
+def FPS.const (c : R) : FPS R := ⟨fun i => if i = 0 then c else 0⟩
+
+/-- Formal indeterminate `X ∈ R[[X]]`. -/
+def FPS.var : FPS R := ⟨fun i => if i = 1 then 1 else 0⟩
+
+theorem FPS.const_zero : (FPS.const (0 : R) : FPS R) = 0 := by
+  apply FPS.ext; intro n
+  change (if n = 0 then (0 : R) else 0) = 0
+  split <;> rfl
+
+theorem FPS.const_one : (FPS.const (1 : R) : FPS R) = 1 := rfl
+
+theorem FPS.const_add (a b : R) : FPS.const (a + b) = FPS.const a + FPS.const b := by
+  apply FPS.ext; intro n
+  change (if n = 0 then a + b else 0) = (if n = 0 then a else 0) + (if n = 0 then b else 0)
+  by_cases hn : n = 0 <;> simp [hn]
+
+theorem FPS.const_mul_coeff (c : R) (f : FPS R) (n : Nat) :
+    (FPS.const c * f).coeff n = c * f.coeff n := by
+  change sumR (n + 1) (fun i => (if i = 0 then c else 0) * f.coeff (n - i)) = c * f.coeff n
+  have hterm : ∀ i < n + 1,
+      (if i = 0 then c else 0) * f.coeff (n - i) = if i = 0 then c * f.coeff n else 0 := by
+    intro i _
+    by_cases hi : i = 0
+    · subst hi; simp
+    · simp [hi]
+  rw [sumR_congr hterm]
+  exact sumR_single (Nat.zero_lt_succ n) (c * f.coeff n)
+
+theorem FPS.const_mul (a b : R) : FPS.const (a * b) = FPS.const a * FPS.const b := by
+  apply FPS.ext; intro n
+  rw [FPS.const_mul_coeff]
+  change (if n = 0 then a * b else 0) = a * (if n = 0 then b else 0)
+  by_cases hn : n = 0 <;> simp [hn]
+
+theorem FPS.natCast_eq (k : Nat) : (CRing.natCast k : FPS R) = FPS.const (CRing.natCast k) := by
+  induction k with
+  | zero => exact FPS.const_zero.symm
+  | succ m ih =>
+    change (CRing.natCast m : FPS R) + 1 = FPS.const (CRing.natCast m + 1)
+    rw [ih, ← FPS.const_one, ← FPS.const_add]
+
+theorem FPS.const_pow (a : R) (k : Nat) : CRing.pow (FPS.const a) k = FPS.const (CRing.pow a k) := by
+  induction k with
+  | zero => exact FPS.const_one.symm
+  | succ m ih =>
+    simp only [CRing.pow, ih, ← FPS.const_mul]
+
+theorem FPS.var_pow_coeff (k n : Nat) :
+    (CRing.pow (FPS.var : FPS R) k).coeff n = if n = k then 1 else 0 := by
+  induction k generalizing n with
+  | zero => rfl
+  | succ m ih =>
+    change sumR (n + 1) (fun i => (CRing.pow (FPS.var : FPS R) m).coeff i * (if n - i = 1 then (1 : R) else 0)) = _
+    have hterm : ∀ i < n + 1,
+        (CRing.pow (FPS.var : FPS R) m).coeff i * (if n - i = 1 then (1 : R) else 0) =
+        if i = m then (if n = m + 1 then (1 : R) else 0) else 0 := by
+      intro i hi
+      rw [ih i]
+      by_cases him : i = m
+      · subst him
+        by_cases hnm : n = i + 1
+        · subst hnm; simp
+        · have hsub : n - i ≠ 1 := by omega
+          simp [hnm, hsub]
+      · simp [him]
+    rw [sumR_congr hterm]
+    by_cases hmn : m < n + 1
+    · exact sumR_single hmn _
+    · have hne : n ≠ m + 1 := by omega
+      simp only [hne, ↓reduceIte]
+      exact sumR_eq_zero (fun i hi => by
+        have him : i ≠ m := by omega
+        simp [him])
+
+theorem FPS.sumR_coeff (n : Nat) (f : Nat → FPS R) (j : Nat) :
+    (sumR n f).coeff j = sumR n (fun k => (f k).coeff j) := by
+  induction n with
+  | zero => rfl
+  | succ m ih =>
+    change (sumR m f).coeff j + (f m).coeff j = sumR m (fun k => (f k).coeff j) + (f m).coeff j
+    rw [ih]
+
+/-- Lift any `GF4Hom R` to a `GF4Hom (FPS R)` via constant power series. -/
+def FPS.constGF4Hom (φ : GF4Hom R) : GF4Hom (FPS R) where
+  toFun := fun a => FPS.const (φ.toFun a)
+  map_zero := by rw [φ.map_zero]; exact FPS.const_zero
+  map_one := by rw [φ.map_one]; exact FPS.const_one
+  map_add := fun a b => by rw [φ.map_add, FPS.const_add]
+  map_mul := fun a b => by rw [φ.map_mul, FPS.const_mul]
+
+end FPSRing
+
+section FPS2Extract
+
+variable {R : Type u} [CRing R]
+
+private theorem fps2_monomial_coeff (a : R) (dR dx j i : Nat) :
+    ((FPS.const (FPS.const a) * (CRing.pow (FPS.const FPS.var) dR * CRing.pow (FPS.var : FPS (FPS R)) dx)).coeff j).coeff i =
+      if j = dx ∧ i = dR then a else 0 := by
+  rw [FPS.const_pow, ← CRing.mul_assoc, ← FPS.const_mul, FPS.const_mul_coeff, FPS.var_pow_coeff]
+  by_cases hj : j = dx
+  · subst hj
+    simp only [↓reduceIte, CRing.mul_one, true_and]
+    rw [FPS.const_mul_coeff, FPS.var_pow_coeff]
+    by_cases hi : i = dR <;> simp [hi]
+  · simp only [hj, ↓reduceIte, CRing.mul_zero, false_and]
+    rfl
+
+private theorem evalState2Coeff_fps2_coeff (D : Nat) (coeff : Nat → Nat → Nat) (dR dx : Nat) :
+    ((evalState2Coeff D coeff (FPS.const FPS.var) (FPS.var : FPS (FPS R))).coeff dx).coeff dR =
+      if dR + dx ≤ D then (CRing.natCast (coeff dR dx) : R) else 0 := by
+  unfold evalState2Coeff
+  rw [FPS.sumR_coeff, FPS.sumR_coeff]
+  have houter : ∀ d < D + 1,
+      (sumR (d + 1) (fun dx' =>
+        CRing.natCast (coeff (d - dx') dx') *
+          (CRing.pow (FPS.const FPS.var) (d - dx') * CRing.pow (FPS.var : FPS (FPS R)) dx'))
+        |>.coeff dx).coeff dR =
+      if d = dR + dx then (CRing.natCast (coeff dR dx) : R) else 0 := by
+    intro d _
+    rw [FPS.sumR_coeff, FPS.sumR_coeff]
+    have hinner : ∀ dx' < d + 1,
+        ((CRing.natCast (coeff (d - dx') dx') *
+          (CRing.pow (FPS.const FPS.var) (d - dx') * CRing.pow (FPS.var : FPS (FPS R)) dx')).coeff dx).coeff dR =
+        if dx' = dx then (if d = dR + dx then (CRing.natCast (coeff dR dx) : R) else 0) else 0 := by
+      intro dx' hdx'
+      rw [FPS.natCast_eq, FPS.natCast_eq, fps2_monomial_coeff]
+      by_cases h1 : dx' = dx
+      · subst h1
+        by_cases h2 : d = dR + dx'
+        · subst h2
+          have hsub : dR + dx' - dx' = dR := Nat.add_sub_cancel dR dx'
+          simp [hsub]
+        · have hne : dR ≠ d - dx' := by omega
+          simp [h2, hne]
+      · have hne : dx ≠ dx' := fun h => h1 h.symm
+        simp [h1, hne]
+    rw [sumR_congr hinner]
+    by_cases hdx_lt : dx < d + 1
+    · exact sumR_single hdx_lt _
+    · have hne : d ≠ dR + dx := by omega
+      simp only [hne, ↓reduceIte]
+      exact sumR_eq_zero (fun dx' hdx' => by
+        have hne' : dx' ≠ dx := by omega
+        simp [hne'])
+  rw [sumR_congr houter]
+  by_cases hle : dR + dx ≤ D
+  · simp only [hle, ↓reduceIte]
+    exact sumR_single (by omega) _
+  · simp only [hle, ↓reduceIte]
+    exact sumR_eq_zero (fun d hd => by
+      have hne : d ≠ dR + dx := by omega
+      simp [hne])
+
+private theorem evalPolyR_fps2_coeff (f : List Nat) (dR dx : Nat) :
+    ((evalPolyR f (FPS.var : FPS (FPS R))).coeff dx).coeff dR =
+      if dR = 0 then (CRing.natCast (f.getD dx 0) : R) else 0 := by
+  unfold evalPolyR
+  rw [FPS.sumR_coeff, FPS.sumR_coeff]
+  have hterm : ∀ k < f.length,
+      ((CRing.natCast (f.getD k 0) * CRing.pow (FPS.var : FPS (FPS R)) k).coeff dx).coeff dR =
+      if k = dx then (if dR = 0 then (CRing.natCast (f.getD dx 0) : R) else 0) else 0 := by
+    intro k _
+    rw [FPS.natCast_eq, FPS.natCast_eq, FPS.const_mul_coeff, FPS.var_pow_coeff]
+    by_cases hk : k = dx
+    · subst hk
+      simp only [↓reduceIte, CRing.mul_one]
+      rfl
+    · have hne : dx ≠ k := fun h => hk h.symm
+      simp only [hk, hne, ↓reduceIte, CRing.mul_zero]
+      rfl
+  rw [sumR_congr hterm]
+  by_cases hlt : dx < f.length
+  · exact sumR_single hlt _
+  · have hnone : f[dx]? = none := List.getElem?_eq_none (by omega)
+    have hget : f.getD dx 0 = 0 := by simp [List.getD, hnone]
+    have hrhs : (if dR = 0 then (CRing.natCast (f.getD dx 0) : R) else 0) = 0 := by
+      rw [hget]; split <;> rfl
+    rw [hrhs]
+    exact sumR_eq_zero (fun k hk => by
+      have hne : k ≠ dx := by omega
+      simp [hne])
+
+private theorem evalState2GF4Coeff_fps2_coeff (D : Nat) (coeff : Nat → Nat → GF4) (dR dx : Nat) :
+    ((evalState2GF4Coeff (FPS.constGF4Hom (FPS.constGF4Hom GF4Hom.id)) D coeff
+        (FPS.const FPS.var) (FPS.var : FPS (FPS GF4))).coeff dx).coeff dR =
+      if dR + dx ≤ D then coeff dR dx else .z := by
+  unfold evalState2GF4Coeff
+  rw [FPS.sumR_coeff, FPS.sumR_coeff]
+  have houter : ∀ d < D + 1,
+      (sumR (d + 1) (fun dx' =>
+        (FPS.constGF4Hom (FPS.constGF4Hom GF4Hom.id)).toFun (coeff (d - dx') dx') *
+          (CRing.pow (FPS.const FPS.var) (d - dx') * CRing.pow (FPS.var : FPS (FPS GF4)) dx'))
+        |>.coeff dx).coeff dR =
+      if d = dR + dx then coeff dR dx else .z := by
+    intro d _
+    rw [FPS.sumR_coeff, FPS.sumR_coeff]
+    have hinner : ∀ dx' < d + 1,
+        (((FPS.constGF4Hom (FPS.constGF4Hom GF4Hom.id)).toFun (coeff (d - dx') dx') *
+          (CRing.pow (FPS.const FPS.var) (d - dx') * CRing.pow (FPS.var : FPS (FPS GF4)) dx')).coeff dx).coeff dR =
+        if dx' = dx then (if d = dR + dx then coeff dR dx else .z) else .z := by
+      intro dx' hdx'
+      change ((FPS.const (FPS.const (coeff (d - dx') dx')) *
+        (CRing.pow (FPS.const FPS.var) (d - dx') * CRing.pow (FPS.var : FPS (FPS GF4)) dx')).coeff dx).coeff dR = _
+      rw [fps2_monomial_coeff]
+      by_cases h1 : dx' = dx
+      · subst h1
+        by_cases h2 : d = dR + dx'
+        · subst h2
+          have hsub : dR + dx' - dx' = dR := Nat.add_sub_cancel dR dx'
+          simp [hsub]
+        · have hne : dR ≠ d - dx' := by omega
+          simp [h2, hne]; rfl
+      · have hne : dx ≠ dx' := fun h => h1 h.symm
+        simp [h1, hne]; rfl
+    rw [sumR_congr hinner]
+    by_cases hdx_lt : dx < d + 1
+    · exact sumR_single hdx_lt _
+    · have hne : d ≠ dR + dx := by omega
+      simp only [hne, ↓reduceIte]
+      exact sumR_eq_zero (fun dx' hdx' => by
+        have hne' : dx' ≠ dx := by omega
+        simp [hne']; rfl)
+  rw [sumR_congr houter]
+  by_cases hle : dR + dx ≤ D
+  · simp only [hle, ↓reduceIte]
+    exact sumR_single (by omega) _
+  · simp only [hle, ↓reduceIte]
+    exact sumR_eq_zero (fun d hd => by
+      have hne : d ≠ dR + dx := by omega
+      simp [hne]; rfl)
+
+private theorem evalPolyGF4Alg_fps2_coeff (f : List GF4) (dR dx : Nat) :
+    ((evalPolyGF4Alg (FPS.constGF4Hom (FPS.constGF4Hom GF4Hom.id)) f
+        (FPS.var : FPS (FPS GF4))).coeff dx).coeff dR =
+      if dR = 0 then f.getD dx .z else .z := by
+  unfold evalPolyGF4Alg
+  rw [FPS.sumR_coeff, FPS.sumR_coeff]
+  have hterm : ∀ k < f.length,
+      (((FPS.constGF4Hom (FPS.constGF4Hom GF4Hom.id)).toFun (f.getD k .z) *
+        CRing.pow (FPS.var : FPS (FPS GF4)) k).coeff dx).coeff dR =
+      if k = dx then (if dR = 0 then f.getD dx .z else .z) else .z := by
+    intro k _
+    change ((FPS.const (FPS.const (f.getD k .z)) * CRing.pow (FPS.var : FPS (FPS GF4)) k).coeff dx).coeff dR = _
+    rw [FPS.const_mul_coeff, FPS.var_pow_coeff]
+    by_cases hk : k = dx
+    · subst hk
+      simp only [↓reduceIte, CRing.mul_one]
+      rfl
+    · have hne : dx ≠ k := fun h => hk h.symm
+      simp only [hk, hne, ↓reduceIte, CRing.mul_zero]
+      rfl
+  rw [sumR_congr hterm]
+  by_cases hlt : dx < f.length
+  · exact sumR_single hlt _
+  · have hnone : f[dx]? = none := List.getElem?_eq_none (by omega)
+    have hget : f.getD dx .z = .z := by simp [List.getD, hnone]
+    have hrhs : (if dR = 0 then f.getD dx .z else .z) = (0 : GF4) := by
+      rw [hget]; split <;> rfl
+    rw [hrhs]
+    exact sumR_eq_zero (fun k hk => by
+      have hne : k ≠ dx := by omega
+      simp [hne]; rfl)
+
+end FPS2Extract
+
+private theorem sumNat_eq_zero_of_all {n : Nat} {g : Nat → Nat} (h : ∀ k < n, g k = 0) :
+    sumNat n g = 0 := by
+  induction n with
+  | zero => rfl
+  | succ m ih =>
+    rw [sumNat_succ, ih (fun k hk => h k (by omega)), h m (Nat.lt_succ_self m)]
+
+private theorem polyAtShiftCoeff_zero_of_ge (poly : List Nat) (b a dR dx : Nat)
+    (hge : poly.length ≤ dR + dx) :
+    polyAtShiftCoeff poly b a dR dx = 0 := by
+  have hz : sumNat poly.length (fun k => poly.getD k 0 * choose k (dR + dx) * b ^ (k - (dR + dx))) = 0 :=
+    sumNat_eq_zero_of_all (fun k hk => by
+      have hcz : choose k (dR + dx) = 0 := choose_eq_zero_of_lt (by omega)
+      simp [hcz])
+  simp only [polyAtShiftCoeff, hz, Nat.zero_mul]
+
+private theorem Pass2Prog.execFrom_coeff_zero_of_gt (p : Nat) (prog : List Pass2Instr)
+    (D : Nat) (hD : Pass2Prog.maxDeg prog ≤ D) (st : State2)
+    (hst : ∀ dR dx, D < dR + dx → st.coeff dR dx = 0) :
+    ∀ dR dx, D < dR + dx → (Pass2Prog.execFrom p prog st).coeff dR dx = 0 := by
+  induction prog generalizing st with
+  | nil => exact hst
+  | cons instr rest ih =>
+    have hD_rest : Pass2Prog.maxDeg rest ≤ D := by
+      cases instr <;> simp only [Pass2Prog.maxDeg] at hD
+      · exact Nat.le_trans (Nat.le_max_right _ _) hD
+      · exact hD
+      · exact hD
+      · exact hD
+    cases instr with
+    | addOut poly =>
+      have hpoly : poly.length ≤ D := by
+        simp only [Pass2Prog.maxDeg] at hD
+        exact Nat.le_trans (Nat.le_max_left _ _) hD
+      exact ih hD_rest _ (fun dR dx hgt => by
+        simp only [Pass2Instr.exec, hst dR dx hgt, polyAtShiftCoeff_zero_of_ge poly st.b st.a dR dx (by omega)]
+        exact Nat.zero_mod p)
+    | addWorkConst c =>
+      exact ih hD_rest _ hst
+    | addInputWork lam =>
+      exact ih hD_rest _ hst
+    | addInputOut lam =>
+      have hD1 : 1 ≤ D := Nat.le_trans (Pass2Prog.maxDeg_pos rest) hD_rest
+      exact ih hD_rest _ (fun dR dx hgt => by
+        have hcond : ¬ (dR = 0 ∧ dx = 1) := by omega
+        simp only [Pass2Instr.exec, hst dR dx hgt, hcond, ↓reduceIte, Nat.add_zero]
+        exact Nat.zero_mod p)
+
+theorem Pass2Prog.exec_coeff_zero_of_gt (p : Nat) (prog : List Pass2Instr)
+    (dR dx : Nat) (hgt : Pass2Prog.maxDeg prog < dR + dx) :
+    (Pass2Prog.exec p prog).coeff dR dx = 0 :=
+  Pass2Prog.execFrom_coeff_zero_of_gt p prog (Pass2Prog.maxDeg prog) (Nat.le_refl _)
+    ⟨0, 0, fun _ _ => 0⟩ (fun _ _ _ => rfl) dR dx hgt
+
+private theorem sumGF4_eq_z_of_all {n : Nat} {g : Nat → GF4} (h : ∀ k < n, g k = .z) :
+    sumGF4 n g = .z := by
+  induction n with
+  | zero => rfl
+  | succ m ih =>
+    rw [sumGF4, ih (fun k hk => h k (by omega)), h m (Nat.lt_succ_self m)]
+    rfl
+
+private theorem polyAtShiftCoeffGF4_zero_of_ge (poly : List GF4) (b a : GF4) (dR dx : Nat)
+    (hge : poly.length ≤ dR + dx) :
+    polyAtShiftCoeffGF4 poly b a dR dx = .z := by
+  have hz :
+      sumGF4 poly.length (fun k => GF4.mul (poly.getD k .z) (GF4.mul (binomGF4 k (dR + dx)) (GF4.pow b (k - (dR + dx))))) = .z :=
+    sumGF4_eq_z_of_all (fun k hk => by
+      have hcz : choose k (dR + dx) = 0 := choose_eq_zero_of_lt (by omega)
+      have hbg : binomGF4 k (dR + dx) = .z := by simp [binomGF4, hcz]
+      rw [hbg]; cases poly.getD k .z <;> rfl)
+  simp only [polyAtShiftCoeffGF4, hz]; rfl
+
+private theorem Pass2GF4Prog.execFrom_coeff_zero_of_gt (prog : List Pass2GF4Instr)
+    (D : Nat) (hD : Pass2GF4Prog.maxDeg prog ≤ D) (st : State2GF4)
+    (hst : ∀ dR dx, D < dR + dx → st.coeff dR dx = .z) :
+    ∀ dR dx, D < dR + dx → (Pass2GF4Prog.execFrom prog st).coeff dR dx = .z := by
+  induction prog generalizing st with
+  | nil => exact hst
+  | cons instr rest ih =>
+    have hD_rest : Pass2GF4Prog.maxDeg rest ≤ D := by
+      cases instr <;> simp only [Pass2GF4Prog.maxDeg] at hD
+      · exact Nat.le_trans (Nat.le_max_right _ _) hD
+      · exact hD
+      · exact hD
+      · exact hD
+    cases instr with
+    | addOut poly =>
+      have hpoly : poly.length ≤ D := by
+        simp only [Pass2GF4Prog.maxDeg] at hD
+        exact Nat.le_trans (Nat.le_max_left _ _) hD
+      exact ih hD_rest _ (fun dR dx hgt => by
+        simp only [Pass2GF4Instr.exec, hst dR dx hgt, polyAtShiftCoeffGF4_zero_of_ge poly st.b st.a dR dx (by omega)]
+        rfl)
+    | addWorkConst c =>
+      exact ih hD_rest _ hst
+    | addInputWork lam =>
+      exact ih hD_rest _ hst
+    | addInputOut lam =>
+      have hD1 : 1 ≤ D := Nat.le_trans (Pass2GF4Prog.maxDeg_pos rest) hD_rest
+      exact ih hD_rest _ (fun dR dx hgt => by
+        have hcond : ¬ (dR = 0 ∧ dx = 1) := by omega
+        simp only [Pass2GF4Instr.exec, hst dR dx hgt, hcond, ↓reduceIte]
+        rfl)
+
+theorem Pass2GF4Prog.exec_coeff_zero_of_gt (prog : List Pass2GF4Instr)
+    (dR dx : Nat) (hgt : Pass2GF4Prog.maxDeg prog < dR + dx) :
+    (Pass2GF4Prog.exec prog).coeff dR dx = .z :=
+  Pass2GF4Prog.execFrom_coeff_zero_of_gt prog (Pass2GF4Prog.maxDeg prog) (Nat.le_refl _)
+    ⟨.z, .z, fun _ _ => .z⟩ (fun _ _ _ => rfl) dR dx hgt
+
+/--
+**Converse Completeness for `T1s`:** if `prog` literally cleanly computes `f` over every
+characteristic-`p` commutative ring `R` (instantiated constructively on the formal power series
+ring `FPS (FPS (ModP p hp))`), then symbolic `CleanlyComputes2 p prog f` holds.
+-/
+theorem pass2_ring_exec_implies_clean {p : Nat} (hp : 1 < p)
+    {prog : List Pass2Instr} {f : List Nat}
+    (hexec : ∀ (R : Type) [CRing R], (CRing.natCast p : R) = 0 →
+      ∀ o u x : R, Pass2Prog.execRing x prog (o, u) = (o + evalPolyR f x, u)) :
+    CleanlyComputes2 p prog f := by
+  let R2 := FPS (FPS (ModP p hp))
+  have hchar : (CRing.natCast p : R2) = 0 := by
+    rw [FPS.natCast_eq, FPS.natCast_eq, ModP.natCast_p_eq_zero p hp, FPS.const_zero, FPS.const_zero]
+  let U : R2 := FPS.const FPS.var
+  let X : R2 := FPS.var
+  let D := Pass2Prog.maxDeg prog
+  have hrun := hexec R2 hchar 0 U X
+  rw [Pass2Prog.execRing_eq_evalState2 hchar prog D (Nat.le_refl D) 0 U X] at hrun
+  have h1 : evalState2Coeff D (Pass2Prog.exec p prog).coeff U X = evalPolyR f X := by
+    have hfst := congrArg Prod.fst hrun
+    simpa [CRing.zero_add] using hfst
+  have h2 : U + CRing.natCast (Pass2Prog.exec p prog).b + CRing.natCast (Pass2Prog.exec p prog).a * X = U :=
+    congrArg Prod.snd hrun
+  have h2z : (CRing.natCast (Pass2Prog.exec p prog).b : R2) + CRing.natCast (Pass2Prog.exec p prog).a * X = 0 := by
+    apply CRing.add_left_cancel (a := U)
+    rw [← CRing.add_assoc, h2, CRing.add_zero]
+  have hb : (Pass2Prog.exec p prog).b % p = 0 := by
+    have hc := congrArg (fun s : R2 => (s.coeff 0).coeff 0) h2z
+    have hcoeff :
+        (((CRing.natCast (Pass2Prog.exec p prog).b : R2) +
+          CRing.natCast (Pass2Prog.exec p prog).a * X).coeff 0).coeff 0 =
+        (CRing.natCast (Pass2Prog.exec p prog).b : ModP p hp) := by
+      change ((CRing.natCast (Pass2Prog.exec p prog).b : R2).coeff 0).coeff 0 +
+        ((CRing.natCast (Pass2Prog.exec p prog).a * X : R2).coeff 0).coeff 0 = _
+      rw [FPS.natCast_eq, FPS.natCast_eq, FPS.natCast_eq, FPS.natCast_eq, FPS.const_mul_coeff]
+      have hx0 : (X.coeff 0 : FPS (ModP p hp)) = 0 := rfl
+      rw [hx0, CRing.mul_zero]
+      change (CRing.natCast (Pass2Prog.exec p prog).b : ModP p hp) + 0 = _
+      exact CRing.add_zero _
+    rw [hcoeff] at hc
+    have hval := congrArg ModP.val hc
+    rw [ModP.natCast_val] at hval
+    exact hval
+  have ha : (Pass2Prog.exec p prog).a % p = 0 := by
+    have hc := congrArg (fun s : R2 => (s.coeff 1).coeff 0) h2z
+    have hcoeff :
+        (((CRing.natCast (Pass2Prog.exec p prog).b : R2) +
+          CRing.natCast (Pass2Prog.exec p prog).a * X).coeff 1).coeff 0 =
+        (CRing.natCast (Pass2Prog.exec p prog).a : ModP p hp) := by
+      change ((CRing.natCast (Pass2Prog.exec p prog).b : R2).coeff 1).coeff 0 +
+        ((CRing.natCast (Pass2Prog.exec p prog).a * X : R2).coeff 1).coeff 0 = _
+      rw [FPS.natCast_eq, FPS.natCast_eq, FPS.natCast_eq, FPS.natCast_eq, FPS.const_mul_coeff]
+      have hx1 : (X.coeff 1 : FPS (ModP p hp)) = 1 := rfl
+      rw [hx1, CRing.mul_one]
+      change (0 : ModP p hp) + CRing.natCast (Pass2Prog.exec p prog).a = _
+      exact CRing.zero_add _
+    rw [hcoeff] at hc
+    have hval := congrArg ModP.val hc
+    rw [ModP.natCast_val] at hval
+    exact hval
+  refine ⟨hb, ha, fun dR dx => ?_⟩
+  have hce := congrArg (fun s : R2 => (s.coeff dx).coeff dR) h1
+  rw [evalState2Coeff_fps2_coeff, evalPolyR_fps2_coeff] at hce
+  by_cases hle : dR + dx ≤ D
+  · simp only [hle, ↓reduceIte] at hce
+    have hval := congrArg ModP.val hce
+    rw [ModP.natCast_val] at hval
+    by_cases hdR : dR = 0
+    · simp only [hdR, ↓reduceIte] at hval ⊢
+      rw [ModP.natCast_val] at hval
+      exact hval
+    · simp only [hdR, ↓reduceIte] at hval ⊢
+      exact hval.trans (Nat.zero_mod p).symm
+  · have hgt : D < dR + dx := by omega
+    simp only [hle, ↓reduceIte] at hce
+    rw [Pass2Prog.exec_coeff_zero_of_gt p prog dR dx hgt, Nat.zero_mod]
+    have hval := congrArg ModP.val hce
+    by_cases hdR : dR = 0
+    · simp only [hdR, ↓reduceIte] at hval ⊢
+      rw [ModP.natCast_val] at hval
+      exact hval
+    · simp only [hdR, ↓reduceIte, Nat.zero_mod]
+
+/--
+**Theorem `T1sc` (Exact Bi-Directional Equivalence for `Pass2Prog`):**
+For every modulus `p > 1`, symbolic formal-polynomial cleanliness `CleanlyComputes2 p prog f`
+holds **if and only if** literal ring execution `Pass2Prog.execRing` cleanly computes `f` over
+every commutative ring `R` of characteristic `p`.
+-/
+theorem pass2_clean_iff_ring_exec {p : Nat} (hp : 1 < p)
+    (prog : List Pass2Instr) (f : List Nat) :
+    CleanlyComputes2 p prog f ↔
+      ∀ (R : Type) [CRing R], (CRing.natCast p : R) = 0 →
+        ∀ o u x : R, Pass2Prog.execRing x prog (o, u) = (o + evalPolyR f x, u) :=
+  ⟨pass2_clean_implies_ring_exec, pass2_ring_exec_implies_clean hp⟩
+
+/--
+**Direct Literal-Ring Theorem `T1` (`rp_pass_two_literal_ring_iff`):**
+Eliminates all symbolic intermediate definitions (`State2`, `polyAtShiftCoeff`, `CleanlyComputes2`)
+from the statement of Theorem `T1`: over prime `p`, a polynomial `f` is cleanly computed by a
+`≤ t`-access passive 2-register program under literal ring execution `Pass2Prog.execRing` across
+all characteristic-`p` commutative rings iff every degree `d ≥ 2` with `f[d] ≢ 0 (mod p)` satisfies
+`s_p(d) ≤ min (p - 1) (t - 1)`.
+-/
+theorem rp_pass_two_literal_ring_iff (p t : Nat) (hp : IsPrime p) (ht : 1 ≤ t) (f : List Nat) :
+    (∃ prog : List Pass2Instr, Pass2Prog.accesses prog ≤ t ∧
+      ∀ (R : Type) [CRing R], (CRing.natCast p : R) = 0 →
+        ∀ o u x : R, Pass2Prog.execRing x prog (o, u) = (o + evalPolyR f x, u)) ↔
+      ∀ d : Nat, 2 ≤ d → f.getD d 0 % p ≠ 0 →
+        digitSum p d ≤ min (p - 1) (t - 1) := by
+  have hp1 : 1 < p := by have := hp.1; omega
+  have hEq :
+      (∃ prog : List Pass2Instr, Pass2Prog.accesses prog ≤ t ∧
+        ∀ (R : Type) [CRing R], (CRing.natCast p : R) = 0 →
+          ∀ o u x : R, Pass2Prog.execRing x prog (o, u) = (o + evalPolyR f x, u)) ↔
+      InRPPass2 p t f := by
+    constructor
+    · rintro ⟨prog, hacc, hexec⟩
+      exact ⟨prog, hacc, (pass2_clean_iff_ring_exec hp1 prog f).2 hexec⟩
+    · rintro ⟨prog, hacc, hclean⟩
+      exact ⟨prog, hacc, (pass2_clean_iff_ring_exec hp1 prog f).1 hclean⟩
+  exact hEq.trans (rp_pass_two_iff p t hp ht f)
+
+/--
+**Converse Completeness for `T1es`:** if `prog` literally cleanly computes `f` over every
+commutative `GF4`-algebra `(R, φ)` (instantiated constructively on `FPS (FPS GF4)`),
+then symbolic `CleanlyComputes2GF4 prog f` holds.
+-/
+theorem pass2gf4_alg_exec_implies_clean {prog : List Pass2GF4Instr} {f : List GF4}
+    (hexec : ∀ (R : Type) [CRing R] (φ : GF4Hom R) (o u x : R),
+      Pass2GF4Prog.execAlg φ x prog (o, u) = (o + evalPolyGF4Alg φ f x, u)) :
+    CleanlyComputes2GF4 prog f := by
+  let R2 := FPS (FPS GF4)
+  let φ2 : GF4Hom R2 := FPS.constGF4Hom (FPS.constGF4Hom GF4Hom.id)
+  let U : R2 := FPS.const FPS.var
+  let X : R2 := FPS.var
+  let D := Pass2GF4Prog.maxDeg prog
+  have hrun := hexec R2 φ2 0 U X
+  rw [Pass2GF4Prog.execAlg_eq_evalState2GF4 φ2 prog D (Nat.le_refl D) 0 U X] at hrun
+  have h1 : evalState2GF4Coeff φ2 D (Pass2GF4Prog.exec prog).coeff U X = evalPolyGF4Alg φ2 f X := by
+    have hfst := congrArg Prod.fst hrun
+    simpa [CRing.zero_add] using hfst
+  have h2 : U + φ2.toFun (Pass2GF4Prog.exec prog).b + φ2.toFun (Pass2GF4Prog.exec prog).a * X = U :=
+    congrArg Prod.snd hrun
+  have h2z : φ2.toFun (Pass2GF4Prog.exec prog).b + φ2.toFun (Pass2GF4Prog.exec prog).a * X = 0 := by
+    apply CRing.add_left_cancel (a := U)
+    rw [← CRing.add_assoc, h2, CRing.add_zero]
+  have hb : (Pass2GF4Prog.exec prog).b = .z := by
+    have hc := congrArg (fun s : R2 => (s.coeff 0).coeff 0) h2z
+    have hcoeff :
+        ((φ2.toFun (Pass2GF4Prog.exec prog).b + φ2.toFun (Pass2GF4Prog.exec prog).a * X).coeff 0).coeff 0 =
+        (Pass2GF4Prog.exec prog).b := by
+      change (FPS.const (FPS.const (Pass2GF4Prog.exec prog).b) |>.coeff 0).coeff 0 +
+        ((FPS.const (FPS.const (Pass2GF4Prog.exec prog).a) * X).coeff 0).coeff 0 = _
+      rw [FPS.const_mul_coeff]
+      have hx0 : (X.coeff 0 : FPS GF4) = 0 := rfl
+      rw [hx0, CRing.mul_zero]
+      change (Pass2GF4Prog.exec prog).b + (0 : GF4) = _
+      exact CRing.add_zero _
+    rw [hcoeff] at hc
+    exact hc
+  have ha : (Pass2GF4Prog.exec prog).a = .z := by
+    have hc := congrArg (fun s : R2 => (s.coeff 1).coeff 0) h2z
+    have hcoeff :
+        ((φ2.toFun (Pass2GF4Prog.exec prog).b + φ2.toFun (Pass2GF4Prog.exec prog).a * X).coeff 1).coeff 0 =
+        (Pass2GF4Prog.exec prog).a := by
+      change (FPS.const (FPS.const (Pass2GF4Prog.exec prog).b) |>.coeff 1).coeff 0 +
+        ((FPS.const (FPS.const (Pass2GF4Prog.exec prog).a) * X).coeff 1).coeff 0 = _
+      rw [FPS.const_mul_coeff]
+      have hx1 : (X.coeff 1 : FPS GF4) = 1 := rfl
+      rw [hx1, CRing.mul_one]
+      change (0 : GF4) + (Pass2GF4Prog.exec prog).a = _
+      exact CRing.zero_add _
+    rw [hcoeff] at hc
+    exact hc
+  refine ⟨hb, ha, fun dR dx => ?_⟩
+  have hce := congrArg (fun s : R2 => (s.coeff dx).coeff dR) h1
+  rw [evalState2GF4Coeff_fps2_coeff, evalPolyGF4Alg_fps2_coeff] at hce
+  by_cases hle : dR + dx ≤ D
+  · simp only [hle, ↓reduceIte] at hce
+    exact hce
+  · have hgt : D < dR + dx := by omega
+    simp only [hle, ↓reduceIte] at hce
+    rw [Pass2GF4Prog.exec_coeff_zero_of_gt prog dR dx hgt]
+    exact hce
+
+/--
+**Theorem `T1esc` (Exact Bi-Directional Equivalence for `Pass2GF4Prog`):**
+Symbolic formal-polynomial cleanliness `CleanlyComputes2GF4 prog f` holds **if and only if**
+literal `GF4`-algebra execution `Pass2GF4Prog.execAlg` cleanly computes `f` over every
+commutative `GF4`-algebra `(R, φ)`.
+-/
+theorem pass2gf4_clean_iff_alg_exec (prog : List Pass2GF4Instr) (f : List GF4) :
+    CleanlyComputes2GF4 prog f ↔
+      ∀ (R : Type) [CRing R] (φ : GF4Hom R) (o u x : R),
+        Pass2GF4Prog.execAlg φ x prog (o, u) = (o + evalPolyGF4Alg φ f x, u) :=
+  ⟨pass2gf4_clean_implies_alg_exec, pass2gf4_alg_exec_implies_clean⟩
 
 end
 
