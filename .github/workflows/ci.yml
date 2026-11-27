@@ -28,7 +28,7 @@ jobs:
 
       - name: Forbidden-token scan across lean/**/*.lean
         run: |
-          if grep -rnE --exclude=PalomarChallenge.lean '\b(sorry|admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern' lean/; then
+          if grep -rnE --exclude-dir=.lake --exclude=PalomarChallenge.lean '\b(sorry|admit|native_decide|implemented_by|unsafe)\b|^\s*axiom\b|@\[extern' lean/; then
             echo "FORBIDDEN TOKEN FOUND IN PROOF MODULES!" >&2
             exit 1
           fi
@@ -48,11 +48,11 @@ jobs:
           lake build
           lake env lean VerifyAxioms.lean | tee /tmp/axioms.txt
           diff -u ../results/lean_axioms.txt /tmp/axioms.txt
-          if grep -qE 'sorryAx|Lean\.ofReduceBool|Lean\.trustCompiler' /tmp/axioms.txt; then
+          if grep -qE 'sorryAx|_native|Lean\.ofReduceBool|Lean\.trustCompiler' /tmp/axioms.txt; then
             echo "UNPERMITTED AXIOM DETECTED!" >&2
             exit 1
           fi
-          lake env leanchecker Solution
+          lake env leanchecker --fresh Solution
           lake env leanchecker-paranoid Solution
           lake env leanexport Solution -- Catalytic.Solution.prove_all_catalytic_theorems Catalytic.NonVacuity.nonvac_all_hypotheses > /tmp/catalytic_solution.ndjson
           lake env con-leche --verified /tmp/catalytic_solution.ndjson

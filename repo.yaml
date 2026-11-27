@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # yaml-language-server: $schema=./repo-standard.schema.json
-# Project manifest for the Build Standard for LLMs v1.1.0. Read by scripts/Audit-Repo.ps1 and scripts/audit-repo.sh.
+# Project manifest for the Build Standard for LLMs v1.2.0. Read by scripts/Audit-Repo.ps1 and scripts/audit-repo.sh.
 # Keep each item on one line. status: done | todo | partial | n/a (n/a needs a note).
-standard: "1.1.0"
+standard: "1.2.0"
 name: "catalytic-register-frontiers"
-description: "Zero-Mathlib Lean 4.35 formalization and exact-arithmetic verification of positive-characteristic dichotomy and optimal 3-register exponents in passive catalytic register programs."
+description: "Zero-Mathlib Lean 4.35 formalization and exact-arithmetic verification of prime-field digit-sum dichotomy and improved 3-register powering exponents in passive catalytic register programs."
 owner: "0thernes"
 year: 2026
 project_type: research
@@ -56,7 +56,7 @@ items:
   A27: {status: done, evidence: ".github/workflows/pages.yml deploys docs/index.html blueprint portal"}
   A28: {status: n/a, note: "Research artifact (package: false); pyproject.toml still provided for lockfile/tool pins"}
   A29: {status: done, evidence: "ROADMAP.md"}
-  A30: {status: done, evidence: ".github/labels.tsv includes all 6 finding classes"}
+  A30: {status: done, evidence: ".github/labels.tsv includes all 10 Build Standard v1.2.0 finding classes (incl. blindspot)"}
   A31: {status: done, evidence: "justfile"}
   A32: {status: done, evidence: "AGENTS.md canonical + CLAUDE.md + GEMINI.md + .cursor/rules + llms.txt"}
   A33: {status: done, evidence: ".env.example and docs/configuration.md"}

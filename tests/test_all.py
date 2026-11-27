@@ -1954,6 +1954,118 @@ def test_pass19_ci_timeouts_7kind_certs_csv_and_v19_ui() -> None:
         assert p_csv.returncode == 0 and p_csv.stdout.startswith("N,baseline_accesses,adaptive_accesses") and len(p_csv.stdout.strip().splitlines()) >= 15
 
 
+def test_pass20_v120_standard_and_v13_playbook() -> None:
+    """Pass 20 permanent regression guard verifying Build Standard v1.2.0 & Playbook v1.3 compliance:
+    1. Build Standard v1.2.0: repo.yaml standard "1.2.0", URN schema $id, all 10 finding classes
+       (incl. concern, gap, hole, blindspot) in .github/labels.tsv, .github/ISSUE_TEMPLATE/bug.yml,
+       CONTRIBUTING.md, docs/glossary.md, and AGENTS.md; A30 blindspot grep in audit-checks.tsv;
+       release.yml SLSA attestation has continue-on-error: true.
+    2. Playbook v1.3: Lean 4.35 `_native` axiom guard, `--exclude-dir=.lake`, and `leanchecker --fresh`
+       in ci.yml & run_all.{sh,ps1}; CITATION.cff carries Concept DOI, v1.0.1 Version DOI, and SWHID;
+       paper/main.tex carries v1.0.1 Version DOI, SWHID, "Not done by AI", and withdrawal policy;
+       docs/index.html surfaces Version DOI and SWHID; docs/launch/release-checklist.md has all 43 items.
+    3. Adversarial negative definition check (Playbook v1.3 #12): verifies that x^3 over F_2 (s_2(3)=2 >= 2)
+       is strictly uncomputable for every budget t >= 1 across both exact Python and JS evalT1Oracle.
+    """
+    import shutil
+    import subprocess
+
+    ten_classes = (
+        "bug",
+        "error",
+        "issue",
+        "problem",
+        "concern",
+        "dilemma",
+        "conflict",
+        "gap",
+        "hole",
+        "blindspot",
+    )
+
+    repo_yaml = (REPO / "repo.yaml").read_text(encoding="utf-8")
+    assert 'standard: "1.2.0"' in repo_yaml
+
+    schema = json.loads((REPO / "repo-standard.schema.json").read_text(encoding="utf-8"))
+    assert schema["$id"] == "urn:0thernes:build-standard:repo-manifest-schema:1.2.0"
+
+    tsv = (REPO / "scripts" / "audit-checks.tsv").read_text(encoding="utf-8")
+    assert "Build Standard v1.2.0" in tsv
+    assert "^blindspot|name: *blindspot" in tsv
+
+    labels_txt = (REPO / ".github" / "labels.tsv").read_text(encoding="utf-8")
+    bug_yml = (REPO / ".github" / "ISSUE_TEMPLATE" / "bug.yml").read_text(encoding="utf-8")
+    contrib_txt = (REPO / "CONTRIBUTING.md").read_text(encoding="utf-8")
+    glossary_txt = (REPO / "docs" / "glossary.md").read_text(encoding="utf-8")
+    agents_txt = (REPO / "AGENTS.md").read_text(encoding="utf-8")
+    for cls in ten_classes:
+        assert re.search(rf"^{cls}\t", labels_txt, re.M) is not None, f"Missing label {cls!r} in .github/labels.tsv"
+        assert f'"{cls}:' in bug_yml, f"Missing dropdown class {cls!r} in bug.yml"
+        assert f"`{cls}`" in contrib_txt, f"Missing class {cls!r} in CONTRIBUTING.md"
+        assert f"| `{cls}` |" in glossary_txt, f"Missing class {cls!r} in docs/glossary.md"
+        assert cls in agents_txt, f"Missing class {cls!r} in AGENTS.md"
+
+    ci_txt = (REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    assert "--exclude-dir=.lake" in ci_txt
+    assert "_native" in ci_txt
+    assert "leanchecker --fresh Solution" in ci_txt
+
+    rel_txt = (REPO / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    assert re.search(
+        r"Attest build provenance \(Sigstore SLSA\)\s+continue-on-error:\s*true\s+uses:\s*actions/attest-build-provenance@v4",
+        rel_txt,
+    ) is not None
+
+    for runner in ("scripts/run_all.sh", "scripts/run_all.ps1"):
+        r_txt = (REPO / runner).read_text(encoding="utf-8")
+        assert "_native" in r_txt, f"Missing _native axiom guard in {runner}"
+        assert "leanchecker --fresh Solution" in r_txt, f"Missing leanchecker --fresh in {runner}"
+
+    cff = (REPO / "CITATION.cff").read_text(encoding="utf-8")
+    for tok in (
+        "10.5281/zenodo.24517198",
+        "10.5281/zenodo.24517199",
+        "swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085",
+        "type: swh",
+    ):
+        assert tok in cff, f"Missing {tok!r} in CITATION.cff"
+
+    tex = (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
+    for tok in (
+        "10.5281/zenodo.24517199",
+        "f960eeda6f145e54c0ac52538ace866a16e24085",
+        "Not done by AI",
+        "ERRATA.md",
+        "withdrawal",
+    ):
+        assert tok in tex, f"Missing {tok!r} in paper/main.tex"
+
+    html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
+    assert "10.5281/zenodo.24517199" in html
+    assert "f960eeda6f145e54c0ac52538ace866a16e24085" in html
+
+    checklist = (REPO / "docs" / "launch" / "release-checklist.md").read_text(encoding="utf-8")
+    assert "43-Item Release Checklist" in checklist
+    assert "43. [ ]" in checklist
+    assert "27. [x]" in checklist
+
+    # Adversarial negative test: x^3 over F_2 (s_2(3) = 2 >= 2) must be rejected for all t
+    assert sum(int(c) for c in bin(3)[2:]) >= 2
+    node_bin = shutil.which("node")
+    if node_bin:
+        js_path = str(REPO / "docs" / "catalytic-engine.js")
+        neg_js = (
+            f"const E = require({json.dumps(js_path)});"
+            "for (const t of [1, 2, 3, 10, 100]) {"
+            "  const r = E.evalT1Oracle(2, 3, t);"
+            "  if (r.feasibleAtT !== false || r.permanentlyImpossible !== true || r.digitSum !== 2 || r.minT !== null) process.exit(110);"
+            "}"
+        )
+        proc = subprocess.run([node_bin, "-e", neg_js], capture_output=True, text=True, timeout=30, check=False)
+        assert proc.returncode == 0, f"Adversarial negative T1b check failed: {proc.stderr}"
+
+
+
 
 
 

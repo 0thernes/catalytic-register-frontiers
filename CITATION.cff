@@ -5,6 +5,16 @@ type: software
 title: "Prime-Field Digit-Sum Dichotomy and Improved Three-Register Powering Exponents in Passive Catalytic Register Programs"
 version: 1.0.1
 doi: "10.5281/zenodo.24517198"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.24517198"
+    description: "Zenodo Concept DOI (resolves to latest version)"
+  - type: doi
+    value: "10.5281/zenodo.24517199"
+    description: "Zenodo Version DOI for v1.0.1"
+  - type: swh
+    value: "swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085"
+    description: "Software Heritage permanent archival snapshot SWHID"
 date-released: 2026-11-24
 repository-code: "https://github.com/0thernes/catalytic-register-frontiers"
 authors:

@@ -58,7 +58,7 @@ lint:
 adaptive *ARGS:
     node docs/catalytic-engine.js {{ARGS}}
 
-# Score this repository against Build Standard v1.1.0 & Build Pipeline Models v1.0.0 (report-only)
+# Score this repository against Build Standard v1.2.0 & Build Pipeline Models v1.0.0 (report-only)
 [unix]
 audit *ARGS:
     bash scripts/audit-repo.sh . {{ARGS}}

@@ -82,7 +82,7 @@ steps:
   P8.09: {status: n/a, note: "Static GitHub Pages + immutable versioned release tags"}
   P8.10: {status: done, note: "docs/operations.md (git revert on main + re-run Pages workflow)"}
   P8.11: {status: done, note: ".github/workflows/release.yml (tag-triggered release + SLSA attestation)"}
-  P9.01: {status: done, note: "docs/launch/release-checklist.md (full 41-item Playbook v1.1 audit)"}
+  P9.01: {status: done, note: "docs/launch/release-checklist.md (full 43-item Playbook v1.3 audit)"}
   P9.02: {status: done, note: "README.md, REPLICATION.md, docs/index.html"}
   P9.03: {status: done, note: "Published GitHub v1.0.0/v1.0.1, Zenodo Concept DOI 10.5281/zenodo.24517198 (v1.0.1: 10.5281/zenodo.24517199), SWHID swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085, and ORCID link; Palomar/arXiv/HAL IDs not yet assigned"}
   P9.04: {status: done, note: "docs/launch/announcement.md + docs/media/social-preview.svg"}

@@ -63,9 +63,13 @@ expected = pathlib.Path('../results/lean_axioms.txt').read_text(encoding='utf-8'
 if actual != expected:
     print('AXIOM DRIFT DETECTED vs results/lean_axioms.txt!', file=sys.stderr)
     sys.exit(1)
+import re
+if re.search(r'sorryAx|_native|Lean\.ofReduceBool|Lean\.trustCompiler', actual):
+    print('UNPERMITTED AXIOM DETECTED!', file=sys.stderr)
+    sys.exit(1)
 "@
             if ($LASTEXITCODE -ne 0) { return }
-            & lake env leanchecker Solution
+            & lake env leanchecker --fresh Solution
             if ($LASTEXITCODE -ne 0) { return }
             & lake env leanchecker-paranoid Solution
             if ($LASTEXITCODE -ne 0) { return }

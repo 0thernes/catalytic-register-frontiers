@@ -1,5 +1,5 @@
 ---
-description: Build Standard v1.1.0 & Lean 4.35 invariants for catalytic-register-frontiers
+description: Build Standard v1.2.0 & Lean 4.35 invariants for catalytic-register-frontiers
 globs: ["**/*"]
 alwaysApply: true
 ---

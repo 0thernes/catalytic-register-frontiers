@@ -14,13 +14,17 @@
   - `TIER-3`: Standard paper-level reduction composing Tier-1 results with published composition lemmas.
   - `TIER-4`: Explicitly unresolved open mathematical problem.
 
-## Build Standard Six Finding Classes
+## Build Standard Ten Finding Classes (v1.2.0)
 
 | Class | Definition |
 |---|---|
 | `bug` | Defect in program logic: code runs but does something different from its specification or intent. |
-| `error` | Wrong artifact or failed execution outside program logic: wrong number, claim, citation, doc, config, version, or build. |
-| `issue` | Gap: something required by the standard or task is missing or incomplete, though nothing present is wrong. |
-| `problem` | External obstacle not caused by project artifacts (e.g., missing external tool, network block, pending human reviewer). |
+| `error` | Wrong artifact or failed execution outside program logic: wrong number, claim, doc, config, version, build, or command. |
+| `issue` | Weakness in something that exists: it works and is not wrong, but is unclear, inconsistent, fragile, or hard to maintain. |
+| `problem` | External obstacle that blocks progress and is not caused by the project's own code or artifacts (e.g., missing external tool, network block, pending human reviewer). |
+| `concern` | Risk that has not caused harm yet: something that could fail, mislead, cost money, or create security or legal exposure later. |
 | `dilemma` | Trade-off between two or more valid options where the right choice depends on owner priorities. |
 | `conflict` | Two requirements, sources, or rules contradict each other so satisfying one violates the other. |
+| `gap` | Something required or expected is missing: a file, feature, doc, or item this standard or the task calls for does not exist yet, though nothing present is wrong. |
+| `hole` | Missing check or safeguard: a path that nothing verifies or protects, so a defect could pass unnoticed. |
+| `blindspot` | Something outside current attention: a user, platform, failure mode, or assumption nobody has examined yet, so what is wrong there is unknown. |

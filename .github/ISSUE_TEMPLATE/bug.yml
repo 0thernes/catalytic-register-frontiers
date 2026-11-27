@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 name: Bug or finding
-description: Report a bug, mathematical error, statement-fidelity mismatch, or standard gap.
+description: Report a bug, mathematical error, statement-fidelity mismatch, standard gap, verification hole, or blindspot.
 labels: ["triage"]
 body:
   - type: dropdown
@@ -9,12 +9,16 @@ body:
       label: Finding class
       description: Pick exactly one. Definitions are in docs/glossary.md.
       options:
-        - "bug: code does something different from its spec or intent"
-        - "error: a wrong number, claim, doc, config, version, build or command"
-        - "issue: something required is missing or incomplete"
-        - "problem: an external obstacle (network, account, toolchain) blocks progress"
-        - "dilemma: a trade-off between valid options; the owner decides"
+        - "bug: code does something different from its spec or intent (a defect in program logic)"
+        - "error: wrong number, claim, doc, config, version, build or command"
+        - "issue: works and is not wrong, but is unclear, inconsistent, fragile or hard to maintain"
+        - "problem: external obstacle (network, account, toolchain) blocks progress"
+        - "concern: risk that has not caused harm yet (security, cost, legal, reliability)"
+        - "dilemma: trade-off between valid options; the owner decides"
         - "conflict: two requirements or rules contradict each other"
+        - "gap: something required or expected is missing; nothing present is wrong"
+        - "hole: missing check or safeguard, so a defect could pass unnoticed"
+        - "blindspot: a user, platform, failure mode or assumption nobody has examined yet"
     validations:
       required: true
   - type: textarea
@@ -27,7 +31,7 @@ body:
     id: steps
     attributes:
       label: Exact steps to reproduce
-      placeholder: "1. git checkout v1.0.0\n2. just reproduce\n3. ..."
+      placeholder: "1. git checkout v1.0.1\n2. just reproduce\n3. ..."
     validations:
       required: true
   - type: input
@@ -40,5 +44,10 @@ body:
     id: env
     attributes:
       label: Environment
-      description: OS, Lean version (lean --version), Python version, and kernel used.
+      description: OS, Lean version (lean --version), Python version, Node version, and kernel used.
+      render: text
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or output
       render: text

@@ -110,7 +110,7 @@ pwsh -NoProfile -File scripts/run_all.ps1 -Task all
 bash scripts/run_all.sh all
 ```
 
-Expected result: 19/19 default Lean jobs built with 0 warnings, `leanchecker`, `leanchecker-paranoid`, `con-leche`, and `con-ron` exit 0, all 32 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / SBOM / workflow / schema / SVG / HTML5 / matrix-lift / factorization / JS Adaptive Forking PWA & CLI differential consistency tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK`. (After the 2026-11-26 wording corrections, `MANIFEST.sha256` and its RFC 3161 timestamp were regenerated, in commit `1d32df4` and again after a second set of corrections on the same date. See [`ERRATA.md`](ERRATA.md).)
+Expected result: 19/19 default Lean jobs built with 0 warnings, `leanchecker --fresh`, `leanchecker-paranoid`, `con-leche`, and `con-ron` exit 0, all 33 `pytest` / Hypothesis / mutant / differential-SAT / LRAT / REUSE / SBOM / workflow / schema / SVG / HTML5 / matrix-lift / factorization / JS Adaptive Forking PWA & CLI differential / Build Standard v1.2.0 & Playbook v1.3 consistency tests PASS, 3 deterministic PDFs generated, 0-warning Tectonic PDF compile, 100% `MANIFEST.sha256` verification, and DigiCert RFC 3161 `Verification: OK` (re-sealed cleanly on `main` after both the 2026-11-26 statement audit `2a159ce`/`530bf12` and Pass 20; see [`ERRATA.md`](ERRATA.md)).
 
 ### Universal Zero-Dependency Adaptive Forking CLI (Any Device with Node.js)
 ```bash

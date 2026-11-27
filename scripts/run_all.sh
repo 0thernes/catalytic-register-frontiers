@@ -24,7 +24,11 @@ run_lean() {
     lake env lean VerifyAxioms.lean | tr -d '\r' > "$TMP_AX"
     cat "$TMP_AX"
     diff -u ../results/lean_axioms.txt "$TMP_AX"
-    lake env leanchecker Solution
+    if grep -qE 'sorryAx|_native|Lean\.ofReduceBool|Lean\.trustCompiler' "$TMP_AX"; then
+      echo "UNPERMITTED AXIOM DETECTED!" >&2
+      exit 1
+    fi
+    lake env leanchecker --fresh Solution
     lake env leanchecker-paranoid Solution
     if lake env sh -c 'command -v con-leche >/dev/null 2>&1 && command -v con-ron >/dev/null 2>&1'; then
       TMP_EXP="$(mktemp)"

@@ -10,4 +10,4 @@ Review date: 2026-11-25 (Pass 11 — 3-cycle deep forensic hardening + Adaptive 
 | **Input** | BibTeX citations resolving via Crossref/DataCite/arXiv with 0 retractions | 10/10 (100%) | 10/10 verified (`docs/literature-search-log.md`) |
 | **Guardrail** | Forbidden tokens (`sorry`, `admit`, `native_decide`, custom `axiom`, `@[extern]`) | 0 | 0 |
 | **Guardrail** | LaTeX typography / hyperref warnings & figure overlaps | 0 | 0 (all pages & figures visually audited) |
-| **Guardrail** | Build Standard v1.1.0 `Audit-Repo.ps1` Core completion | 100% locally actionable Core items | Audited via `scripts/Audit-Repo.ps1` |
+| **Guardrail** | Build Standard v1.2.0 `Audit-Repo.ps1` Core completion | 100% locally actionable Core items | Audited via `scripts/Audit-Repo.ps1` (100.0%, 62/62) |
