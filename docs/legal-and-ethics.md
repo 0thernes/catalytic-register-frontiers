@@ -13,7 +13,7 @@ Records compliance with Sections 4, 5, 8 (#27–#40), and 10 of the *Defensible 
 ## 2. AI-Contribution, CRediT & Venue-Matched Policy Compliance (Playbook v1.3 #32, #40)
 
 - **Human contributions (CRediT):** Conceptualization; Methodology; Formal analysis (definition design, statement-fidelity audit, primary-literature cross-check); Validation; Writing – review & editing; Supervision.
-- **AI tools used:** Antigravity / Gemini (2026-11-23 through 2026-11-26) assisted in exploratory exact-arithmetic probing, Lean 4.35 proof engineering, Python/JS verification and figure scripting, and AMS-LaTeX manuscript drafting.
+- **AI tools used:** Antigravity / Gemini (2026-11-23 through 2026-11-27) assisted in exploratory exact-arithmetic probing, Lean 4.35 proof engineering, Python/JS verification and figure scripting, and AMS-LaTeX manuscript drafting.
 - **Not done by AI:** Choice of research questions, acceptance of theorem statements, statement-fidelity sign-off (`docs/statement-fidelity.md`), and epistemic scope boundaries (`CLAIMS.md`, `LIMITATIONS.md`).
 - **Authorship & Accountability:** No AI system is listed as an author. Alexander S. Donahue takes full responsibility for all claims, proofs, code, and references. Mathematical soundness of all Tier-1 theorems is certified mechanically across 5 distinct locally reproducible Lean 4.35 kernel implementations in 6 runs (`results/six_kernel_audit.txt`, zero `sorryAx`/`_native` axioms).
 - **Venue-Matched AI Disclosures:**

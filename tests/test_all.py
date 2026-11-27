@@ -731,6 +731,8 @@ def test_doc_citation_and_workflow_consistency() -> None:
         "8{,}145 lines",
         "8,151 lines",
         "8{,}151 lines",
+        "8,881 lines",
+        "8{,}881 lines",
         "20 headline theorems",
         "20 exported theorems",
         "22 audited declarations",
@@ -741,6 +743,8 @@ def test_doc_citation_and_workflow_consistency() -> None:
         "3,525 declarations",
         "3,544 declarations",
         "3,544 decls",
+        "3,642 declarations",
+        "3,642 decls",
         "3,819 decls",
         "3,819 declarations",
         "3,836 decls",
@@ -1021,9 +1025,15 @@ def test_pass8_sbom_workflow_determinism_and_reuse_strictness() -> None:
     nv_txt = (REPO / "lean" / "Catalytic" / "NonVacuity.lean").read_text(encoding="utf-8")
     assert "theorem nonvac_T3i_witness" in nv_txt and "nonvac_T3i_witness," in nv_txt
 
-    # 7. LIMITATIONS.md synced (no stale 3,819, 3,838, or 3,544)
+    # 7. LIMITATIONS.md synced (no stale 3,819, 3,838, 3,544, or 3,642)
     lim_txt = (REPO / "LIMITATIONS.md").read_text(encoding="utf-8")
-    assert "3,819" not in lim_txt and "3,838" not in lim_txt and "3,544" not in lim_txt and "3,642" in lim_txt
+    assert (
+        "3,819" not in lim_txt
+        and "3,838" not in lim_txt
+        and "3,544" not in lim_txt
+        and "3,642" not in lim_txt
+        and "3,644" in lim_txt
+    )
 
 
 def test_pass9_cor54_matrix_lift_and_blueprint_integrity() -> None:
@@ -1319,7 +1329,7 @@ def test_pass10_palomar_t4_and_provenance_integrity() -> None:
     audit_txt = (REPO / "results" / "six_kernel_audit.txt").read_text(encoding="utf-8")
     assert "5 Distinct Implementations / 6 Completed Runs" in audit_txt
     assert "NOT counted among the 5 completed locally reproducible kernel implementations" in audit_txt
-    assert "3,642" in audit_txt and "3,502" in audit_txt
+    assert "3,644" in audit_txt and "3,502" in audit_txt
     tex = (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
     assert r"\texttt{lean4lean}" not in tex.split(r"\maketitle", 1)[0]
 
@@ -1612,7 +1622,7 @@ def test_pass14_large_n_t1_horizon_and_cert_verifier() -> None:
     assert ".glob(" not in lrat_src, "verify_lrat.py should use bracket-safe iterdir() instead of glob()"
 
     sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
-    assert re.search(r"catalytic-adaptive-fork-v1\.[4-9]\.0", sw_src) is not None and "Promise.allSettled" in sw_src
+    assert re.search(r"catalytic-adaptive-fork-v1\.[4-9]\.\d+", sw_src) is not None and "Promise.allSettled" in sw_src
 
     html = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
     assert re.search(r"Adaptive Forking Offline PWA v1\.[4-9]", html) is not None
@@ -1698,7 +1708,7 @@ def test_pass15_planner_executor_csp_and_autopilot() -> None:
     assert "toggleAdaptiveAutopilot" in html and "execCatalyticByteVaultAsync" in html
 
     sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
-    assert re.search(r"catalytic-adaptive-fork-v1\.[5-9]\.0", sw_src) is not None
+    assert re.search(r"catalytic-adaptive-fork-v1\.[5-9]\.\d+", sw_src) is not None
 
     node_bin = shutil.which("node")
     if node_bin:
@@ -1743,7 +1753,7 @@ def test_pass16_matrix_cor54_parity_and_cli_stream_stdin() -> None:
     assert re.search(r"Adaptive Forking Offline PWA v1\.[6-9]", html) is not None
     assert "visibilitychange" in html and "verifyExternalCertificateFile" in html and "af-cert-file" in html
     sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
-    assert re.search(r"catalytic-adaptive-fork-v1\.[6-9]\.0", sw_src) is not None
+    assert re.search(r"catalytic-adaptive-fork-v1\.[6-9]\.\d+", sw_src) is not None
 
     node_bin = shutil.which("node")
     if node_bin:
@@ -1806,7 +1816,7 @@ def test_pass17_nan_bounds_and_v17_report_preview() -> None:
     assert "Math.max(11, parseInt(" not in html
 
     sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
-    assert re.search(r"catalytic-adaptive-fork-v1\.[7-9]\.0", sw_src) is not None
+    assert re.search(r"catalytic-adaptive-fork-v1\.[7-9]\.\d+", sw_src) is not None
 
     node_bin = shutil.which("node")
     if node_bin:
@@ -1863,7 +1873,7 @@ def test_pass18_null_safety_cli_eq_selfcheck_and_v18_ui() -> None:
         assert marker in html, f"Missing Pass 18 v1.8 UI marker {marker!r}"
 
     sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
-    assert re.search(r"catalytic-adaptive-fork-v1\.[89]\.0", sw_src) is not None
+    assert re.search(r"catalytic-adaptive-fork-v1\.[89]\.\d+", sw_src) is not None
 
     man = json.loads((REPO / "docs" / "manifest.webmanifest").read_text(encoding="utf-8"))
     assert man.get("id") == "./" and len(man.get("shortcuts", [])) >= 3
@@ -1938,7 +1948,7 @@ def test_pass19_ci_timeouts_7kind_certs_csv_and_v19_ui() -> None:
         assert marker in html, f"Missing Pass 19 v1.9 UI marker {marker!r}"
 
     sw_src = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
-    assert "catalytic-adaptive-fork-v1.9.0" in sw_src
+    assert "catalytic-adaptive-fork-v1.9." in sw_src
 
     node_bin = shutil.which("node")
     if node_bin:
@@ -2274,5 +2284,91 @@ def test_pass22_fps_completeness_lrat_citations_and_pwa_csp(tmp_path: pathlib.Pa
         )
         proc = subprocess.run([node_bin, "-e", js_check], capture_output=True, text=True, timeout=30, check=False)
         assert proc.returncode == 0, f"Pass 22 Node.js N=1,p=0 cert check failed: {proc.stderr}"
+
+
+def test_pass23_nonvac_fps_lrat_header_citation_regex_and_sw_cache(tmp_path: pathlib.Path) -> None:
+    """Pass 23 permanent regression guard verifying:
+    1. Concrete bivariate FPS non-vacuity witnesses (`nonvac_T1sc_witness` over `FPS (FPS (ModP 5))`
+       and `nonvac_T1esc_witness` over `FPS (FPS GF4)`) present in `NonVacuity.lean` and conjoined
+       into `nonvac_all_hypotheses`.
+    2. Hardened `scripts/verify_lrat.py` `parse_dimacs_cnf` rejecting pre-header clauses, duplicate
+       `p cnf` headers, negative header counts, extra header tokens, and literals exceeding
+       `num_vars == 0`.
+    3. Hardened `scripts/check_citations.py` rejecting non-4-digit years, malformed DOIs, and entries
+       missing valid DOI or arXiv URLs offline.
+    4. PWA service worker cache bumped past `v1.9.0` (`catalytic-adaptive-fork-v1.9.1`).
+    5. Secondary policy/plan/rule/security docs & `paper/main.tex` typography synced (10 finding
+       classes + `VERSION: 1.0.1` in `SECURITY.md`/`SUPPORT.md`, zero stale `6-kernel` / overclaims
+       in `.cursor/rules/build-standard.mdc` & `docs/plan/`, zero untied ` \\cite` in `paper/main.tex`).
+    """
+    import pytest
+
+    # 1. Bivariate FPS non-vacuity witnesses in NonVacuity.lean
+    nv_txt = (REPO / "lean" / "Catalytic" / "NonVacuity.lean").read_text(encoding="utf-8")
+    for sym in ("theorem nonvac_T1sc_witness", "theorem nonvac_T1esc_witness", "nonvac_T1sc_witness, nonvac_T1esc_witness"):
+        assert sym in nv_txt, f"Missing {sym!r} in NonVacuity.lean"
+
+    # 2. Hardened DIMACS CNF parser edge cases in verify_lrat.py
+    ok_lrat = tmp_path / "ok.lrat"
+    ok_lrat.write_text("2 0 1 0\n", encoding="utf-8")
+
+    pre_hdr = tmp_path / "pre_header.cnf"
+    pre_hdr.write_text("1 0\np cnf 1 1\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="before DIMACS 'p cnf' header"):
+        verify_lrat(pre_hdr, ok_lrat)
+
+    dup_hdr = tmp_path / "dup_header.cnf"
+    dup_hdr.write_text("p cnf 1 1\np cnf 1 1\n1 0\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="Duplicate DIMACS"):
+        verify_lrat(dup_hdr, ok_lrat)
+
+    neg_hdr = tmp_path / "neg_header.cnf"
+    neg_hdr.write_text("p cnf -1 1\n1 0\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="Negative DIMACS"):
+        verify_lrat(neg_hdr, ok_lrat)
+
+    zero_vars = tmp_path / "zero_vars.cnf"
+    zero_vars.write_text("p cnf 0 1\n1 0\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="exceeds declared num_vars=0"):
+        verify_lrat(zero_vars, ok_lrat)
+
+    # 3. Hardened check_citations.py offline year/DOI/arXiv regex checks
+    bad_bib = tmp_path / "references.bib"
+    bad_bib.write_text(
+        "@article{BadEntry,\n"
+        "  author = {Test Author},\n"
+        "  title = {Malformed Citation},\n"
+        "  year = {20xx},\n"
+        "  doi = {not-a-valid-doi}\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    _, cit_errs = check_offline(bad_bib)
+    assert any("malformed publication year" in e for e in cit_errs)
+    assert any("malformed DOI" in e for e in cit_errs)
+
+    # 4. PWA Service Worker cache-bust beyond v1.9.0
+    sw_txt = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
+    assert "catalytic-adaptive-fork-v1.9.1" in sw_txt
+    assert "catalytic-adaptive-fork-v1.9.0" not in sw_txt
+
+    # 5. Secondary policy, rule, planning, security docs & TeX citation tie hygiene
+    sec_txt = (REPO / "SECURITY.md").read_text(encoding="utf-8")
+    assert "`blindspot`" in sec_txt and "`1.0.1`" in sec_txt and "`1.0.0`" not in sec_txt
+    sup_txt = (REPO / "SUPPORT.md").read_text(encoding="utf-8")
+    assert "ten finding classes" in sup_txt and "`blindspot`" in sup_txt
+    cur_txt = (REPO / ".cursor" / "rules" / "build-standard.mdc").read_text(encoding="utf-8")
+    assert "6-kernel" not in cur_txt and "5-kernel / 6-run" in cur_txt
+    idea_txt = (REPO / "docs" / "plan" / "00-idea.md").read_text(encoding="utf-8")
+    assert "6-kernel" not in idea_txt and "advancing the open problems" not in idea_txt
+    impl_txt = (REPO / "docs" / "plan" / "implementation-plan.md").read_text(encoding="utf-8")
+    assert "unique global integer minimizer" not in impl_txt and "T1sc" in impl_txt and "CatOp.usesOnly" in impl_txt
+    kill_txt = (REPO / "docs" / "plan" / "kill-criteria.md").read_text(encoding="utf-8")
+    assert "24 audited declarations" in kill_txt
+    sec_rep = (REPO / "reports" / "security" / "audit-2026-11-23.txt").read_text(encoding="utf-8")
+    assert "8,930 lines" in sec_rep and "3,644" in sec_rep and "24/24 declarations" in sec_rep
+    tex_txt = (REPO / "paper" / "main.tex").read_text(encoding="utf-8")
+    assert re.search(r"[A-Za-z0-9\.\)\]] \\cite\b", tex_txt) is None, "Untied \\cite found in paper/main.tex"
+
 
 

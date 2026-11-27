@@ -1,5 +1,5 @@
 # Security, Supply-Chain, and Integrity Scan Report
-Date: 2026-11-23 (updated 2026-11-25 after Pass 11 3-Cycle Deep Audit & Adaptive Forking PWA)
+Date: 2026-11-23 (updated 2026-11-27 after Pass 23 3-Cycle Deep Audit, FPS Non-Vacuity, & Verifier Hardening)
 Repository: catalytic-register-frontiers (v1.0.1)
 Pipeline Artifact: P7.F3
 
@@ -8,10 +8,10 @@ Pipeline Artifact: P7.F3
 - Result: PASS (0 secrets found; `.env.example` documents optional local binary path overrides only; zero runtime network credentials required; hardcoded user paths removed from `scripts/run_all.ps1` and `experiments/exp4_boolean_mc_companion.py`).
 
 ## 2. Lean 4.35 Trust-Base & Forbidden-Token Scan
-- Scope: All 14 core proof `.lean` files under `lean/` (8,151 lines total, longest 1,364 lines) plus standalone Palomar contract pair (`PalomarChallenge.lean` 283 lines, `PalomarSolution.lean` 842 lines; 16 files / 9,276 lines total).
-- Forbidden tokens (`sorry`, `admit`, `native_decide`, `implemented_by`, `unsafe`, custom `axiom`, `@[extern]`): 0 matches across all 15 proof/solution modules (PASS); `PalomarChallenge.lean` has zero imports and Comparator placeholder `sorry` only.
-- Axioms (`VerifyAxioms.lean`): 22/22 declarations strictly within `[propext, Classical.choice, Quot.sound]` (PASS).
-- Multi-kernel replay (`results/six_kernel_audit.txt`): 5 distinct locally reproducible kernel implementations across 6 native runs PASS (`lean`, `leanchecker`, `leanchecker-paranoid`, `con-leche --verified` [3,544 decls], `con-ron --verified` [3,544 decls], `nanoda_bin 0.4.19` [3,544 decls]). Upstream Windows `lean4lean.exe` `.olean` header mismatch retained as external `problem` and excluded from completed local kernel count.
+- Scope: All 14 core proof `.lean` files under `lean/` (8,930 lines total, longest 1,511 lines [`Pass2Soundness.lean`]) plus standalone Palomar contract pair (`PalomarChallenge.lean` 283 lines, `PalomarSolution.lean` 842 lines; 16 files / 10,055 lines total).
+- Forbidden tokens (`sorry`, `admit`, `native_decide`, `implemented_by`, `unsafe`, modifier-aware custom `axiom`, `@[extern]`): 0 matches across all 15 proof/solution modules (PASS); `PalomarChallenge.lean` has zero imports and Comparator placeholder `sorry` only.
+- Axioms (`VerifyAxioms.lean`): 24/24 declarations strictly within `[propext, Classical.choice, Quot.sound]` (zero `sorryAx`, zero `_native` / `Lean.ofReduceBool` / `Lean.trustCompiler`, non-empty output asserted in CI and both runners) (PASS).
+- Multi-kernel replay (`results/six_kernel_audit.txt`): 5 distinct locally reproducible kernel implementations across 6 native runs PASS (`lean`, `leanchecker --fresh`, `leanchecker-paranoid`, `con-leche --verified` [3,644 `Solution` / 3,502 `PalomarSolution` decls], `con-ron --verified` [3,644 / 3,502 decls], `nanoda_bin 0.4.19` [3,644 / 3,502 decls]). Upstream Windows `lean4lean.exe` `.olean` header mismatch retained as external `problem` and excluded from completed local kernel count.
 
 ## 3. Supply-Chain & Licensing Inventory
 - Lean external packages: 0 (`lean/lake-manifest.json` empty; zero Mathlib dependency).
@@ -20,10 +20,11 @@ Pipeline Artifact: P7.F3
 - Licensing: Conflict-strict REUSE 3.3 compliant (`REUSE.toml` + inline `SPDX-License-Identifier` headers; dual `Apache-2.0` / `CC-BY-4.0`, verified with zero conflicts by `scripts/check_reuse.py`).
 
 ## 4. Citation, Retraction, & SAT Certificate Verification
-- Live DOI/arXiv & Retraction Watch check (`scripts/check_citations.py`): 10/10 PASS, 0 retractions.
-- Archived CaDiCaL 2.1.2 LRAT UNSAT proofs (`scripts/verify_lrat.py`): 8/8 PASS (18,932 verified steps across `f4_mul_k2`, `orthogonal_bent_pair_k2`, and `hard_n4_m3_trial0..5_k2`) + mutant-rejection tests + brute-force and second-encoder differential SAT checks PASS.
+- Live DOI/arXiv & Crossref Retraction check (`scripts/check_citations.py`): 10/10 PASS, 0 retractions (offline TeX-vs-BibTeX key parity + strict 4-digit year & DOI/arXiv regex validation + online `update-to` / `is-retracted-by` verification).
+- Archived CaDiCaL 2.1.2 LRAT UNSAT proofs (`scripts/verify_lrat.py`): 8/8 PASS (18,932 verified steps across `f4_mul_k2`, `orthogonal_bent_pair_k2`, and `hard_n4_m3_trial0..5_k2`), enforcing strict `p cnf` header ordering/uniqueness/non-negativity, `num_vars == 0` bounds, positive deletion IDs, zero-free hint lists, and RAT completeness + mutant-rejection, brute-force, and second-encoder differential SAT checks PASS.
 
-## 5. Manifest, Workflow, & Cache Hygiene
+## 5. Browser PWA CSP, Export Isolation, & Manifest Hygiene
+- Browser PWA (`docs/index.html`, `docs/catalytic-engine.js`, `docs/sw.js` `v1.9.1`): strict zero-exfiltration CSP (`connect-src 'self'; object-src 'none'`), full HTML/quote escaping in `esc()`, zero-script CSP (`default-src 'none'; style-src 'unsafe-inline';`) on exported standalone HTML proof reports, 2 MiB file-size cap on external certificate uploads, and independent exact re-execution across all 7 certificate families (including `N=1, p=0`).
 - Fixed `.hypothesis/` cache-tracking leakage and global `.gitignore` `.env.example` omission (`ERRATA.md`).
 - Continuous DigiCert RFC 3161 TSA verification wired into `scripts/run_all.ps1`, `scripts/run_all.sh`, and `.github/workflows/ci.yml`.
-- Guarded permanently by `test_manifest_and_reuse_hygiene()`, `test_doc_citation_and_workflow_consistency()`, `test_pass7_svg_factorization_and_table_integrity()`, `test_pass8_sbom_workflow_determinism_and_reuse_strictness()`, `test_pass9_cor54_matrix_lift_and_blueprint_integrity()`, `test_pass10_palomar_t4_and_provenance_integrity()`, and `test_pass11_cycle3_audit_and_adaptive_fork_engine()` in `tests/test_all.py`.
+- Guarded permanently by all 36 regression tests in `tests/test_all.py` (including Pass 7–23 permanent guards `test_pass7_*` through `test_pass23_nonvac_fps_lrat_header_citation_regex_and_sw_cache()`).

@@ -205,15 +205,63 @@ theorem nonvac_T3i_witness :
   rw [hlen13] at hacc
   exact ⟨prog, hacc, hclean⟩
 
+/-- **Non-Vacuity Witness for T1sc (`Pass2Soundness` over bivariate `FPS`):**
+Exhibits `FPS (FPS (ModP 5))` as a concrete non-trivial (`0 ≠ 1`) characteristic-`5` commutative
+ring and instantiates `pass2_clean_iff_ring_exec` on `x^2` (`p = 5, t = 3`), yielding a literal
+`≤ 3`-access `Pass2Prog` cleanly computing `x^2` over every characteristic-`5` commutative ring. -/
+theorem nonvac_T1sc_witness :
+    ((0 : FPS (FPS (ModP 5 (by decide)))) ≠ (1 : FPS (FPS (ModP 5 (by decide))))) ∧
+    ((CRing.natCast 5 : FPS (FPS (ModP 5 (by decide)))) = 0) ∧
+    ∃ prog : List Pass2Instr,
+      Pass2Prog.accesses prog ≤ 3 ∧
+      ∀ (R : Type) [CRing R], (CRing.natCast 5 : R) = 0 →
+        ∀ o u x : R, Pass2Prog.execRing x prog (o, u) = (o + evalPolyR (monomial 2) x, u) := by
+  have hne : (0 : FPS (FPS (ModP 5 (by decide)))) ≠ 1 := by
+    intro h
+    have hc := congrArg (fun s : FPS (FPS (ModP 5 (by decide))) => (s.coeff 0).coeff 0) h
+    exact ModP.zero_ne_one 5 (by decide) hc
+  have hchar : (CRing.natCast 5 : FPS (FPS (ModP 5 (by decide)))) = 0 := by
+    rw [FPS.natCast_eq, FPS.natCast_eq, ModP.natCast_p_eq_zero 5 (by decide),
+        FPS.const_zero, FPS.const_zero]
+  rcases nonvac_T1_witnesses.2.2.2.2.2.2.1 with ⟨prog, hacc, hclean⟩
+  exact ⟨hne, hchar, prog, hacc, (pass2_clean_iff_ring_exec (by decide) prog (monomial 2)).1 hclean⟩
+
+/-- **Non-Vacuity Witness for T1esc (`Pass2Soundness` over bivariate `FPS (FPS GF4)`):**
+Exhibits `FPS (FPS GF4)` as a concrete non-trivial (`0 ≠ 1`) commutative `GF4`-algebra and
+instantiates `pass2gf4_clean_iff_alg_exec` on `x^3` (`gf4_x3_in_4_accesses`), yielding a literal
+`≤ 4`-access `Pass2GF4Prog` cleanly computing `x^3` over every commutative `GF4`-algebra. -/
+theorem nonvac_T1esc_witness :
+    ((0 : FPS (FPS GF4)) ≠ (1 : FPS (FPS GF4))) ∧
+    ∃ prog : List Pass2GF4Instr,
+      Pass2GF4Prog.accesses prog ≤ 4 ∧
+      ∀ (R : Type) [CRing R] (φ : GF4Hom R) (o u x : R),
+        Pass2GF4Prog.execAlg φ x prog (o, u) = (o + evalPolyGF4Alg φ (monomialGF4 3) x, u) := by
+  have hne : (0 : FPS (FPS GF4)) ≠ 1 := by
+    intro h
+    have hc := congrArg (fun s : FPS (FPS GF4) => (s.coeff 0).coeff 0) h
+    exact GF4.one_ne_zero hc.symm
+  rcases gf4_x3_in_4_accesses with ⟨prog, hacc, hclean⟩
+  exact ⟨hne, prog, hacc, (pass2gf4_clean_iff_alg_exec prog (monomialGF4 3)).1 hclean⟩
+
 /-- Master non-vacuity witness bundling all theorem families (`T1`–`T4`, including `Pass2Soundness`
-char-`p`/`GF4` hom witnesses, `GF4` for `T1e`, `D9` for `T3g`, 4-register powering for `T3h`, and
-concrete product-ring `Fin 3 → 𝔽_13` streaming frequency moments for `T3i`). -/
+char-`p`/`GF4` hom witnesses and bivariate `FPS (FPS _)` witnesses for `T1sc`/`T1esc`, `GF4` for
+`T1e`, `D9` for `T3g`, 4-register powering for `T3h`, and concrete product-ring `Fin 3 → 𝔽_13`
+streaming frequency moments for `T3i`). -/
 theorem nonvac_all_hypotheses :
     (IsPrime 2 ∧ IsPrime 3 ∧ IsPrime 5 ∧ IsPrime 7 ∧
       InRPPass2 2 2 (monomial 4) ∧ ¬ InRPPass2 2 10 (monomial 3) ∧
       InRPPass2 5 3 (monomial 2) ∧ ¬ InRPPass2 5 2 (monomial 2)) ∧
     ((CRing.natCast 5 : ModP 5 (by decide)) = 0) ∧
     ((GF4Hom.id.toFun .one : GF4) ≠ GF4Hom.id.toFun .z) ∧
+    ((0 : FPS (FPS (ModP 5 (by decide)))) ≠ (1 : FPS (FPS (ModP 5 (by decide)))) ∧
+      (CRing.natCast 5 : FPS (FPS (ModP 5 (by decide)))) = 0 ∧
+      ∃ prog : List Pass2Instr, Pass2Prog.accesses prog ≤ 3 ∧
+        ∀ (R : Type) [CRing R], (CRing.natCast 5 : R) = 0 →
+          ∀ o u x : R, Pass2Prog.execRing x prog (o, u) = (o + evalPolyR (monomial 2) x, u)) ∧
+    ((0 : FPS (FPS GF4)) ≠ (1 : FPS (FPS GF4)) ∧
+      ∃ prog : List Pass2GF4Instr, Pass2GF4Prog.accesses prog ≤ 4 ∧
+        ∀ (R : Type) [CRing R] (φ : GF4Hom R) (o u x : R),
+          Pass2GF4Prog.execAlg φ x prog (o, u) = (o + evalPolyGF4Alg φ (monomialGF4 3) x, u)) ∧
     ((0 : F2) ≠ (1 : F2)) ∧
     (∃ inv5 : ModP 5 (by decide), inv5 * CRing.intCast 576 = 1) ∧
     (∃ inv6 : ModP 7 (by decide), inv6 * CRing.intCast 382500000 = 1) ∧
@@ -236,7 +284,8 @@ theorem nonvac_all_hypotheses :
     ((0 : Int) ≠ (1 : Int)) := by
   rcases nonvac_T3_witnesses with ⟨⟨i5, _, h5⟩, ⟨i6, _, h6⟩, ⟨i7, _, h7⟩, ⟨i8, _, h8⟩, ⟨i9, _, h9⟩⟩
   rcases nonvac_T3h_witnesses.1 with ⟨iD8, i12, i2, _, hD8, h12, h2⟩
-  exact ⟨nonvac_T1_witnesses, ModP.natCast_p_eq_zero 5 (by decide), GF4.one_ne_zero, nonvac_T2_witness.1,
+  exact ⟨nonvac_T1_witnesses, ModP.natCast_p_eq_zero 5 (by decide), GF4.one_ne_zero,
+    nonvac_T1sc_witness, nonvac_T1esc_witness, nonvac_T2_witness.1,
     ⟨i5, h5⟩, ⟨i6, h6⟩, ⟨i7, h7⟩, ⟨i8, h8⟩, ⟨i9, h9⟩, ⟨iD8, i12, i2, hD8, h12, h2⟩,
     nonvac_T3i_witness, nonvac_T4_witness.1⟩
 

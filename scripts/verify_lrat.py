@@ -32,12 +32,18 @@ def parse_dimacs_cnf(cnf_path: pathlib.Path) -> tuple[int, dict[int, list[int]]]
         if not line or line.startswith("c"):
             continue
         if line.startswith("p "):
+            if expected_clauses is not None:
+                raise ValueError("Duplicate DIMACS 'p cnf' header")
             parts = line.split()
-            if len(parts) < 4 or parts[1] != "cnf":
+            if len(parts) != 4 or parts[1] != "cnf":
                 raise ValueError(f"Malformed DIMACS header: {line}")
             num_vars = int(parts[2])
             expected_clauses = int(parts[3])
+            if num_vars < 0 or expected_clauses < 0:
+                raise ValueError(f"Negative DIMACS header counts: {line}")
             continue
+        if expected_clauses is None:
+            raise ValueError("Clause data appeared before DIMACS 'p cnf' header")
         for tok in line.split():
             lit = int(tok)
             if lit == 0:
@@ -45,7 +51,7 @@ def parse_dimacs_cnf(cnf_path: pathlib.Path) -> tuple[int, dict[int, list[int]]]
                 clauses[clause_id] = current
                 current = []
             else:
-                if abs(lit) > num_vars and num_vars > 0:
+                if abs(lit) > num_vars:
                     raise ValueError(f"Literal {lit} exceeds declared num_vars={num_vars}")
                 current.append(lit)
 

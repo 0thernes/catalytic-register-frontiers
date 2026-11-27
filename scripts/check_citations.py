@@ -47,9 +47,15 @@ def check_offline(bib_path: Path) -> tuple[list[dict[str, str]], list[str]]:
         for req in ("author", "title", "year"):
             if req not in e or not e[req]:
                 errors.append(f"{key}: missing required field '{req}'")
-        has_id = ("doi" in e) or ("arxiv" in str(e).lower())
-        if not has_id:
-            errors.append(f"{key}: missing DOI or arXiv identifier")
+        if e.get("year") and not re.fullmatch(r"\d{4}", e["year"]):
+            errors.append(f"{key}: malformed publication year '{e['year']}'")
+        doi_val = e.get("doi")
+        if doi_val is not None:
+            if not re.fullmatch(r"10\.\d{4,9}/\S+", doi_val):
+                errors.append(f"{key}: malformed DOI '{doi_val}'")
+        has_arxiv = bool(re.search(r"https://arxiv\.org/abs/\d{4}\.\d{4,5}", str(e)))
+        if not doi_val and not has_arxiv:
+            errors.append(f"{key}: missing valid DOI or arXiv URL identifier")
     if len(entries) < 8:
         errors.append(f"Expected >= 8 bibliography entries, found {len(entries)}")
     tex_path = bib_path.parent / "main.tex"

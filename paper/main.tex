@@ -170,7 +170,7 @@ To enforce transparent verification boundaries, every claim in this manuscript b
 \midrule
 Tier-1 & Theorems~\ref{thm:T1}--\ref{thm:T4}, Cor.~\ref{cor:powering} (\texttt{T3h}), algebraic Cor.~\ref{cor:streaming} (\texttt{T3i}), \texttt{T1a}--\texttt{T1e}, \texttt{T1s}--\texttt{T1esc}, \texttt{T2b}, \texttt{T3a}--\texttt{T3g} & Zero-Mathlib Lean~4.35.0; 5 kernels / 6 runs (Table~\ref{tab:kernels}) \\
 Tier-2 & Full $\F_4$ ($d \le 16$) spectrum, $r=4$ loops, Boyar--Find SAT ($8/8$ LRAT) & Exact $\F_p/\Q/\Z$ arithmetic \& CaDiCaL~2.1.2 \\
-Tier-3 & Bit-space accounting of Cor.~\ref{cor:streaming} \& Cor.~\ref{cor:matpow} (matrix powering) & Paper proof via \cite[Cor.~5.1.1, \S4.4, Thm.~5.2]{Vinciguerra2026} \\
+Tier-3 & Bit-space accounting of Cor.~\ref{cor:streaming} \& Cor.~\ref{cor:matpow} (matrix powering) & Paper proof via~\cite[Cor.~5.1.1, \S4.4, Thm.~5.2]{Vinciguerra2026} \\
 Tier-4 & General $D_{3,\Q}^{\pass}(t)=2t-3$, $r \ge 4$, Boyar--Find & Explicitly open (Section~\ref{sec:open}) \\
 \bottomrule
 \end{tabular}
@@ -492,7 +492,7 @@ The improvement over~\cite[Cor.~4.3.1]{Vinciguerra2026} ($20 N^{\log_5 4}$) is i
 \begin{proof}
 Work on four registers $(O, U, R_1, R_2)$ where $O$ is the passive output register of the main program and $(U, R_1, R_2)$ act as work registers.
 Expand $N = \sum_{i=0}^\ell b_i \delta^i$ ($0 \le b_i < \delta$, $(\delta, t) \in \{(13, 8), (7, 5)\}$).
-Crucially, because the inner subprograms $C_i$ computing $U \leftarrow U + x^{b_i \delta^i}$ never touch $O$ and do \emph{not} require $U$ to remain passive inside $C_i$, we apply clean non-passive composition (Composition Lemma of~\cite{AFM2025}, register bound $\max\{r, s\} = 3$, whereas passive composition \cite[Lemma~2.2]{Vinciguerra2026} would incur $\max\{r, s+1\}$): starting from a $2$-register forward-difference digit program for $x^{b_i}$ using at most $b_i + 1 \le \delta$ accesses (requiring $(\delta - 1)!$ invertible), each recursive substitution of the scalable base block (\texttt{prog8\_x13} or \texttt{prog5\_x7}) reuses the other two work registers catalytically and restores both identically, yielding clean subprograms $C_i$ on $(U, R_1, R_2)$ with $q_i \le \delta \cdot t^i$ accesses.
+Crucially, because the inner subprograms $C_i$ computing $U \leftarrow U + x^{b_i \delta^i}$ never touch $O$ and do \emph{not} require $U$ to remain passive inside $C_i$, we apply clean non-passive composition (Composition Lemma of~\cite{AFM2025}, register bound $\max\{r, s\} = 3$, whereas passive composition~\cite[Lemma~2.2]{Vinciguerra2026} would incur $\max\{r, s+1\}$): starting from a $2$-register forward-difference digit program for $x^{b_i}$ using at most $b_i + 1 \le \delta$ accesses (requiring $(\delta - 1)!$ invertible), each recursive substitution of the scalable base block (\texttt{prog8\_x13} or \texttt{prog5\_x7}) reuses the other two work registers catalytically and restores both identically, yielding clean subprograms $C_i$ on $(U, R_1, R_2)$ with $q_i \le \delta \cdot t^i$ accesses.
 Accumulating $\prod_{i=0}^\ell x^{b_i \delta^i} = x^N$ via the $(\ell + 1)$-fold Cook--Mertz multivariate finite-difference recurrence $T_i = 2 T_{i-1} + 2 q_i$ on $(O, U, R_1, R_2)$ (requiring $(\ell + 1)!$ invertible, with $O$ strictly passive) satisfies $(t - 2) T_\ell + 2\delta \cdot 2^{\ell+1} \le 2\delta t \cdot t^\ell$, giving
 \[
   T_\ell < \frac{2\delta t}{t - 2} \, t^\ell \le \frac{2\delta t}{t - 2} \, N^{\log_\delta t}
@@ -588,8 +588,8 @@ This sharp empirical contrast highlights a structural asymmetry: whereas Boolean
 \section{Lean~4.35.0 Formalization, Statement Fidelity, and Open Problems}
 \label{sec:lean}
 
-Every Tier-1 theorem (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}--\texttt{T1esc}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3i}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}) using \texttt{module} files and strict core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unused\allowbreak Variables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across $14$ core files ($8{,}881$ lines; max \texttt{Pass2\allowbreak Soundness.\allowbreak lean}, $1{,}511$ lines) plus Palomar files \texttt{Palomar\allowbreak Challenge.\allowbreak lean} ($283$ lines) and \texttt{Palomar\allowbreak Solution.\allowbreak lean}.
-To rule out vacuous hypotheses, \texttt{Non\allowbreak Vacuity.\allowbreak lean} exhibits concrete $0 \neq 1$ witnesses (\texttt{ModP 2/5/7/11/13}, $\mathrm{Fin}\,3 \to \texttt{ModP 13}$, \texttt{GF4} with \texttt{GF4Hom.\allowbreak id}, \texttt{Int}) for every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}, Corollaries~\ref{cor:powering}--\ref{cor:streaming}, and their bridges (incl.\ $D_5, \dots, D_9$ and factorials).
+Every Tier-1 theorem (\texttt{T1}, \texttt{T1a}--\texttt{T1e}, \texttt{T1s}--\texttt{T1esc}, \texttt{T2}, \texttt{T2b}, \texttt{T3a}--\texttt{T3i}, \texttt{T4}) is formalized from first principles in zero-Mathlib Lean~4.35.0 (\texttt{lean/\allowbreak Catalytic/\allowbreak *.lean}, \texttt{Challenge.\allowbreak lean}, \texttt{Solution.\allowbreak lean}) using \texttt{module} files and strict core linters (\texttt{autoImplicit=\allowbreak false}, \texttt{linter.\allowbreak unused\allowbreak Variables=\allowbreak true}, \texttt{linter.\allowbreak deprecated=\allowbreak true}) across $14$ core files ($8{,}930$ lines; max \texttt{Pass2\allowbreak Soundness.\allowbreak lean}, $1{,}511$ lines) plus Palomar files \texttt{Palomar\allowbreak Challenge.\allowbreak lean} ($283$ lines) and \texttt{Palomar\allowbreak Solution.\allowbreak lean}.
+To rule out vacuous hypotheses, \texttt{Non\allowbreak Vacuity.\allowbreak lean} exhibits concrete $0 \neq 1$ witnesses (\texttt{ModP 2/5/7/11/13}, $\mathrm{Fin}\,3 \to \texttt{ModP 13}$, \texttt{GF4}, bivariate \texttt{FPS} over \texttt{ModP 5}/\texttt{GF4}, \texttt{Int}) for every hypothesis bundle of Theorems~\ref{thm:T1}--\ref{thm:T4}, Corollaries~\ref{cor:powering}--\ref{cor:streaming}, and their bridges (incl.\ $D_5, \dots, D_9$ and factorials).
 A repository scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_\allowbreak decide}, \texttt{implemented\_\allowbreak by}, \texttt{unsafe}, custom \texttt{axiom}, or \texttt{@[extern]} across all proof and solution modules (Tables~\ref{tab:kernels}--\ref{tab:fidelity}).
 
 \begin{table}[ht]
@@ -605,9 +605,9 @@ A repository scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \t
 1 & \texttt{lean v4.35.0} + \texttt{VerifyAxioms} & C++ ref.\ kernel & 19/19 jobs, 0 warns; std.\ 3 axioms only \\
 2 & \texttt{leanchecker} & C++ \texttt{.olean} replayer & Exit 0 on \texttt{Solution} \& \texttt{PalomarSolution} \\
 3 & \texttt{leanchecker-paranoid} & C++ paranoid (\#2) & Exit 0 on \texttt{Solution} \& \texttt{PalomarSolution} \\
-4 & \texttt{con-leche --verified} & Verified Lean kernel & Accepted 3,642 (\texttt{Solution}) / 3,502 (\texttt{Palomar}) \\
-5 & \texttt{con-ron --verified} & Verified Rust kernel & Accepted 3,642 (\texttt{Solution}) / 3,502 (\texttt{Palomar}) \\
-6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust & 3,642 / 3,502 decls, 0 errors, std.\ 3 axioms \\
+4 & \texttt{con-leche --verified} & Verified Lean kernel & Accepted 3,644 (\texttt{Solution}) / 3,502 (\texttt{Palomar}) \\
+5 & \texttt{con-ron --verified} & Verified Rust kernel & Accepted 3,644 (\texttt{Solution}) / 3,502 (\texttt{Palomar}) \\
+6 & \texttt{nanoda\_bin 0.4.19} & Independent Rust & 3,644 / 3,502 decls, 0 errors, std.\ 3 axioms \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -622,7 +622,7 @@ A repository scan confirms $0$ occurrences of \texttt{sorry}, \texttt{admit}, \t
 \toprule
 \textbf{ID} & \textbf{Lean Declaration} & \textbf{Literature Anchor} & \textbf{Non-Vacuity ($0 \neq 1$)} \\
 \midrule
-\texttt{T1} & \texttt{InRPPass2}, \texttt{GF4}, \texttt{execRing}, \texttt{execAlg}, \texttt{FPS} (\texttt{T1}--\texttt{T1esc}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Thm.~3.5 & \texttt{IsPrime 2,3,5,7}; \texttt{ModP 5} ($\mathrm{char}=5$); \texttt{GF4} (\texttt{GF4Hom.id}) \\
+\texttt{T1} & \texttt{InRPPass2}, \texttt{GF4}, \texttt{execRing}, \texttt{execAlg}, \texttt{FPS} (\texttt{T1}--\texttt{T1esc}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Thm.~3.5 & \texttt{IsPrime 2,3,5,7}; \texttt{ModP 5}, \texttt{GF4}, bivariate \texttt{FPS} \\
 \texttt{T2} & \texttt{BilinInstr}, \texttt{DistinctBilinInstr} (\texttt{T2}, \texttt{T2b}) & Bilinear/distinct Def.~2.2 & \texttt{F2 = ModP 2}, $k=2$, $x=1$ cleanly evaluated \\
 \texttt{T3} & \texttt{Pass3InstrR}, \texttt{Pass4Instr}, \texttt{sumFin} (\texttt{T3a}--\texttt{T3i}) & Vinciguerra~\cite{Vinciguerra2026}, Def.~2.2, Cor.~4.3.1, 5.1.1; Comp.\ Lem.~\cite{AFM2025} & \texttt{ModP 5,7,11,13} ($D_5^{-1}\!\dots D_9^{-1}$, $12!^{-1}$, $6!^{-1}$); $\mathrm{Fin}\,3\!\to\!\texttt{ModP 13}$ (\texttt{T3i}) \\
 \texttt{T4} & \texttt{CatOp}, \texttt{usesOnly}, \texttt{balancedProdProg} (\texttt{T4}) & Zero-workspace distinct-index bilinear ops ($\le k+2$ regs) & \texttt{Int} ($d=4$, $36$ ops, clean restoration) \\

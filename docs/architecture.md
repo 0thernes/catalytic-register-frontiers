@@ -53,5 +53,5 @@ flowchart TD
 
 ## Scaling & Observability
 
-- **Build scaling:** All 19 default Lean build jobs across 14 core modules (8,881 lines) + `PalomarSolution` compile cleanly from scratch in under 60 s on standard consumer hardware with < 2 GB RAM (zero Mathlib cache required).
+- **Build scaling:** All 19 default Lean build jobs across 14 core modules (8,930 lines) + `PalomarSolution` compile cleanly from scratch in under 60 s on standard consumer hardware with < 2 GB RAM (zero Mathlib cache required).
 - **Observability:** Every verification stage produces plain-text or JSON evidence artifacts (`results/lean_axioms.txt`, `results/six_kernel_audit.txt`, `results/exp*.json`, `docs/run-log.md`, `MANIFEST.sha256`). Health check: `just reproduce` or `pwsh -NoProfile -File scripts/run_all.ps1 -Task all`.

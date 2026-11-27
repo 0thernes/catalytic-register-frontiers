@@ -11,8 +11,8 @@
 If you discover a soundness bug, specification mismatch, fidelity error in a Lean theorem statement, reproducibility failure, or security issue in any build script:
 
 - Open an issue or contact `Alexander S. Donahue` (`0_0@0thernes.art`, ORCID `0009-0006-8168-9648`).
-- Please include exact reproduction steps, tool versions (`lean --version`, `python --version`), and whether the finding is a `bug`, `error`, `issue`, `problem`, `dilemma`, or `conflict`.
+- Please include exact reproduction steps, tool versions (`lean --version`, `python --version`), and whether the finding is a `bug`, `error`, `issue`, `problem`, `concern`, `dilemma`, `conflict`, `gap`, `hole`, or `blindspot`.
 
 ## Supported Versions
 
-Only the latest release on `main` (`VERSION`: `1.0.0`) is maintained.
+Only the latest release on `main` (`VERSION`: `1.0.1`) is maintained.
