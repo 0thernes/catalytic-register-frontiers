@@ -18,7 +18,7 @@ Records compliance with Sections 4, 5, 8 (#27–#40), and 10 of the *Defensible 
 - **Authorship & Accountability:** No AI system is listed as an author. Alexander S. Donahue takes full responsibility for all claims, proofs, code, and references. Mathematical soundness of all Tier-1 theorems is certified mechanically across 5 distinct locally reproducible Lean 4.35 kernel implementations in 6 runs (`results/six_kernel_audit.txt`, zero `sorryAx`/`_native` axioms).
 - **Venue-Matched AI Disclosures:**
   - **Zenodo Generative-AI Policy (April 27, 2026):** Depositor eligibility (human-conducted research with AI used as a tool, no AI listed in creators/contributors) was verified prior to minting Zenodo Concept DOI `10.5281/zenodo.24517198` (`v1.0.1` Version DOI `10.5281/zenodo.24517199`).
-  - **Palomar Registry:** Explicitly accepts AI-assisted Lean formalizations when declared honestly in `lean/formalization.yaml` (verified PASS on `69gqxo2kucrf`).
+  - **Palomar Registry:** Explicitly accepts AI-assisted Lean formalizations when declared honestly in `lean/formalization.yaml` (live verified entry **`PALOMAR-2026-11-26-000004` v1**, `https://palomar-registry.org/entry?id=PALOMAR-2026-11-26-000004&version=1`, commit `1a92f47`, `✓ ORCID record checked`).
   - **Nature Portfolio Risk-Disclosure Framework (Nov 2026) & JOSS AI Policy:** Tool names, task boundaries ("Not done by AI"), and independent mechanical verification boundaries (5 Lean kernels, 8/8 LRAT UNSAT proofs, exact BigInt/Python differential checks) are disclosed transparently in `paper/main.tex` Section 8 and `README.md`.
   - **arXiv CS Practice (Oct 2025 onward):** Original formal/mathematical contribution (not a survey/position paper); clean-room LaTeX source bundle archived in `dist/arxiv_submission.tar.gz`.
   - **ORCID / DataCite Note:** Because DataCite Auto-Update requires the depositor's ORCID to appear verbatim in creator metadata, ORCID `0009-0006-8168-9648` is included in `.zenodo.json`, `CITATION.cff`, and manually verified visible (`Everyone`) on ORCID.
@@ -33,7 +33,7 @@ Records compliance with Sections 4, 5, 8 (#27–#40), and 10 of the *Defensible 
 
 ## 4. Versioning, Corrections & Withdrawal Policy (Playbook v1.3 #39)
 
-- Every archival release carries a semantic tag (`v1.0.0`, `v1.0.1`), a stable Zenodo Concept DOI (`10.5281/zenodo.24517198`), a per-release Version DOI (`10.5281/zenodo.24517199`), and a permanent Software Heritage SWHID (`swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085`).
+- Every archival release carries a semantic tag (`v1.0.0`, `v1.0.1`, `v1.1.0`), a stable Zenodo Concept DOI (`10.5281/zenodo.24517198`), per-release Version DOIs (prior `v1.0.1`: `10.5281/zenodo.24517199`), live Palomar Registry entry `PALOMAR-2026-11-26-000004` v1, and a permanent Software Heritage SWHID (`swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085`).
 - All post-freeze corrections are logged append-only in [`ERRATA.md`](../ERRATA.md) and [`CHANGELOG.md`](../CHANGELOG.md).
 - If any headline claim were ever falsified, the author will publish a dated withdrawal or correction notice on Zenodo and GitHub (plus any downstream preprint server) and never silently delete the archived record.
 

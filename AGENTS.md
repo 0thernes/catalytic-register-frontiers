@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Agent & Contributor Instructions — `catalytic-register-frontiers`
 
-**Current Build Pipeline Phase:** `P9` (Published on GitHub `v1.0.1`, Zenodo Concept DOI `10.5281/zenodo.24517198`, Software Heritage `swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085`, ORCID `0009-0006-8168-9648`, and `0thernes-research-archive` `0TH-2026-010`; Palomar/arXiv/HAL/external peer review in progress; tracked in `project.yaml`).  
+**Current Build Pipeline Phase:** `P9` (Published on GitHub `v1.1.0`, Zenodo Concept DOI `10.5281/zenodo.24517198`, Palomar Registry `PALOMAR-2026-11-26-000004` v1, Software Heritage `swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085`, ORCID `0009-0006-8168-9648`, and `0thernes-research-archive` `0TH-2026-010`; arXiv/HAL/external peer review in progress; tracked in `project.yaml`).  
 **Governing Standards:** Build Standard for LLMs v1.2.0 (`repo.yaml`, `scripts/Audit-Repo.ps1`), Build Pipeline Models v1.0.0 (`project.yaml`, `scripts/pipeline-audit.py`), and Defensible Independent AI Research Playbook v1.3 (`docs/reviews/01-10-pass-review.md`, `docs/launch/release-checklist.md`).
 
 Follow these repository invariants on every edit:

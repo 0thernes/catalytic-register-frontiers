@@ -1,6 +1,6 @@
 # Security, Supply-Chain, and Integrity Scan Report
 Date: 2026-11-23 (updated 2026-11-27 after Pass 23 3-Cycle Deep Audit, FPS Non-Vacuity, & Verifier Hardening)
-Repository: catalytic-register-frontiers (v1.0.1)
+Repository: catalytic-register-frontiers (v1.1.0)
 Pipeline Artifact: P7.F3
 
 ## 1. Secret & Credential Scan

@@ -3,7 +3,7 @@ cff-version: 1.2.0
 message: "If you use this formalization, computational suite, or white paper, please cite it as below."
 type: software
 title: "Prime-Field Digit-Sum Dichotomy and Improved Three-Register Powering Exponents in Passive Catalytic Register Programs"
-version: 1.0.1
+version: 1.1.0
 doi: "10.5281/zenodo.24517198"
 identifiers:
   - type: doi
@@ -11,11 +11,14 @@ identifiers:
     description: "Zenodo Concept DOI (resolves to latest version)"
   - type: doi
     value: "10.5281/zenodo.24517199"
-    description: "Zenodo Version DOI for v1.0.1"
+    description: "Zenodo Version DOI for v1.0.1 (prior archival snapshot)"
+  - type: url
+    value: "https://palomar-registry.org/entry?id=PALOMAR-2026-11-26-000004&version=1"
+    description: "Palomar Registry verified formalization entry PALOMAR-2026-11-26-000004 v1 (commit 1a92f47)"
   - type: swh
     value: "swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085"
     description: "Software Heritage permanent archival snapshot SWHID"
-date-released: 2026-11-24
+date-released: 2026-11-27
 repository-code: "https://github.com/0thernes/catalytic-register-frontiers"
 authors:
   - family-names: Donahue

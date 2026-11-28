@@ -1,16 +1,16 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Roadmap (`ROADMAP.md`)
 
-## Shipped (`v1.0.0` / `v1.0.1`)
+## Shipped (`v1.0.0` / `v1.0.1` / `v1.1.0`)
 
 - Zero-Mathlib Lean 4.35.0 formalization of all 22 theorems & bi-directional ring-equivalence bridges (`T1`, `T1a`–`T1e`, `T1s`, `T1es`, `T1sc`, `T1esc`, `T2`, `T2b`, `T3a`–`T3i`, `T4` with machine-checked `CatOp.usesOnly` containment within $\le k + 2$ designated registers) plus concrete `0 ≠ 1` `NonVacuity` witnesses (14 core modules, 8,930 lines, max 1,511 lines; plus standalone zero-import `PalomarChallenge.lean` [283 lines] and `PalomarSolution.lean` [842 lines]; 24 audited declarations), passing 5 distinct locally reproducible kernel implementations across 6 runs (`lean`, `leanchecker --fresh`, `leanchecker-paranoid`, `con-leche --verified`, `con-ron --verified`, `nanoda_bin 0.4.19`).
 - Exact-arithmetic computational suite (`exp1`–`exp4`), `pytest` + Hypothesis property/metamorphic tests + mutant-killing tests + brute-force & second-encoder differential SAT audits + 8/8 archived & verified CaDiCaL 2.1.2 LRAT UNSAT proofs (`18,932` steps).
 - Deterministic vector PDF figures, frozen AMS-LaTeX white paper + clean-room `dist/arxiv_submission.tar.gz`, 100% REUSE 3.3 SPDX coverage, and cryptographically verified DigiCert RFC 3161 + OpenTimestamps provenance (`provenance/`).
-- **Confirmed Live Public Releases & Archival Mirrors:** Published `https://github.com/0thernes/catalytic-register-frontiers` with 100.0% Build Standard v1.2.0 score (`62/62`), green Linux & Windows CI + Sigstore SLSA attestations, live GitHub Pages Blueprint (`https://0thernes.github.io/catalytic-register-frontiers/`), Zenodo Concept DOI `10.5281/zenodo.24517198` (`v1.0.1` Version DOI `10.5281/zenodo.24517199`), Software Heritage snapshot `swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085`, ORCID `0009-0006-8168-9648` work link, and `0thernes-research-archive` record `0TH-2026-010`.
+- **Confirmed Live Public Releases & Archival Mirrors:** Published `https://github.com/0thernes/catalytic-register-frontiers` with 100.0% Build Standard v1.2.0 score (`62/62`), green Linux & Windows CI + Sigstore SLSA attestations, live GitHub Pages Blueprint (`https://0thernes.github.io/catalytic-register-frontiers/`), live Palomar Registry entry [`PALOMAR-2026-11-26-000004`](https://palomar-registry.org/entry?id=PALOMAR-2026-11-26-000004&version=1) (`v1`, pinned to commit `1a92f47`, `✓ ORCID record checked`, `No problems identified`), Zenodo Concept DOI `10.5281/zenodo.24517198` (prior `v1.0.1` Version DOI `10.5281/zenodo.24517199`), Software Heritage snapshot `swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085`, ORCID `0009-0006-8168-9648` work link, and `0thernes-research-archive` record `0TH-2026-010`.
 
 ## Planned & In-Progress External Credibility Steps
 
-1. **Palomar Registry Final Registration:** Submission `69gqxo2kucrf` (commit `1a92f47`) passed independent verification (`45522052052`) and automated editorial review with zero blocking problems and zero warnings (`registration_consent: true`); awaiting Palomar backend public ID minting.
+1. **Palomar Registry `v2` Update (Optional Follow-Up):** `PALOMAR-2026-11-26-000004` `v1` (commit `1a92f47`) is live and verified; optionally submit a `v2` revision under `PALOMAR-2026-11-26-000004` reflecting the corrected title and `v1.1.0` formal-series completeness theorems (`T1sc`/`T1esc`).
 2. **Community & Peer Scrutiny:** Lean Zulip outreach (`#new members` → `#maths`) posted; remaining external steps are independent reproduction on a second clean machine (updating [`REPLICATION.md`](REPLICATION.md)), completing arXiv (`cs.CC`, `math.CO`, `cs.LO`) and HAL preprint deposits (IDs not yet assigned), and formal peer-reviewed journal submission.
 
 ## Open Mathematical Frontiers (Tier-4)

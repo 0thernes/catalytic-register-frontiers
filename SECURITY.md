@@ -15,4 +15,4 @@ If you discover a soundness bug, specification mismatch, fidelity error in a Lea
 
 ## Supported Versions
 
-Only the latest release on `main` (`VERSION`: `1.0.1`) is maintained.
+Only the latest release on `main` (`VERSION`: `1.1.0`) is maintained.

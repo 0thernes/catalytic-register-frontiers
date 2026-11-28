@@ -2,7 +2,7 @@
 # Release Announcement & 5-Sentence Outreach Copy (`docs/launch/announcement.md`)
 
 > Pipeline artifact `P9.F2`. Follows the Defensible Independent AI Research Playbook v1.3 5-sentence outreach protocol for Lean Zulip (`#new members` → `#maths`), Zenodo, and peer review.  
-> **Confirmed Live Coordinates:** Release `v1.0.1`, Zenodo Concept DOI `10.5281/zenodo.24517198` (`v1.0.1`: `10.5281/zenodo.24517199`), SWHID `swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085`, ORCID `0009-0006-8168-9648`. (Palomar Registry, arXiv, and HAL IDs are not yet assigned.)
+> **Confirmed Live Coordinates:** Release `v1.1.0`, Zenodo Concept DOI `10.5281/zenodo.24517198` (prior `v1.0.1`: `10.5281/zenodo.24517199`), Palomar Registry `PALOMAR-2026-11-26-000004` v1 (`https://palomar-registry.org/entry?id=PALOMAR-2026-11-26-000004&version=1`), SWHID `swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085`, ORCID `0009-0006-8168-9648`. (arXiv and HAL IDs are not yet assigned.)
 
 ## 1. Lean Zulip 5-Sentence Outreach (`#maths`)
 

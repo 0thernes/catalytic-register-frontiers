@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 [project]
 name = "catalytic-register-frontiers"
-version = "1.0.1"
+version = "1.1.0"
 description = "Zero-Mathlib Lean 4.35 formalization and exact-arithmetic verification of prime-field digit-sum dichotomy and improved 3-register powering exponents in passive catalytic register programs."
 readme = "README.md"
 requires-python = ">=3.13"

@@ -39,7 +39,12 @@
       "identifier": "10.1016/j.tcs.2018.02.023",
       "relation": "cites",
       "scheme": "doi"
+    },
+    {
+      "identifier": "https://palomar-registry.org/entry?id=PALOMAR-2026-11-26-000004&version=1",
+      "relation": "isReferencedBy",
+      "scheme": "url"
     }
   ],
-  "notes": "Code and Lean formalization licensed under Apache-2.0; manuscript, documentation, and figures licensed under CC-BY-4.0. Compliance with Zenodo's April 27, 2026 Generative AI policy verified prior to DOI minting (Concept DOI 10.5281/zenodo.24517198; v1.0.1 Version DOI 10.5281/zenodo.24517199; Software Heritage SWHID swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085; verify before minting any subsequent version)."
+  "notes": "Release v1.1.0 (superseding v1.0.1 / 10.5281/zenodo.24517199 under Concept DOI 10.5281/zenodo.24517198 with corrected title, 2026-11-26 statement-audit fixes, formal-series bi-directional completeness T1sc/T1esc, bivariate FPS non-vacuity, Build Standard v1.2.0, Playbook v1.3, and Adaptive Forking PWA/CLI v1.9). Code and Lean formalization licensed under Apache-2.0; manuscript, documentation, and figures licensed under CC-BY-4.0. Live Palomar Registry entry: PALOMAR-2026-11-26-000004 v1 (commit 1a92f47; carries pre-audit title). Software Heritage SWHID: swh:1:snp:f960eeda6f145e54c0ac52538ace866a16e24085. Compliance with Zenodo's April 27, 2026 Generative AI policy verified."
 }

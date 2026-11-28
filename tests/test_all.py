@@ -2349,12 +2349,15 @@ def test_pass23_nonvac_fps_lrat_header_citation_regex_and_sw_cache(tmp_path: pat
 
     # 4. PWA Service Worker cache-bust beyond v1.9.0
     sw_txt = (REPO / "docs" / "sw.js").read_text(encoding="utf-8")
-    assert "catalytic-adaptive-fork-v1.9.1" in sw_txt
+    assert re.search(r"catalytic-adaptive-fork-v1\.9\.[1-9]", sw_txt) is not None
     assert "catalytic-adaptive-fork-v1.9.0" not in sw_txt
 
-    # 5. Secondary policy, rule, planning, security docs & TeX citation tie hygiene
+    # 5. Secondary policy, rule, planning, security docs, Palomar ID & TeX citation tie hygiene
+    cur_ver = (REPO / "VERSION").read_text(encoding="utf-8").strip()
     sec_txt = (REPO / "SECURITY.md").read_text(encoding="utf-8")
-    assert "`blindspot`" in sec_txt and "`1.0.1`" in sec_txt and "`1.0.0`" not in sec_txt
+    assert "`blindspot`" in sec_txt and f"`{cur_ver}`" in sec_txt and "`1.0.0`" not in sec_txt
+    for rel_pal in ("README.md", "CITATION.cff", "docs/index.html", "paper/main.tex"):
+        assert "PALOMAR-2026-11-26-000004" in (REPO / rel_pal).read_text(encoding="utf-8"), f"Missing Palomar ID in {rel_pal}"
     sup_txt = (REPO / "SUPPORT.md").read_text(encoding="utf-8")
     assert "ten finding classes" in sup_txt and "`blindspot`" in sup_txt
     cur_txt = (REPO / ".cursor" / "rules" / "build-standard.mdc").read_text(encoding="utf-8")
